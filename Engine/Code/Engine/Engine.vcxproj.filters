@@ -13,7 +13,10 @@
     <ClCompile Include="Math\Vector2.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="..\Thirdparty\TinyXML2\tinyxml.cpp">
+    <ClCompile Include="..\Thirdparty\stb\stb.cpp">
+      <Filter>Thirdparty</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Thirdparty\TinyXML2\tinyxml2.cpp">
       <Filter>Thirdparty</Filter>
     </ClCompile>
   </ItemGroup>
@@ -22,6 +25,12 @@
       <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h">
+      <Filter>Thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\stb\stb_image.h">
+      <Filter>Thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\stb\stb_image_write.h">
       <Filter>Thirdparty</Filter>
     </ClInclude>
   </ItemGroup>

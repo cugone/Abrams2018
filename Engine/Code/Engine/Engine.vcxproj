@@ -19,9 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Thirdparty\TinyXML2\tinyxml.cpp" />
     <ClCompile Include="Math\Vector2.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h" />
     <ClInclude Include="Math\Vector2.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

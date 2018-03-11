@@ -13,10 +13,16 @@
     <ClCompile Include="Math\Vector2.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="..\Thirdparty\TinyXML2\tinyxml.cpp">
+      <Filter>Thirdparty</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
       <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h">
+      <Filter>Thirdparty</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

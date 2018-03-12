@@ -21,12 +21,14 @@
   <ItemGroup>
     <ClCompile Include="..\Thirdparty\stb\stb.cpp" />
     <ClCompile Include="..\Thirdparty\TinyXML2\tinyxml2.cpp" />
+    <ClCompile Include="Math\MathUtils.cpp" />
     <ClCompile Include="Math\Vector2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Thirdparty\stb\stb_image.h" />
     <ClInclude Include="..\Thirdparty\stb\stb_image_write.h" />
     <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h" />
+    <ClInclude Include="Math\MathUtils.hpp" />
     <ClInclude Include="Math\Vector2.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -19,6 +19,9 @@
     <ClCompile Include="..\Thirdparty\TinyXML2\tinyxml2.cpp">
       <Filter>Thirdparty</Filter>
     </ClCompile>
+    <ClCompile Include="Math\MathUtils.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -32,6 +35,9 @@
     </ClInclude>
     <ClInclude Include="..\Thirdparty\stb\stb_image_write.h">
       <Filter>Thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\MathUtils.hpp">
+      <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

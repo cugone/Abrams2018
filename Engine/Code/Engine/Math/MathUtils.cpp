@@ -123,12 +123,12 @@ bool IsPercentChance(float probability) {
 }
 
 bool IsPercentChance(double probability) {
-    float roll = GetRandomDoubleZeroToOne();
+    double roll = GetRandomDoubleZeroToOne();
     return roll < probability;
 }
 
 bool IsPercentChance(long double probability) {
-    float roll = GetRandomLongDoubleZeroToOne();
+    long double roll = GetRandomLongDoubleZeroToOne();
     return roll < probability;
 }
 

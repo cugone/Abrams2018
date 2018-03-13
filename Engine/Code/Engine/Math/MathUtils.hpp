@@ -89,6 +89,8 @@ Vector3 Project(const Vector3& a, const Vector3& b);
 Vector2 Reflect(const Vector2& in, const Vector2& normal);
 Vector3 Reflect(const Vector3& in, const Vector3& normal);
 
+Vector2 ProjectAlongPlane(const Vector2& v, const Vector2& n);
+Vector3 ProjectAlongPlane(const Vector3& v, const Vector3& n);
 
 template<typename T>
 T Clamp(const T& valueToClamp, const T& minRange, const T& maxRange) {

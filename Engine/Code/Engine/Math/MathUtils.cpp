@@ -207,4 +207,8 @@ Vector2 ProjectAlongPlane(const Vector2& v, const Vector2& n) {
     return v - (DotProduct(v, n) * n);
 }
 
+Vector3 ProjectAlongPlane(const Vector3& v, const Vector3& n) {
+    return v - (DotProduct(v, n) * n);
+}
+
 } //End MathUtils

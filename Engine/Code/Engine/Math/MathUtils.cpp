@@ -163,15 +163,43 @@ bool IsEquivalent(const Vector2& a, const Vector2& b, float epsilon /*= 0.0001f*
     return IsEquivalent(a.x, b.x, epsilon) && IsEquivalent(a.y, b.y, epsilon);
 }
 
+bool IsEquivalent(const Vector3& a, const Vector3& b, float epsilon /*= 0.0001f*/) {
+    return IsEquivalent(a.x, b.x, epsilon) && IsEquivalent(a.y, b.y, epsilon) && IsEquivalent(a.z, b.z, epsilon);
+}
+
 float DotProduct(const Vector2& a, const Vector2& b) {
     return a.x * b.x + a.y * b.y;
+}
+
+float DotProduct(const Vector3& a, const Vector3& b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+Vector3 CrossProduct(const Vector3& a, const Vector3& b) {
+    float a1 = a.x;
+    float a2 = a.y;
+    float a3 = a.z;
+
+    float b1 = b.x;
+    float b2 = b.y;
+    float b3 = b.z;
+
+    return Vector3(a2 * b3 - a3 * b2, a3 * b1 - a1 * b3, a1 * b2 - a2 * b1);
 }
 
 Vector2 Project(const Vector2& a, const Vector2& b) {
     return (DotProduct(a, b) / DotProduct(b, b)) * b;
 }
 
+Vector3 Project(const Vector3& a, const Vector3& b) {
+    return (DotProduct(a, b) / DotProduct(b, b)) * b;
+}
+
 Vector2 Reflect(const Vector2& in, const Vector2& normal) {
+    return in - ((2.0f * DotProduct(in, normal)) * normal);
+}
+
+Vector3 Reflect(const Vector3& in, const Vector3& normal) {
     return in - ((2.0f * DotProduct(in, normal)) * normal);
 }
 

@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "Engine/Math/Vector2.hpp"
+#include "Engine/Math/Vector3.hpp"
 
 namespace MathUtils {
 
@@ -75,11 +76,30 @@ bool IsEquivalent(float a, float b, float epsilon = 0.00001f);
 bool IsEquivalent(double a, double b, double epsilon = 0.0001);
 bool IsEquivalent(long double a, long double b, long double epsilon = 0.0001L);
 bool IsEquivalent(const Vector2& a, const Vector2& b, float epsilon = 0.0001f);
+bool IsEquivalent(const Vector3& a, const Vector3& b, float epsilon = 0.0001f);
+
+Vector3 CrossProduct(const Vector3& a, const Vector3& b);
 
 float DotProduct(const Vector2& a, const Vector2& b);
+float DotProduct(const Vector3& a, const Vector3& b);
 
 Vector2 Project(const Vector2& a, const Vector2& b);
+Vector3 Project(const Vector3& a, const Vector3& b);
 
 Vector2 Reflect(const Vector2& in, const Vector2& normal);
+Vector3 Reflect(const Vector3& in, const Vector3& normal);
+
+
+template<typename T>
+T Clamp(const T& valueToClamp, const T& minRange, const T& maxRange) {
+    if(valueToClamp < minRange) {
+        return minRange;
+    }
+    if(maxRange < valueToClamp) {
+        return maxRange;
+    }
+    return valueToClamp;
+}
+
 
 }

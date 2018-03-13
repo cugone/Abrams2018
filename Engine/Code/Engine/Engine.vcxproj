@@ -23,6 +23,7 @@
     <ClCompile Include="..\Thirdparty\TinyXML2\tinyxml2.cpp" />
     <ClCompile Include="Math\MathUtils.cpp" />
     <ClCompile Include="Math\Vector2.cpp" />
+    <ClCompile Include="Math\Vector3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Thirdparty\stb\stb_image.h" />
@@ -30,6 +31,7 @@
     <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h" />
     <ClInclude Include="Math\MathUtils.hpp" />
     <ClInclude Include="Math\Vector2.hpp" />
+    <ClInclude Include="Math\Vector3.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

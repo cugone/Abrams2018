@@ -15,10 +15,6 @@ const Vector3 Vector3::XZ_AXIS(1.0f, 0.0f, 1.0f);
 const Vector3 Vector3::YZ_AXIS(0.0f, 1.0f, 1.0f);
 const Vector3 Vector3::ONE(1.0f, 1.0f, 1.0f);
 
-Vector3::Vector3() {
-    /* DO NOTHING */
-}
-
 Vector3::Vector3(float initialX, float initialY, float initialZ)
 : x(initialX)
 , y(initialY)

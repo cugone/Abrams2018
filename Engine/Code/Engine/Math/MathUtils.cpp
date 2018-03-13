@@ -211,4 +211,21 @@ Vector3 ProjectAlongPlane(const Vector3& v, const Vector3& n) {
     return v - (DotProduct(v, n) * n);
 }
 
+template<>
+Vector2 Clamp<Vector2>(const Vector2& valueToClamp, const Vector2& minRange, const Vector2& maxRange) {
+    Vector2 result = valueToClamp;
+    result.x = Clamp(valueToClamp.x, minRange.x, maxRange.x);
+    result.y = Clamp(valueToClamp.y, minRange.y, maxRange.y);
+    return result;
+}
+
+template<>
+Vector3 Clamp<Vector3>(const Vector3& valueToClamp, const Vector3& minRange, const Vector3& maxRange) {
+    Vector3 result = valueToClamp;
+    result.x = Clamp(valueToClamp.x, minRange.x, maxRange.x);
+    result.y = Clamp(valueToClamp.y, minRange.y, maxRange.y);
+    result.z = Clamp(valueToClamp.z, minRange.z, maxRange.z);
+    return result;
+}
+
 } //End MathUtils

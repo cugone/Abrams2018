@@ -103,5 +103,11 @@ T Clamp(const T& valueToClamp, const T& minRange, const T& maxRange) {
     return valueToClamp;
 }
 
+template<>
+Vector2 Clamp<Vector2>(const Vector2& valueToClamp, const Vector2& minRange, const Vector2& maxRange);
+
+template<>
+Vector3 Clamp<Vector3>(const Vector3& valueToClamp, const Vector3& minRange, const Vector3& maxRange);
+
 
 }

@@ -38,6 +38,7 @@ Vector3::Vector3(const Vector2& xy, float initialZ)
 Vector3::Vector3(const Vector2& vec2)
     : x(vec2.x)
     , y(vec2.y)
+    , z(0.0f)
 {
     /* DO NOTHING */
 }
@@ -112,11 +113,12 @@ Vector3 Vector3::operator/(const Vector3& rhs) const {
 Vector3 Vector3::operator/=(const Vector3& rhs) {
     x /= rhs.x;
     y /= rhs.y;
+    z /= rhs.z;
     return *this;
 }
 
 bool Vector3::operator==(const Vector3& rhs) const {
-    return x == rhs.x && y == rhs.y;
+    return x == rhs.x && y == rhs.y && z == rhs.z;
 }
 
 bool Vector3::operator!=(const Vector3& rhs) const {

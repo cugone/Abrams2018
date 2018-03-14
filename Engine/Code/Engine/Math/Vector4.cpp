@@ -85,10 +85,10 @@ const float* Vector4::GetAsFloatArray() const {
 }
 
 float Vector4::CalcLength3D() const {
-    return std::sqrt(CalcLengthSquared3D());
+    return std::sqrt(CalcLength3DSquared());
 }
 
-float Vector4::CalcLengthSquared3D() const {
+float Vector4::CalcLength3DSquared() const {
     return x * x + y * y + z * z;
 }
 

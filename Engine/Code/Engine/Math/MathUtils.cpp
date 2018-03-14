@@ -183,6 +183,14 @@ float CalcDistance(const Vector4& a, const Vector4& b) {
     return (b - a).CalcLength4D();
 }
 
+float CalcDistance4D(const Vector4& a, const Vector4& b) {
+    return (b - a).CalcLength4D();
+}
+
+float CalcDistance3D(const Vector4& a, const Vector4& b) {
+    return (b - a).CalcLength3D();
+}
+
 float CalcDistanceSquared(const Vector2& a, const Vector2& b) {
     return (b - a).CalcLengthSquared();
 }
@@ -193,6 +201,14 @@ float CalcDistanceSquared(const Vector3& a, const Vector3& b) {
 
 float CalcDistanceSquared(const Vector4& a, const Vector4& b) {
     return (b - a).CalcLength4DSquared();
+}
+
+float CalcDistanceSquared4D(const Vector4& a, const Vector4& b) {
+    return CalcDistanceSquared(a, b);
+}
+
+float CalcDistanceSquared3D(const Vector4& a, const Vector4& b) {
+    return (b - a).CalcLength3DSquared();
 }
 
 float DotProduct(const Vector2& a, const Vector2& b) {

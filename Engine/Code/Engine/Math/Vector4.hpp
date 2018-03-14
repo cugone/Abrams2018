@@ -72,7 +72,7 @@ public:
     const float* GetAsFloatArray() const;
 
     float CalcLength3D() const;
-    float CalcLengthSquared3D() const;
+    float CalcLength3DSquared() const;
     float CalcLength4D() const;
     float CalcLength4DSquared() const;
     void CalcHomogeneous();

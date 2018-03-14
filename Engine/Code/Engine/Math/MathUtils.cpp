@@ -167,6 +167,22 @@ bool IsEquivalent(const Vector3& a, const Vector3& b, float epsilon /*= 0.0001f*
     return IsEquivalent(a.x, b.x, epsilon) && IsEquivalent(a.y, b.y, epsilon) && IsEquivalent(a.z, b.z, epsilon);
 }
 
+float CalcDistance(const Vector2& a, const Vector2& b) {
+    return (b - a).CalcLength();
+}
+
+float CalcDistance(const Vector3& a, const Vector3& b) {
+    return (b - a).CalcLength();
+}
+
+float CalcDistanceSquared(const Vector2& a, const Vector2& b) {
+    return (b - a).CalcLengthSquared();
+}
+
+float CalcDistanceSquared(const Vector3& a, const Vector3& b) {
+    return (b - a).CalcLengthSquared();
+}
+
 float DotProduct(const Vector2& a, const Vector2& b) {
     return a.x * b.x + a.y * b.y;
 }

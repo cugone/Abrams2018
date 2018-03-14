@@ -78,6 +78,12 @@ bool IsEquivalent(long double a, long double b, long double epsilon = 0.0001L);
 bool IsEquivalent(const Vector2& a, const Vector2& b, float epsilon = 0.0001f);
 bool IsEquivalent(const Vector3& a, const Vector3& b, float epsilon = 0.0001f);
 
+float CalcDistance(const Vector2& a, const Vector2& b);
+float CalcDistance(const Vector3& a, const Vector3& b);
+
+float CalcDistanceSquared(const Vector2& a, const Vector2& b);
+float CalcDistanceSquared(const Vector3& a, const Vector3& b);
+
 Vector3 CrossProduct(const Vector3& a, const Vector3& b);
 
 float DotProduct(const Vector2& a, const Vector2& b);

@@ -127,6 +127,20 @@ template<>
 Vector4 Clamp<Vector4>(const Vector4& valueToClamp, const Vector4& minRange, const Vector4& maxRange);
 
 template<typename T>
+T Interpolate(const T& a, const T& b, float t) {
+    return ((1.0f - t) * a) + (t * b);
+}
+
+template<>
+Vector2 Interpolate(const Vector2& a, const Vector2& b, float t);
+
+template<>
+Vector3 Interpolate(const Vector3& a, const Vector3& b, float t);
+
+template<>
+Vector4 Interpolate(const Vector4& a, const Vector4& b, float t);
+
+template<typename T>
 T RangeMap(const T& valueToMap, const T& minInputRange, const T& maxInputRange, const T& minOutputRange, const T& maxOutputRange) {
     return (valueToMap - minInputRange) * (maxOutputRange - minOutputRange) / (maxInputRange - minInputRange) + minOutputRange;
 }

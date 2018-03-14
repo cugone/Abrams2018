@@ -298,4 +298,28 @@ Vector4 Clamp<Vector4>(const Vector4& valueToClamp, const Vector4& minRange, con
     return result;
 }
 
+template<>
+Vector2 Interpolate(const Vector2& a, const Vector2& b, float t) {
+    float x = Interpolate(a.x, b.x, t);
+    float y = Interpolate(a.y, b.y, t);
+    return Vector2(x, y);
+}
+
+template<>
+Vector3 Interpolate(const Vector3& a, const Vector3& b, float t) {
+    float x = Interpolate(a.x, b.x, t);
+    float y = Interpolate(a.y, b.y, t);
+    float z = Interpolate(a.z, b.z, t);
+    return Vector3(x, y, z);
+}
+
+template<>
+Vector4 Interpolate(const Vector4& a, const Vector4& b, float t) {
+    float x = Interpolate(a.x, b.x, t);
+    float y = Interpolate(a.y, b.y, t);
+    float z = Interpolate(a.z, b.z, t);
+    float w = Interpolate(a.w, b.w, t);
+    return Vector4(x, y, z, w);
+}
+
 } //End MathUtils

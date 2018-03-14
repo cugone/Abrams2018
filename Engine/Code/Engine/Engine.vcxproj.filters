@@ -31,6 +31,9 @@
     <ClCompile Include="Math\IntVector2.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="Math\IntVector3.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -55,6 +58,9 @@
       <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\IntVector2.hpp">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\IntVector3.hpp">
       <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>

@@ -167,12 +167,20 @@ bool IsEquivalent(const Vector3& a, const Vector3& b, float epsilon /*= 0.0001f*
     return IsEquivalent(a.x, b.x, epsilon) && IsEquivalent(a.y, b.y, epsilon) && IsEquivalent(a.z, b.z, epsilon);
 }
 
+bool IsEquivalent(const Vector4& a, const Vector4& b, float epsilon /*= 0.0001f*/) {
+    return IsEquivalent(a.x, b.x, epsilon) && IsEquivalent(a.y, b.y, epsilon) && IsEquivalent(a.z, b.z, epsilon) && IsEquivalent(a.w, b.w, epsilon);
+}
+
 float CalcDistance(const Vector2& a, const Vector2& b) {
     return (b - a).CalcLength();
 }
 
 float CalcDistance(const Vector3& a, const Vector3& b) {
     return (b - a).CalcLength();
+}
+
+float CalcDistance(const Vector4& a, const Vector4& b) {
+    return (b - a).CalcLength4D();
 }
 
 float CalcDistanceSquared(const Vector2& a, const Vector2& b) {
@@ -183,12 +191,20 @@ float CalcDistanceSquared(const Vector3& a, const Vector3& b) {
     return (b - a).CalcLengthSquared();
 }
 
+float CalcDistanceSquared(const Vector4& a, const Vector4& b) {
+    return (b - a).CalcLength4DSquared();
+}
+
 float DotProduct(const Vector2& a, const Vector2& b) {
     return a.x * b.x + a.y * b.y;
 }
 
 float DotProduct(const Vector3& a, const Vector3& b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+float DotProduct(const Vector4& a, const Vector4& b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 }
 
 Vector3 CrossProduct(const Vector3& a, const Vector3& b) {
@@ -211,6 +227,10 @@ Vector3 Project(const Vector3& a, const Vector3& b) {
     return (DotProduct(a, b) / DotProduct(b, b)) * b;
 }
 
+Vector4 Project(const Vector4& a, const Vector4& b) {
+    return (DotProduct(a, b) / DotProduct(b, b)) * b;
+}
+
 Vector2 Reflect(const Vector2& in, const Vector2& normal) {
     return in - ((2.0f * DotProduct(in, normal)) * normal);
 }
@@ -219,11 +239,19 @@ Vector3 Reflect(const Vector3& in, const Vector3& normal) {
     return in - ((2.0f * DotProduct(in, normal)) * normal);
 }
 
+Vector4 Reflect(const Vector4& in, const Vector4& normal) {
+    return in - ((2.0f * DotProduct(in, normal)) * normal);
+}
+
 Vector2 ProjectAlongPlane(const Vector2& v, const Vector2& n) {
     return v - (DotProduct(v, n) * n);
 }
 
 Vector3 ProjectAlongPlane(const Vector3& v, const Vector3& n) {
+    return v - (DotProduct(v, n) * n);
+}
+
+Vector4 ProjectAlongPlane(const Vector4& v, const Vector4& n) {
     return v - (DotProduct(v, n) * n);
 }
 
@@ -241,6 +269,16 @@ Vector3 Clamp<Vector3>(const Vector3& valueToClamp, const Vector3& minRange, con
     result.x = Clamp(valueToClamp.x, minRange.x, maxRange.x);
     result.y = Clamp(valueToClamp.y, minRange.y, maxRange.y);
     result.z = Clamp(valueToClamp.z, minRange.z, maxRange.z);
+    return result;
+}
+
+template<>
+Vector4 Clamp<Vector4>(const Vector4& valueToClamp, const Vector4& minRange, const Vector4& maxRange) {
+    Vector4 result = valueToClamp;
+    result.x = Clamp(valueToClamp.x, minRange.x, maxRange.x);
+    result.y = Clamp(valueToClamp.y, minRange.y, maxRange.y);
+    result.z = Clamp(valueToClamp.z, minRange.z, maxRange.z);
+    result.w = Clamp(valueToClamp.w, minRange.w, maxRange.w);
     return result;
 }
 

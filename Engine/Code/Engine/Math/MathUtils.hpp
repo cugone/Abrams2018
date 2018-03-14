@@ -6,6 +6,7 @@
 
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"
+#include "Engine/Math/Vector4.hpp"
 
 namespace MathUtils {
 
@@ -77,26 +78,33 @@ bool IsEquivalent(double a, double b, double epsilon = 0.0001);
 bool IsEquivalent(long double a, long double b, long double epsilon = 0.0001L);
 bool IsEquivalent(const Vector2& a, const Vector2& b, float epsilon = 0.0001f);
 bool IsEquivalent(const Vector3& a, const Vector3& b, float epsilon = 0.0001f);
+bool IsEquivalent(const Vector4& a, const Vector4& b, float epsilon = 0.0001f);
 
 float CalcDistance(const Vector2& a, const Vector2& b);
 float CalcDistance(const Vector3& a, const Vector3& b);
+float CalcDistance(const Vector4& a, const Vector4& b);
 
 float CalcDistanceSquared(const Vector2& a, const Vector2& b);
 float CalcDistanceSquared(const Vector3& a, const Vector3& b);
+float CalcDistanceSquared(const Vector4& a, const Vector4& b);
 
 Vector3 CrossProduct(const Vector3& a, const Vector3& b);
 
 float DotProduct(const Vector2& a, const Vector2& b);
 float DotProduct(const Vector3& a, const Vector3& b);
+float DotProduct(const Vector4& a, const Vector4& b);
 
 Vector2 Project(const Vector2& a, const Vector2& b);
 Vector3 Project(const Vector3& a, const Vector3& b);
+Vector4 Project(const Vector4& a, const Vector4& b);
 
 Vector2 Reflect(const Vector2& in, const Vector2& normal);
 Vector3 Reflect(const Vector3& in, const Vector3& normal);
+Vector4 Reflect(const Vector4& in, const Vector4& normal);
 
 Vector2 ProjectAlongPlane(const Vector2& v, const Vector2& n);
 Vector3 ProjectAlongPlane(const Vector3& v, const Vector3& n);
+Vector4 ProjectAlongPlane(const Vector4& v, const Vector4& n);
 
 template<typename T>
 T Clamp(const T& valueToClamp, const T& minRange, const T& maxRange) {
@@ -115,6 +123,8 @@ Vector2 Clamp<Vector2>(const Vector2& valueToClamp, const Vector2& minRange, con
 template<>
 Vector3 Clamp<Vector3>(const Vector3& valueToClamp, const Vector3& minRange, const Vector3& maxRange);
 
+template<>
+Vector4 Clamp<Vector4>(const Vector4& valueToClamp, const Vector4& minRange, const Vector4& maxRange);
 
 template<typename T>
 T RangeMap(const T& valueToMap, const T& minInputRange, const T& maxInputRange, const T& minOutputRange, const T& maxOutputRange) {

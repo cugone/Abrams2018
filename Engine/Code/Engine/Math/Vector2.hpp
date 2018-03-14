@@ -1,5 +1,7 @@
 #pragma once
 
+class Vector3;
+
 class Vector2 {
 public:
 
@@ -16,6 +18,7 @@ public:
     ~Vector2() = default;
 
     explicit Vector2(float initialX, float initialY);
+    explicit Vector2(const Vector3& rhs);
 
     Vector2 operator+(const Vector2& rhs) const;
     Vector2& operator+=(const Vector2& rhs);
@@ -64,8 +67,8 @@ public:
 
     void SetXY(float newX, float newY);
 
-    float x;
-    float y;
+    float x = 0.0f;
+    float y = 0.0f;
 
 protected:
 private:

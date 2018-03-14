@@ -20,6 +20,13 @@ Vector2::Vector2(float initialX, float initialY)
     /* DO NOTHING */
 }
 
+Vector2::Vector2(const Vector3& rhs)
+    : x(rhs.x)
+    , y(rhs.y)
+{
+    /* DO NOTHING */
+}
+
 Vector2 Vector2::operator+(const Vector2& rhs) const {
     return Vector2(x + rhs.x, y + rhs.y);
 }

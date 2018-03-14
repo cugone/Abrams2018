@@ -271,6 +271,10 @@ Vector4 ProjectAlongPlane(const Vector4& v, const Vector4& n) {
     return v - (DotProduct(v, n) * n);
 }
 
+unsigned int CalculateManhattanDistance(const IntVector2& start, const IntVector2& end) {
+    return std::abs(end.x - start.x) + std::abs(end.y - start.y);
+}
+
 template<>
 Vector2 Clamp<Vector2>(const Vector2& valueToClamp, const Vector2& minRange, const Vector2& maxRange) {
     Vector2 result = valueToClamp;
@@ -299,6 +303,14 @@ Vector4 Clamp<Vector4>(const Vector4& valueToClamp, const Vector4& minRange, con
 }
 
 template<>
+IntVector2 Clamp<IntVector2>(const IntVector2& valueToClamp, const IntVector2& minRange, const IntVector2& maxRange) {
+    IntVector2 result = valueToClamp;
+    result.x = Clamp(valueToClamp.x, minRange.x, maxRange.x);
+    result.y = Clamp(valueToClamp.y, minRange.y, maxRange.y);
+    return result;
+}
+
+template<>
 Vector2 Interpolate(const Vector2& a, const Vector2& b, float t) {
     float x = Interpolate(a.x, b.x, t);
     float y = Interpolate(a.y, b.y, t);
@@ -320,6 +332,13 @@ Vector4 Interpolate(const Vector4& a, const Vector4& b, float t) {
     float z = Interpolate(a.z, b.z, t);
     float w = Interpolate(a.w, b.w, t);
     return Vector4(x, y, z, w);
+}
+
+template<>
+IntVector2 Interpolate(const IntVector2& a, const IntVector2& b, float t) {
+    float x = Interpolate(static_cast<float>(a.x), static_cast<float>(b.x), t);
+    float y = Interpolate(static_cast<float>(a.y), static_cast<float>(b.y), t);
+    return IntVector2(Vector2(x, y));
 }
 
 } //End MathUtils

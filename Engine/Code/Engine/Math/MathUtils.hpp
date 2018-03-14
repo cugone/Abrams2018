@@ -4,6 +4,8 @@
 #include <random>
 #include <utility>
 
+#include "Engine/Math/IntVector2.hpp"
+
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"
 #include "Engine/Math/Vector4.hpp"
@@ -106,6 +108,8 @@ Vector2 ProjectAlongPlane(const Vector2& v, const Vector2& n);
 Vector3 ProjectAlongPlane(const Vector3& v, const Vector3& n);
 Vector4 ProjectAlongPlane(const Vector4& v, const Vector4& n);
 
+unsigned int CalculateManhattanDistance(const IntVector2& start, const IntVector2& end);
+
 template<typename T>
 T Clamp(const T& valueToClamp, const T& minRange, const T& maxRange) {
     if(valueToClamp < minRange) {
@@ -126,6 +130,9 @@ Vector3 Clamp<Vector3>(const Vector3& valueToClamp, const Vector3& minRange, con
 template<>
 Vector4 Clamp<Vector4>(const Vector4& valueToClamp, const Vector4& minRange, const Vector4& maxRange);
 
+template<>
+IntVector2 Clamp<IntVector2>(const IntVector2& valueToClamp, const IntVector2& minRange, const IntVector2& maxRange);
+
 template<typename T>
 T Interpolate(const T& a, const T& b, float t) {
     return ((1.0f - t) * a) + (t * b);
@@ -139,6 +146,9 @@ Vector3 Interpolate(const Vector3& a, const Vector3& b, float t);
 
 template<>
 Vector4 Interpolate(const Vector4& a, const Vector4& b, float t);
+
+template<>
+IntVector2 Interpolate(const IntVector2& a, const IntVector2& b, float t);
 
 template<typename T>
 T RangeMap(const T& valueToMap, const T& minInputRange, const T& maxInputRange, const T& minOutputRange, const T& maxOutputRange) {

@@ -13,6 +13,7 @@
 #include "Engine/Math/Vector4.hpp"
 
 class AABB2;
+class AABB3;
 
 namespace MathUtils {
 
@@ -132,9 +133,13 @@ unsigned int CalculateManhattanDistance(const IntVector3& start, const IntVector
 unsigned int CalculateManhattanDistance(const IntVector4& start, const IntVector4& end);
 
 bool IsPointInside(const AABB2& aabb, const Vector2& point);
+bool IsPointInside(const AABB3& aabb, const Vector3& point);
+
 Vector2 CalcClosestPoint(const Vector2& p, const AABB2& aabb);
+Vector3 CalcClosestPoint(const Vector3& p, const AABB3& aabb);
 
 bool DoAABBsOverlap(const AABB2& a, const AABB2& b);
+bool DoAABBsOverlap(const AABB3& a, const AABB3& b);
 
 
 template<typename T>

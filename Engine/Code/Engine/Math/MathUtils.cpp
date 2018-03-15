@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include "Engine/Math/AABB2.hpp"
+#include "Engine/Math/AABB3.hpp"
 
 namespace MathUtils {
 
@@ -293,6 +294,16 @@ bool IsPointInside(const AABB2& aabb, const Vector2& point) {
     return true;
 }
 
+bool IsPointInside(const AABB3& aabb, const Vector3& point) {
+    if(aabb.maxs.x < point.x) return false;
+    if(point.x < aabb.mins.x) return false;
+    if(aabb.maxs.y < point.y) return false;
+    if(point.y < aabb.mins.y) return false;
+    if(aabb.maxs.z < point.z) return false;
+    if(point.z < aabb.mins.z) return false;
+    return true;
+}
+
 Vector2 CalcClosestPoint(const Vector2& p, const AABB2& aabb) {
     if(IsPointInside(aabb, p)) {
         return p;
@@ -324,11 +335,29 @@ Vector2 CalcClosestPoint(const Vector2& p, const AABB2& aabb) {
     return Vector2::ZERO;
 }
 
+Vector3 CalcClosestPoint(const Vector3& p, const AABB3& aabb) {
+    float nearestX = MathUtils::Clamp(p.x, aabb.mins.x, aabb.maxs.x);
+    float nearestY = MathUtils::Clamp(p.y, aabb.mins.y, aabb.maxs.y);
+    float nearestZ = MathUtils::Clamp(p.z, aabb.mins.z, aabb.maxs.z);
+
+    return Vector3(nearestX, nearestY, nearestZ);
+}
+
 bool DoAABBsOverlap(const AABB2& a, const AABB2& b) {
     if(a.maxs.x < b.mins.x) return false;
     if(b.maxs.x < a.mins.x) return false;
     if(a.maxs.y < b.mins.y) return false;
     if(b.maxs.y < a.mins.y) return false;
+    return true;
+}
+
+bool DoAABBsOverlap(const AABB3& a, const AABB3& b) {
+    if(a.maxs.x < b.mins.x) return false;
+    if(b.maxs.x < a.mins.x) return false;
+    if(a.maxs.y < b.mins.y) return false;
+    if(b.maxs.y < a.mins.y) return false;
+    if(a.maxs.z < b.mins.z) return false;
+    if(b.maxs.z < a.mins.z) return false;
     return true;
 }
 

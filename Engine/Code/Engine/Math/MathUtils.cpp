@@ -5,6 +5,8 @@
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/AABB3.hpp"
 
+#include "Engine/Math/Disc2.hpp"
+
 namespace MathUtils {
 
 namespace {
@@ -304,6 +306,16 @@ bool IsPointInside(const AABB3& aabb, const Vector3& point) {
     return true;
 }
 
+bool IsPointInside(const Disc2& disc, const Vector2& point) {
+    return CalcDistanceSquared(disc.center, point) < (disc.radius * disc.radius);
+}
+
+bool IsPointOn(const Disc2& disc, const Vector2& point) {
+    float distanceSquared = CalcDistanceSquared(disc.center, point);
+    float radiusSquared = disc.radius * disc.radius;
+    return !(distanceSquared < radiusSquared || radiusSquared < distanceSquared);
+}
+
 Vector2 CalcClosestPoint(const Vector2& p, const AABB2& aabb) {
     if(IsPointInside(aabb, p)) {
         return p;
@@ -341,6 +353,19 @@ Vector3 CalcClosestPoint(const Vector3& p, const AABB3& aabb) {
     float nearestZ = MathUtils::Clamp(p.z, aabb.mins.z, aabb.maxs.z);
 
     return Vector3(nearestX, nearestY, nearestZ);
+}
+
+Vector2 CalcClosestPoint(const Vector2& p, const Disc2& disc) {
+    Vector2 dir = (p - disc.center).GetNormalize();
+    return disc.center + dir * disc.radius;
+}
+
+bool DoDiscsOverlap(const Disc2& a, const Disc2& b) {
+    return DoDiscsOverlap(a.center, a.radius, b.center, b.radius);
+}
+
+bool DoDiscsOverlap(const Vector2& centerA, float radiusA, const Vector2& centerB, float radiusB) {
+    return CalcDistanceSquared(centerA, centerB) < (radiusA + radiusB) * (radiusA + radiusB);
 }
 
 bool DoAABBsOverlap(const AABB2& a, const AABB2& b) {
@@ -475,6 +500,13 @@ AABB3 Interpolate(const AABB3& a, const AABB3& b, float t) {
     Vector3 mins(Interpolate(a.mins, b.mins, t));
     Vector3 maxs(Interpolate(a.maxs, b.maxs, t));
     return AABB3(mins, maxs);
+}
+
+template<>
+Disc2 Interpolate(const Disc2& a, const Disc2& b, float t) {
+    Vector2 c(Interpolate(a.center, b.center, t));
+    float r(Interpolate(a.radius, b.radius, t));
+    return Disc2(c, r);
 }
 
 } //End MathUtils

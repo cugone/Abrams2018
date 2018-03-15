@@ -9,9 +9,11 @@ public:
 
     Disc2() = default;
     Disc2(const Disc2& rhs) = default;
+    Disc2& operator=(const Disc2& rhs) = default;
+    Disc2& operator=(Disc2&& rhs) = default;
+    ~Disc2() = default;
     explicit Disc2(float initialX, float initialY, float initialRadius);
     explicit Disc2(const Vector2& initialCenter, float initialRadius);
-    ~Disc2() = default;
 
     void StretchToIncludePoint(const Vector2& point);
     void AddPadding(float paddingRadius);

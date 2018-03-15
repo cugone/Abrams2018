@@ -324,6 +324,14 @@ Vector2 CalcClosestPoint(const Vector2& p, const AABB2& aabb) {
     return Vector2::ZERO;
 }
 
+bool DoAABBsOverlap(const AABB2& a, const AABB2& b) {
+    if(a.maxs.x < b.mins.x) return false;
+    if(b.maxs.x < a.mins.x) return false;
+    if(a.maxs.y < b.mins.y) return false;
+    if(b.maxs.y < a.mins.y) return false;
+    return true;
+}
+
 template<>
 Vector2 Clamp<Vector2>(const Vector2& valueToClamp, const Vector2& minRange, const Vector2& maxRange) {
     Vector2 result = valueToClamp;

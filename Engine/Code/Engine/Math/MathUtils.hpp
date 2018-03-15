@@ -134,6 +134,9 @@ unsigned int CalculateManhattanDistance(const IntVector4& start, const IntVector
 bool IsPointInside(const AABB2& aabb, const Vector2& point);
 Vector2 CalcClosestPoint(const Vector2& p, const AABB2& aabb);
 
+bool DoAABBsOverlap(const AABB2& a, const AABB2& b);
+
+
 template<typename T>
 T Clamp(const T& valueToClamp, const T& minRange, const T& maxRange) {
     if(valueToClamp < minRange) {

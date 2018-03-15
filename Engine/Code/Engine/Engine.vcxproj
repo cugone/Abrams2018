@@ -27,6 +27,7 @@
     <ClCompile Include="Math\IntVector2.cpp" />
     <ClCompile Include="Math\IntVector3.cpp" />
     <ClCompile Include="Math\IntVector4.cpp" />
+    <ClCompile Include="Math\LineSegment2.cpp" />
     <ClCompile Include="Math\MathUtils.cpp" />
     <ClCompile Include="Math\Noise.cpp" />
     <ClCompile Include="Math\Vector2.cpp" />
@@ -43,6 +44,7 @@
     <ClInclude Include="Math\IntVector2.hpp" />
     <ClInclude Include="Math\IntVector3.hpp" />
     <ClInclude Include="Math\IntVector4.hpp" />
+    <ClInclude Include="Math\LineSegment2.hpp" />
     <ClInclude Include="Math\MathUtils.hpp" />
     <ClInclude Include="Math\Noise.hpp" />
     <ClInclude Include="Math\Vector2.hpp" />

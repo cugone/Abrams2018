@@ -5,6 +5,7 @@
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/AABB3.hpp"
 
+#include "Engine/Math/Capsule2.hpp"
 #include "Engine/Math/Disc2.hpp"
 #include "Engine/Math/LineSegment2.hpp"
 
@@ -340,6 +341,10 @@ bool IsPointInside(const Disc2& disc, const Vector2& point) {
     return CalcDistanceSquared(disc.center, point) < (disc.radius * disc.radius);
 }
 
+bool IsPointInside(const Capsule2& capsule, const Vector2& point) {
+    return CalcDistanceSquared(point, capsule.line) < (capsule.radius * capsule.radius);
+}
+
 bool IsPointOn(const Disc2& disc, const Vector2& point) {
     float distanceSquared = CalcDistanceSquared(disc.center, point);
     float radiusSquared = disc.radius * disc.radius;
@@ -348,6 +353,12 @@ bool IsPointOn(const Disc2& disc, const Vector2& point) {
 
 bool IsPointOn(const LineSegment2& line, const Vector2& point) {
     return MathUtils::IsEquivalent(CalcDistanceSquared(point, line), 0.0f);
+}
+
+bool IsPointOn(const Capsule2& capsule, const Vector2& point) {
+    float distanceSquared = CalcDistanceSquared(point, capsule.line);
+    float radiusSquared = capsule.radius * capsule.radius;
+    return !(distanceSquared < radiusSquared || radiusSquared < distanceSquared);
 }
 
 Vector2 CalcClosestPoint(const Vector2& p, const AABB2& aabb) {
@@ -417,12 +428,22 @@ Vector2 CalcClosestPoint(const Vector2& p, const LineSegment2& line) {
     return ConL;
 }
 
+Vector2 CalcClosestPoint(const Vector2& p, const Capsule2& capsule) {
+    Vector2 closestP = CalcClosestPoint(p, capsule.line);
+    Vector2 dir_to_p = (p - closestP).GetNormalize();
+    return closestP + (dir_to_p * capsule.radius);
+}
+
 bool DoDiscsOverlap(const Disc2& a, const Disc2& b) {
     return DoDiscsOverlap(a.center, a.radius, b.center, b.radius);
 }
 
 bool DoDiscsOverlap(const Vector2& centerA, float radiusA, const Vector2& centerB, float radiusB) {
     return CalcDistanceSquared(centerA, centerB) < (radiusA + radiusB) * (radiusA + radiusB);
+}
+
+bool DoDiscsOverlap(const Disc2& a, const Capsule2& b) {
+    return CalcDistanceSquared(a.center, b.line) < (a.radius + b.radius) * (a.radius + b.radius);
 }
 
 bool DoAABBsOverlap(const AABB2& a, const AABB2& b) {
@@ -445,6 +466,10 @@ bool DoAABBsOverlap(const AABB3& a, const AABB3& b) {
 
 bool DoLineSegmentOverlap(const Disc2& a, const LineSegment2& b) {
     return CalcDistanceSquared(a.center, b) < a.radius * a.radius;
+}
+
+bool DoCapsuleOverlap(const Disc2& a, const Capsule2& b) {
+    return CalcDistanceSquared(a.center, b.line) < (a.radius + b.radius) * (a.radius + b.radius);
 }
 
 template<>
@@ -575,6 +600,13 @@ LineSegment2 Interpolate(const LineSegment2& a, const LineSegment2& b, float t) 
     Vector2 start(Interpolate(a.start, b.start, t));
     Vector2 end(Interpolate(a.end, b.end, t));
     return LineSegment2(start, end);
+}
+
+template<>
+Capsule2 Interpolate(const Capsule2& a, const Capsule2& b, float t) {
+    LineSegment2 line(Interpolate(a.line, b.line, t));
+    float r(Interpolate(a.radius, b.radius, t));
+    return Capsule2(line, r);
 }
 
 } //End MathUtils

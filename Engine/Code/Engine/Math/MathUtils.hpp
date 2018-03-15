@@ -14,6 +14,7 @@
 
 class AABB2;
 class AABB3;
+class Capsule2;
 class Disc2;
 class LineSegment2;
 
@@ -143,22 +144,28 @@ unsigned int CalculateManhattanDistance(const IntVector4& start, const IntVector
 bool IsPointInside(const AABB2& aabb, const Vector2& point);
 bool IsPointInside(const AABB3& aabb, const Vector3& point);
 bool IsPointInside(const Disc2& disc, const Vector2& point);
+bool IsPointInside(const Capsule2& capsule, const Vector2& point);
 
 bool IsPointOn(const Disc2& disc, const Vector2& point);
 bool IsPointOn(const LineSegment2& line, const Vector2& point);
+bool IsPointOn(const Capsule2& capsule, const Vector2& point);
 
 Vector2 CalcClosestPoint(const Vector2& p, const AABB2& aabb);
 Vector3 CalcClosestPoint(const Vector3& p, const AABB3& aabb);
 Vector2 CalcClosestPoint(const Vector2& p, const Disc2& disc);
 Vector2 CalcClosestPoint(const Vector2& p, const LineSegment2& line);
+Vector2 CalcClosestPoint(const Vector2& p, const Capsule2& capsule);
 
 bool DoDiscsOverlap(const Disc2& a, const Disc2& b);
 bool DoDiscsOverlap(const Vector2& centerA, float radiusA, const Vector2& centerB, float radiusB);
+bool DoDiscsOverlap(const Disc2& a, const Capsule2& b);
 
 bool DoAABBsOverlap(const AABB2& a, const AABB2& b);
 bool DoAABBsOverlap(const AABB3& a, const AABB3& b);
 
 bool DoLineSegmentOverlap(const Disc2& a, const LineSegment2& b);
+
+bool DoCapsuleOverlap(const Disc2& a, const Capsule2& b);
 
 template<typename T>
 T Clamp(const T& valueToClamp, const T& minRange, const T& maxRange) {
@@ -223,6 +230,9 @@ Disc2 Interpolate(const Disc2& a, const Disc2& b, float t);
 
 template<>
 LineSegment2 Interpolate(const LineSegment2& a, const LineSegment2& b, float t);
+
+template<>
+Capsule2 Interpolate(const Capsule2& a, const Capsule2& b, float t);
 
 template<typename T>
 T RangeMap(const T& valueToMap, const T& minInputRange, const T& maxInputRange, const T& minOutputRange, const T& maxOutputRange) {

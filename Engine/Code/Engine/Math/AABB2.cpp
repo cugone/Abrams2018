@@ -77,14 +77,6 @@ void AABB2::Translate(const Vector2& translation) {
     maxs += translation;
 }
 
-bool AABB2::IsPointInside(const Vector2& point) const {
-    if(maxs.x < point.x) return false;
-    if(point.x < mins.x) return false;
-    if(maxs.y < point.y) return false;
-    if(point.y < mins.y) return false;
-    return true;
-}
-
 const Vector2 AABB2::CalcDimensions() const {
     return Vector2(maxs.x - mins.x, maxs.y - mins.y);
 }
@@ -104,9 +96,11 @@ AABB2 AABB2::operator-(const Vector2& antiTranslation) const {
 AABB2& AABB2::operator-=(const Vector2& antiTranslation) {
     mins -= antiTranslation;
     maxs -= antiTranslation;
+    return *this;
 }
 
 AABB2& AABB2::operator+=(const Vector2& translation) {
     mins += translation;
     maxs += translation;
+    return *this;
 }

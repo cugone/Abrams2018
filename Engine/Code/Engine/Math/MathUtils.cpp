@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+#include "Engine/Math/AABB2.hpp"
+
 namespace MathUtils {
 
 namespace {
@@ -281,6 +283,45 @@ unsigned int CalculateManhattanDistance(const IntVector3& start, const IntVector
 
 unsigned int CalculateManhattanDistance(const IntVector4& start, const IntVector4& end) {
     return std::abs(end.x - start.x) + std::abs(end.y - start.y) + std::abs(end.z - start.z) + std::abs(end.w - start.w);
+}
+
+bool IsPointInside(const AABB2& aabb, const Vector2& point) {
+    if(aabb.maxs.x < point.x) return false;
+    if(point.x < aabb.mins.x) return false;
+    if(aabb.maxs.y < point.y) return false;
+    if(point.y < aabb.mins.y) return false;
+    return true;
+}
+
+Vector2 CalcClosestPoint(const Vector2& p, const AABB2& aabb) {
+    if(IsPointInside(aabb, p)) {
+        return p;
+    }
+    if(p.x < aabb.mins.x && aabb.maxs.y < p.y) {
+        return Vector2(aabb.mins.x, aabb.maxs.y);
+    }
+    if(p.x < aabb.mins.x && p.y < aabb.mins.y) {
+        return Vector2(aabb.mins.x, aabb.mins.y);
+    }
+    if(aabb.maxs.x < p.x && p.y < aabb.mins.y) {
+        return Vector2(aabb.maxs.x, aabb.mins.y);
+    }
+    if(aabb.maxs.x < p.x && aabb.maxs.y < p.y) {
+        return Vector2(aabb.maxs.x, aabb.maxs.y);
+    }
+    if(p.x < aabb.mins.x) {
+        return Vector2(aabb.mins.x, p.y);
+    }
+    if(aabb.maxs.x < p.x) {
+        return Vector2(aabb.maxs.x, p.y);
+    }
+    if(p.y < aabb.mins.y) {
+        return Vector2(p.x, aabb.mins.y);
+    }
+    if(aabb.maxs.y < p.y) {
+        return Vector2(p.x, aabb.maxs.y);
+    }
+    return Vector2::ZERO;
 }
 
 template<>

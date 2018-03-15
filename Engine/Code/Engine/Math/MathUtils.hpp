@@ -12,6 +12,8 @@
 #include "Engine/Math/Vector3.hpp"
 #include "Engine/Math/Vector4.hpp"
 
+class AABB2;
+
 namespace MathUtils {
 
 constexpr const float M_1PI_6               = 0.52359877559829887307f;            // 1pi/6
@@ -128,6 +130,9 @@ Vector4 ProjectAlongPlane(const Vector4& v, const Vector4& n);
 unsigned int CalculateManhattanDistance(const IntVector2& start, const IntVector2& end);
 unsigned int CalculateManhattanDistance(const IntVector3& start, const IntVector3& end);
 unsigned int CalculateManhattanDistance(const IntVector4& start, const IntVector4& end);
+
+bool IsPointInside(const AABB2& aabb, const Vector2& point);
+Vector2 CalcClosestPoint(const Vector2& p, const AABB2& aabb);
 
 template<typename T>
 T Clamp(const T& valueToClamp, const T& minRange, const T& maxRange) {

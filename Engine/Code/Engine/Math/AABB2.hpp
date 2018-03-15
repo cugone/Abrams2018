@@ -27,7 +27,6 @@ public:
     void AddPaddingToSidesClamped(float paddingX, float paddingY);
     void Translate(const Vector2& translation);
 
-    bool IsPointInside(const Vector2& point) const;
     const Vector2 CalcDimensions() const;
     const Vector2 CalcCenter() const;
 

@@ -194,6 +194,12 @@ IntVector3 Interpolate(const IntVector3& a, const IntVector3& b, float t);
 template<>
 IntVector4 Interpolate(const IntVector4& a, const IntVector4& b, float t);
 
+template<>
+AABB2 Interpolate(const AABB2& a, const AABB2& b, float t);
+
+template<>
+AABB3 Interpolate(const AABB3& a, const AABB3& b, float t);
+
 template<typename T>
 T RangeMap(const T& valueToMap, const T& minInputRange, const T& maxInputRange, const T& minOutputRange, const T& maxOutputRange) {
     return (valueToMap - minInputRange) * (maxOutputRange - minOutputRange) / (maxInputRange - minInputRange) + minOutputRange;

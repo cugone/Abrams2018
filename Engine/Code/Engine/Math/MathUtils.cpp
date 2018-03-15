@@ -463,4 +463,18 @@ IntVector4 Interpolate(const IntVector4& a, const IntVector4& b, float t) {
     return IntVector4(Vector4(x, y, z, w));
 }
 
+template<>
+AABB2 Interpolate(const AABB2& a, const AABB2& b, float t) {
+    Vector2 mins(Interpolate(a.mins, b.mins, t));
+    Vector2 maxs(Interpolate(a.maxs, b.maxs, t));
+    return AABB2(mins, maxs);
+}
+
+template<>
+AABB3 Interpolate(const AABB3& a, const AABB3& b, float t) {
+    Vector3 mins(Interpolate(a.mins, b.mins, t));
+    Vector3 maxs(Interpolate(a.maxs, b.maxs, t));
+    return AABB3(mins, maxs);
+}
+
 } //End MathUtils

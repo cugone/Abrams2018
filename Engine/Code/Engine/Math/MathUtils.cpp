@@ -235,7 +235,7 @@ float CalcDistanceSquared(const Vector4& a, const Vector4& b) {
 }
 
 float CalcDistanceSquared(const Vector2& p, const LineSegment2& line) {
-    CalcDistanceSquared(p, CalcClosestPoint(p, line));
+    return CalcDistanceSquared(p, CalcClosestPoint(p, line));
 }
 
 float CalcDistanceSquared4D(const Vector4& a, const Vector4& b) {

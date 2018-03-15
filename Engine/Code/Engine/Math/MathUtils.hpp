@@ -186,4 +186,34 @@ T RangeMap(const T& valueToMap, const T& minInputRange, const T& maxInputRange, 
     return (valueToMap - minInputRange) * (maxOutputRange - minOutputRange) / (maxInputRange - minInputRange) + minOutputRange;
 }
 
+namespace EasingFunctions {
+
+template<typename T, std::size_t... Is>
+T SmoothStart_helper(const T& t, std::index_sequence<Is...>) {
+    return (((void)Is, t) * ...);
 }
+
+template<std::size_t N, typename T>
+T SmoothStart(const T& t) {
+    static_assert(std::is_floating_point_v<T>, "SmoothStart requires T to be non-integral.");
+    static_assert(N > 0, "SmoothStart requires value of  to be non-negative and non-zero.");
+    return SmoothStart_helper(t, std::make_index_sequence<N>{});
+}
+
+
+template<typename T, std::size_t... Is>
+T SmoothStop_helper(const T& t, std::index_sequence<Is...>) {
+    return (((void)Is, (1.0f - t)) * ...);
+}
+
+template<std::size_t N, typename T>
+T SmoothStop(const T& t) {
+    static_assert(std::is_floating_point_v<T>, "SmoothStop requires T to be non-integral.");
+    static_assert(N > 0, "SmoothStop requires value of  to be non-negative and non-zero.");
+    return SmoothStop_helper(t, std::make_index_sequence<N>{});
+}
+
+
+} //End EasingFunctions
+
+} //End MathUtils

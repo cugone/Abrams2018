@@ -213,6 +213,13 @@ T SmoothStop(const T& t) {
     return SmoothStop_helper(t, std::make_index_sequence<N>{});
 }
 
+template<std::size_t N, typename T>
+T SmoothStep(const T& t) {
+    static_assert(std::is_floating_point_v<T>, "SmoothStop requires T to be non-integral.");
+    static_assert(N > 0, "SmoothStop requires value of  to be non-negative and non-zero.");
+    return Interpolate(SmoothStart<N>(t), SmoothStop<N>(t), 0.5f);
+}
+
 
 } //End EasingFunctions
 

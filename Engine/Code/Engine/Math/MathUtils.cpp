@@ -17,6 +17,27 @@ void SetRandomEngineSeed(unsigned int seed) {
     MT_RANDOM_SEED = seed;
 }
 
+std::pair<float, float> SplitFloatingPointValue(float value) {
+    float frac = 0.0f;
+    float int_part = 0.0f;
+    frac = std::modf(value, &int_part);
+    return std::make_pair(int_part, frac);
+}
+
+std::pair<double, double> SplitFloatingPointValue(double value) {
+    double frac = 0.0;
+    double int_part = 0.0;
+    frac = std::modf(value, &int_part);
+    return std::make_pair(int_part, frac);
+}
+
+std::pair<long double, long double> SplitFloatingPointValue(long double value) {
+    long double frac = 0.0;
+    long double int_part = 0.0;
+    frac = std::modf(value, &int_part);
+    return std::make_pair(int_part, frac);
+}
+
 float ConvertDegreesToRadians(float degrees) {
     return degrees * (MathUtils::M_PI / 180.0f);
 }

@@ -64,6 +64,10 @@ std::mt19937& GetMTRandomEngine(unsigned int seed = 0);
 //NOT THREAD SAFE
 std::mt19937_64& GetMT64RandomEngine(unsigned int seed = 0);
 
+std::pair<float, float> SplitFloatingPointValue(float value);
+std::pair<double, double> SplitFloatingPointValue(double value);
+std::pair<long double, long double> SplitFloatingPointValue(long double value);
+
 float ConvertDegreesToRadians(float degrees);
 float ConvertRadiansToDegrees(float radians);
 

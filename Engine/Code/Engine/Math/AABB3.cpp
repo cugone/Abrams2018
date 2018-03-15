@@ -28,7 +28,7 @@ AABB3::AABB3(const Vector3& mins, const Vector3& maxs)
 
 AABB3::AABB3(const Vector3& center, float radiusX, float radiusY, float radiusZ)
     : mins(center.x - radiusX, center.y - radiusY, center.z - radiusZ)
-    , maxs(center.x + radiusX, center.y + radiusY, center.z + radiusZ);
+    , maxs(center.x + radiusX, center.y + radiusY, center.z + radiusZ)
 {
     /* DO NOTHING */
 }
@@ -119,10 +119,12 @@ AABB3 AABB3::operator-(const Vector3& antiTranslation) const {
 AABB3& AABB3::operator-=(const Vector3& antiTranslation) {
     mins -= antiTranslation;
     maxs -= antiTranslation;
+    return *this;
 }
 
 AABB3& AABB3::operator+=(const Vector3& translation) {
     mins += translation;
     maxs += translation;
+    return *this;
 }
 

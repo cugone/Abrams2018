@@ -6,6 +6,7 @@
 #include "Engine/Math/AABB3.hpp"
 
 #include "Engine/Math/Disc2.hpp"
+#include "Engine/Math/LineSegment2.hpp"
 
 namespace MathUtils {
 
@@ -209,6 +210,10 @@ float CalcDistance(const Vector4& a, const Vector4& b) {
     return (b - a).CalcLength4D();
 }
 
+float CalcDistance(const Vector2& p, const LineSegment2& line) {
+    return std::sqrt(CalcDistanceSquared(p, line));
+}
+
 float CalcDistance4D(const Vector4& a, const Vector4& b) {
     return (b - a).CalcLength4D();
 }
@@ -227,6 +232,10 @@ float CalcDistanceSquared(const Vector3& a, const Vector3& b) {
 
 float CalcDistanceSquared(const Vector4& a, const Vector4& b) {
     return (b - a).CalcLength4DSquared();
+}
+
+float CalcDistanceSquared(const Vector2& p, const LineSegment2& line) {
+    CalcDistanceSquared(p, CalcClosestPoint(p, line));
 }
 
 float CalcDistanceSquared4D(const Vector4& a, const Vector4& b) {
@@ -337,6 +346,10 @@ bool IsPointOn(const Disc2& disc, const Vector2& point) {
     return !(distanceSquared < radiusSquared || radiusSquared < distanceSquared);
 }
 
+bool IsPointOn(const LineSegment2& line, const Vector2& point) {
+    return MathUtils::IsEquivalent(CalcDistanceSquared(point, line), 0.0f);
+}
+
 Vector2 CalcClosestPoint(const Vector2& p, const AABB2& aabb) {
     if(IsPointInside(aabb, p)) {
         return p;
@@ -381,6 +394,29 @@ Vector2 CalcClosestPoint(const Vector2& p, const Disc2& disc) {
     return disc.center + dir * disc.radius;
 }
 
+Vector2 CalcClosestPoint(const Vector2& p, const LineSegment2& line) {
+    Vector2 D = line.end - line.start;
+    Vector2 T = D.GetNormalize();
+
+    Vector2 SP = p - line.start;
+    float regionI = MathUtils::DotProduct(T, SP);
+    if(regionI < 0.0f) {
+        return line.start;
+    }
+    
+    Vector2 EP = p - line.end;
+    float regionII = MathUtils::DotProduct(T, EP);
+    if(regionII > 0.0f) {
+        return line.end;
+    }
+
+    Vector2 directionSE = D.GetNormalize();
+    float lengthToClosestPoint = MathUtils::DotProduct(directionSE, SP);
+    Vector2 C = directionSE * lengthToClosestPoint;
+    Vector2 ConL = line.start + C;
+    return ConL;
+}
+
 bool DoDiscsOverlap(const Disc2& a, const Disc2& b) {
     return DoDiscsOverlap(a.center, a.radius, b.center, b.radius);
 }
@@ -405,6 +441,10 @@ bool DoAABBsOverlap(const AABB3& a, const AABB3& b) {
     if(a.maxs.z < b.mins.z) return false;
     if(b.maxs.z < a.mins.z) return false;
     return true;
+}
+
+bool DoLineSegmentOverlap(const Disc2& a, const LineSegment2& b) {
+    return CalcDistanceSquared(a.center, b) < a.radius * a.radius;
 }
 
 template<>
@@ -528,6 +568,13 @@ Disc2 Interpolate(const Disc2& a, const Disc2& b, float t) {
     Vector2 c(Interpolate(a.center, b.center, t));
     float r(Interpolate(a.radius, b.radius, t));
     return Disc2(c, r);
+}
+
+template<>
+LineSegment2 Interpolate(const LineSegment2& a, const LineSegment2& b, float t) {
+    Vector2 start(Interpolate(a.start, b.start, t));
+    Vector2 end(Interpolate(a.end, b.end, t));
+    return LineSegment2(start, end);
 }
 
 } //End MathUtils

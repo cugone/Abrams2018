@@ -10,7 +10,7 @@ public:
     static const Vector2 X_AXIS;
     static const Vector2 Y_AXIS;
 
-    Vector2();
+    Vector2() = default;
     Vector2(const Vector2& rhs) = default;
     Vector2(Vector2&& rhs) = default;
     Vector2& operator=(const Vector2& rhs) = default;
@@ -70,6 +70,8 @@ public:
 
     float x = 0.0f;
     float y = 0.0f;
+
+    friend void swap(Vector2& a, Vector2& b) noexcept;
 
 protected:
 private:

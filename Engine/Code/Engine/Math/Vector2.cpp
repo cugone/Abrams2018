@@ -9,10 +9,6 @@ const Vector2 Vector2::X_AXIS(1.0f, 0.0f);
 const Vector2 Vector2::Y_AXIS(0.0f, 1.0f);
 const Vector2 Vector2::ONE(1.0f, 1.0);
 
-Vector2::Vector2() {
-    /* DO NOTHING */
-}
-
 Vector2::Vector2(float initialX, float initialY)
 : x(initialX)
 , y(initialY)
@@ -205,4 +201,10 @@ void Vector2::RotateNegative90Degrees() {
 void Vector2::SetXY(float newX, float newY) {
     x = newX;
     y = newY;
+}
+
+
+void swap(Vector2& a, Vector2& b) noexcept {
+    std::swap(a.x, b.y);
+    std::swap(a.y, b.y);
 }

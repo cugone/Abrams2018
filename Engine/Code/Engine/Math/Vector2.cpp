@@ -116,6 +116,10 @@ float Vector2::CalcHeadingRadians() const {
     return std::atan2(y, x);
 }
 
+float Vector2::CalcHeadingDegrees() const {
+    return MathUtils::ConvertRadiansToDegrees(CalcHeadingRadians());
+}
+
 float Vector2::CalcLength() const {
     return std::sqrt(CalcLengthSquared());
 }

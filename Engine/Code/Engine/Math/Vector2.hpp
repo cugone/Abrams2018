@@ -45,6 +45,7 @@ public:
     const float* GetAsFloatArray() const;
 
     float CalcHeadingRadians() const;
+    float CalcHeadingDegrees() const;
     float CalcLength() const;
     float CalcLengthSquared() const;
 

@@ -1,0 +1,131 @@
+#include "Engine/Math/IntVector4.hpp"
+
+#include <cmath>
+
+#include "Engine/Math/IntVector2.hpp"
+#include "Engine/Math/IntVector3.hpp"
+#include "Engine/Math/Vector2.hpp"
+#include "Engine/Math/Vector3.hpp"
+#include "Engine/Math/Vector4.hpp"
+
+const IntVector4 IntVector4::ZERO(0, 0, 0, 0);
+const IntVector4 IntVector4::ONE(1, 1, 1, 1);
+const IntVector4 IntVector4::X_AXIS(1, 0, 0, 0);
+const IntVector4 IntVector4::Y_AXIS(0, 1, 0, 0);
+const IntVector4 IntVector4::Z_AXIS(0, 0, 1, 0);
+const IntVector4 IntVector4::W_AXIS(0, 0, 0, 1);
+const IntVector4 IntVector4::XY_AXIS(1, 1, 0, 0);
+const IntVector4 IntVector4::XZ_AXIS(1, 0, 1, 0);
+const IntVector4 IntVector4::XW_AXIS(1, 0, 0, 1);
+const IntVector4 IntVector4::YX_AXIS(1, 1, 0, 0);
+const IntVector4 IntVector4::YZ_AXIS(0, 1, 1, 0);
+const IntVector4 IntVector4::YW_AXIS(0, 1, 0, 1);
+const IntVector4 IntVector4::ZX_AXIS(1, 0, 1, 0);
+const IntVector4 IntVector4::ZY_AXIS(0, 1, 1, 0);
+const IntVector4 IntVector4::ZW_AXIS(0, 0, 1, 1);
+const IntVector4 IntVector4::WX_AXIS(1, 0, 0, 1);
+const IntVector4 IntVector4::WY_AXIS(0, 1, 0, 1);
+const IntVector4 IntVector4::WZ_AXIS(0, 0, 1, 1);
+const IntVector4 IntVector4::XYZ_AXIS(1, 1, 1, 0);
+const IntVector4 IntVector4::XYW_AXIS(1, 1, 0, 1);
+const IntVector4 IntVector4::YXZ_AXIS(1, 1, 1, 0);
+const IntVector4 IntVector4::YZW_AXIS(0, 1, 1, 1);
+const IntVector4 IntVector4::WXY_AXIS(1, 1, 0, 1);
+const IntVector4 IntVector4::WXZ_AXIS(1, 0, 1, 1);
+const IntVector4 IntVector4::WYZ_AXIS(0, 1, 1, 1);
+const IntVector4 IntVector4::XYZW_AXIS(1, 1, 1, 1);
+
+IntVector4::IntVector4(int initialX, int initialY, int initialZ, int initialW)
+    : x(initialX)
+    , y(initialY)
+    , z(initialZ)
+    , w(initialW)
+{
+    /* DO NOTHING */
+}
+
+IntVector4::IntVector4(const IntVector2& iv2, int initialZ, int initialW)
+    : x(iv2.x)
+    , y(iv2.y)
+    , z(initialZ)
+    , w(initialW)
+{
+    /* DO NOTHING */
+}
+
+IntVector4::IntVector4(const Vector2& v2, int initialZ, int initialW)
+    : x(static_cast<int>(std::floor(v2.x)))
+    , y(static_cast<int>(std::floor(v2.y)))
+    , z(initialZ)
+    , w(initialW)
+{
+    /* DO NOTHING */
+}
+
+IntVector4::IntVector4(const Vector2& xy, const Vector2& zw)
+    : x(static_cast<int>(std::floor(xy.x)))
+    , y(static_cast<int>(std::floor(xy.y)))
+    , z(static_cast<int>(std::floor(zw.x)))
+    , w(static_cast<int>(std::floor(zw.y)))
+{
+    /* DO NOTHING */
+}
+
+IntVector4::IntVector4(const IntVector2& xy, const IntVector2& zw)
+    : x(xy.x)
+    , y(xy.y)
+    , z(zw.x)
+    , w(zw.y)
+{
+    /* DO NOTHING */
+}
+
+IntVector4::IntVector4(const IntVector3& iv3, int initialW)
+    : x(iv3.x)
+    , y(iv3.y)
+    , z(iv3.z)
+    , w(initialW)
+{
+    /* DO NOTHING */
+}
+
+IntVector4::IntVector4(const Vector3& v3, int initialW)
+    : x(static_cast<int>(std::floor(v3.x)))
+    , y(static_cast<int>(std::floor(v3.y)))
+    , z(static_cast<int>(std::floor(v3.z)))
+    , w(initialW)
+{
+    /* DO NOTHING */
+}
+
+IntVector4::IntVector4(const Vector4& rhs)
+    : x(static_cast<int>(std::floor(rhs.x)))
+    , y(static_cast<int>(std::floor(rhs.y)))
+    , z(static_cast<int>(std::floor(rhs.z)))
+    , w(static_cast<int>(std::floor(rhs.w)))
+{
+    /* DO NOTHING */
+}
+
+void IntVector4::SetXYZW(int newX, int newY, int newZ, int newW) {
+    x = newX;
+    y = newY;
+    z = newZ;
+    w = newW;
+}
+
+void IntVector4::GetXYZW(int& out_x, int& out_y, int& out_z, int& out_w) {
+    out_x = x;
+    out_y = y;
+    out_z = z;
+    out_w = w;
+}
+
+bool IntVector4::operator!=(const IntVector4& rhs) {
+    return !(*this == rhs);
+}
+
+bool IntVector4::operator==(const IntVector4& rhs) {
+    return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w;
+}
+

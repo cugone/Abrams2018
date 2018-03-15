@@ -275,6 +275,10 @@ unsigned int CalculateManhattanDistance(const IntVector2& start, const IntVector
     return std::abs(end.x - start.x) + std::abs(end.y - start.y);
 }
 
+unsigned int CalculateManhattanDistance(const IntVector3& start, const IntVector3& end) {
+    return std::abs(end.x - start.x) + std::abs(end.y - start.y) + std::abs(end.z - start.z);
+}
+
 template<>
 Vector2 Clamp<Vector2>(const Vector2& valueToClamp, const Vector2& minRange, const Vector2& maxRange) {
     Vector2 result = valueToClamp;
@@ -311,6 +315,15 @@ IntVector2 Clamp<IntVector2>(const IntVector2& valueToClamp, const IntVector2& m
 }
 
 template<>
+IntVector3 Clamp<IntVector3>(const IntVector3& valueToClamp, const IntVector3& minRange, const IntVector3& maxRange) {
+    IntVector3 result = valueToClamp;
+    result.x = Clamp(valueToClamp.x, minRange.x, maxRange.x);
+    result.y = Clamp(valueToClamp.y, minRange.y, maxRange.y);
+    result.z = Clamp(valueToClamp.z, minRange.z, maxRange.z);
+    return result;
+}
+
+template<>
 Vector2 Interpolate(const Vector2& a, const Vector2& b, float t) {
     float x = Interpolate(a.x, b.x, t);
     float y = Interpolate(a.y, b.y, t);
@@ -339,6 +352,15 @@ IntVector2 Interpolate(const IntVector2& a, const IntVector2& b, float t) {
     float x = Interpolate(static_cast<float>(a.x), static_cast<float>(b.x), t);
     float y = Interpolate(static_cast<float>(a.y), static_cast<float>(b.y), t);
     return IntVector2(Vector2(x, y));
+}
+
+template<>
+IntVector3 Interpolate(const IntVector3& a, const IntVector3& b, float t) {
+    float x = Interpolate(static_cast<float>(a.x), static_cast<float>(b.x), t);
+    float y = Interpolate(static_cast<float>(a.y), static_cast<float>(b.y), t);
+    float z = Interpolate(static_cast<float>(a.z), static_cast<float>(b.z), t);
+    return IntVector3(Vector3(x, y, z));
+
 }
 
 } //End MathUtils

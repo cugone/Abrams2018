@@ -55,6 +55,9 @@
     <ClCompile Include="Math\Capsule2.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="Math\LineSegment3.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -103,6 +106,9 @@
       <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Capsule2.hpp">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\LineSegment3.hpp">
       <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>

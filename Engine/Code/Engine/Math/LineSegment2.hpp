@@ -63,4 +63,5 @@ protected:
 private:
     void SetAngle(float angleDegrees);
 
+    friend class Capsule2;
 };

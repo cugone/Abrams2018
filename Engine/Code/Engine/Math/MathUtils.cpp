@@ -279,6 +279,10 @@ unsigned int CalculateManhattanDistance(const IntVector3& start, const IntVector
     return std::abs(end.x - start.x) + std::abs(end.y - start.y) + std::abs(end.z - start.z);
 }
 
+unsigned int CalculateManhattanDistance(const IntVector4& start, const IntVector4& end) {
+    return std::abs(end.x - start.x) + std::abs(end.y - start.y) + std::abs(end.z - start.z) + std::abs(end.w - start.w);
+}
+
 template<>
 Vector2 Clamp<Vector2>(const Vector2& valueToClamp, const Vector2& minRange, const Vector2& maxRange) {
     Vector2 result = valueToClamp;
@@ -324,6 +328,16 @@ IntVector3 Clamp<IntVector3>(const IntVector3& valueToClamp, const IntVector3& m
 }
 
 template<>
+IntVector4 Clamp<IntVector4>(const IntVector4& valueToClamp, const IntVector4& minRange, const IntVector4& maxRange) {
+    IntVector4 result = valueToClamp;
+    result.x = Clamp(valueToClamp.x, minRange.x, maxRange.x);
+    result.y = Clamp(valueToClamp.y, minRange.y, maxRange.y);
+    result.z = Clamp(valueToClamp.z, minRange.z, maxRange.z);
+    result.w = Clamp(valueToClamp.w, minRange.w, maxRange.w);
+    return result;
+}
+
+template<>
 Vector2 Interpolate(const Vector2& a, const Vector2& b, float t) {
     float x = Interpolate(a.x, b.x, t);
     float y = Interpolate(a.y, b.y, t);
@@ -360,7 +374,15 @@ IntVector3 Interpolate(const IntVector3& a, const IntVector3& b, float t) {
     float y = Interpolate(static_cast<float>(a.y), static_cast<float>(b.y), t);
     float z = Interpolate(static_cast<float>(a.z), static_cast<float>(b.z), t);
     return IntVector3(Vector3(x, y, z));
+}
 
+template<>
+IntVector4 Interpolate(const IntVector4& a, const IntVector4& b, float t) {
+    float x = Interpolate(static_cast<float>(a.x), static_cast<float>(b.x), t);
+    float y = Interpolate(static_cast<float>(a.y), static_cast<float>(b.y), t);
+    float z = Interpolate(static_cast<float>(a.z), static_cast<float>(b.z), t);
+    float w = Interpolate(static_cast<float>(a.w), static_cast<float>(b.w), t);
+    return IntVector4(Vector4(x, y, z, w));
 }
 
 } //End MathUtils

@@ -70,6 +70,9 @@
     <ClCompile Include="Math\Plane3.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="Math\Quaternion.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -133,6 +136,9 @@
       <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Plane3.hpp">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Quaternion.hpp">
       <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>

@@ -7,6 +7,7 @@
 
 #include "Engine/Math/Capsule2.hpp"
 #include "Engine/Math/Disc2.hpp"
+#include "Engine/Math/Sphere3.hpp"
 #include "Engine/Math/LineSegment2.hpp"
 #include "Engine/Math/LineSegment3.hpp"
 
@@ -354,6 +355,10 @@ bool IsPointInside(const Capsule2& capsule, const Vector2& point) {
     return CalcDistanceSquared(point, capsule.line) < (capsule.radius * capsule.radius);
 }
 
+bool IsPointInside(const Sphere3& sphere, const Vector3& point) {
+    return CalcDistanceSquared(sphere.center, point) < (sphere.radius * sphere.radius);
+}
+
 bool IsPointOn(const Disc2& disc, const Vector2& point) {
     float distanceSquared = CalcDistanceSquared(disc.center, point);
     float radiusSquared = disc.radius * disc.radius;
@@ -372,6 +377,12 @@ bool IsPointOn(const Capsule2& capsule, const Vector2& point) {
 
 bool IsPointOn(const LineSegment3& line, const Vector3& point) {
     return MathUtils::IsEquivalent(CalcDistanceSquared(point, line), 0.0f);
+}
+
+bool IsPointOn(const Sphere3& sphere, const Vector3& point) {
+    float distanceSquared = CalcDistanceSquared(sphere.center, point);
+    float radiusSquared = sphere.radius * sphere.radius;
+    return !(distanceSquared < radiusSquared || radiusSquared < distanceSquared);
 }
 
 Vector2 CalcClosestPoint(const Vector2& p, const AABB2& aabb) {
@@ -469,6 +480,11 @@ Vector3 CalcClosestPoint(const Vector3& p, const LineSegment3& line) {
     return ConL;
 }
 
+Vector3 CalcClosestPoint(const Vector3& p, const Sphere3& sphere) {
+    Vector3 dir = (p - sphere.center).GetNormalize();
+    return sphere.center + dir * sphere.radius;
+}
+
 bool DoDiscsOverlap(const Disc2& a, const Disc2& b) {
     return DoDiscsOverlap(a.center, a.radius, b.center, b.radius);
 }
@@ -500,6 +516,10 @@ bool DoAABBsOverlap(const AABB3& a, const AABB3& b) {
 }
 
 bool DoLineSegmentOverlap(const Disc2& a, const LineSegment2& b) {
+    return CalcDistanceSquared(a.center, b) < a.radius * a.radius;
+}
+
+bool DoLineSegmentOverlap(const Sphere3& a, const LineSegment3& b) {
     return CalcDistanceSquared(a.center, b) < a.radius * a.radius;
 }
 
@@ -649,6 +669,13 @@ LineSegment3 Interpolate(const LineSegment3& a, const LineSegment3& b, float t) 
     Vector3 start(Interpolate(a.start, b.start, t));
     Vector3 end(Interpolate(a.end, b.end, t));
     return LineSegment3(start, end);
+}
+
+template<>
+Sphere3 Interpolate(const Sphere3& a, const Sphere3& b, float t) {
+    Vector3 c(Interpolate(a.center, b.center, t));
+    float r(Interpolate(a.radius, b.radius, t));
+    return Sphere3(c, r);
 }
 
 } //End MathUtils

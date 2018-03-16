@@ -18,6 +18,7 @@ class Capsule2;
 class Disc2;
 class LineSegment2;
 class LineSegment3;
+class Sphere3;
 
 namespace MathUtils {
 
@@ -148,11 +149,13 @@ bool IsPointInside(const AABB2& aabb, const Vector2& point);
 bool IsPointInside(const AABB3& aabb, const Vector3& point);
 bool IsPointInside(const Disc2& disc, const Vector2& point);
 bool IsPointInside(const Capsule2& capsule, const Vector2& point);
+bool IsPointInside(const Sphere3& sphere, const Vector3& point);
 
 bool IsPointOn(const Disc2& disc, const Vector2& point);
 bool IsPointOn(const LineSegment2& line, const Vector2& point);
 bool IsPointOn(const Capsule2& capsule, const Vector2& point);
 bool IsPointOn(const LineSegment3& line, const Vector3& point);
+bool IsPointOn(const Sphere3& sphere, const Vector3& point);
 
 Vector2 CalcClosestPoint(const Vector2& p, const AABB2& aabb);
 Vector3 CalcClosestPoint(const Vector3& p, const AABB3& aabb);
@@ -160,6 +163,7 @@ Vector2 CalcClosestPoint(const Vector2& p, const Disc2& disc);
 Vector2 CalcClosestPoint(const Vector2& p, const LineSegment2& line);
 Vector2 CalcClosestPoint(const Vector2& p, const Capsule2& capsule);
 Vector3 CalcClosestPoint(const Vector3& p, const LineSegment3& line);
+Vector3 CalcClosestPoint(const Vector3& p, const Sphere3& sphere);
 
 bool DoDiscsOverlap(const Disc2& a, const Disc2& b);
 bool DoDiscsOverlap(const Vector2& centerA, float radiusA, const Vector2& centerB, float radiusB);
@@ -169,6 +173,7 @@ bool DoAABBsOverlap(const AABB2& a, const AABB2& b);
 bool DoAABBsOverlap(const AABB3& a, const AABB3& b);
 
 bool DoLineSegmentOverlap(const Disc2& a, const LineSegment2& b);
+bool DoLineSegmentOverlap(const Sphere3& a, const LineSegment3& b);
 
 bool DoCapsuleOverlap(const Disc2& a, const Capsule2& b);
 
@@ -241,6 +246,9 @@ Capsule2 Interpolate(const Capsule2& a, const Capsule2& b, float t);
 
 template<>
 LineSegment3 Interpolate(const LineSegment3& a, const LineSegment3& b, float t);
+
+template<>
+Sphere3 Interpolate(const Sphere3& a, const Sphere3& b, float t);
 
 template<typename T>
 T RangeMap(const T& valueToMap, const T& minInputRange, const T& maxInputRange, const T& minOutputRange, const T& maxOutputRange) {

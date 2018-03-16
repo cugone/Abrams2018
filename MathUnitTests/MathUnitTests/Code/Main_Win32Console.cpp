@@ -12,7 +12,7 @@
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"
 
-#include "Engine/Core/Time.hpp"
+#include "Engine/Core/TimeUtils.hpp"
 
 struct TestResults {
     unsigned int total_tests = 0;

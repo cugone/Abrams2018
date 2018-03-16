@@ -79,10 +79,10 @@
     <ClCompile Include="Math\Matrix4.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Time.cpp">
+    <ClCompile Include="Core\StringUtils.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Core\StringUtils.cpp">
+    <ClCompile Include="Core\TimeUtils.cpp">
       <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -156,10 +156,10 @@
     <ClInclude Include="Math\Matrix4.hpp">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Time.hpp">
+    <ClInclude Include="Core\StringUtils.hpp">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Core\StringUtils.hpp">
+    <ClInclude Include="Core\TimeUtils.hpp">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

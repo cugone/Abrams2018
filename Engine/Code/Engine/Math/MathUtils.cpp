@@ -6,6 +6,7 @@
 #include "Engine/Math/AABB3.hpp"
 
 #include "Engine/Math/Capsule2.hpp"
+#include "Engine/Math/Capsule3.hpp"
 #include "Engine/Math/Disc2.hpp"
 #include "Engine/Math/Sphere3.hpp"
 #include "Engine/Math/LineSegment2.hpp"
@@ -359,6 +360,10 @@ bool IsPointInside(const Sphere3& sphere, const Vector3& point) {
     return CalcDistanceSquared(sphere.center, point) < (sphere.radius * sphere.radius);
 }
 
+bool IsPointInside(const Capsule3& capsule, const Vector3& point) {
+    return CalcDistanceSquared(point, capsule.line) < (capsule.radius * capsule.radius);
+}
+
 bool IsPointOn(const Disc2& disc, const Vector2& point) {
     float distanceSquared = CalcDistanceSquared(disc.center, point);
     float radiusSquared = disc.radius * disc.radius;
@@ -382,6 +387,12 @@ bool IsPointOn(const LineSegment3& line, const Vector3& point) {
 bool IsPointOn(const Sphere3& sphere, const Vector3& point) {
     float distanceSquared = CalcDistanceSquared(sphere.center, point);
     float radiusSquared = sphere.radius * sphere.radius;
+    return !(distanceSquared < radiusSquared || radiusSquared < distanceSquared);
+}
+
+bool IsPointOn(const Capsule3& capsule, const Vector3& point) {
+    float distanceSquared = CalcDistanceSquared(point, capsule.line);
+    float radiusSquared = capsule.radius * capsule.radius;
     return !(distanceSquared < radiusSquared || radiusSquared < distanceSquared);
 }
 
@@ -485,6 +496,12 @@ Vector3 CalcClosestPoint(const Vector3& p, const Sphere3& sphere) {
     return sphere.center + dir * sphere.radius;
 }
 
+Vector3 CalcClosestPoint(const Vector3& p, const Capsule3& capsule) {
+    Vector3 closestP = CalcClosestPoint(p, capsule.line);
+    Vector3 dir_to_p = (p - closestP).GetNormalize();
+    return closestP + (dir_to_p * capsule.radius);
+}
+
 bool DoDiscsOverlap(const Disc2& a, const Disc2& b) {
     return DoDiscsOverlap(a.center, a.radius, b.center, b.radius);
 }
@@ -494,6 +511,18 @@ bool DoDiscsOverlap(const Vector2& centerA, float radiusA, const Vector2& center
 }
 
 bool DoDiscsOverlap(const Disc2& a, const Capsule2& b) {
+    return CalcDistanceSquared(a.center, b.line) < (a.radius + b.radius) * (a.radius + b.radius);
+}
+
+bool DoSpheresOverlap(const Sphere3& a, const Sphere3& b) {
+    return DoSpheresOverlap(a.center, a.radius, b.center, b.radius);
+}
+
+bool DoSpheresOverlap(const Vector3& centerA, float radiusA, const Vector3& centerB, float radiusB) {
+    return CalcDistanceSquared(centerA, centerB) < (radiusA + radiusB) * (radiusA + radiusB);
+}
+
+bool DoSpheresOverlap(const Sphere3& a, const Capsule3& b) {
     return CalcDistanceSquared(a.center, b.line) < (a.radius + b.radius) * (a.radius + b.radius);
 }
 
@@ -524,6 +553,10 @@ bool DoLineSegmentOverlap(const Sphere3& a, const LineSegment3& b) {
 }
 
 bool DoCapsuleOverlap(const Disc2& a, const Capsule2& b) {
+    return CalcDistanceSquared(a.center, b.line) < (a.radius + b.radius) * (a.radius + b.radius);
+}
+
+bool DoCapsuleOverlap(const Sphere3& a, const Capsule3& b) {
     return CalcDistanceSquared(a.center, b.line) < (a.radius + b.radius) * (a.radius + b.radius);
 }
 
@@ -676,6 +709,13 @@ Sphere3 Interpolate(const Sphere3& a, const Sphere3& b, float t) {
     Vector3 c(Interpolate(a.center, b.center, t));
     float r(Interpolate(a.radius, b.radius, t));
     return Sphere3(c, r);
+}
+
+template<>
+Capsule3 Interpolate(const Capsule3& a, const Capsule3& b, float t) {
+    LineSegment3 line(Interpolate(a.line, b.line, t));
+    float r(Interpolate(a.radius, b.radius, t));
+    return Capsule3(line, r);
 }
 
 } //End MathUtils

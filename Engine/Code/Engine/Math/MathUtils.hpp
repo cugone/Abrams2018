@@ -20,6 +20,8 @@ class LineSegment2;
 class LineSegment3;
 class Sphere3;
 class Capsule3;
+class Plane2;
+class Plane3;
 
 namespace MathUtils {
 
@@ -186,6 +188,19 @@ bool DoLineSegmentOverlap(const Sphere3& a, const LineSegment3& b);
 bool DoCapsuleOverlap(const Disc2& a, const Capsule2& b);
 bool DoCapsuleOverlap(const Sphere3& a, const Capsule3& b);
 
+bool DoPlaneOverlap(const Disc2& a, const Plane2& b);
+bool DoPlaneOverlap(const Sphere3& a, const Plane3& b);
+bool DoPlaneOverlap(const Capsule2& a, const Plane2& b);
+bool DoPlaneOverlap(const Capsule3& a, const Plane3& b);
+
+bool IsPointInFrontOfPlane(const Vector3& point, const Plane3& plane);
+bool IsPointBehindOfPlane(const Vector3& point, const Plane3& plane);
+bool IsPointOnPlane(const Vector3& point, const Plane3& plane);
+
+bool IsPointInFrontOfPlane(const Vector2& point, const Plane2& plane);
+bool IsPointBehindOfPlane(const Vector2& point, const Plane2& plane);
+bool IsPointOnPlane(const Vector2& point, const Plane2& plane);
+
 template<typename T>
 T Clamp(const T& valueToClamp, const T& minRange, const T& maxRange) {
     if(valueToClamp < minRange) {
@@ -261,6 +276,12 @@ Sphere3 Interpolate(const Sphere3& a, const Sphere3& b, float t);
 
 template<>
 Capsule3 Interpolate(const Capsule3& a, const Capsule3& b, float t);
+
+template<>
+Plane2 Interpolate(const Plane2& a, const Plane2& b, float t);
+
+template<>
+Plane3 Interpolate(const Plane3& a, const Plane3& b, float t);
 
 template<typename T>
 T RangeMap(const T& valueToMap, const T& minInputRange, const T& maxInputRange, const T& minOutputRange, const T& maxOutputRange) {

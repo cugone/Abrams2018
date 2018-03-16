@@ -4,13 +4,14 @@
 
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/AABB3.hpp"
-
 #include "Engine/Math/Capsule2.hpp"
 #include "Engine/Math/Capsule3.hpp"
 #include "Engine/Math/Disc2.hpp"
 #include "Engine/Math/Sphere3.hpp"
 #include "Engine/Math/LineSegment2.hpp"
 #include "Engine/Math/LineSegment3.hpp"
+#include "Engine/Math/Plane2.hpp"
+#include "Engine/Math/Plane3.hpp"
 
 namespace MathUtils {
 
@@ -560,6 +561,58 @@ bool DoCapsuleOverlap(const Sphere3& a, const Capsule3& b) {
     return CalcDistanceSquared(a.center, b.line) < (a.radius + b.radius) * (a.radius + b.radius);
 }
 
+bool DoPlaneOverlap(const Disc2& a, const Plane2& b) {
+    return std::fabs(DotProduct(a.center, b.normal) - b.dist) < a.radius;
+}
+
+bool DoPlaneOverlap(const Sphere3& a, const Plane3& b) {
+    return std::fabs(DotProduct(a.center, b.normal) - b.dist) < a.radius;
+}
+
+bool DoPlaneOverlap(const Capsule2& a, const Plane2& b) {
+    bool both_capsule_points_in_front = IsPointInFrontOfPlane(a.line.start, b) && IsPointInFrontOfPlane(a.line.end, b);
+    bool both_capsule_points_in_back = IsPointBehindOfPlane(a.line.start, b) && IsPointBehindOfPlane(a.line.end, b);
+
+    if(both_capsule_points_in_front || both_capsule_points_in_back) {
+        return CalcDistanceSquared(Vector2::ZERO, a.line) < (a.radius + b.dist) * (a.radius + b.dist);
+    }
+    return true;
+}
+
+bool DoPlaneOverlap(const Capsule3& a, const Plane3& b) {
+    bool both_capsule_points_in_front = IsPointInFrontOfPlane(a.line.start, b) && IsPointInFrontOfPlane(a.line.end, b);
+    bool both_capsule_points_in_back = IsPointBehindOfPlane(a.line.start, b) && IsPointBehindOfPlane(a.line.end, b);
+
+    if(both_capsule_points_in_front || both_capsule_points_in_back) {
+        return CalcDistanceSquared(Vector3::ZERO, a.line) < (a.radius + b.dist) * (a.radius + b.dist);
+    }
+    return true;
+}
+
+bool IsPointInFrontOfPlane(const Vector3& point, const Plane3& plane) {
+    return (DotProduct(point, plane.normal) > plane.dist);
+}
+
+bool IsPointBehindOfPlane(const Vector3& point, const Plane3& plane) {
+    return (DotProduct(point, plane.normal) < plane.dist);
+}
+
+bool IsPointOnPlane(const Vector3& point, const Plane3& plane) {
+    return !IsPointInFrontOfPlane(point, plane) && !IsPointBehindOfPlane(point, plane);
+}
+
+bool IsPointInFrontOfPlane(const Vector2& point, const Plane2& plane) {
+    return (DotProduct(point, plane.normal) > plane.dist);
+}
+
+bool IsPointBehindOfPlane(const Vector2& point, const Plane2& plane) {
+    return (DotProduct(point, plane.normal) < plane.dist);
+}
+
+bool IsPointOnPlane(const Vector2& point, const Plane2& plane) {
+    return !IsPointInFrontOfPlane(point, plane) && !IsPointBehindOfPlane(point, plane);
+}
+
 template<>
 Vector2 Clamp<Vector2>(const Vector2& valueToClamp, const Vector2& minRange, const Vector2& maxRange) {
     Vector2 result = valueToClamp;
@@ -716,6 +769,20 @@ Capsule3 Interpolate(const Capsule3& a, const Capsule3& b, float t) {
     LineSegment3 line(Interpolate(a.line, b.line, t));
     float r(Interpolate(a.radius, b.radius, t));
     return Capsule3(line, r);
+}
+
+template<>
+Plane2 Interpolate(const Plane2& a, const Plane2& b, float t) {
+    float d = Interpolate(a.dist, b.dist, t);
+    Vector2 n = Interpolate(a.normal, b.normal, t);
+    return Plane2(n, d);
+}
+
+template<>
+Plane3 Interpolate(const Plane3& a, const Plane3& b, float t) {
+    float d = Interpolate(a.dist, b.dist, t);
+    Vector3 n = Interpolate(a.normal, b.normal, t);
+    return Plane3(n, d);
 }
 
 } //End MathUtils

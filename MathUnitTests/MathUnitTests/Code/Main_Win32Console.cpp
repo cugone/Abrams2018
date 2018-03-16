@@ -1,12 +1,18 @@
+
 #include <functional>
 #include <iomanip>
 #include <iostream>
 #include <string>
 
+#include <thread>
+#include <chrono>
+
 #include "Engine/Math/MathUtils.hpp"
 
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"
+
+#include "Engine/Core/Time.hpp"
 
 struct TestResults {
     unsigned int total_tests = 0;

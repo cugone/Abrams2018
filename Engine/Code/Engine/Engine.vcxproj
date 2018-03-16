@@ -32,6 +32,7 @@
     <ClCompile Include="Math\LineSegment2.cpp" />
     <ClCompile Include="Math\LineSegment3.cpp" />
     <ClCompile Include="Math\MathUtils.cpp" />
+    <ClCompile Include="Math\Matrix4.cpp" />
     <ClCompile Include="Math\Noise.cpp" />
     <ClCompile Include="Math\Plane2.cpp" />
     <ClCompile Include="Math\Plane3.cpp" />
@@ -56,6 +57,7 @@
     <ClInclude Include="Math\LineSegment2.hpp" />
     <ClInclude Include="Math\LineSegment3.hpp" />
     <ClInclude Include="Math\MathUtils.hpp" />
+    <ClInclude Include="Math\Matrix4.hpp" />
     <ClInclude Include="Math\Noise.hpp" />
     <ClInclude Include="Math\Plane2.hpp" />
     <ClInclude Include="Math\Plane3.hpp" />

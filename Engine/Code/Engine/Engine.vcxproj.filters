@@ -85,6 +85,9 @@
     <ClCompile Include="Core\TimeUtils.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Rgba.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -160,6 +163,9 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\TimeUtils.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Rgba.hpp">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

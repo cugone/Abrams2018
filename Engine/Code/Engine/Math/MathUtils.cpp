@@ -8,6 +8,7 @@
 #include "Engine/Math/Capsule2.hpp"
 #include "Engine/Math/Disc2.hpp"
 #include "Engine/Math/LineSegment2.hpp"
+#include "Engine/Math/LineSegment3.hpp"
 
 namespace MathUtils {
 
@@ -215,6 +216,10 @@ float CalcDistance(const Vector2& p, const LineSegment2& line) {
     return std::sqrt(CalcDistanceSquared(p, line));
 }
 
+float CalcDistance(const Vector3& p, const LineSegment3& line) {
+    return std::sqrt(CalcDistanceSquared(p, line));
+}
+
 float CalcDistance4D(const Vector4& a, const Vector4& b) {
     return (b - a).CalcLength4D();
 }
@@ -236,6 +241,10 @@ float CalcDistanceSquared(const Vector4& a, const Vector4& b) {
 }
 
 float CalcDistanceSquared(const Vector2& p, const LineSegment2& line) {
+    return CalcDistanceSquared(p, CalcClosestPoint(p, line));
+}
+
+float CalcDistanceSquared(const Vector3& p, const LineSegment3& line) {
     return CalcDistanceSquared(p, CalcClosestPoint(p, line));
 }
 
@@ -361,6 +370,10 @@ bool IsPointOn(const Capsule2& capsule, const Vector2& point) {
     return !(distanceSquared < radiusSquared || radiusSquared < distanceSquared);
 }
 
+bool IsPointOn(const LineSegment3& line, const Vector3& point) {
+    return MathUtils::IsEquivalent(CalcDistanceSquared(point, line), 0.0f);
+}
+
 Vector2 CalcClosestPoint(const Vector2& p, const AABB2& aabb) {
     if(IsPointInside(aabb, p)) {
         return p;
@@ -432,6 +445,28 @@ Vector2 CalcClosestPoint(const Vector2& p, const Capsule2& capsule) {
     Vector2 closestP = CalcClosestPoint(p, capsule.line);
     Vector2 dir_to_p = (p - closestP).GetNormalize();
     return closestP + (dir_to_p * capsule.radius);
+}
+
+Vector3 CalcClosestPoint(const Vector3& p, const LineSegment3& line) {
+    Vector3 D = line.end - line.start;
+    Vector3 T = D.GetNormalize();
+    Vector3 SP = p - line.start;
+    float regionI = MathUtils::DotProduct(T, SP);
+    if(regionI < 0.0f) {
+        return line.start;
+    }
+
+    Vector3 EP = p - line.end;
+    float regionII = MathUtils::DotProduct(T, EP);
+    if(regionII > 0.0f) {
+        return line.end;
+    }
+
+    Vector3 directionSE = D.GetNormalize();
+    float lengthToClosestPoint = MathUtils::DotProduct(directionSE, SP);
+    Vector3 C = directionSE * lengthToClosestPoint;
+    Vector3 ConL = line.start + C;
+    return ConL;
 }
 
 bool DoDiscsOverlap(const Disc2& a, const Disc2& b) {
@@ -607,6 +642,13 @@ Capsule2 Interpolate(const Capsule2& a, const Capsule2& b, float t) {
     LineSegment2 line(Interpolate(a.line, b.line, t));
     float r(Interpolate(a.radius, b.radius, t));
     return Capsule2(line, r);
+}
+
+template<>
+LineSegment3 Interpolate(const LineSegment3& a, const LineSegment3& b, float t) {
+    Vector3 start(Interpolate(a.start, b.start, t));
+    Vector3 end(Interpolate(a.end, b.end, t));
+    return LineSegment3(start, end);
 }
 
 } //End MathUtils

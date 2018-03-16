@@ -12,6 +12,7 @@
 #include "Engine/Math/LineSegment3.hpp"
 #include "Engine/Math/Plane2.hpp"
 #include "Engine/Math/Plane3.hpp"
+#include "Engine/Math/Quaternion.hpp"
 
 namespace MathUtils {
 
@@ -203,6 +204,10 @@ bool IsEquivalent(const Vector4& a, const Vector4& b, float epsilon /*= 0.0001f*
     return IsEquivalent(a.x, b.x, epsilon) && IsEquivalent(a.y, b.y, epsilon) && IsEquivalent(a.z, b.z, epsilon) && IsEquivalent(a.w, b.w, epsilon);
 }
 
+bool IsEquivalent(const Quaternion& a, const Quaternion& b, float epsilon /*= 0.0001f*/) {
+    return IsEquivalent(a.w, b.w, epsilon) && IsEquivalent(a.axis, b.axis, epsilon);
+}
+
 float CalcDistance(const Vector2& a, const Vector2& b) {
     return (b - a).CalcLength();
 }
@@ -271,6 +276,10 @@ float DotProduct(const Vector4& a, const Vector4& b) {
     return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 }
 
+float DotProduct(const Quaternion& a, const Quaternion& b) {
+    return (a.w * b.w) + DotProduct(a.axis, b.axis);
+}
+
 Vector3 CrossProduct(const Vector3& a, const Vector3& b) {
     float a1 = a.x;
     float a2 = a.y;
@@ -305,6 +314,14 @@ Vector3 Reflect(const Vector3& in, const Vector3& normal) {
 
 Vector4 Reflect(const Vector4& in, const Vector4& normal) {
     return in - ((2.0f * DotProduct(in, normal)) * normal);
+}
+
+Vector2 Rotate(const Vector2& v, const Quaternion& q) {
+    return Vector2(Rotate(Vector3(v, 0.0f), q));
+}
+
+Vector3 Rotate(const Vector3& v, const Quaternion& q) {
+    return (q * v * q.CalcInverse()).axis;
 }
 
 Vector2 ProjectAlongPlane(const Vector2& v, const Vector2& n) {
@@ -613,6 +630,59 @@ bool IsPointOnPlane(const Vector2& point, const Plane2& plane) {
     return !IsPointInFrontOfPlane(point, plane) && !IsPointBehindOfPlane(point, plane);
 }
 
+float CalculateMatrix3Determinant(float m00, float m01, float m02,
+                                  float m10, float m11, float m12,
+                                  float m20, float m21, float m22) {
+    float a = m00;
+    float b = m01;
+    float c = m02;
+    float det_not_a = CalculateMatrix2Determinant(m11, m12, m21, m22);
+    float det_not_b = CalculateMatrix2Determinant(m10, m12, m20, m22);
+    float det_not_c = CalculateMatrix2Determinant(m10, m11, m20, m21);
+
+    return a * det_not_a - b * det_not_b + c * det_not_c;
+}
+
+float CalculateMatrix2Determinant(float m00, float m01,
+                                  float m10, float m11) {
+    return m00 * m11 - m01 * m10;
+}
+
+/************************************************************************/
+/* https://en.wikipedia.org/wiki/Slerp#Source_Code                      */
+/************************************************************************/
+Quaternion SLERP(const Quaternion& a, const Quaternion& b, float t) {
+    Quaternion start = a;
+    Quaternion end = b;
+
+    start.Normalize();
+    end.Normalize();
+
+    float dp = MathUtils::DotProduct(start, end);
+
+    if(dp < 0.0f) {
+        end = -end;
+        dp = -dp;
+    }
+
+    //Really close together
+    if(dp > 0.99995f) {
+        Quaternion result = MathUtils::Interpolate(start, end, t);
+        result.Normalize();
+        return result;
+    }
+
+    dp = MathUtils::Clamp(dp, -1.0f, 1.0f);
+
+    float theta_0 = std::acos(dp);
+    float theta = theta_0 * t;
+
+    float scale0 = std::cos(theta) - dp * std::sin(theta) / std::sin(theta_0);
+    float scale1 = std::sin(theta) / std::sin(theta_0);
+
+    return (scale0 * start) + (scale1 * end);
+}
+
 template<>
 Vector2 Clamp<Vector2>(const Vector2& valueToClamp, const Vector2& minRange, const Vector2& maxRange) {
     Vector2 result = valueToClamp;
@@ -783,6 +853,13 @@ Plane3 Interpolate(const Plane3& a, const Plane3& b, float t) {
     float d = Interpolate(a.dist, b.dist, t);
     Vector3 n = Interpolate(a.normal, b.normal, t);
     return Plane3(n, d);
+}
+
+template<>
+Quaternion Interpolate(const Quaternion& a, const Quaternion& b, float t) {
+    float w = Interpolate(a.w, b.w, t);
+    Vector3 axis = Interpolate(a.axis, b.axis, t);
+    return Quaternion(w, axis);
 }
 
 } //End MathUtils

@@ -22,6 +22,7 @@ class Sphere3;
 class Capsule3;
 class Plane2;
 class Plane3;
+class Quaternion;
 
 namespace MathUtils {
 
@@ -113,6 +114,7 @@ bool IsEquivalent(long double a, long double b, long double epsilon = 0.0001L);
 bool IsEquivalent(const Vector2& a, const Vector2& b, float epsilon = 0.0001f);
 bool IsEquivalent(const Vector3& a, const Vector3& b, float epsilon = 0.0001f);
 bool IsEquivalent(const Vector4& a, const Vector4& b, float epsilon = 0.0001f);
+bool IsEquivalent(const Quaternion& a, const Quaternion& b, float epsilon = 0.0001f);
 
 float CalcDistance(const Vector2& a, const Vector2& b);
 float CalcDistance(const Vector3& a, const Vector3& b);
@@ -131,6 +133,7 @@ Vector3 CrossProduct(const Vector3& a, const Vector3& b);
 float DotProduct(const Vector2& a, const Vector2& b);
 float DotProduct(const Vector3& a, const Vector3& b);
 float DotProduct(const Vector4& a, const Vector4& b);
+float DotProduct(const Quaternion& a, const Quaternion& b);
 
 Vector2 Project(const Vector2& a, const Vector2& b);
 Vector3 Project(const Vector3& a, const Vector3& b);
@@ -139,6 +142,9 @@ Vector4 Project(const Vector4& a, const Vector4& b);
 Vector2 Reflect(const Vector2& in, const Vector2& normal);
 Vector3 Reflect(const Vector3& in, const Vector3& normal);
 Vector4 Reflect(const Vector4& in, const Vector4& normal);
+
+Vector2 Rotate(const Vector2& v, const Quaternion& q);
+Vector3 Rotate(const Vector3& v, const Quaternion& q);
 
 Vector2 ProjectAlongPlane(const Vector2& v, const Vector2& n);
 Vector3 ProjectAlongPlane(const Vector3& v, const Vector3& n);
@@ -200,6 +206,17 @@ bool IsPointOnPlane(const Vector3& point, const Plane3& plane);
 bool IsPointInFrontOfPlane(const Vector2& point, const Plane2& plane);
 bool IsPointBehindOfPlane(const Vector2& point, const Plane2& plane);
 bool IsPointOnPlane(const Vector2& point, const Plane2& plane);
+
+//Column major
+float CalculateMatrix3Determinant(float m00, float m01, float m02,
+                                  float m10, float m11, float m12,
+                                  float m20, float m21, float m22);
+
+//Column major
+float CalculateMatrix2Determinant(float m00, float m01,
+                                  float m10, float m11);
+
+Quaternion SLERP(const Quaternion& a, const Quaternion& b, float t);
 
 template<typename T>
 T Clamp(const T& valueToClamp, const T& minRange, const T& maxRange) {
@@ -282,6 +299,9 @@ Plane2 Interpolate(const Plane2& a, const Plane2& b, float t);
 
 template<>
 Plane3 Interpolate(const Plane3& a, const Plane3& b, float t);
+
+template<>
+Quaternion Interpolate(const Quaternion& a, const Quaternion& b, float t);
 
 template<typename T>
 T RangeMap(const T& valueToMap, const T& minInputRange, const T& maxInputRange, const T& minOutputRange, const T& maxOutputRange) {

@@ -1,6 +1,7 @@
 #include "Engine/Math/Vector4.hpp"
 
 #include <cmath>
+#include <sstream>
 
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"
@@ -30,6 +31,62 @@ const Vector4 Vector4::YZW_AXIS(0.0f, 1.0f, 1.0f, 1.0f);
 const Vector4 Vector4::XZW_AXIS(1.0f, 0.0f, 1.0f, 1.0f);
 const Vector4 Vector4::XYW_AXIS(1.0f, 1.0f, 0.0f, 1.0f);
 
+
+Vector4::Vector4(const Vector3& xyz, float initialW)
+    : x(xyz.x)
+    , y(xyz.y)
+    , z(xyz.z)
+    , w(initialW) {
+    /* DO NOTHING */
+}
+
+Vector4::Vector4(const Vector2& xy, float initialZ, float initialW)
+    : x(xy.x)
+    , y(xy.y)
+    , z(initialZ)
+    , w(initialW) {
+    /* DO NOTHING */
+}
+
+Vector4::Vector4(const Vector2& xy, const Vector2& zw)
+    : x(xy.x)
+    , y(xy.y)
+    , z(zw.x)
+    , w(zw.y) {
+    /* DO NOTHING */
+}
+
+Vector4::Vector4(float initialX, float initialY, float initialZ, float initialW)
+    : x(initialX)
+    , y(initialY)
+    , z(initialZ)
+    , w(initialW) {
+    /* DO NOTHING */
+}
+
+Vector4::Vector4(const std::string& value)
+    : x(0.0f)
+    , y(0.0f)
+    , z(0.0f)
+    , w(0.0f)
+{
+    if(value[0] == '[') {
+        if(value.back() == ']') {
+            std::stringstream ss(value.substr(1, value.size() - 1));
+            std::string curLine;
+            for(int i = 0; std::getline(ss, curLine, ','); ++i) {
+                switch(i) {
+                    case 0: x = std::stof(curLine); break;
+                    case 1: y = std::stof(curLine); break;
+                    case 2: z = std::stof(curLine); break;
+                    case 3: w = std::stof(curLine); break;
+                }
+            }
+        }
+    }
+}
+
+
 Vector4& Vector4::operator+=(const Vector4& rhs) {
     x += rhs.x;
     y += rhs.y;
@@ -52,6 +109,35 @@ Vector4 Vector4::operator-(const Vector4& rhs) const {
 
 Vector4 Vector4::operator-() const {
     return Vector4(-x, -y, -z, -w);
+}
+
+std::ostream& operator<<(std::ostream& out_stream, const Vector4& v) {
+    out_stream << '[' << v.x << ',' << v.y << ',' << v.z << v.w << ']';
+    return out_stream;
+}
+
+std::istream& operator>>(std::istream& in_stream, Vector4& v) {
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+    float w = 0.0f;
+
+    in_stream.ignore(); //[
+    in_stream >> x;
+    in_stream.ignore(); //,
+    in_stream >> y;
+    in_stream.ignore(); //,
+    in_stream >> z;
+    in_stream.ignore(); //,
+    in_stream >> w;
+    in_stream.ignore(); //]
+
+    v.x = x;
+    v.y = y;
+    v.z = z;
+    v.w = w;
+
+    return in_stream;
 }
 
 void Vector4::GetXYZ(float& out_x, float& out_y, float& out_z) {
@@ -80,7 +166,7 @@ void Vector4::SetXYZW(float newX, float newY, float newZ, float newW) {
     w = newW;
 }
 
-const float* Vector4::GetAsFloatArray() const {
+float* Vector4::GetAsFloatArray() {
     return &x;
 }
 
@@ -197,42 +283,6 @@ Vector4 Vector4::GetNormalize3D() const {
         return Vector4(x * inv_length, y * inv_length, z * inv_length, w);
     }
     return Vector4::ZERO_XYZ_ONE_W;
-}
-
-Vector4::Vector4(const Vector3& xyz, float initialW)
-    : x(xyz.x)
-    , y(xyz.y)
-    , z(xyz.z)
-    , w(initialW)
-{
-    /* DO NOTHING */
-}
-
-Vector4::Vector4(const Vector2& xy, float initialZ, float initialW)
-    : x(xy.x)
-    , y(xy.y)
-    , z(initialZ)
-    , w(initialW)
-{
-    /* DO NOTHING */
-}
-
-Vector4::Vector4(const Vector2& xy, const Vector2& zw)
-    : x(xy.x)
-    , y(xy.y)
-    , z(zw.x)
-    , w(zw.y)
-{
-    /* DO NOTHING */
-}
-
-Vector4::Vector4(float initialX, float initialY, float initialZ, float initialW)
-    : x(initialX)
-    , y(initialY)
-    , z(initialZ)
-    , w(initialW)
-{
-    /* DO NOTHING */
 }
 
 Vector4 Vector4::operator+(const Vector4& rhs) const {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 class Vector2;
 class Vector3;
 
@@ -35,11 +37,12 @@ public:
 
     Vector4() = default;
     ~Vector4() = default;
-
     Vector4(const Vector4& rhs) = default;
     Vector4(Vector4&& rhs) = default;
     Vector4& operator=(const Vector4& rhs) = default;
     Vector4& operator=(Vector4&& rhs) = default;
+
+    explicit Vector4(const std::string& value);
     explicit Vector4(const Vector3& xyz, float initialW);
     explicit Vector4(const Vector2& xy, float initialZ, float initialW);
     explicit Vector4(const Vector2& xy, const Vector2& zw);
@@ -64,12 +67,15 @@ public:
 
     Vector4 operator-() const;
 
+    friend std::ostream& operator<<(std::ostream& out_stream, const Vector4& v);
+    friend std::istream& operator>>(std::istream& in_stream, Vector4& v);
+
     void GetXYZ(float& out_x, float& out_y, float& out_z);
     void GetXYZW(float& out_x, float& out_y, float& out_z, float& out_w);
     void SetXYZ(float newX, float newY, float newZ);
     void SetXYZW(float newX, float newY, float newZ, float newW);
 
-    const float* GetAsFloatArray() const;
+    float* GetAsFloatArray();
 
     float CalcLength3D() const;
     float CalcLength3DSquared() const;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 class Vector3;
 
 class Vector2 {
@@ -17,6 +19,7 @@ public:
     Vector2& operator=(Vector2&& rhs) = default;
     ~Vector2() = default;
 
+    explicit Vector2(const std::string& value);
     explicit Vector2(float initialX, float initialY);
     explicit Vector2(const Vector3& rhs);
 
@@ -41,8 +44,11 @@ public:
     bool operator==(const Vector2& rhs) const;
     bool operator!=(const Vector2& rhs) const;
 
+    friend std::ostream& operator<<(std::ostream& out_stream, const Vector2& v);
+    friend std::istream& operator>>(std::istream& in_stream, Vector2& v);
+
     void GetXY(float& outX, float& outY) const;
-    const float* GetAsFloatArray() const;
+    float* GetAsFloatArray();
 
     float CalcHeadingRadians() const;
     float CalcHeadingDegrees() const;

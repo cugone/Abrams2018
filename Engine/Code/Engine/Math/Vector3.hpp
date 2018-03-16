@@ -1,6 +1,10 @@
 #pragma once
 
+#include <string>
+
 class Vector2;
+class Vector4;
+class Quaternion;
 
 class Vector3 {
 public:
@@ -22,9 +26,12 @@ public:
     Vector3& operator=(Vector3&& rhs) = default;
     ~Vector3() = default;
 
+    explicit Vector3(const std::string& value);
     explicit Vector3(float initialX, float initialY, float initialZ);
     explicit Vector3(const Vector2& vec2);
     explicit Vector3(const Vector2& xy, float initialZ);
+    explicit Vector3(const Vector4& vec4);
+    explicit Vector3(const Quaternion& q);
 
     Vector3 operator+(const Vector3& rhs) const;
     Vector3& operator+=(const Vector3& rhs);
@@ -47,8 +54,11 @@ public:
     bool operator==(const Vector3& rhs) const;
     bool operator!=(const Vector3& rhs) const;
 
+    friend std::ostream& operator<<(std::ostream& out_stream, const Vector3& v);
+    friend std::istream& operator>>(std::istream& in_stream, Vector3& v);
+
     void GetXYZ(float& outX, float& outY, float& outZ) const;
-    const float* GetAsFloatArray() const;
+    float* GetAsFloatArray();
 
     float CalcLength() const;
     float CalcLengthSquared() const;

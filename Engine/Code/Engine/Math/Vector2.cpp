@@ -1,6 +1,7 @@
 #include "Engine/Math/Vector2.hpp"
 
 #include <cmath>
+#include <sstream>
 
 #include "Engine/Math/MathUtils.hpp"
 
@@ -22,6 +23,25 @@ Vector2::Vector2(const Vector3& rhs)
 {
     /* DO NOTHING */
 }
+
+Vector2::Vector2(const std::string& value)
+    : x(0.0f)
+    , y(0.0f)
+{
+    if(value[0] == '[') {
+        if(value.back() == ']') {
+            std::stringstream ss(value.substr(1, value.size() - 1));
+            std::string curLine;
+            for(int i = 0; std::getline(ss, curLine, ','); ++i) {
+                switch(i) {
+                    case 0: x = std::stof(curLine); break;
+                    case 1: y = std::stof(curLine); break;
+                }
+            }
+        }
+    }
+}
+
 
 Vector2 Vector2::operator+(const Vector2& rhs) const {
     return Vector2(x + rhs.x, y + rhs.y);
@@ -99,12 +119,35 @@ bool Vector2::operator!=(const Vector2& rhs) const {
     return !(*this == rhs);
 }
 
+
+std::ostream& operator<<(std::ostream& out_stream, const Vector2& v) {
+    out_stream << '[' << v.x << ',' << v.y << ',' << ']';
+    return out_stream;
+}
+
+std::istream& operator>>(std::istream& in_stream, Vector2& v) {
+    float x = 0.0f;
+    float y = 0.0f;
+
+    in_stream.ignore(); //[
+    in_stream >> x;
+    in_stream.ignore(); //,
+    in_stream >> y;
+    in_stream.ignore(); //]
+
+    v.x = x;
+    v.y = y;
+
+    return in_stream;
+}
+
+
 void Vector2::GetXY(float& outX, float& outY) const {
     outX = x;
     outY = y;
 }
 
-const float* Vector2::GetAsFloatArray() const {
+float* Vector2::GetAsFloatArray() {
     return &x;
 }
 

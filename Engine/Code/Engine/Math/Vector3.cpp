@@ -1,10 +1,13 @@
 #include "Engine/Math/Vector3.hpp"
 
 #include <cmath>
+#include <sstream>
 
 #include "Engine/Math/MathUtils.hpp"
 
 #include "Engine/Math/Vector2.hpp"
+#include "Engine/Math/Vector4.hpp"
+#include "Engine/Math/Quaternion.hpp"
 
 const Vector3 Vector3::ZERO(0.0f, 0.0f, 0.0f);
 const Vector3 Vector3::X_AXIS(1.0f, 0.0f, 0.0f);
@@ -37,6 +40,42 @@ Vector3::Vector3(const Vector2& vec2)
     , z(0.0f)
 {
     /* DO NOTHING */
+}
+
+Vector3::Vector3(const Vector4& vec4)
+    : x(vec4.x)
+    , y(vec4.y)
+    , z(vec4.z)
+{
+    /* DO NOTHING */
+}
+
+Vector3::Vector3(const Quaternion& q)
+    : x(q.axis.x)
+    , y(q.axis.y)
+    , z(q.axis.z)
+{
+    Normalize();
+}
+
+Vector3::Vector3(const std::string& value)
+    : x(0.0f)
+    , y(0.0f)
+    , z(0.0f)
+{
+    if(value[0] == '[') {
+        if(value.back() == ']') {
+            std::stringstream ss(value.substr(1, value.size() - 1));
+            std::string curLine;
+            for(int i = 0; std::getline(ss, curLine, ','); ++i) {
+                switch(i) {
+                    case 0: x = std::stof(curLine); break;
+                    case 1: y = std::stof(curLine); break;
+                    case 2: z = std::stof(curLine); break;
+                }
+            }
+        }
+    }
 }
 
 Vector3 Vector3::operator+(const Vector3& rhs) const {
@@ -121,13 +160,38 @@ bool Vector3::operator!=(const Vector3& rhs) const {
     return !(*this == rhs);
 }
 
+std::ostream& operator<<(std::ostream& out_stream, const Vector3& v) {
+    out_stream << '[' << v.x << ',' << v.y << ',' << v.z << ']';
+    return out_stream;
+}
+
+std::istream& operator>>(std::istream& in_stream, Vector3& v) {
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+
+    in_stream.ignore(); //[
+    in_stream >> x;
+    in_stream.ignore(); //,
+    in_stream >> y;
+    in_stream.ignore(); //,
+    in_stream >> z;
+    in_stream.ignore(); //]
+
+    v.x = x;
+    v.y = y;
+    v.z = z;
+
+    return in_stream;
+}
+
 void Vector3::GetXYZ(float& outX, float& outY, float& outZ) const {
     outX = x;
     outY = y;
     outZ = z;
 }
 
-const float* Vector3::GetAsFloatArray() const {
+float* Vector3::GetAsFloatArray() {
     return &x;
 }
 

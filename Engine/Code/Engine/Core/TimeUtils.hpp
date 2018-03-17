@@ -6,9 +6,9 @@
 namespace TimeUtils {
 
 //Get the elapsed time between calls (defaults to double-precision seconds)
-template<typename Duration = std::chrono::duration<double>>
+template<typename Duration = std::chrono::duration<double>
+        , typename Clock = std::chrono::high_resolution_clock>
 decltype(auto) GetCurrentTimeElapsed() {
-    using Clock = std::chrono::high_resolution_clock;
     static auto initial_now = time_point_cast<Duration>(Clock::now());
     auto now = time_point_cast<Duration>(Clock::now());
     return (now - initial_now).count();

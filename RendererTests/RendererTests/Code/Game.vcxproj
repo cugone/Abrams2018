@@ -159,12 +159,12 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Engine\Code\Engine\Engine.vcxproj">
-      <Project>{acbda225-83de-4fba-a746-0135429fb391}</Project>
-    </ProjectReference>
+    <ClCompile Include="Main_Win32.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main_Win32.cpp" />
+    <ProjectReference Include="..\..\..\Engine\Code\Engine\Engine.vcxproj">
+      <Project>{acbda225-83de-4fba-a746-0135429fb391}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

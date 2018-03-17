@@ -121,6 +121,15 @@
     <ClCompile Include="Renderer\DirectX\D3DRenderer.cpp">
       <Filter>Renderer\DirectX</Filter>
     </ClCompile>
+    <ClCompile Include="RHI\RHIInstance.cpp">
+      <Filter>RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\DirectX\DX11.cpp">
+      <Filter>Renderer\DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\EngineBase.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -224,6 +233,18 @@
     </ClInclude>
     <ClInclude Include="Renderer\DirectX\D3DRenderer.hpp">
       <Filter>Renderer\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Win.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="RHI\RHIInstance.hpp">
+      <Filter>RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\DirectX\DX11.hpp">
+      <Filter>Renderer\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\EngineBase.hpp">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

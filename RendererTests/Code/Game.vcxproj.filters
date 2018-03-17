@@ -7,15 +7,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main_Win32.cpp">
+    <ClCompile Include="Game\App.cpp">
       <Filter>General</Filter>
     </ClCompile>
-    <ClCompile Include="App.cpp">
+    <ClCompile Include="Game\GameCommon.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameConfig.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Main_Win32.cpp">
       <Filter>General</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="App.hpp">
+    <ClInclude Include="Game\App.hpp">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameCommon.hpp">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameConfig.hpp">
       <Filter>General</Filter>
     </ClInclude>
   </ItemGroup>

@@ -10,5 +10,13 @@
     <ClCompile Include="Main_Win32.cpp">
       <Filter>General</Filter>
     </ClCompile>
+    <ClCompile Include="App.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="App.hpp">
+      <Filter>General</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

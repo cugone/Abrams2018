@@ -44,6 +44,12 @@
     <ClCompile Include="Math\Vector2.cpp" />
     <ClCompile Include="Math\Vector3.cpp" />
     <ClCompile Include="Math\Vector4.cpp" />
+    <ClCompile Include="Renderer\DirectX\D3DRenderer.cpp" />
+    <ClCompile Include="Renderer\OpenGL\OGLRenderer.cpp" />
+    <ClCompile Include="Renderer\Window.cpp" />
+    <ClCompile Include="RHI\RHIDevice.cpp" />
+    <ClCompile Include="RHI\RHIDeviceContext.cpp" />
+    <ClCompile Include="RHI\RHIOutput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Thirdparty\stb\stb_image.h" />
@@ -72,6 +78,14 @@
     <ClInclude Include="Math\Vector2.hpp" />
     <ClInclude Include="Math\Vector3.hpp" />
     <ClInclude Include="Math\Vector4.hpp" />
+    <ClInclude Include="Renderer\DirectX\D3DRenderer.hpp" />
+    <ClInclude Include="Renderer\OpenGL\OGLRenderer.hpp" />
+    <ClInclude Include="Renderer\Renderer.hpp" />
+    <ClInclude Include="Renderer\Window.hpp" />
+    <ClInclude Include="RHI\RHI.hpp" />
+    <ClInclude Include="RHI\RHIDevice.hpp" />
+    <ClInclude Include="RHI\RHIDeviceContext.hpp" />
+    <ClInclude Include="RHI\RHIOutput.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

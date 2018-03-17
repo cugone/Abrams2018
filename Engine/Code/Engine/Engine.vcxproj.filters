@@ -11,6 +11,21 @@
     <Filter Include="Core">
       <UniqueIdentifier>{a792c07b-7cfe-4c8b-8cbe-52d26e5569a9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="RHI">
+      <UniqueIdentifier>{cce0ad43-3003-47c5-98e6-c41f1b129827}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{c48deb96-0ccd-487c-8806-a569e8432cde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\DirectX">
+      <UniqueIdentifier>{de89e924-c25c-4a06-8c2f-ad6a66dcc026}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\OpenGL">
+      <UniqueIdentifier>{585b333f-7c18-49a3-a74b-8250c0623594}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\Core">
+      <UniqueIdentifier>{81bcac69-e903-46e1-bbe6-c9f41a332b44}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">
@@ -87,6 +102,24 @@
     </ClCompile>
     <ClCompile Include="Core\Rgba.cpp">
       <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="RHI\RHIDevice.cpp">
+      <Filter>RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="RHI\RHIDeviceContext.cpp">
+      <Filter>RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="RHI\RHIOutput.cpp">
+      <Filter>RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Window.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\OpenGL\OGLRenderer.cpp">
+      <Filter>Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\DirectX\D3DRenderer.cpp">
+      <Filter>Renderer\DirectX</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -167,6 +200,30 @@
     </ClInclude>
     <ClInclude Include="Core\Rgba.hpp">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="RHI\RHI.hpp">
+      <Filter>RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="RHI\RHIDevice.hpp">
+      <Filter>RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="RHI\RHIDeviceContext.hpp">
+      <Filter>RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="RHI\RHIOutput.hpp">
+      <Filter>RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Renderer.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Window.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\OpenGL\OGLRenderer.hpp">
+      <Filter>Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\DirectX\D3DRenderer.hpp">
+      <Filter>Renderer\DirectX</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

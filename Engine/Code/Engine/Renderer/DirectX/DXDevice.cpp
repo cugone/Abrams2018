@@ -10,6 +10,7 @@
 
 #include "Engine/Renderer/DirectX/DXOutput.hpp"
 #include "Engine/Renderer/DirectX/DXDeviceContext.hpp"
+#include "Engine/Renderer/DirectX/DXDepthStencilState.hpp"
 
 DXDevice::DXDevice()
     : RHIDevice()
@@ -19,6 +20,8 @@ DXDevice::DXDevice()
 }
 
 DXDevice::~DXDevice() {
+    delete _highestSupportedFeatureLevel;
+    _highestSupportedFeatureLevel = nullptr;
     _dx_device->Release();
     _dx_device = nullptr;
 }
@@ -38,6 +41,43 @@ RHIOutput* DXDevice::CreateOutput(const IntVector2& clientSize, const IntVector2
     return CreateOutputFromWindow(window);
 }
 
+bool DXDevice::CreateDepthStencilState(DepthStencilState* state, bool enableDepthTest /*= true */, bool enableStencilTest /*= false */, bool enableDepthWrite /*= true */, bool enableStencilRead /*= true */, bool enableStencilWrite /*= true */, const ComparisonFunction& depthComparison /*= ComparisonFunction::LESS */, std::pair<const StencilOperation&, const StencilOperation&> failFrontBackOp /*= std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP) */, std::pair<const StencilOperation&, const StencilOperation&> failDepthFrontBackOp /*= std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP) */, std::pair<const StencilOperation&, const StencilOperation&> passFrontBackOp /*= std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP) */, std::pair<const ComparisonFunction&, const ComparisonFunction&> stencilComparisonFrontBack /*= std::make_pair(ComparisonFunction::ALWAYS, ComparisonFunction::ALWAYS) */) {
+
+    D3D11_DEPTH_STENCIL_DESC dsDesc;
+
+    // Depth test parameters
+    dsDesc.DepthEnable = enableDepthTest;
+    dsDesc.DepthWriteMask = enableDepthWrite ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
+    dsDesc.DepthFunc = ComparisonFunctionToD3DComparisonFunction(depthComparison);
+
+    // Stencil test parameters
+    dsDesc.StencilEnable = enableStencilTest;
+    dsDesc.StencilReadMask = enableStencilRead ? 0xFF : 0x00;
+    dsDesc.StencilWriteMask = enableStencilWrite ? 0xFF : 0x00;
+
+    // Stencil operations if pixel is front-facing
+    dsDesc.FrontFace.StencilFailOp = StencilOperationToD3DStencilOperation(failFrontBackOp.first);
+    dsDesc.FrontFace.StencilDepthFailOp = StencilOperationToD3DStencilOperation(failDepthFrontBackOp.first);
+    dsDesc.FrontFace.StencilPassOp = StencilOperationToD3DStencilOperation(passFrontBackOp.first);
+    dsDesc.FrontFace.StencilFunc = ComparisonFunctionToD3DComparisonFunction(stencilComparisonFrontBack.first);
+
+    // Stencil operations if pixel is back-facing
+    dsDesc.BackFace.StencilFailOp = StencilOperationToD3DStencilOperation(failFrontBackOp.second);
+    dsDesc.BackFace.StencilDepthFailOp = StencilOperationToD3DStencilOperation(failDepthFrontBackOp.second);
+    dsDesc.BackFace.StencilPassOp = StencilOperationToD3DStencilOperation(passFrontBackOp.second);
+    dsDesc.BackFace.StencilFunc = ComparisonFunctionToD3DComparisonFunction(stencilComparisonFrontBack.second);
+
+    // Create depth stencil state
+    DXDepthStencilState* dx_state = dynamic_cast<DXDepthStencilState*>(state);
+    ID3D11DepthStencilState* dx_depthstencilstate = nullptr;
+    HRESULT state_hr = _dx_device->CreateDepthStencilState(&dsDesc, &dx_depthstencilstate);
+    bool succeeded = SUCCEEDED(state_hr);
+    if(succeeded) {
+        dx_state->SetDxDepthStencilState(dx_depthstencilstate);
+    }
+    return succeeded;
+}
+
 D3D_FEATURE_LEVEL* DXDevice::GetFeatureLevel() const {
     return _highestSupportedFeatureLevel;
 }
@@ -51,6 +91,8 @@ RHIOutput* DXDevice::CreateOutputFromWindow(Window*& window) {
     if(window == nullptr) {
         ERROR_AND_DIE("DXDevice: Invalid Window!");
     }
+
+    window->Open();
 
     bool is_windowed = window->IsWindowed();
     unsigned int device_flags = 0U;
@@ -117,6 +159,7 @@ RHIOutput* DXDevice::CreateOutputFromWindow(Window*& window) {
         );
     }
 
+    _highestSupportedFeatureLevel = new D3D_FEATURE_LEVEL;
     *_highestSupportedFeatureLevel = supported_feature_level;
 
     _immediate_context = new DXDeviceContext(this, dx_context);
@@ -156,12 +199,12 @@ RHIOutput* DXDevice::CreateOutputFromWindow(Window*& window) {
     swap_chain_desc1.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
     swap_chain_desc1.BufferCount = 2;
     swap_chain_desc1.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_BACK_BUFFER;
-    swap_chain_desc1.Flags = DXGI_SWAP_CHAIN_FLAG_NONPREROTATED | DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | (is_windowed ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0);
+    swap_chain_desc1.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | (is_windowed ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : DXGI_SWAP_CHAIN_FLAG_NONPREROTATED);
     swap_chain_desc1.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     swap_chain_desc1.Height = window->GetClientSize().y;
     swap_chain_desc1.SampleDesc.Count = 1;
     swap_chain_desc1.SampleDesc.Quality = 0;
-    swap_chain_desc1.Scaling = DXGI_SCALING_ASPECT_RATIO_STRETCH;
+    swap_chain_desc1.Scaling = DXGI_SCALING_NONE;
     swap_chain_desc1.Stereo = false;
     swap_chain_desc1.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
     swap_chain_desc1.Width = window->GetClientSize().x;
@@ -208,6 +251,7 @@ RHIOutput* DXDevice::CreateOutputFromWindow(Window*& window) {
     dxgi_device->Release();
     dxgi_device = nullptr;
 
+    _dx_device = dx_device;
     RHIOutput* rhi_output = new DXOutput(this, window, dxgi_swapchain);
     return rhi_output;
 }

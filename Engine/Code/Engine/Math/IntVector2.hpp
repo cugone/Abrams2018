@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 class Vector2;
 
 class IntVector2 {
@@ -18,8 +20,9 @@ public:
     IntVector2(const IntVector2& rhs) = default;
     IntVector2(IntVector2&& rhs) = default;
 
-    IntVector2(int initialX, int initialY);
-    IntVector2(const Vector2& v2);
+    explicit IntVector2(int initialX, int initialY);
+    explicit IntVector2(const Vector2& v2);
+    explicit IntVector2(const std::string& value);
 
     IntVector2& operator=(const IntVector2& rhs) = default;
     IntVector2& operator=(IntVector2&& rhs) = default;

@@ -26,7 +26,7 @@ void DXDeviceContext::Flush() {
     _dx_context->Flush();
 }
 
-void DXDeviceContext::ClearColorTarget(Texture2D* output, const Rgba& color) {
+void DXDeviceContext::ClearColorTarget(Texture* output, const Rgba& color) {
     if(!output) {
         return;
     }
@@ -37,7 +37,7 @@ void DXDeviceContext::ClearColorTarget(Texture2D* output, const Rgba& color) {
     _dx_context->ClearRenderTargetView(rtv, colorAsFloats);
 }
 
-void DXDeviceContext::ClearDepthStencilTarget(Texture2D* output
+void DXDeviceContext::ClearDepthStencilTarget(Texture* output
                                                , bool depth /*= true*/
                                                , bool stencil /*= true*/
                                                , float depthValue /*= 1.0f*/
@@ -69,4 +69,20 @@ void DXDeviceContext::UnbindAllShaderResources() {
     _dx_context->VSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nosrvs);
     _dx_context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nosrvs);
     _dx_context->CSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nosrvs);
+}
+
+
+void DXDeviceContext::SetTexture(unsigned int index, Texture* texture) {
+    if(texture) {
+        auto dx_texture = dynamic_cast<DXTexture*>(texture);
+        ID3D11ShaderResourceView* dx_resource = dx_texture->GetShaderResourceView();
+        _dx_context->PSSetShaderResources(index, 1, &dx_resource);
+        _dx_context->VSSetShaderResources(index, 1, &dx_resource);
+        _dx_context->CSSetShaderResources(index, 1, &dx_resource);
+    } else {
+        ID3D11ShaderResourceView* nosrvs[1] = { nullptr };
+        _dx_context->PSSetShaderResources(index, 1, nosrvs);
+        _dx_context->VSSetShaderResources(index, 1, nosrvs);
+        _dx_context->CSSetShaderResources(index, 1, nosrvs);
+    }
 }

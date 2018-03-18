@@ -178,6 +178,21 @@
     <ClCompile Include="Renderer\DirectX\DXTexture.cpp">
       <Filter>Renderer\DirectX</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\Renderer.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\DepthStencilState.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\DataUtils.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\DirectX\DXDepthStencilState.cpp">
+      <Filter>Renderer\DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Image.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -338,6 +353,18 @@
     </ClInclude>
     <ClInclude Include="Renderer\DirectX\DXTexture.hpp">
       <Filter>Renderer\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\DepthStencilState.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\DataUtils.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\DirectX\DXDepthStencilState.hpp">
+      <Filter>Renderer\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Image.hpp">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

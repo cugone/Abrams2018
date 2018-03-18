@@ -12,6 +12,12 @@ DXTexture2D::DXTexture2D(DXTexture2D&& r_other) noexcept
     r_other._dx_resource = nullptr;
 }
 
+DXTexture2D::DXTexture2D(DXDevice* device, ID3D11Texture2D* texture)
+    : DXTexture()
+{
+    SetDeviceAndTexture(device, texture);
+}
+
 DXTexture2D& DXTexture2D::operator=(DXTexture2D&& r_rhs) noexcept {
     DXTexture::operator=(std::move(r_rhs));
     _dx_resource = r_rhs._dx_resource;
@@ -26,6 +32,10 @@ DXTexture2D::~DXTexture2D() {
 
 
 void DXTexture2D::SetDeviceAndTexture(DXDevice* device, ID3D11Texture2D* texture) {
+
+    if(!device) {
+        ERROR_AND_DIE("DXTexture2D: Invalid device.");
+    }
 
     _device = dynamic_cast<RHIDevice*>(device);
     _dx_resource = texture;
@@ -57,4 +67,16 @@ void DXTexture2D::SetDeviceAndTexture(DXDevice* device, ID3D11Texture2D* texture
         success &= SUCCEEDED(device->GetDxDevice()->CreateUnorderedAccessView(_dx_resource, &desc, &_dx_uav));
     }
     ASSERT_OR_DIE(success, "Set device and texture failed.");
+}
+
+bool DXTexture2D::IsValid() const noexcept {
+    return _dx_resource != nullptr;
+}
+
+void DXTexture2D::SetDebugName([[maybe_unused]]char const* name) noexcept {
+#if _DEBUG
+    if((_dx_resource != nullptr) && (name != nullptr)) {
+        _dx_resource->SetPrivateData(WKPDID_D3DDebugObjectName, (UINT)strlen(name) + 1, name);
+    }
+#endif
 }

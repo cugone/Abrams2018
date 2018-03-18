@@ -6,6 +6,8 @@
 #include <locale>
 #include <sstream>
 
+#include "Engine/Core/Win.hpp"
+
 const int STRINGF_STACK_LOCAL_TEMP_LENGTH = 2048;
 
 namespace StringUtils {
@@ -108,6 +110,22 @@ std::string ToUpperCase(std::string string) {
 std::string ToLowerCase(std::string string) {
     std::transform(string.begin(), string.end(), string.begin(), [](unsigned char c) -> unsigned char { return std::tolower(c, std::locale("")); });
     return string;
+}
+
+std::string ConvertUnicodeToMultiByte(const std::wstring& unicode_string) {
+    char* buf = nullptr;
+    auto buf_size = ::WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, unicode_string.data(), -1, buf, 0, nullptr, nullptr);
+    std::string mb_string;
+    mb_string.assign(buf, buf_size);
+    return mb_string;
+}
+
+std::wstring ConvertMultiByteToUnicode(const std::string& multi_byte_string) {
+    wchar_t* buf = nullptr;
+    auto buf_size = ::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, multi_byte_string.data(), -1, buf, 0);
+    std::wstring unicode_string;
+    unicode_string.assign(buf, buf_size);
+    return unicode_string;
 }
 
 } //End StringUtils

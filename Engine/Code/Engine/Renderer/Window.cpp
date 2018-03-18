@@ -164,6 +164,11 @@ void Window::SetDisplayMode(const RHIOutputMode& display_mode) {
 
 }
 
+void Window::SetTitle(const std::wstring& title) {
+    _title = title;
+    ::SetWindowText(_hWnd, _title.data());
+}
+
 bool Window::Register() {
     _hInstance = GetModuleHandle(nullptr);
     memset(&_wc, 0, sizeof(_wc));

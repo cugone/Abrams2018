@@ -15,4 +15,7 @@ std::string Join(const std::vector<std::string>& strings, bool skip_empty = true
 std::string ToUpperCase(std::string string);
 std::string ToLowerCase(std::string string);
 
+std::string ConvertUnicodeToMultiByte(const std::wstring& unicode_string);
+std::wstring ConvertMultiByteToUnicode(const std::string& filePath);
+
 }

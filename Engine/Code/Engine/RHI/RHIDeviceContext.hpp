@@ -1,6 +1,6 @@
 #pragma once
 
-class Texture2D;
+class Texture;
 class Rgba;
 class RHIDevice;
 
@@ -12,12 +12,14 @@ public:
     virtual void ClearState() = 0;
     virtual void Flush() = 0;
 
-    virtual void ClearColorTarget(Texture2D* output, const Rgba& color) = 0;
-    virtual void ClearDepthStencilTarget(Texture2D* output
+    virtual void ClearColorTarget(Texture* output, const Rgba& color) = 0;
+    virtual void ClearDepthStencilTarget(Texture* output
                                          , bool depth = true
                                          , bool stencil = true
                                          , float depthValue = 1.0f
                                          , unsigned char stencilValue = 0) = 0;
+
+    virtual void SetTexture(unsigned int index, Texture* texture) = 0;
 
     RHIDevice* GetParentDevice() const;
 

@@ -1,6 +1,7 @@
 #include "Engine/Math/IntVector4.hpp"
 
 #include <cmath>
+#include <sstream>
 
 #include "Engine/Math/IntVector2.hpp"
 #include "Engine/Math/IntVector3.hpp"
@@ -105,6 +106,27 @@ IntVector4::IntVector4(const Vector4& rhs)
     , w(static_cast<int>(std::floor(rhs.w)))
 {
     /* DO NOTHING */
+}
+
+IntVector4::IntVector4(const std::string& value)
+    : x(0)
+    , y(0)
+    , z(0)
+    , w(0) {
+    if(value[0] == '[') {
+        if(value.back() == ']') {
+            std::stringstream ss(value.substr(1, value.size() - 1));
+            std::string curLine;
+            for(int i = 0; std::getline(ss, curLine, ','); ++i) {
+                switch(i) {
+                    case 0: x = std::stoi(curLine); break;
+                    case 1: y = std::stoi(curLine); break;
+                    case 2: z = std::stoi(curLine); break;
+                    case 3: w = std::stoi(curLine); break;
+                }
+            }
+        }
+    }
 }
 
 void IntVector4::SetXYZW(int newX, int newY, int newZ, int newW) {

@@ -43,4 +43,3 @@ void Texture::IsLoaded(bool is_loaded) noexcept {
 bool Texture::IsLoaded() const noexcept {
     return _isLoaded;
 }
-

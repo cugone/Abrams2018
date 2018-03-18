@@ -2,11 +2,58 @@
 
 #include "Engine/Core/TimeUtils.hpp"
 #include "Engine/Math/MathUtils.hpp"
+#include "Engine/Renderer/Renderer.hpp"
+#include "Engine/Renderer/DirectX/D3DRenderer.hpp"
+#include "Engine/RHI/RHIOutput.hpp"
+
+#include "Engine/Renderer/Window.hpp"
 
 #include "Game/GameCommon.hpp"
+#include "Game/GameConfig.hpp"
+
+bool CALLBACK WindowProc([[maybe_unused]] HWND hwnd, UINT uMsg, [[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam) {
+    switch(uMsg) {
+        case WM_CLOSE:
+        case WM_QUIT:
+        case WM_DESTROY:
+        {
+            g_theApp->SetIsQuitting(true);
+            return true;
+        }
+        case WM_KEYDOWN:
+        {
+            unsigned int key = static_cast<unsigned int>(wParam);
+            switch(key) {
+                case VK_ESCAPE:
+                    g_theApp->SetIsQuitting(true);
+            }
+            return true;
+        }
+        default:
+        {
+            return false;
+        }
+    }
+}
 
 App::App() {
-    /* DO NOTHING */
+    g_theRenderer = new D3DRenderer(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
+    g_theRenderer->SetVSync(GRAPHICS_OPTION_VSYNC);
+    g_theRenderer->Initialize();
+
+    if(g_theRenderer->GetOutput()) {
+        Window* window = g_theRenderer->GetOutput()->GetWindow();
+        if(window) {
+            window->custom_message_handler = WindowProc;
+            window->SetTitle(L"Test Title");
+            bool is_fullscreen = false;
+            if(is_fullscreen) {
+                window->SetDisplayMode(RHIOutputMode::FULLSCREEN_WINDOW);
+            }
+        }
+    }
+
+
 }
 
 App::~App() {

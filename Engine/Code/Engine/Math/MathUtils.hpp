@@ -85,6 +85,9 @@ int GetRandomIntInRange(int minInclusive, int maxInclusive);
 long GetRandomLongLessThan(long maxValueNotInclusive);
 long GetRandomLongInRange(long minInclusive, long maxInclusive);
 
+long long GetRandomLongLongLessThan(long long maxValueNotInclusive);
+long long GetRandomLongLongInRange(long long minInclusive, long long maxInclusive);
+
 float GetRandomFloatInRange(float minInclusive, float maxInclusive);
 float GetRandomFloatZeroToOne();
 float GetRandomFloatZeroUpToOne();

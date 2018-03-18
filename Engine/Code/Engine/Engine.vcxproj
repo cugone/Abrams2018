@@ -22,8 +22,10 @@
     <ClCompile Include="..\Thirdparty\stb\stb.cpp" />
     <ClCompile Include="..\Thirdparty\TinyXML2\tinyxml2.cpp" />
     <ClCompile Include="Core\BuildConfig.cpp" />
+    <ClCompile Include="Core\DataUtils.cpp" />
     <ClCompile Include="Core\EngineBase.cpp" />
     <ClCompile Include="Core\ErrorWarningAssert.cpp" />
+    <ClCompile Include="Core\Image.cpp" />
     <ClCompile Include="Core\Rgba.cpp" />
     <ClCompile Include="Core\StringUtils.cpp" />
     <ClCompile Include="Core\TimeUtils.cpp" />
@@ -47,8 +49,10 @@
     <ClCompile Include="Math\Vector2.cpp" />
     <ClCompile Include="Math\Vector3.cpp" />
     <ClCompile Include="Math\Vector4.cpp" />
+    <ClCompile Include="Renderer\DepthStencilState.cpp" />
     <ClCompile Include="Renderer\DirectX\D3DRenderer.cpp" />
     <ClCompile Include="Renderer\DirectX\DX11.cpp" />
+    <ClCompile Include="Renderer\DirectX\DXDepthStencilState.cpp" />
     <ClCompile Include="Renderer\DirectX\DXDevice.cpp" />
     <ClCompile Include="Renderer\DirectX\DXDeviceContext.cpp" />
     <ClCompile Include="Renderer\DirectX\DXInstance.cpp" />
@@ -61,6 +65,7 @@
     <ClCompile Include="Renderer\OpenGL\OGLInstance.cpp" />
     <ClCompile Include="Renderer\OpenGL\OGLOutput.cpp" />
     <ClCompile Include="Renderer\OpenGL\OGLRenderer.cpp" />
+    <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\Texture.cpp" />
     <ClCompile Include="Renderer\Texture2D.cpp" />
     <ClCompile Include="Renderer\Window.cpp" />
@@ -74,8 +79,10 @@
     <ClInclude Include="..\Thirdparty\stb\stb_image.h" />
     <ClInclude Include="..\Thirdparty\stb\stb_image_write.h" />
     <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h" />
+    <ClInclude Include="Core\DataUtils.hpp" />
     <ClInclude Include="Core\EngineBase.hpp" />
     <ClInclude Include="Core\ErrorWarningAssert.hpp" />
+    <ClInclude Include="Core\Image.hpp" />
     <ClInclude Include="Core\Rgba.hpp" />
     <ClInclude Include="Core\StringUtils.hpp" />
     <ClInclude Include="Core\TimeUtils.hpp" />
@@ -100,8 +107,10 @@
     <ClInclude Include="Math\Vector2.hpp" />
     <ClInclude Include="Math\Vector3.hpp" />
     <ClInclude Include="Math\Vector4.hpp" />
+    <ClInclude Include="Renderer\DepthStencilState.hpp" />
     <ClInclude Include="Renderer\DirectX\D3DRenderer.hpp" />
     <ClInclude Include="Renderer\DirectX\DX11.hpp" />
+    <ClInclude Include="Renderer\DirectX\DXDepthStencilState.hpp" />
     <ClInclude Include="Renderer\DirectX\DXDevice.hpp" />
     <ClInclude Include="Renderer\DirectX\DXDeviceContext.hpp" />
     <ClInclude Include="Renderer\DirectX\DXInstance.hpp" />

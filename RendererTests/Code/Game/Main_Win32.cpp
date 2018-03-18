@@ -18,31 +18,6 @@ void Initialize(HINSTANCE hInstance, LPWSTR lpCmdLine, int nShowCmd);
 void Shutdown();
 void RunMessagePump();
 
-bool CALLBACK WindowProc([[maybe_unused]] HWND hwnd, UINT uMsg, [[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam) {
-    switch(uMsg) {
-        case WM_CLOSE:
-        case WM_QUIT:
-        case WM_DESTROY:
-        {
-            g_theApp->SetIsQuitting(true);
-            return true;
-        }
-        case WM_KEYDOWN:
-        {
-            unsigned int key = static_cast<unsigned int>(wParam);
-            switch(key) {
-                case VK_ESCAPE:
-                    g_theApp->SetIsQuitting(true);
-            }
-            return true;
-        }
-        default:
-        {
-            return false;
-        }
-    }
-}
-
 void RunMessagePump() {
     MSG msg{};
     for(;;) {
@@ -58,10 +33,6 @@ void RunMessagePump() {
 int WINAPI wWinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevInstance, [[maybe_unused]] LPWSTR lpCmdLine, [[maybe_unused]] int nShowCmd) {
 
     Initialize(hInstance, lpCmdLine, nShowCmd);
-
-    Window* window = new Window;
-    window->custom_message_handler = WindowProc;
-    window->Open();
 
     while(!g_theApp->IsQuitting()) {
         ::Sleep(0);

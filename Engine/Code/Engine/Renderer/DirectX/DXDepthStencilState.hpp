@@ -1,19 +1,15 @@
 #pragma once
 
 #include "Engine/Renderer/DirectX/DX11.hpp"
-#include "Engine/RHI/RHIDevice.hpp"
+#include "Engine/Renderer/DepthStencilState.hpp"
 
-class Window;
+class DXDevice;
+struct ID3D11DepthStencilState;
 
-class DXDevice : public RHIDevice {
+class DXDepthStencilState : public DepthStencilState {
 public:
-    DXDevice();
-    virtual ~DXDevice();
-
-    virtual RHIOutput* CreateOutput(Window* window, const RHIOutputMode& mode = RHIOutputMode::WINDOWED) override;
-    virtual RHIOutput* CreateOutput(const IntVector2& clientSize, const IntVector2& clientPosition = IntVector2::ZERO, const RHIOutputMode& outputMode = RHIOutputMode::WINDOWED) override;
-
-    virtual bool CreateDepthStencilState(DepthStencilState* state
+    explicit DXDepthStencilState(
+        DXDevice* device
         , bool enableDepthTest = true
         , bool enableStencilTest = false
         , bool enableDepthWrite = true
@@ -24,15 +20,14 @@ public:
         , std::pair<const StencilOperation&, const StencilOperation&> failDepthFrontBackOp = std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP)
         , std::pair<const StencilOperation&, const StencilOperation&> passFrontBackOp = std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP)
         , std::pair<const ComparisonFunction&, const ComparisonFunction&> stencilComparisonFrontBack = std::make_pair(ComparisonFunction::ALWAYS, ComparisonFunction::ALWAYS)
-    ) override;
+    );
 
+    explicit DXDepthStencilState(DXDevice* device, const XMLElement& element);
+    virtual ~DXDepthStencilState();
 
-    D3D_FEATURE_LEVEL* GetFeatureLevel() const;
-    ID3D11Device* GetDxDevice();
+    ID3D11DepthStencilState* GetDxDepthStencilState();
+    void SetDxDepthStencilState(ID3D11DepthStencilState* state);
 protected:
-
 private:
-    virtual RHIOutput* CreateOutputFromWindow(Window*& window) override;
-    ID3D11Device* _dx_device = nullptr;
-    D3D_FEATURE_LEVEL* _highestSupportedFeatureLevel = nullptr;
+    ID3D11DepthStencilState* _dx_depthstencilstate;
 };

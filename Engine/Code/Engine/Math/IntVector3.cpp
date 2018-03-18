@@ -1,6 +1,7 @@
 #include "Engine/Math/IntVector3.hpp"
 
 #include <cmath>
+#include <sstream>
 
 #include "Engine/Math/IntVector2.hpp"
 #include "Engine/Math/Vector2.hpp"
@@ -47,6 +48,26 @@ IntVector3::IntVector3(const Vector3& v3)
     , z(static_cast<int>(std::floor(v3.z)))
 {
     /* DO NOTHING */
+}
+
+IntVector3::IntVector3(const std::string& value)
+    : x(0)
+    , y(0)
+    , z(0)
+{
+    if(value[0] == '[') {
+        if(value.back() == ']') {
+            std::stringstream ss(value.substr(1, value.size() - 1));
+            std::string curLine;
+            for(int i = 0; std::getline(ss, curLine, ','); ++i) {
+                switch(i) {
+                    case 0: x = std::stoi(curLine); break;
+                    case 1: y = std::stoi(curLine); break;
+                    case 2: z = std::stoi(curLine); break;
+                }
+            }
+        }
+    }
 }
 
 void IntVector3::SetXYZ(int newX, int newY, int newZ) {

@@ -13,6 +13,8 @@ public:
     Texture2D& operator=(const Texture2D& rhs) noexcept = delete;
     Texture2D& operator=(Texture2D&& rhs) noexcept;
 
+    virtual void SetDebugName(char const* name) noexcept = 0;
+
     virtual ~Texture2D();
 
 protected:

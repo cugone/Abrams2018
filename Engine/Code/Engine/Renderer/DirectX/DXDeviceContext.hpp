@@ -29,15 +29,17 @@ public:
     void UnbindAllShaderResources();
 
 
-    virtual void ClearState();
-    virtual void Flush();
+    virtual void ClearState() override;
+    virtual void Flush() override;
 
-    virtual void ClearColorTarget(Texture2D* output, const Rgba& color);
-    virtual void ClearDepthStencilTarget(Texture2D* output
+    virtual void ClearColorTarget(Texture* output, const Rgba& color) override;
+    virtual void ClearDepthStencilTarget(Texture* output
                                          , bool depth = true
                                          , bool stencil = true
                                          , float depthValue = 1.0f
-                                         , unsigned char stencilValue = 0);
+                                         , unsigned char stencilValue = 0) override;
+
+    virtual void SetTexture(unsigned int index, Texture* texture) override;
 
 
 private:

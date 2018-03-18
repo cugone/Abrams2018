@@ -1,6 +1,7 @@
 #include "Engine/Math/IntVector2.hpp"
 
 #include <cmath>
+#include <sstream>
 
 #include "Engine/Math/Vector2.hpp"
 
@@ -23,6 +24,24 @@ IntVector2::IntVector2(const Vector2& v2)
     , y(static_cast<int>(std::floor(v2.y)))
 {
     /* DO NOTHING */
+}
+
+IntVector2::IntVector2(const std::string& value)
+    : x(0)
+    , y(0)
+{
+    if(value[0] == '[') {
+        if(value.back() == ']') {
+            std::stringstream ss(value.substr(1, value.size() - 1));
+            std::string curLine;
+            for(int i = 0; std::getline(ss, curLine, ','); ++i) {
+                switch(i) {
+                    case 0: x = std::stoi(curLine); break;
+                    case 1: y = std::stoi(curLine); break;
+                }
+            }
+        }
+    }
 }
 
 void IntVector2::SetXY(int newX, int newY) {

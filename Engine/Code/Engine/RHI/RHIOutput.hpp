@@ -4,7 +4,7 @@
 
 class Window;
 class RHIDevice;
-class Texture2D;
+class Texture;
 class IntVector2;
 class Rgba;
 
@@ -22,7 +22,7 @@ public:
     const Window* GetWindow() const;
     Window* GetWindow();
 
-    Texture2D* GetBackBuffer();
+    Texture* GetBackBuffer();
     IntVector2 GetDimensions() const;
     float GetAspectRatio() const;
 
@@ -35,7 +35,7 @@ protected:
     virtual void ResetBackbuffer() = 0;
     Window * _window = nullptr;
     RHIDevice* _parentDevice = nullptr;
-    Texture2D* _back_buffer = nullptr;
+    Texture* _back_buffer = nullptr;
 private:
 
 };

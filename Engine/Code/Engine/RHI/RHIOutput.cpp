@@ -8,7 +8,7 @@
 #include "Engine/Renderer/Window.hpp"
 
 #include "Engine/Math/IntVector2.hpp"
-#include "Engine/Renderer/Texture2D.hpp"
+#include "Engine/Renderer/Texture.hpp"
 
 #include "Engine/Core/Rgba.hpp"
 
@@ -53,7 +53,7 @@ Window* RHIOutput::GetWindow() {
     return const_cast<Window*>(static_cast<const RHIOutput&>(*this).GetWindow());
 }
 
-Texture2D* RHIOutput::GetBackBuffer() {
+Texture* RHIOutput::GetBackBuffer() {
     return _back_buffer;
 }
 

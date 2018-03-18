@@ -90,7 +90,16 @@ long GetRandomLongLessThan(long maxValueNotInclusive) {
 long GetRandomLongInRange(long minInclusive, long maxInclusive) {
     std::uniform_int_distribution<long> d(minInclusive, maxInclusive);
     return d(GetMTRandomEngine(MT_RANDOM_SEED));
+}
 
+long long GetRandomLongLongLessThan(long long maxValueNotInclusive) {
+    std::uniform_int_distribution<long long> d(0LL, maxValueNotInclusive - 1LL);
+    return d(GetMTRandomEngine(MT_RANDOM_SEED));
+}
+
+long long GetRandomLongLongInRange(long long minInclusive, long long maxInclusive) {
+    std::uniform_int_distribution<long long> d(minInclusive, maxInclusive);
+    return d(GetMTRandomEngine(MT_RANDOM_SEED));
 }
 
 float GetRandomFloatInRange(float minInclusive, float maxInclusive) {

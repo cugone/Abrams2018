@@ -1,14 +1,22 @@
 #include "Engine/Renderer/DirectX/DXOutput.hpp"
 
 #include "Engine/Renderer/Window.hpp"
+#include "Engine/Renderer/Texture2D.hpp"
+
 #include "Engine/Renderer/DirectX/DX11.hpp"
+#include "Engine/Renderer/DirectX/DXDevice.hpp"
+#include "Engine/Renderer/DirectX/DXTexture2D.hpp"
+
 #include "Engine/RHI/RHIDevice.hpp"
 #include "Engine/RHI/RHIDeviceContext.hpp"
 
-DXOutput::DXOutput(RHIDevice* parent, Window* wnd, IDXGISwapChain1* swap_chain)
+DXOutput::DXOutput(DXDevice* parent, Window* wnd, IDXGISwapChain1* swap_chain)
     : RHIOutput(parent, wnd)
+    , _dx_parentdevice(parent)
+    , _dx_backbuffer(nullptr)
     , _dx_swapchain(swap_chain)
 {
+    _parentDevice = parent;
     CreateBackbuffer();
 }
 
@@ -30,25 +38,27 @@ bool DXOutput::SetDisplayMode(const RHIOutputMode& newMode) {
     _dx_swapchain->GetDesc(&desc);
     _parentDevice->GetImmediateContext()->Flush();
     _parentDevice->GetImmediateContext()->ClearState();
-    //delete _back_buffer;
-    //_back_buffer = nullptr;
+    delete _back_buffer;
+    _back_buffer = nullptr;
     _dx_swapchain->ResizeBuffers(desc.BufferCount, width, height, DXGI_FORMAT_UNKNOWN, 0);
     CreateBackbuffer();
     return true;
 }
 
 void DXOutput::CreateBackbuffer() {
-    //if(_back_buffer != nullptr) {
-    //    delete _back_buffer;
-    //}
+    if(_back_buffer != nullptr) {
+        delete _back_buffer;
+    }
     ID3D11Texture2D* back_buffer = nullptr;
     _dx_swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<LPVOID*>(&back_buffer));
-    //_back_buffer = new Texture2D(_parentDevice, back_buffer);
+    _dx_parentdevice = dynamic_cast<DXDevice*>(_parentDevice);
+    _dx_backbuffer = new DXTexture2D(_dx_parentdevice, back_buffer);
+    _back_buffer = dynamic_cast<Texture*>(_dx_backbuffer);
 }
 
 void DXOutput::ResetBackbuffer() {
-    //delete _back_buffer;
-    //_back_buffer = nullptr;
+    delete _back_buffer;
+    _back_buffer = nullptr;
     CreateBackbuffer();
 }
 

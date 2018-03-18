@@ -37,6 +37,8 @@ public:
 
     std::function<bool(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)> custom_message_handler;
 
+    void SetTitle(const std::wstring& title);
+
 protected:
     bool Register();
     bool Unregister();

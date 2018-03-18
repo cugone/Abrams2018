@@ -2,6 +2,10 @@
 
 #include "Engine/Core/EngineBase.hpp"
 
+#include "Engine/Math/IntVector2.hpp"
+
+#include "Engine/RHI/RHITypes.hpp"
+
 std::size_t Window::_refCount = 0;
 
 Window::Window() {
@@ -49,17 +53,42 @@ void Window::Show() {
     ::ShowWindow(_hWnd, SW_SHOW);
 }
 
-//void Window::Hide() {
-//    ::ShowWindow(_hWnd, SW_HIDE);
-//}
-//
-//void Window::UnHide() {
-//    Show();
-//}
-//
-//bool Window::IsOpen() {
-//    return 0 != ::IsWindow(_hWnd);
-//}
+void Window::Hide() {
+    ::ShowWindow(_hWnd, SW_HIDE);
+}
+
+void Window::UnHide() {
+    Show();
+}
+
+bool Window::IsOpen() {
+    return 0 != ::IsWindow(_hWnd);
+}
+
+bool Window::IsClosed() {
+    return !IsOpen();
+}
+
+bool Window::IsWindowed() const {
+    return _currentDisplayMode != RHIOutputMode::FULLSCREEN_DEDICATED;
+}
+
+IntVector2 Window::GetClientSize() const {
+    return IntVector2(_width, _height);
+}
+
+void Window::SetClientSize(const IntVector2& client_position, const IntVector2& client_size) {
+    RECT r;
+    r.top = client_position.y;
+    r.left = client_position.x;
+    r.bottom = r.top + client_size.y;
+    r.right = r.left + client_size.x;
+    ::AdjustWindowRectEx(&r, _styleFlags, _hasMenu, _styleFlagsEx);
+    _width = r.right - r.left;
+    _height = r.bottom - r.top;
+    _positionX = r.left;
+    _positionY = r.top;
+}
 
 void Window::SetForegroundWindow() {
     ::SetForegroundWindow(_hWnd);
@@ -75,6 +104,64 @@ HWND Window::GetWindowHandle() {
 
 void Window::SetWindowHandle(HWND hWnd) {
     _hWnd = hWnd;
+}
+
+const RHIOutputMode& Window::GetDisplayMode() const {
+    return _currentDisplayMode;
+}
+
+void Window::SetDisplayMode(const RHIOutputMode& display_mode) {
+    _currentDisplayMode = display_mode;
+    RECT r;
+    r.top = _positionY;
+    r.left = _positionX;
+    r.bottom = _height;
+    r.right = _width;
+    switch(_currentDisplayMode) {
+        case RHIOutputMode::BORDERLESS:
+        {
+            _styleFlags = WS_POPUP;
+            _hasMenu = false;
+
+            ::GetClientRect(_hWnd, &r);
+
+            long width = r.right - r.left;
+            long height = r.bottom - r.top;
+            ::SetWindowLongPtr(_hWnd, GWL_STYLE, _styleFlags);
+            ::SetWindowPos(_hWnd, nullptr, 0, 0, width, height, SWP_SHOWWINDOW);
+            SetClientSize(IntVector2::ZERO, IntVector2(width, height));
+            ::AdjustWindowRectEx(&r, _styleFlags, _hasMenu, _styleFlagsEx);
+            return;
+
+            break;
+        } case RHIOutputMode::WINDOWED:
+        {
+            _styleFlags = WS_CAPTION | WS_BORDER | WS_SYSMENU | WS_OVERLAPPED;
+            break;
+        } case RHIOutputMode::FULLSCREEN_WINDOW:
+        {
+
+            _styleFlags = WS_POPUP;
+
+            RECT desktopRect;
+            HWND desktopWindowHandle = GetDesktopWindow();
+            ::GetClientRect(desktopWindowHandle, &desktopRect);
+
+            long width = desktopRect.right - desktopRect.left;
+            long height = desktopRect.bottom - desktopRect.top;
+            ::SetWindowLongPtr(_hWnd, GWL_STYLE, _styleFlags);
+            ::SetWindowPos(_hWnd, nullptr, 0, 0, width, height, SWP_SHOWWINDOW);
+            SetClientSize(IntVector2::ZERO, IntVector2(width, height));
+            ::AdjustWindowRectEx(&r, _styleFlags, _hasMenu, _styleFlagsEx);
+            return;
+        } case RHIOutputMode::FULLSCREEN_DEDICATED:
+            break;
+        default:
+            /* DO NOTHING */;
+    }
+    ::SetWindowLongPtr(_hWnd, GWL_STYLE, _styleFlags);
+    ::AdjustWindowRectEx(&r, _styleFlags, _hasMenu, _styleFlagsEx);
+
 }
 
 bool Window::Register() {

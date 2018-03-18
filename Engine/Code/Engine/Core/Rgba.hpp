@@ -48,7 +48,7 @@ public:
 
     void SetAsBytes(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha);
     void SetAsFloats(float normalized_red, float normalized_green, float normalized_blue, float normalized_alpha);
-    void GetAsFloats(float& out_normalized_red, float& out_normalized_green, float& out_normalized_blue, float& out_normalized_alpha);
+    void GetAsFloats(float& out_normalized_red, float& out_normalized_green, float& out_normalized_blue, float& out_normalized_alpha) const;
     void ScaleRGB(float scale);
     void ScaleAlpha(float scale);
 

@@ -101,7 +101,7 @@ void Rgba::SetAsFloats(float normalized_red, float normalized_green, float norma
     a = static_cast<unsigned char>(normalized_alpha) * 255;
 }
 
-void Rgba::GetAsFloats(float& out_normalized_red, float& out_normalized_green, float& out_normalized_blue, float& out_normalized_alpha) {
+void Rgba::GetAsFloats(float& out_normalized_red, float& out_normalized_green, float& out_normalized_blue, float& out_normalized_alpha) const {
     out_normalized_red   = r / 255.0f;
     out_normalized_green = g / 255.0f;
     out_normalized_blue  = b / 255.0f;

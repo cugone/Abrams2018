@@ -21,7 +21,9 @@
   <ItemGroup>
     <ClCompile Include="..\Thirdparty\stb\stb.cpp" />
     <ClCompile Include="..\Thirdparty\TinyXML2\tinyxml2.cpp" />
+    <ClCompile Include="Core\BuildConfig.cpp" />
     <ClCompile Include="Core\EngineBase.cpp" />
+    <ClCompile Include="Core\ErrorWarningAssert.cpp" />
     <ClCompile Include="Core\Rgba.cpp" />
     <ClCompile Include="Core\StringUtils.cpp" />
     <ClCompile Include="Core\TimeUtils.cpp" />
@@ -47,18 +49,33 @@
     <ClCompile Include="Math\Vector4.cpp" />
     <ClCompile Include="Renderer\DirectX\D3DRenderer.cpp" />
     <ClCompile Include="Renderer\DirectX\DX11.cpp" />
+    <ClCompile Include="Renderer\DirectX\DXDevice.cpp" />
+    <ClCompile Include="Renderer\DirectX\DXDeviceContext.cpp" />
+    <ClCompile Include="Renderer\DirectX\DXInstance.cpp" />
+    <ClCompile Include="Renderer\DirectX\DXOutput.cpp" />
+    <ClCompile Include="Renderer\DirectX\DXTexture.cpp" />
+    <ClCompile Include="Renderer\DirectX\DXTexture2D.cpp" />
+    <ClCompile Include="Renderer\OpenGL\OGL.cpp" />
+    <ClCompile Include="Renderer\OpenGL\OGLDevice.cpp" />
+    <ClCompile Include="Renderer\OpenGL\OGLDeviceContext.cpp" />
+    <ClCompile Include="Renderer\OpenGL\OGLInstance.cpp" />
+    <ClCompile Include="Renderer\OpenGL\OGLOutput.cpp" />
     <ClCompile Include="Renderer\OpenGL\OGLRenderer.cpp" />
+    <ClCompile Include="Renderer\Texture.cpp" />
+    <ClCompile Include="Renderer\Texture2D.cpp" />
     <ClCompile Include="Renderer\Window.cpp" />
     <ClCompile Include="RHI\RHIDevice.cpp" />
     <ClCompile Include="RHI\RHIDeviceContext.cpp" />
     <ClCompile Include="RHI\RHIInstance.cpp" />
     <ClCompile Include="RHI\RHIOutput.cpp" />
+    <ClCompile Include="RHI\RHITypes.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Thirdparty\stb\stb_image.h" />
     <ClInclude Include="..\Thirdparty\stb\stb_image_write.h" />
     <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h" />
     <ClInclude Include="Core\EngineBase.hpp" />
+    <ClInclude Include="Core\ErrorWarningAssert.hpp" />
     <ClInclude Include="Core\Rgba.hpp" />
     <ClInclude Include="Core\StringUtils.hpp" />
     <ClInclude Include="Core\TimeUtils.hpp" />
@@ -85,14 +102,28 @@
     <ClInclude Include="Math\Vector4.hpp" />
     <ClInclude Include="Renderer\DirectX\D3DRenderer.hpp" />
     <ClInclude Include="Renderer\DirectX\DX11.hpp" />
+    <ClInclude Include="Renderer\DirectX\DXDevice.hpp" />
+    <ClInclude Include="Renderer\DirectX\DXDeviceContext.hpp" />
+    <ClInclude Include="Renderer\DirectX\DXInstance.hpp" />
+    <ClInclude Include="Renderer\DirectX\DXOutput.hpp" />
+    <ClInclude Include="Renderer\DirectX\DXTexture.hpp" />
+    <ClInclude Include="Renderer\DirectX\DXTexture2D.hpp" />
+    <ClInclude Include="Renderer\OpenGL\OGL.hpp" />
+    <ClInclude Include="Renderer\OpenGL\OGLDevice.hpp" />
+    <ClInclude Include="Renderer\OpenGL\OGLDeviceContext.hpp" />
+    <ClInclude Include="Renderer\OpenGL\OGLInstance.hpp" />
+    <ClInclude Include="Renderer\OpenGL\OGLOutput.hpp" />
     <ClInclude Include="Renderer\OpenGL\OGLRenderer.hpp" />
     <ClInclude Include="Renderer\Renderer.hpp" />
+    <ClInclude Include="Renderer\Texture.hpp" />
+    <ClInclude Include="Renderer\Texture2D.hpp" />
     <ClInclude Include="Renderer\Window.hpp" />
     <ClInclude Include="RHI\RHI.hpp" />
     <ClInclude Include="RHI\RHIDevice.hpp" />
     <ClInclude Include="RHI\RHIDeviceContext.hpp" />
     <ClInclude Include="RHI\RHIInstance.hpp" />
     <ClInclude Include="RHI\RHIOutput.hpp" />
+    <ClInclude Include="RHI\RHITypes.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

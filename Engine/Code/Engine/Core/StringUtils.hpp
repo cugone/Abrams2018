@@ -5,6 +5,9 @@
 
 namespace StringUtils {
 
+const std::string Stringf(const char* format, ...);
+const std::string Stringf(const int maxLength, const char* format, ...);
+
 std::vector<std::string> Split(const std::string& string, char delim = ',', bool skip_empty = true);
 std::string Join(const std::vector<std::string>& strings, char delim, bool skip_empty = true);
 std::string Join(const std::vector<std::string>& strings, bool skip_empty = true);

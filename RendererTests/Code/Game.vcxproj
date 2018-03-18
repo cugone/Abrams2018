@@ -160,12 +160,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game\App.cpp" />
+    <ClCompile Include="Game\Game.cpp" />
     <ClCompile Include="Game\GameCommon.cpp" />
     <ClCompile Include="Game\GameConfig.cpp" />
     <ClCompile Include="Game\Main_Win32.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\App.hpp" />
+    <ClInclude Include="Game\Game.hpp" />
     <ClInclude Include="Game\GameCommon.hpp" />
     <ClInclude Include="Game\GameConfig.hpp" />
   </ItemGroup>

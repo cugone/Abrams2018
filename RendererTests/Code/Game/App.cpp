@@ -53,6 +53,7 @@ App::App() {
         }
     }
 
+    g_theGame = new Game();
 
 }
 
@@ -90,17 +91,21 @@ void App::RunFrame() {
 }
 
 void App::BeginFrame() {
-    /* DO NOTHING */
+    g_theGame->BeginFrame();
+    g_theRenderer->BeginFrame();
 }
 
-void App::Update(float /*deltaSeconds*/) {
-    /* DO NOTHING */
+void App::Update(float deltaSeconds) {
+    g_theGame->Update(deltaSeconds);
+    g_theRenderer->Update(deltaSeconds);
 }
 
 void App::Render() const {
-    /* DO NOTHING */
+    g_theGame->Render();
+    g_theRenderer->Render();
 }
 
 void App::EndFrame() {
-    /* DO NOTHING */
+    g_theGame->EndFrame();
+    g_theRenderer->EndFrame();
 }

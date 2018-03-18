@@ -5,6 +5,9 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Gameplay">
+      <UniqueIdentifier>{1958491f-fdfe-4271-88ff-a15d28740fd1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\App.cpp">
@@ -19,6 +22,9 @@
     <ClCompile Include="Game\Main_Win32.cpp">
       <Filter>General</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Game.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\App.hpp">
@@ -29,6 +35,9 @@
     </ClInclude>
     <ClInclude Include="Game\GameConfig.hpp">
       <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Game.hpp">
+      <Filter>Gameplay</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

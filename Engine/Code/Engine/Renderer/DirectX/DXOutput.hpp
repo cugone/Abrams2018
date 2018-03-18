@@ -12,6 +12,7 @@ class Rgba;
 class DXDevice;
 
 struct IDXGISwapChain1;
+struct DXGI_PRESENT_PARAMETERS;
 
 class DXOutput : public RHIOutput {
 public:
@@ -28,4 +29,5 @@ private:
     IDXGISwapChain1* _dx_swapchain = nullptr;
     DXDevice* _dx_parentdevice = nullptr;
     DXTexture2D* _dx_backbuffer = nullptr;
+    DXGI_PRESENT_PARAMETERS* _dx_present_params = nullptr;
 };

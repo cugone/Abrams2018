@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+#include "Engine/Core/Rgba.hpp"
+
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/AABB3.hpp"
 #include "Engine/Math/Capsule2.hpp"
@@ -869,6 +871,23 @@ Quaternion Interpolate(const Quaternion& a, const Quaternion& b, float t) {
     float w = Interpolate(a.w, b.w, t);
     Vector3 axis = Interpolate(a.axis, b.axis, t);
     return Quaternion(w, axis);
+}
+
+template<>
+Rgba Interpolate(const Rgba& a, const Rgba& b, float t) {
+    float a_color[4];
+    a.GetAsFloats(a_color[0], a_color[1], a_color[2], a_color[3]);
+    float b_color[4];
+    b.GetAsFloats(b_color[0], b_color[1], b_color[2], b_color[3]);
+
+    float red   = Interpolate(a_color[0], b_color[0], t);
+    float green = Interpolate(a_color[1], b_color[1], t);
+    float blue  = Interpolate(a_color[2], b_color[2], t);
+    float alpha = Interpolate(a_color[3], b_color[3], t);
+
+    Rgba result;
+    result.SetAsFloats(red, green, blue, alpha);
+    return result;
 }
 
 } //End MathUtils

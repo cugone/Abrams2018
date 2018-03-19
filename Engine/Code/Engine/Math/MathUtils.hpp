@@ -23,6 +23,7 @@ class Capsule3;
 class Plane2;
 class Plane3;
 class Quaternion;
+class Rgba;
 
 namespace MathUtils {
 
@@ -305,6 +306,9 @@ Plane3 Interpolate(const Plane3& a, const Plane3& b, float t);
 
 template<>
 Quaternion Interpolate(const Quaternion& a, const Quaternion& b, float t);
+
+template<>
+Rgba Interpolate(const Rgba& a, const Rgba& b, float t);
 
 template<typename T>
 T RangeMap(const T& valueToMap, const T& minInputRange, const T& maxInputRange, const T& minOutputRange, const T& maxOutputRange) {

@@ -95,10 +95,10 @@ void Rgba::SetAsBytes(unsigned char red, unsigned char green, unsigned char blue
 }
 
 void Rgba::SetAsFloats(float normalized_red, float normalized_green, float normalized_blue, float normalized_alpha) {
-    r = static_cast<unsigned char>(normalized_red) * 255;
-    g = static_cast<unsigned char>(normalized_green) * 255;
-    b = static_cast<unsigned char>(normalized_blue) * 255;
-    a = static_cast<unsigned char>(normalized_alpha) * 255;
+    r = static_cast<unsigned char>(normalized_red * 255.0f);
+    g = static_cast<unsigned char>(normalized_green * 255.0f);
+    b = static_cast<unsigned char>(normalized_blue * 255.0f);
+    a = static_cast<unsigned char>(normalized_alpha * 255.0f);
 }
 
 void Rgba::GetAsFloats(float& out_normalized_red, float& out_normalized_green, float& out_normalized_blue, float& out_normalized_alpha) const {

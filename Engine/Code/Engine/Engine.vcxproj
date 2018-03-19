@@ -24,6 +24,7 @@
     <ClCompile Include="Core\BuildConfig.cpp" />
     <ClCompile Include="Core\DataUtils.cpp" />
     <ClCompile Include="Core\EngineBase.cpp" />
+    <ClCompile Include="Core\EngineSubsystem.cpp" />
     <ClCompile Include="Core\ErrorWarningAssert.cpp" />
     <ClCompile Include="Core\Image.cpp" />
     <ClCompile Include="Core\Rgba.cpp" />
@@ -83,6 +84,7 @@
     <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h" />
     <ClInclude Include="Core\DataUtils.hpp" />
     <ClInclude Include="Core\EngineBase.hpp" />
+    <ClInclude Include="Core\EngineSubsystem.hpp" />
     <ClInclude Include="Core\ErrorWarningAssert.hpp" />
     <ClInclude Include="Core\Image.hpp" />
     <ClInclude Include="Core\Rgba.hpp" />

@@ -4,6 +4,8 @@
 #include <array>
 #include <bitset>
 
+#include "Engine/Core/EngineSubsystem.hpp"
+
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"
@@ -23,7 +25,9 @@ enum class KeyCode : unsigned char {
     ,SHIFT
     ,CTRL  /* Also CTRL */
     ,MENU  /* Also ALT */
-    ,ALT = MENU
+    ,ALT = MENU /* Also LMENU */
+    ,LMENU = MENU  /* Also LALT*/
+    ,LALT = LMENU
     ,PAUSE
     ,CAPITAL  /* Also CAPSLOCK */
     ,CAPSLOCK = CAPITAL
@@ -158,8 +162,6 @@ enum class KeyCode : unsigned char {
     ,LCTRL = LCONTROL
     ,RCONTROL  /* Also RCTRL */
     ,RCTRL = RCONTROL
-    ,LMENU  /* Also LALT*/
-    ,LALT = LMENU
     ,RMENU  /* Also RALT */
     ,RALT = RMENU
     ,BROWSER_BACK
@@ -268,19 +270,20 @@ enum class KeyCode : unsigned char {
 KeyCode& operator++(KeyCode& keycode);
 KeyCode operator++(KeyCode& keycode, int);
 
-class InputSystem {
+class InputSystem : public EngineSubsystem {
 public:
     InputSystem() = default;
     ~InputSystem() = default;
 
     void RegisterKeyDown(unsigned char keyIndex);
     void RegisterKeyUp(unsigned char keyIndex);
-
-    void Initialize();
-    void BeginFrame();
-    void Update(float deltaSeconds);
-    void Render() const;
-    void EndFrame();
+    
+    virtual bool ProcessSystemMessage(const EngineMessage& msg) override;
+    virtual void Initialize() override;
+    virtual void BeginFrame() override;
+    virtual void Update(float deltaSeconds) override;
+    virtual void Render() const override;
+    virtual void EndFrame() override;
 
     bool WasAnyKeyPressed() const;
     bool IsKeyUp(const KeyCode& key) const;

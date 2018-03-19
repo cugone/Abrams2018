@@ -1,5 +1,7 @@
 #include "Game/App.hpp"
 
+#include "Engine/Core/EngineSubsystem.hpp"
+
 #include "Engine/Core/TimeUtils.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Renderer/Renderer.hpp"
@@ -11,34 +13,31 @@
 #include "Game/GameCommon.hpp"
 #include "Game/GameConfig.hpp"
 
-bool CALLBACK WindowProc([[maybe_unused]] HWND hwnd, UINT uMsg, [[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam) {
-    switch(uMsg) {
-        case WM_CLOSE:
-        case WM_QUIT:
-        case WM_DESTROY:
-        {
-            g_theApp->SetIsQuitting(true);
-            return true;
-        }
-        case WM_KEYDOWN:
-        {
-            unsigned char key = static_cast<unsigned char>(wParam);
-            if(g_theInput) {
-                g_theInput->RegisterKeyDown(key);
+bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+
+    EngineMessage msg;
+    std::memset(&msg, 0, sizeof(msg));
+    msg.hWnd = hwnd;
+    msg.wmMessageCode = EngineSubsystem::GetWindowsSystemMessageFromUintMessage(uMsg);
+    msg.wparam = wParam;
+    msg.lparam = lParam;
+
+    if(g_theInput && g_theInput->ProcessSystemMessage(msg)) {
+        return true;
+    } else {
+
+        switch(uMsg) {
+            case WM_CLOSE:
+            case WM_QUIT:
+            case WM_DESTROY:
+            {
+                g_theApp->SetIsQuitting(true);
+                return true;
             }
-            return true;
-        }
-        case WM_KEYUP:
-        {
-            unsigned char key = static_cast<unsigned char>(wParam);
-            if(g_theInput) {
-                g_theInput->RegisterKeyUp(key);
+            default:
+            {
+                return false;
             }
-            return true;
-        }
-        default:
-        {
-            return false;
         }
     }
 }

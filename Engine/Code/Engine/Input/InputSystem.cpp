@@ -157,7 +157,6 @@ unsigned char ConvertKeyCodeToWinVK(const KeyCode& code) {
     case KeyCode::RSHIFT: return VK_RSHIFT;
     case KeyCode::LCONTROL: return VK_LCONTROL; /* Also LCTRL */
     case KeyCode::RCONTROL: return VK_RCONTROL; /* Also RCTRL */
-    case KeyCode::LMENU: return VK_LMENU; /* Also LALT*/
     case KeyCode::RMENU: return VK_RMENU; /* Also RALT */
     case KeyCode::BROWSER_BACK: return VK_BROWSER_BACK;
     case KeyCode::BROWSER_FORWARD: return VK_BROWSER_FORWARD;
@@ -455,6 +454,147 @@ void InputSystem::RegisterKeyUp(unsigned char keyIndex) {
     auto kc = ConvertWinVKToKeyCode(keyIndex);
     _currentKeys[(std::size_t)kc] = false;
 
+}
+
+bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
+
+    LPARAM lp = msg.lparam;
+    WPARAM wp = msg.wparam;
+    switch(msg.wmMessageCode) {
+        case WindowsSystemMessage::KEYBOARD_KEYDOWN:
+        {
+            unsigned char key = static_cast<unsigned char>(wp);
+            uint32_t lpBits = lp;
+            //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
+            //C: repeat count
+            //S: scan code
+            //E: extended key flag
+            //R: reserved
+            //X: context code: 0 for KEYDOWN
+            //P: previous state 1 for already down
+            //T: transition state 0 for KEYDOWN
+            constexpr uint32_t repeat_count_mask = 0b0000'0000'0000'0000'1111'1111'1111'1111; //0x0000FFFF;
+            constexpr uint32_t scan_code_mask = 0b0000'0000'1111'1111'0000'0000'0000'0000; //0x00FF0000;
+            constexpr uint32_t extended_key_mask = 0b0000'0001'0000'0000'0000'0000'0000'0000; //0x01000000;
+            constexpr uint32_t reserved_mask = 0b0001'1110'0000'0000'0000'0000'0000'0000; //0x1E000000;
+            constexpr uint32_t context_code_mask = 0b0010'0000'0000'0000'0000'0000'0000'0000; //0x20000000;
+            constexpr uint32_t previous_state_mask = 0b0100'0000'0000'0000'0000'0000'0000'0000; //0x40000000;
+            constexpr uint32_t transition_state_mask = 0b1000'0000'0000'0000'0000'0000'0000'0000; //0x80000000;
+            bool is_extended_key = (lpBits & extended_key_mask) != 0;
+            auto my_key = ConvertWinVKToKeyCode(key);
+            if(is_extended_key) {
+                switch(my_key) {
+                    case KeyCode::ALT:  my_key = KeyCode::RALT; break;
+                    case KeyCode::CTRL: my_key = KeyCode::RCTRL; break;
+                    case KeyCode::RETURN: my_key = KeyCode::NUMPADENTER; break;
+                    case KeyCode::LWIN: return true;
+                    case KeyCode::RWIN: return true;
+                }
+                key = ConvertKeyCodeToWinVK(my_key);
+            }
+            RegisterKeyDown(key); return true;
+        }
+        case WindowsSystemMessage::KEYBOARD_KEYUP:
+        {
+            unsigned char key = static_cast<unsigned char>(wp);
+            uint32_t lpBits = lp;
+            //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
+            //C: repeat count
+            //S: scan code
+            //E: extended key flag
+            //R: reserved
+            //X: context code: 0 for KEYUP
+            //P: previous state 1 for already down
+            //T: transition state 1 for KEYUP
+            constexpr uint32_t repeat_count_mask = 0b0000'0000'0000'0000'1111'1111'1111'1111; //0x0000FFFF;
+            constexpr uint32_t scan_code_mask = 0b0000'0000'1111'1111'0000'0000'0000'0000; //0x00FF0000;
+            constexpr uint32_t extended_key_mask = 0b0000'0001'0000'0000'0000'0000'0000'0000; //0x01000000;
+            constexpr uint32_t reserved_mask = 0b0001'1110'0000'0000'0000'0000'0000'0000; //0x1E000000;
+            constexpr uint32_t context_code_mask = 0b0010'0000'0000'0000'0000'0000'0000'0000; //0x20000000;
+            constexpr uint32_t previous_state_mask = 0b0100'0000'0000'0000'0000'0000'0000'0000; //0x40000000;
+            constexpr uint32_t transition_state_mask = 0b1000'0000'0000'0000'0000'0000'0000'0000; //0x80000000;
+            bool is_extended_key = (lpBits & extended_key_mask) != 0;
+            auto my_key = ConvertWinVKToKeyCode(key);
+            if(is_extended_key) {
+                switch(my_key) {
+                    case KeyCode::ALT:  my_key = KeyCode::RALT; break;
+                    case KeyCode::CTRL: my_key = KeyCode::RCTRL; break;
+                    case KeyCode::RETURN: my_key = KeyCode::NUMPADENTER; break;
+                    case KeyCode::LWIN: return true;
+                    case KeyCode::RWIN: return true;
+                }
+                key = ConvertKeyCodeToWinVK(my_key);
+            }
+            RegisterKeyUp(key); return true;
+        }
+        case WindowsSystemMessage::KEYBOARD_SYSKEYDOWN:
+        {
+            unsigned char key = static_cast<unsigned char>(wp);
+            uint32_t lpBits = lp;
+            //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
+            //C: repeat count
+            //S: scan code
+            //E: extended key flag
+            //R: reserved
+            //X: context code: 1 for ALT while key pressed; 0 posted to active window if no window has keyboard focus
+            //P: previous state 1 for already down
+            //T: transition state 0 for SYSKEYDOWN
+            constexpr uint32_t repeat_count_mask = 0b0000'0000'0000'0000'1111'1111'1111'1111; //0x0000FFFF;
+            constexpr uint32_t scan_code_mask = 0b0000'0000'1111'1111'0000'0000'0000'0000; //0x00FF0000;
+            constexpr uint32_t extended_key_mask = 0b0000'0001'0000'0000'0000'0000'0000'0000; //0x01000000;
+            constexpr uint32_t reserved_mask = 0b0001'1110'0000'0000'0000'0000'0000'0000; //0x1E000000;
+            constexpr uint32_t context_code_mask = 0b0010'0000'0000'0000'0000'0000'0000'0000; //0x20000000;
+            constexpr uint32_t previous_state_mask = 0b0100'0000'0000'0000'0000'0000'0000'0000; //0x40000000;
+            constexpr uint32_t transition_state_mask = 0b1000'0000'0000'0000'0000'0000'0000'0000; //0x80000000;
+            bool is_extended_key = (lpBits & extended_key_mask) != 0;
+            auto my_key = ConvertWinVKToKeyCode(key);
+            if(is_extended_key) {
+                switch(my_key) {
+                    case KeyCode::ALT:  my_key = KeyCode::RALT; break;
+                    case KeyCode::CTRL: my_key = KeyCode::RCTRL; break;
+                    case KeyCode::RETURN: my_key = KeyCode::NUMPADENTER; break;
+                    case KeyCode::LWIN: return true;
+                    case KeyCode::RWIN: return true;
+                }
+                key = ConvertKeyCodeToWinVK(my_key);
+            }
+            RegisterKeyDown(key); return true;
+        }
+        case WindowsSystemMessage::KEYBOARD_SYSKEYUP:
+        {
+            unsigned char key = static_cast<unsigned char>(wp);
+            uint32_t lpBits = lp;
+            //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
+            //C: repeat count
+            //S: scan code
+            //E: extended key flag
+            //R: reserved
+            //X: context code: 1 for ALT down while released; 0 if SYSKEYDOWN posted to active window because no window has keyboard focus.
+            //P: previous state 1 for SYSKEYUP
+            //T: transition state 1 for SYSKEYUP
+            constexpr uint32_t repeat_count_mask = 0b0000'0000'0000'0000'1111'1111'1111'1111; //0x0000FFFF;
+            constexpr uint32_t scan_code_mask = 0b0000'0000'1111'1111'0000'0000'0000'0000; //0x00FF0000;
+            constexpr uint32_t extended_key_mask = 0b0000'0001'0000'0000'0000'0000'0000'0000; //0x01000000;
+            constexpr uint32_t reserved_mask = 0b0001'1110'0000'0000'0000'0000'0000'0000; //0x1E000000;
+            constexpr uint32_t context_code_mask = 0b0010'0000'0000'0000'0000'0000'0000'0000; //0x20000000;
+            constexpr uint32_t previous_state_mask = 0b0100'0000'0000'0000'0000'0000'0000'0000; //0x40000000;
+            constexpr uint32_t transition_state_mask = 0b1000'0000'0000'0000'0000'0000'0000'0000; //0x80000000;
+            bool is_extended_key = (lpBits & extended_key_mask) != 0;
+            auto my_key = ConvertWinVKToKeyCode(key);
+            if(is_extended_key) {
+                switch(my_key) {
+                    case KeyCode::ALT:  my_key = KeyCode::RALT; break;
+                    case KeyCode::CTRL: my_key = KeyCode::RCTRL; break;
+                    case KeyCode::RETURN: my_key = KeyCode::NUMPADENTER; break;
+                    case KeyCode::LWIN: return true;
+                    case KeyCode::RWIN: return true;
+                }
+                key = ConvertKeyCodeToWinVK(my_key);
+            }
+            RegisterKeyUp(key); return true;
+        }
+    }
+    return false;
 }
 
 void InputSystem::Initialize() {

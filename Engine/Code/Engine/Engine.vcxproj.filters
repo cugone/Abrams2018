@@ -202,6 +202,9 @@
     <ClCompile Include="Input\InputSystem.cpp">
       <Filter>Input</Filter>
     </ClCompile>
+    <ClCompile Include="Core\EngineSubsystem.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -380,6 +383,9 @@
     </ClInclude>
     <ClInclude Include="Input\InputSystem.hpp">
       <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\EngineSubsystem.hpp">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

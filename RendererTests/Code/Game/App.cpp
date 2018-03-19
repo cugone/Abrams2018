@@ -22,10 +22,17 @@ bool CALLBACK WindowProc([[maybe_unused]] HWND hwnd, UINT uMsg, [[maybe_unused]]
         }
         case WM_KEYDOWN:
         {
-            unsigned int key = static_cast<unsigned int>(wParam);
-            switch(key) {
-                case VK_ESCAPE:
-                    g_theApp->SetIsQuitting(true);
+            unsigned char key = static_cast<unsigned char>(wParam);
+            if(g_theInput) {
+                g_theInput->RegisterKeyDown(key);
+            }
+            return true;
+        }
+        case WM_KEYUP:
+        {
+            unsigned char key = static_cast<unsigned char>(wParam);
+            if(g_theInput) {
+                g_theInput->RegisterKeyUp(key);
             }
             return true;
         }
@@ -53,6 +60,7 @@ App::App() {
         }
     }
 
+    g_theInput = new InputSystem();
     g_theGame = new Game();
 
 }
@@ -91,21 +99,25 @@ void App::RunFrame() {
 }
 
 void App::BeginFrame() {
+    g_theInput->BeginFrame();
     g_theGame->BeginFrame();
     g_theRenderer->BeginFrame();
 }
 
 void App::Update(float deltaSeconds) {
+    g_theInput->Update(deltaSeconds);
     g_theGame->Update(deltaSeconds);
     g_theRenderer->Update(deltaSeconds);
 }
 
 void App::Render() const {
     g_theGame->Render();
+    g_theInput->Render();
     g_theRenderer->Render();
 }
 
 void App::EndFrame() {
     g_theGame->EndFrame();
+    g_theInput->EndFrame();
     g_theRenderer->EndFrame();
 }

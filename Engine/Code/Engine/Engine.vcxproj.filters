@@ -26,6 +26,9 @@
     <Filter Include="Renderer\Core">
       <UniqueIdentifier>{81bcac69-e903-46e1-bbe6-c9f41a332b44}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Input">
+      <UniqueIdentifier>{66a8e966-fbbd-452b-ae34-742c16742942}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">
@@ -192,6 +195,12 @@
     </ClCompile>
     <ClCompile Include="Core\Image.cpp">
       <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Input\XboxController.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Input\InputSystem.cpp">
+      <Filter>Input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -365,6 +374,12 @@
     </ClInclude>
     <ClInclude Include="Core\Image.hpp">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\XboxController.hpp">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\InputSystem.hpp">
+      <Filter>Input</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

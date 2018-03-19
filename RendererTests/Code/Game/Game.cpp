@@ -1,6 +1,7 @@
 #include "Game/Game.hpp"
 
 #include "Engine/Core/Rgba.hpp"
+#include "Engine/Math/MathUtils.hpp"
 
 #include "Game/GameCommon.hpp"
 #include "Game/GameConfig.hpp"
@@ -14,7 +15,12 @@ void Game::BeginFrame() {
 }
 
 void Game::Update(float /*deltaSeconds*/) {
-    /* DO NOTHING */
+
+    if(g_theInput->WasKeyJustPressed(KeyCode::ESC)) {
+        g_theApp->SetIsQuitting(true);
+        return;
+    }
+
 }
 
 void Game::Render() const {

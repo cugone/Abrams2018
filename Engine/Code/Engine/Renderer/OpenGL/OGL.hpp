@@ -4,6 +4,10 @@
 //#include <GL/gl.h>
 //#include <GL/glu.h>
 
+#include "Thirdparty/OpenGL/glcorearb.h"
+#include "Thirdparty/OpenGL/glext.h"
+#include "Thirdparty/OpenGL/wglext.h"
+
 // LIBS
 //#pragma comment( lib, "OpenGL32.lib" )
 

@@ -387,5 +387,14 @@
     <ClInclude Include="Core\EngineSubsystem.hpp">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\Thirdparty\OpenGL\glcorearb.h">
+      <Filter>Thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\OpenGL\glext.h">
+      <Filter>Thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\OpenGL\wglext.h">
+      <Filter>Thirdparty</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

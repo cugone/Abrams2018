@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Engine/Core/Win.hpp"
-#include <GL/gl.h>
-#include <GL/glu.h>
+//#include <GL/gl.h>
+//#include <GL/glu.h>
 
 // LIBS
-#pragma comment( lib, "OpenGL32.lib" )
+//#pragma comment( lib, "OpenGL32.lib" )
 
 //The core OpenGL functions must include the header file <GL\gl.h>.
 //The OpenGL Utility library must include the header file <GL\glu.h>.

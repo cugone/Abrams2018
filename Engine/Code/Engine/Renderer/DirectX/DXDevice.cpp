@@ -169,6 +169,8 @@ RHIOutput* DXDevice::CreateOutputFromWindow(Window*& window) {
     if(FAILED(hr_dxgi_device)) {
         delete _immediate_context;
         _immediate_context = nullptr;
+        delete _highestSupportedFeatureLevel;
+        _highestSupportedFeatureLevel = nullptr;
         ERROR_AND_DIE("Could not query IDXGIDevice.");
     }
 
@@ -179,18 +181,22 @@ RHIOutput* DXDevice::CreateOutputFromWindow(Window*& window) {
         dxgi_device = nullptr;
         delete _immediate_context;
         _immediate_context = nullptr;
+        delete _highestSupportedFeatureLevel;
+        _highestSupportedFeatureLevel = nullptr;
         ERROR_AND_DIE("Could not query IDXGIAdapter.");
     }
 
     IDXGIFactory5* dxgi_factory = nullptr;
     auto hr_dxgi_factory = dxgi_adapter->GetParent(__uuidof(IDXGIFactory5), (void **)&dxgi_factory);
     if(FAILED(hr_dxgi_factory)) {
-        delete _immediate_context;
-        _immediate_context = nullptr;
         dxgi_adapter->Release();
         dxgi_adapter = nullptr;
         dxgi_device->Release();
         dxgi_device = nullptr;
+        delete _immediate_context;
+        _immediate_context = nullptr;
+        delete _highestSupportedFeatureLevel;
+        _highestSupportedFeatureLevel = nullptr;
         ERROR_AND_DIE("Could not query IDXGIFactory.");
     }
 

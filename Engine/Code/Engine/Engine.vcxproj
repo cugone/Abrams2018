@@ -26,6 +26,7 @@
     <ClCompile Include="Core\EngineBase.cpp" />
     <ClCompile Include="Core\EngineSubsystem.cpp" />
     <ClCompile Include="Core\ErrorWarningAssert.cpp" />
+    <ClCompile Include="Core\FileUtils.cpp" />
     <ClCompile Include="Core\Image.cpp" />
     <ClCompile Include="Core\Rgba.cpp" />
     <ClCompile Include="Core\StringUtils.cpp" />
@@ -53,7 +54,7 @@
     <ClCompile Include="Math\Vector3.cpp" />
     <ClCompile Include="Math\Vector4.cpp" />
     <ClCompile Include="Renderer\DepthStencilState.cpp" />
-    <ClCompile Include="Renderer\DirectX\D3DRenderer.cpp" />
+    <ClCompile Include="Renderer\DirectX\DX11Renderer.cpp" />
     <ClCompile Include="Renderer\DirectX\DX11.cpp" />
     <ClCompile Include="Renderer\DirectX\DXDepthStencilState.cpp" />
     <ClCompile Include="Renderer\DirectX\DXDevice.cpp" />
@@ -61,7 +62,9 @@
     <ClCompile Include="Renderer\DirectX\DXInstance.cpp" />
     <ClCompile Include="Renderer\DirectX\DXOutput.cpp" />
     <ClCompile Include="Renderer\DirectX\DXTexture.cpp" />
+    <ClCompile Include="Renderer\DirectX\DXTexture1D.cpp" />
     <ClCompile Include="Renderer\DirectX\DXTexture2D.cpp" />
+    <ClCompile Include="Renderer\DirectX\DXTexture3D.cpp" />
     <ClCompile Include="Renderer\OpenGL\OGL.cpp" />
     <ClCompile Include="Renderer\OpenGL\OGLDevice.cpp" />
     <ClCompile Include="Renderer\OpenGL\OGLDeviceContext.cpp" />
@@ -89,6 +92,7 @@
     <ClInclude Include="Core\EngineBase.hpp" />
     <ClInclude Include="Core\EngineSubsystem.hpp" />
     <ClInclude Include="Core\ErrorWarningAssert.hpp" />
+    <ClInclude Include="Core\FileUtils.hpp" />
     <ClInclude Include="Core\Image.hpp" />
     <ClInclude Include="Core\Rgba.hpp" />
     <ClInclude Include="Core\StringUtils.hpp" />
@@ -117,7 +121,7 @@
     <ClInclude Include="Math\Vector3.hpp" />
     <ClInclude Include="Math\Vector4.hpp" />
     <ClInclude Include="Renderer\DepthStencilState.hpp" />
-    <ClInclude Include="Renderer\DirectX\D3DRenderer.hpp" />
+    <ClInclude Include="Renderer\DirectX\DX11Renderer.hpp" />
     <ClInclude Include="Renderer\DirectX\DX11.hpp" />
     <ClInclude Include="Renderer\DirectX\DXDepthStencilState.hpp" />
     <ClInclude Include="Renderer\DirectX\DXDevice.hpp" />
@@ -125,7 +129,9 @@
     <ClInclude Include="Renderer\DirectX\DXInstance.hpp" />
     <ClInclude Include="Renderer\DirectX\DXOutput.hpp" />
     <ClInclude Include="Renderer\DirectX\DXTexture.hpp" />
+    <ClInclude Include="Renderer\DirectX\DXTexture1D.hpp" />
     <ClInclude Include="Renderer\DirectX\DXTexture2D.hpp" />
+    <ClInclude Include="Renderer\DirectX\DXTexture3D.hpp" />
     <ClInclude Include="Renderer\OpenGL\OGL.hpp" />
     <ClInclude Include="Renderer\OpenGL\OGLDevice.hpp" />
     <ClInclude Include="Renderer\OpenGL\OGLDeviceContext.hpp" />

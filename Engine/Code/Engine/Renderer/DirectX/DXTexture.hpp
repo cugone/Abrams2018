@@ -24,7 +24,7 @@ public:
     virtual bool IsValid() const noexcept = 0;
     bool IsRenderTarget() const noexcept;
 
-    virtual void SetDebugName(char const* name) noexcept = 0;
+    virtual void SetDebugName([[maybe_unused]] char const* name) noexcept = 0;
 
     ID3D11RenderTargetView* GetRenderTargetView() noexcept;
     ID3D11ShaderResourceView* GetShaderResourceView() noexcept;

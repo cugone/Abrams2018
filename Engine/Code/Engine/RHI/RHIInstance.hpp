@@ -13,7 +13,7 @@ public:
     virtual RHIOutput* CreateOutput(const IntVector2& client_size, const IntVector2& client_position, const RHIOutputMode& output_mode);
 protected:
     RHIInstance();
-    ~RHIInstance();
+    virtual ~RHIInstance() = 0;
 
     RHIInstanceType _instanceType = RHIInstanceType::NONE;
 private:

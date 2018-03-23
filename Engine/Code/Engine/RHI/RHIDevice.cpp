@@ -10,7 +10,7 @@ RHIDevice::RHIDevice()
     /* DO NOTHING */
 }
 RHIDevice::~RHIDevice() {
-    delete _immediate_context;
+    _immediate_context = nullptr;
 }
 
 RHIDeviceContext* RHIDevice::GetImmediateContext() const {

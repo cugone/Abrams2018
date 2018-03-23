@@ -2,17 +2,18 @@
 
 #include "Engine/Renderer/Renderer.hpp"
 
+#include "Engine/Math/IntVector3.hpp"
+
 class DXInstance;
 class DXDevice;
 class DXDeviceContext;
 class DXOutput;
-class IntVector3;
 
-class D3DRenderer : public Renderer {
+class DX11Renderer : public Renderer {
 public:
-    D3DRenderer() = default;
-    D3DRenderer(unsigned int width, unsigned int height);
-    virtual ~D3DRenderer();
+    DX11Renderer() = default;
+    DX11Renderer(unsigned int width, unsigned int height);
+    virtual ~DX11Renderer();
 
     virtual void SetVSync(bool vsync_setting) override;
 
@@ -34,10 +35,13 @@ public:
 
 
     virtual Texture* CreateTexture(const std::wstring& filepath,
-                                     const IntVector3& dimensions,
-                                     const BufferUsage& bufferUsage = BufferUsage::STATIC,
-                                     const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE,
-                                     const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM) override;
+                                   const IntVector3& dimensions = IntVector3::XY_AXIS,
+                                   const BufferUsage& bufferUsage = BufferUsage::STATIC,
+                                   const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE,
+                                   const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM) override;
+    Texture* Create1DTexture(const std::wstring& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
+    Texture* Create2DTexture(const std::wstring& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
+    Texture* Create3DTexture(const std::wstring& filepath, const IntVector3& dimensions, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
 
 protected:
     virtual Texture* CreateDepthStencil(RHIDevice* owner, const IntVector2& dimensions) override;

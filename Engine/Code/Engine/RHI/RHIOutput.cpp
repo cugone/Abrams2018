@@ -22,19 +22,14 @@ RHIOutput::RHIOutput(RHIDevice* parent, Window* wnd)
 
 RHIOutput::~RHIOutput() {
 
-    if(_parentDevice) {
-        delete _parentDevice;
-        _parentDevice = nullptr;
-    }
+    _parentDevice = nullptr;
 
-    if(_window) {
-        delete _window;
-        _window = nullptr;
-    }
-    if(_back_buffer) {
-        delete _back_buffer;
-        _back_buffer = nullptr;
-    }
+    delete _window;
+    _window = nullptr;
+
+    delete _back_buffer;
+    _back_buffer = nullptr;
+
 }
 
 const RHIDevice* RHIOutput::GetParentDevice() const {

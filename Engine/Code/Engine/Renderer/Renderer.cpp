@@ -1,6 +1,13 @@
 #include "Engine/Renderer/Renderer.hpp"
 
 #include <filesystem>
+
+#include "Engine/RHI/RHIInstance.hpp"
+#include "Engine/RHI/RHIDevice.hpp"
+#include "Engine/RHI/RHIDeviceContext.hpp"
+#include "Engine/RHI/RHIOutput.hpp"
+
+#include "Engine/Renderer/DepthStencilState.hpp"
 #include "Engine/Renderer/Texture.hpp"
 
 Renderer::Renderer(unsigned int width, unsigned int height)
@@ -15,6 +22,25 @@ Renderer::~Renderer() {
         texture.second = nullptr;
     }
     _textures.clear();
+
+    delete _default_depthstencil;
+    _default_depthstencil = nullptr;
+
+    delete _current_depthstencil_state;
+    _current_depthstencil_state = nullptr;
+
+    delete _rhi_context;
+    _rhi_context = nullptr;
+
+    delete _rhi_device;
+    _rhi_device = nullptr;
+
+    delete _rhi_output;
+    _rhi_output = nullptr;
+
+    RHIInstance::DestroyInstance();
+    _rhi_instance = nullptr;
+
 }
 
 bool Renderer::RegisterTexture(const std::wstring& name, Texture* texture) {

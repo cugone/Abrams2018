@@ -13,7 +13,7 @@ class DepthStencilState;
 class RHIDevice {
 public:
     RHIDevice();
-    virtual ~RHIDevice();
+    virtual ~RHIDevice() = 0;
 
     RHIDeviceContext* GetImmediateContext() const;
 

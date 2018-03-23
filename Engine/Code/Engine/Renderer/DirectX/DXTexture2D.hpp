@@ -17,8 +17,7 @@ public:
     void SetDeviceAndTexture(DXDevice* device, ID3D11Texture2D* texture);
     virtual bool IsValid() const noexcept override;
 
-    virtual void SetDebugName(char const* name) noexcept override;
-
+    virtual void SetDebugName([[maybe_unused]] char const* name) noexcept override;
 
 protected:
 private:

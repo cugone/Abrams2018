@@ -7,7 +7,7 @@ class RHIDevice;
 class RHIDeviceContext {
 public:
     RHIDeviceContext(RHIDevice* parentDevice = nullptr);
-    virtual ~RHIDeviceContext();
+    virtual ~RHIDeviceContext() = 0;
 
     virtual void ClearState() = 0;
     virtual void Flush() = 0;

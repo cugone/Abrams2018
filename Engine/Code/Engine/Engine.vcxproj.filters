@@ -121,9 +121,6 @@
     <ClCompile Include="Renderer\OpenGL\OGLRenderer.cpp">
       <Filter>Renderer\OpenGL</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\DirectX\D3DRenderer.cpp">
-      <Filter>Renderer\DirectX</Filter>
-    </ClCompile>
     <ClCompile Include="RHI\RHIInstance.cpp">
       <Filter>RHI</Filter>
     </ClCompile>
@@ -204,6 +201,18 @@
     </ClCompile>
     <ClCompile Include="Core\EngineSubsystem.cpp">
       <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\DirectX\DX11Renderer.cpp">
+      <Filter>Renderer\DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\DirectX\DXTexture1D.cpp">
+      <Filter>Renderer\DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\FileUtils.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\DirectX\DXTexture3D.cpp">
+      <Filter>Renderer\DirectX</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -306,9 +315,6 @@
     <ClInclude Include="Renderer\OpenGL\OGLRenderer.hpp">
       <Filter>Renderer\OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\DirectX\D3DRenderer.hpp">
-      <Filter>Renderer\DirectX</Filter>
-    </ClInclude>
     <ClInclude Include="Core\Win.hpp">
       <Filter>Core</Filter>
     </ClInclude>
@@ -395,6 +401,18 @@
     </ClInclude>
     <ClInclude Include="..\Thirdparty\OpenGL\wglext.h">
       <Filter>Thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\DirectX\DX11Renderer.hpp">
+      <Filter>Renderer\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\DirectX\DXTexture1D.hpp">
+      <Filter>Renderer\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\FileUtils.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\DirectX\DXTexture3D.hpp">
+      <Filter>Renderer\DirectX</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -8,7 +8,7 @@ struct IDXGIDebug;
 class DXInstance : public RHIInstance {
 public:
     DXInstance();
-    ~DXInstance();
+    virtual ~DXInstance();
 
     virtual RHIOutput* CreateOutput(const IntVector2& client_size, const IntVector2& client_position, const RHIOutputMode& output_mode) override;
 

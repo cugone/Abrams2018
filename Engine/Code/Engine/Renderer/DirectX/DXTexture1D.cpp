@@ -1,46 +1,40 @@
-#include "Engine/Renderer/DirectX/DXTexture2D.hpp"
+#include "Engine/Renderer/DirectX/DXTexture1D.hpp"
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
 
 #include "Engine/Renderer/DirectX/DX11.hpp"
 #include "Engine/Renderer/DirectX/DXDevice.hpp"
 
-DXTexture2D::DXTexture2D(DXTexture2D&& r_other) noexcept
+DXTexture1D::DXTexture1D(DXDevice* device, ID3D11Texture1D* texture)
+    : DXTexture()
+    , _dx_resource(nullptr)
+{
+    SetDeviceAndTexture(device, texture);
+}
+
+DXTexture1D::DXTexture1D(DXTexture1D&& r_other) noexcept
     : DXTexture(std::move(r_other))
     , _dx_resource(r_other._dx_resource)
 {
     r_other._dx_resource = nullptr;
 }
 
-DXTexture2D::DXTexture2D(DXDevice* device, ID3D11Texture2D* texture)
-    : DXTexture()
-{
-    SetDeviceAndTexture(device, texture);
-}
-
-DXTexture2D& DXTexture2D::operator=(DXTexture2D&& r_rhs) noexcept {
-    DXTexture::operator=(std::move(r_rhs));
-    _dx_resource = r_rhs._dx_resource;
-    r_rhs._dx_resource = nullptr;
-    return *this;
-}
-
-DXTexture2D::~DXTexture2D() {
+DXTexture1D::~DXTexture1D() {
     _dx_resource->Release();
     _dx_resource = nullptr;
 }
 
+void DXTexture1D::SetDeviceAndTexture(DXDevice* device, ID3D11Texture1D* texture) {
 
-void DXTexture2D::SetDeviceAndTexture(DXDevice* device, ID3D11Texture2D* texture) {
-    
-    GUARANTEE_OR_DIE(device, "DXTexture2D: Invalid device.");
+    GUARANTEE_OR_DIE(device, "DXTexture1D: Invalid device.");
 
     _device = dynamic_cast<RHIDevice*>(device);
     _dx_resource = texture;
 
-    D3D11_TEXTURE2D_DESC t_desc;
+    D3D11_TEXTURE1D_DESC t_desc;
+    std::memset(&t_desc, 0, sizeof(t_desc));
     _dx_resource->GetDesc(&t_desc);
-    _dimensions = IntVector3(t_desc.Width, t_desc.Height, 0);
+    _dimensions = IntVector3(t_desc.Width, 0, 0);
 
     bool success = true;
     if(t_desc.BindFlags & D3D11_BIND_RENDER_TARGET) {
@@ -69,14 +63,22 @@ void DXTexture2D::SetDeviceAndTexture(DXDevice* device, ID3D11Texture2D* texture
     }
 }
 
-bool DXTexture2D::IsValid() const noexcept {
+bool DXTexture1D::IsValid() const noexcept {
     return _dx_resource != nullptr;
 }
 
-void DXTexture2D::SetDebugName([[maybe_unused]]char const* name) noexcept {
+void DXTexture1D::SetDebugName([[maybe_unused]] char const* name) noexcept {
 #if _DEBUG
     if((_dx_resource != nullptr) && (name != nullptr)) {
         _dx_resource->SetPrivateData(WKPDID_D3DDebugObjectName, (UINT)strlen(name) + 1, name);
     }
 #endif
 }
+
+DXTexture1D& DXTexture1D::operator=(DXTexture1D&& r_rhs) noexcept {
+    DXTexture::operator=(std::move(r_rhs));
+    _dx_resource = r_rhs._dx_resource;
+    r_rhs._dx_resource = nullptr;
+    return *this;
+}
+

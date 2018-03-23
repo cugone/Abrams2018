@@ -19,7 +19,7 @@ public:
     void IsLoaded(bool is_loaded) noexcept;
     bool IsLoaded() const noexcept;
 
-    virtual void SetDebugName(char const* name) noexcept = 0;
+    virtual void SetDebugName([[maybe_unused]] char const* name) noexcept = 0;
 
 protected:
     RHIDevice* _device = nullptr;

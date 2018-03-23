@@ -98,9 +98,6 @@ RHIOutput* DXDevice::CreateOutputFromWindow(Window*& window) {
     unsigned int device_flags = 0U;
 #ifdef RENDER_DEBUG
     device_flags |= D3D11_CREATE_DEVICE_DEBUG;
-
-    // This flag fails unless we' do 11.1 (which we're not), and we query that
-    // the adapter support its (which we're not).  Just here to let you know it exists.
     device_flags |= D3D11_CREATE_DEVICE_DEBUGGABLE;
 #endif
 

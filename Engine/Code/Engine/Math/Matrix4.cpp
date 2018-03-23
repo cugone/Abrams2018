@@ -424,24 +424,25 @@ Matrix4 Matrix4::CreateOrthographicProjectionMatrix(float top, float bottom, flo
 }
 
 Matrix4 Matrix4::CreateLookAtMatrix(const Vector3& eye, const Vector3& lookAt, const Vector3& up) {
-    Vector3 F = lookAt - eye;
-    Vector3 f_norm = F.GetNormalize();
-    Vector3 u_norm = up.GetNormalize();
-    Vector3 s = MathUtils::CrossProduct(f_norm, u_norm);
-    Vector3 s_norm = s.GetNormalize();
-    Vector3 u = MathUtils::CrossProduct(s_norm, f_norm);
+    Vector3 cam_forward = (lookAt - eye).GetNormalize();
+    Vector3 world_up = up.GetNormalize();
+    Vector3 cam_right = MathUtils::CrossProduct(world_up, cam_forward).GetNormalize();
+    Vector3 cam_up = MathUtils::CrossProduct(cam_forward, cam_right);
 
-    Matrix4 M(s_norm.x, s_norm.y, s_norm.z, 0.0f,
-              u_norm.x, u_norm.y, u_norm.z, 0.0f,
-              -f_norm.x, -f_norm.y, -f_norm.z, 0.0f,
-              0.0f, 0.0f, 0.0f, 1.0f);
+    Matrix4 R(cam_right.x, cam_up.x, cam_forward.x, 0.0f,
+              cam_right.z, cam_up.z, cam_forward.x, 0.0f,
+              cam_right.y, cam_up.y, cam_forward.x, 0.0f,
+                     0.0f,     0.0f,          0.0f, 1.0f);
+
+    R.Transpose();
 
     Matrix4 T(1.0f, 0.0f, 0.0f, -eye.x,
               0.0f, 1.0f, 0.0f, -eye.y,
               0.0f, 0.0f, 1.0f, -eye.z,
               0.0f, 0.0f, 0.0f, 1.0f);
+    T.Transpose();
 
-    Matrix4 L = M * T;
+    Matrix4 L = T * R;
 
     return L;
 }

@@ -5,7 +5,7 @@
 #include "Engine/Core/TimeUtils.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Renderer/Renderer.hpp"
-#include "Engine/Renderer/DirectX/D3DRenderer.hpp"
+#include "Engine/Renderer/DirectX/DX11Renderer.hpp"
 #include "Engine/RHI/RHIOutput.hpp"
 
 #include "Engine/Renderer/Window.hpp"
@@ -43,7 +43,7 @@ bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 }
 
 App::App() {
-    g_theRenderer = new D3DRenderer(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
+    g_theRenderer = new DX11Renderer(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
     g_theRenderer->SetVSync(GRAPHICS_OPTION_VSYNC);
     g_theRenderer->Initialize();
 
@@ -65,7 +65,14 @@ App::App() {
 }
 
 App::~App() {
-    /* DO NOTHING */
+    delete g_theGame;
+    g_theGame = nullptr;
+
+    delete g_theInput;
+    g_theInput = nullptr;
+    
+    delete g_theRenderer;
+    g_theRenderer = nullptr;
 }
 
 bool App::IsQuitting() const {

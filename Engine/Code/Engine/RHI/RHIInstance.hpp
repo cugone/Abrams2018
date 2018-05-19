@@ -4,18 +4,21 @@
 
 class RHIOutput;
 class IntVector2;
+class RHIDevice;
+struct IDXGIDebug;
 
 class RHIInstance {
 public:
-    static RHIInstance* CreateInstance(const RHIInstanceType& instance_type);
+    static RHIInstance* CreateInstance();
     static void DestroyInstance();
 
-    virtual RHIOutput* CreateOutput(const IntVector2& client_size, const IntVector2& client_position, const RHIOutputMode& output_mode);
+    RHIDevice* CreateDevice();
+
 protected:
     RHIInstance();
-    virtual ~RHIInstance() = 0;
+    ~RHIInstance();
 
-    RHIInstanceType _instanceType = RHIInstanceType::NONE;
 private:
     static RHIInstance* _instance;
+    static IDXGIDebug* _debuggerInstance;
 };

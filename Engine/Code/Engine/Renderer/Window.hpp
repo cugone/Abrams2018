@@ -12,6 +12,7 @@ class IntVector2;
 class Window {
 public:
     Window();
+    explicit Window(const IntVector2& position, const IntVector2& dimensions);
     ~Window();
 
     void Open();
@@ -23,9 +24,14 @@ public:
     bool IsOpen();
     bool IsClosed();
     bool IsWindowed() const;
+    bool IsFullscreen() const;
 
-    IntVector2 GetClientSize() const;
-    void SetClientSize(const IntVector2& client_position, const IntVector2& client_size);
+    IntVector2 GetDimensions() const;
+    IntVector2 GetPosition() const;
+
+    void SetDimensionsAndPosition(const IntVector2& new_position, const IntVector2& new_size);
+    void SetPosition(const IntVector2& new_position);
+    void SetDimensions(const IntVector2& new_dimensions);
     void SetForegroundWindow();
     void SetFocus();
     
@@ -37,7 +43,7 @@ public:
 
     std::function<bool(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)> custom_message_handler;
 
-    void SetTitle(const std::wstring& title);
+    void SetTitle(const std::string& title);
 
 protected:
     bool Register();
@@ -45,12 +51,12 @@ protected:
     bool Create();
 private:
     RHIOutputMode _currentDisplayMode = RHIOutputMode::WINDOWED;
-    HWND _hWnd{};
-    HINSTANCE _hInstance{};
-    std::wstring _title = L"DEFAULT WINDOW";
-    INT _cmdShow{};
-    WNDCLASSEX _wc{};
-    RECT _initialClippingArea;
+    HWND _hWnd = {};
+    HINSTANCE _hInstance = {};
+    std::string _title = "DEFAULT WINDOW";
+    INT _cmdShow = {};
+    WNDCLASSEX _wc = {};
+    RECT _initialClippingArea = {};
     int _positionX = 0;
     int _positionY = 0;
     unsigned int _width = 800;

@@ -1,24 +1,44 @@
 #include "Engine/RHI/RHIInstance.hpp"
 
-#include "Engine/Renderer/DirectX/DXInstance.hpp"
-#include "Engine/Renderer/OpenGL/OGLInstance.hpp"
+#include "Engine/Core/BuildConfig.cpp"
+#include "Engine/Core/ErrorWarningAssert.hpp"
+
+#include "Engine/Renderer/Window.hpp"
+
+#include "Engine/RHI/RHIDevice.hpp"
+#include "Engine/RHI/RHIOutput.hpp"
 
 RHIInstance* RHIInstance::_instance = nullptr;
+IDXGIDebug* RHIInstance::_debuggerInstance = nullptr;
 
-RHIInstance* RHIInstance::CreateInstance(const RHIInstanceType& instance_type) {
+RHIInstance* RHIInstance::CreateInstance() {
     if(_instance) {
         return _instance;
     }
-    switch(instance_type) {
-        case RHIInstanceType::DIRECTX:
-            _instance = new DXInstance();
-            break;
-        case RHIInstanceType::OPENGL:
-            _instance = new OGLInstance();
-            break;
-        default:
-            break;
-    }
+    _instance = new RHIInstance();
+
+    _instance->_debuggerInstance = nullptr;
+
+#if defined(RENDER_DEBUG)
+
+    HMODULE debug_module = nullptr;
+
+    // Debug Setup
+
+    debug_module = ::LoadLibraryA("Dxgidebug.dll");
+
+    using GetDebugModuleCB = HRESULT(WINAPI *)(REFIID, void**);
+
+    GetDebugModuleCB cb = (GetDebugModuleCB) ::GetProcAddress(debug_module, "DXGIGetDebugInterface");
+
+    HRESULT hr = cb(__uuidof(IDXGIDebug), (void**)&_instance->_debuggerInstance);
+
+    bool succeeded = SUCCEEDED(hr);
+    ASSERT_OR_DIE(succeeded, "DXGIDugger failed to initialize.");
+
+    _instance->_debuggerInstance->ReportLiveObjects(DXGI_DEBUG_ALL, (DXGI_DEBUG_RLO_FLAGS)(DXGI_DEBUG_RLO_IGNORE_INTERNAL | DXGI_DEBUG_RLO_DETAIL));
+
+#endif
     return _instance;
 }
 
@@ -29,8 +49,8 @@ void RHIInstance::DestroyInstance() {
     }
 }
 
-RHIOutput* RHIInstance::CreateOutput(const IntVector2& /*client_size*/, const IntVector2& /*client_position*/, const RHIOutputMode& /*output_mode*/) {
-    return nullptr;
+RHIDevice* RHIInstance::CreateDevice() {
+    return new RHIDevice();
 }
 
 RHIInstance::RHIInstance() {
@@ -38,5 +58,9 @@ RHIInstance::RHIInstance() {
 }
 
 RHIInstance::~RHIInstance() {
-    /* DO NOTHING */
+#ifdef RENDER_DEBUG
+    _instance->_debuggerInstance->ReportLiveObjects(DXGI_DEBUG_ALL, (DXGI_DEBUG_RLO_FLAGS)(DXGI_DEBUG_RLO_IGNORE_INTERNAL | DXGI_DEBUG_RLO_DETAIL));
+    _instance->_debuggerInstance->Release();
+    _instance->_debuggerInstance = nullptr;
+#endif
 }

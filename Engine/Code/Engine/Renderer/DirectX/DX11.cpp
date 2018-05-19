@@ -1,19 +1,20 @@
 #include "Engine/Renderer/DirectX/DX11.hpp"
 
+#include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
 
-unsigned int MIP_MASK_BITS = 0b0000'0001;
-unsigned int MAG_MASK_BITS = 0b0000'0010;
-unsigned int MIN_MASK_BITS = 0b0000'0100;
-unsigned int COMPARISON_MASK_BITS = 0b0000'1000;
-unsigned int MINIMUM_MASK_BITS = 0b0001'0000;
-unsigned int MAXIMUM_MASK_BITS = 0b0010'0000;
-unsigned int ANISOTROPIC_MASK_BITS = 0b0100'0000;
+bitfield_t MIP_MASK_BITS = 0b0000'0001;
+bitfield_t MAG_MASK_BITS = 0b0000'0010;
+bitfield_t MIN_MASK_BITS = 0b0000'0100;
+bitfield_t COMPARISON_MASK_BITS = 0b0000'1000;
+bitfield_t MINIMUM_MASK_BITS = 0b0001'0000;
+bitfield_t MAXIMUM_MASK_BITS = 0b0010'0000;
+bitfield_t ANISOTROPIC_MASK_BITS = 0b0100'0000;
 
 //Dragons be here!! Look at your own risk!
 D3D11_FILTER FilterModeToD3DFilter(const FilterMode& minFilterMode, const FilterMode& magFilterMode, const FilterMode& mipFilterMode, const FilterComparisonMode& minMaxComparison) {
 
-    unsigned int filter_mask = GetFilterMaskFromModes(minFilterMode, magFilterMode, mipFilterMode, minMaxComparison);
+    bitfield_t filter_mask = GetFilterMaskFromModes(minFilterMode, magFilterMode, mipFilterMode, minMaxComparison);
 
     //Any anisotropic setting overrides all others.
     if((filter_mask & ANISOTROPIC_MASK_BITS) == ANISOTROPIC_MASK_BITS) {
@@ -116,8 +117,8 @@ D3D11_FILTER FilterModeToD3DFilter(const FilterMode& minFilterMode, const Filter
 }
 
 //Dragons be here!! Look at your own risk!
-unsigned int GetFilterMaskFromModes(const FilterMode& minFilterMode, const FilterMode& magFilterMode, const FilterMode& mipFilterMode, const FilterComparisonMode& minMaxComparison) {
-    unsigned int result = 0;
+bitfield_t GetFilterMaskFromModes(const FilterMode& minFilterMode, const FilterMode& magFilterMode, const FilterMode& mipFilterMode, const FilterComparisonMode& minMaxComparison) {
+    bitfield_t result = 0;
 
     switch(minMaxComparison) {
         case FilterComparisonMode::NONE:
@@ -276,7 +277,7 @@ ComparisonFunction ComparisonFunctionFromString(std::string str) {
     } else if(str == "greaterequal" || str == "ge" || str == "geq") {
         return ComparisonFunction::GREATER_EQUAL;
     } else if(str == "always") {
-        return ComparisonFunction::LESS;
+        return ComparisonFunction::ALWAYS;
     } else {
         return ComparisonFunction::NEVER;
     }
@@ -637,4 +638,171 @@ ImageFormat DxgiFormatToImageFormat(DXGI_FORMAT format) {
         case DXGI_FORMAT_B4G4R4A4_UNORM: return ImageFormat::B4G4R4A4_UNORM;
         default: return ImageFormat::UNKNOWN;
     }
+}
+
+
+D3D11_BLEND BlendFactorToD3DBlendFactor(const BlendFactor& factor) {
+    switch(factor) {
+        case BlendFactor::ZERO: return D3D11_BLEND_ZERO;
+        case BlendFactor::ONE:  return D3D11_BLEND_ONE;
+        case BlendFactor::SRC_COLOR: return D3D11_BLEND_SRC_COLOR;
+        case BlendFactor::INV_SRC_COLOR: return D3D11_BLEND_INV_SRC_COLOR;
+        case BlendFactor::SRC_ALPHA: return D3D11_BLEND_SRC_ALPHA;
+        case BlendFactor::INV_SRC_ALPHA: return D3D11_BLEND_INV_SRC_ALPHA;
+        case BlendFactor::DEST_ALPHA: return D3D11_BLEND_DEST_ALPHA;
+        case BlendFactor::INV_DEST_ALPHA: return D3D11_BLEND_INV_DEST_ALPHA;
+        case BlendFactor::DEST_COLOR: return D3D11_BLEND_DEST_COLOR;
+        case BlendFactor::INV_DEST_COLOR: return D3D11_BLEND_INV_DEST_COLOR;
+        case BlendFactor::SRC_ALPHA_SAT: return D3D11_BLEND_SRC_ALPHA_SAT;
+        case BlendFactor::BLEND_FACTOR: return D3D11_BLEND_BLEND_FACTOR;
+        case BlendFactor::INV_BLEND_FACTOR: return D3D11_BLEND_INV_BLEND_FACTOR;
+        case BlendFactor::SRC1_COLOR: return D3D11_BLEND_SRC1_COLOR;
+        case BlendFactor::INV_SRC1_COLOR: return D3D11_BLEND_INV_SRC1_COLOR;
+        case BlendFactor::SRC1_ALPHA: return D3D11_BLEND_SRC1_ALPHA;
+        case BlendFactor::INV_SRC1_ALPHA: return D3D11_BLEND_INV_SRC1_ALPHA;
+        default: ERROR_AND_DIE("BlendFactor not defined.");
+    }
+}
+
+D3D11_BLEND_OP BlendOpToD3DBlendOp(const BlendOperation& op) {
+    switch(op) {
+        case BlendOperation::ADD: return D3D11_BLEND_OP_ADD;
+        case BlendOperation::SUBTRACT: return D3D11_BLEND_OP_SUBTRACT;
+        case BlendOperation::REVERSE_SUBTRACT: return D3D11_BLEND_OP_REV_SUBTRACT;
+        case BlendOperation::MIN: return D3D11_BLEND_OP_MIN;
+        case BlendOperation::MAX: return D3D11_BLEND_OP_MAX;
+        default: ERROR_AND_DIE("BlendOperation not defined.");
+    }
+}
+
+UINT8 BlendColorWriteEnableToD3DBlendColorWriteEnable(const BlendColorWriteEnable& rt_mask) {
+    return static_cast<UINT8>(rt_mask);
+}
+
+BlendFactor BlendFactorFromString(std::string str) {
+    str = StringUtils::ToLowerCase(str);
+    if(str == "zero") {
+        return BlendFactor::ZERO;
+    } else if(str == "one") {
+        return BlendFactor::ONE;
+    } else if(str == "src_color") {
+        return BlendFactor::SRC_COLOR;
+    } else if(str == "inv_src_color") {
+        return BlendFactor::INV_SRC_COLOR;
+    } else if(str == "src_alpha") {
+        return BlendFactor::SRC_ALPHA;
+    } else if(str == "inv_src_alpha") {
+        return BlendFactor::INV_SRC_ALPHA;
+    } else if(str == "dest_alpha") {
+        return BlendFactor::DEST_ALPHA;
+    } else if(str == "inv_dest_alpha") {
+        return BlendFactor::INV_DEST_ALPHA;
+    } else if(str == "dest_color") {
+        return BlendFactor::DEST_COLOR;
+    } else if(str == "inv_dest_color") {
+        return BlendFactor::INV_DEST_COLOR;
+    } else if(str == "src_alpha_sat") {
+        return BlendFactor::SRC_ALPHA_SAT;
+    } else if(str == "blend_factor") {
+        return BlendFactor::BLEND_FACTOR;
+    } else if(str == "inv_blend_factor") {
+        return BlendFactor::INV_BLEND_FACTOR;
+    } else if(str == "src1_color") {
+        return BlendFactor::SRC1_COLOR;
+    } else if(str == "inv_src1_color") {
+        return BlendFactor::INV_SRC1_COLOR;
+    } else if(str == "src1_alpha") {
+        return BlendFactor::SRC1_ALPHA;
+    } else if(str == "inv_src1_alpha") {
+        return BlendFactor::INV_SRC1_ALPHA;
+    } else {
+        ERROR_AND_DIE("BlendFactor not defined.");
+    }
+}
+
+BlendOperation BlendOperationFromString(std::string str) {
+
+    str = StringUtils::ToLowerCase(str);
+    if(str == "add") {
+        return BlendOperation::ADD;
+    } else if(str == "subtract" || str == "sub") {
+        return BlendOperation::SUBTRACT;
+    } else if(str == "rev_sub" || str == "rev_subtract" || str == "reverse_sub" || str == "reverse_subtract") {
+        return BlendOperation::REVERSE_SUBTRACT;
+    } else if(str == "min" || str == "minimum") {
+        return BlendOperation::MIN;
+    } else if(str == "max" || str == "maximum") {
+        return BlendOperation::MAX;
+    } else {
+        ERROR_AND_DIE("BlendOperation not defined.");
+    }
+
+}
+
+BlendColorWriteEnable BlendColorWriteEnableFromString(std::string str) {
+    str = StringUtils::ToLowerCase(str);
+
+    if(str.empty()) {
+        return BlendColorWriteEnable::ALL;
+    }
+
+    BlendColorWriteEnable result = BlendColorWriteEnable::NONE;
+    if(str.find('r') != std::string::npos) {
+        result |= BlendColorWriteEnable::RED;
+    }
+    if(str.find('g') != std::string::npos) {
+        result |= BlendColorWriteEnable::GREEN;
+    }
+    if(str.find('b') != std::string::npos) {
+        result |= BlendColorWriteEnable::BLUE;
+    }
+    if(str.find('a') != std::string::npos) {
+        result |= BlendColorWriteEnable::ALPHA;
+    }
+    return result;
+}
+
+D3D11_FILL_MODE FillModeToD3DFillMode(const FillMode& fillmode) {
+    switch(fillmode) {
+        case FillMode::SOLID: return D3D11_FILL_SOLID;
+        case FillMode::WIREFRAME:  return D3D11_FILL_WIREFRAME;
+        default: return D3D11_FILL_SOLID;
+    }
+}
+
+D3D11_CULL_MODE CullModeToD3DCullMode(const CullMode& cullmode) {
+    switch(cullmode) {
+        case CullMode::NONE: return D3D11_CULL_NONE;
+        case CullMode::FRONT: return D3D11_CULL_FRONT;
+        case CullMode::BACK: return D3D11_CULL_BACK;
+        default: return D3D11_CULL_BACK;
+    }
+}
+
+FillMode FillModeFromString(std::string str) {
+    str = StringUtils::ToLowerCase(str);
+    if(str == "solid") {
+        return FillMode::SOLID;
+    } else if(str == "wire" || str == "wireframe") {
+        return FillMode::WIREFRAME;
+    } else {
+        return FillMode::SOLID;
+    }
+}
+
+CullMode CullModeFromString(std::string str) {
+    str = StringUtils::ToLowerCase(str);
+    if(str == "none") {
+        return CullMode::NONE;
+    } else if(str == "front") {
+        return CullMode::FRONT;
+    } else if(str == "back") {
+        return CullMode::BACK;
+    } else {
+        return CullMode::BACK;
+    }
+}
+
+D3D11_RESOURCE_MISC_FLAG ResourceMiscFlagToD3DMiscFlag(const ResourceMiscFlag& flags) {
+    return static_cast<D3D11_RESOURCE_MISC_FLAG>(flags);
 }

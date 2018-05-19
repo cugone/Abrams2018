@@ -1,6 +1,8 @@
 #pragma once
 
-class App {
+#include "Engine/Core/EngineSubsystem.hpp"
+
+class App : public EngineSubsystem {
 public:
     App();
     ~App();
@@ -11,12 +13,15 @@ public:
 
     void RunFrame();
 
+
+    virtual bool ProcessSystemMessage(const EngineMessage& msg) override;
+
 protected:
 private:
-    void BeginFrame();
-    void Update(float deltaSeconds);
-    void Render() const;
-    void EndFrame();
+    virtual void BeginFrame() override;
+    virtual void Update(float deltaSeconds) override;
+    virtual void Render() const override;
+    virtual void EndFrame() override;
 
     bool _isQuitting = false;
 

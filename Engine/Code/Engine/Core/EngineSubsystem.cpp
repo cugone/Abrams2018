@@ -5,6 +5,17 @@
 EngineSubsystem::~EngineSubsystem() {
     /* DO NOTHING */
 }
+
+bool EngineSubsystem::ProcessSystemMessage(const EngineMessage& msg) {
+    if(ProcessSystemMessage(msg)) {
+        return true;
+    }
+    if(_next_subsystem) {
+        return _next_subsystem->EngineSubsystem::ProcessSystemMessage(msg);
+    }
+    return false;
+}
+
 WindowsSystemMessage EngineSubsystem::GetWindowsSystemMessageFromUintMessage(unsigned int wmMessage) {
     switch(wmMessage) {
         case WM_CLEAR:                  return WindowsSystemMessage::CLIPBOARD_CLEAR;
@@ -109,4 +120,8 @@ WindowsSystemMessage EngineSubsystem::GetWindowsSystemMessageFromUintMessage(uns
         default:
             return WindowsSystemMessage::MESSAGE_NOT_SUPPORTED;
     }
+}
+
+void EngineSubsystem::SetNextHandler(EngineSubsystem* next_handler) {
+    _next_subsystem = next_handler;
 }

@@ -20,9 +20,6 @@
     <Filter Include="Renderer\DirectX">
       <UniqueIdentifier>{de89e924-c25c-4a06-8c2f-ad6a66dcc026}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Renderer\OpenGL">
-      <UniqueIdentifier>{585b333f-7c18-49a3-a74b-8250c0623594}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Renderer\Core">
       <UniqueIdentifier>{81bcac69-e903-46e1-bbe6-c9f41a332b44}</UniqueIdentifier>
     </Filter>
@@ -118,9 +115,6 @@
     <ClCompile Include="Renderer\Window.cpp">
       <Filter>Renderer\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\OpenGL\OGLRenderer.cpp">
-      <Filter>Renderer\OpenGL</Filter>
-    </ClCompile>
     <ClCompile Include="RHI\RHIInstance.cpp">
       <Filter>RHI</Filter>
     </ClCompile>
@@ -133,33 +127,6 @@
     <ClCompile Include="RHI\RHITypes.cpp">
       <Filter>RHI</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\OpenGL\OGL.cpp">
-      <Filter>Renderer\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\DirectX\DXDevice.cpp">
-      <Filter>Renderer\DirectX</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\DirectX\DXDeviceContext.cpp">
-      <Filter>Renderer\DirectX</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\DirectX\DXInstance.cpp">
-      <Filter>Renderer\DirectX</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\DirectX\DXOutput.cpp">
-      <Filter>Renderer\DirectX</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\OpenGL\OGLDevice.cpp">
-      <Filter>Renderer\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\OpenGL\OGLDeviceContext.cpp">
-      <Filter>Renderer\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\OpenGL\OGLInstance.cpp">
-      <Filter>Renderer\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\OpenGL\OGLOutput.cpp">
-      <Filter>Renderer\OpenGL</Filter>
-    </ClCompile>
     <ClCompile Include="Core\BuildConfig.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -169,26 +136,14 @@
     <ClCompile Include="Renderer\Texture2D.cpp">
       <Filter>Renderer\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\DirectX\DXTexture2D.cpp">
-      <Filter>Renderer\DirectX</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer\Texture.cpp">
       <Filter>Renderer\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\DirectX\DXTexture.cpp">
-      <Filter>Renderer\DirectX</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Renderer.cpp">
       <Filter>Renderer\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\DepthStencilState.cpp">
-      <Filter>Renderer\Core</Filter>
-    </ClCompile>
     <ClCompile Include="Core\DataUtils.cpp">
       <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\DirectX\DXDepthStencilState.cpp">
-      <Filter>Renderer\DirectX</Filter>
     </ClCompile>
     <ClCompile Include="Core\Image.cpp">
       <Filter>Core</Filter>
@@ -202,17 +157,59 @@
     <ClCompile Include="Core\EngineSubsystem.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\DirectX\DX11Renderer.cpp">
-      <Filter>Renderer\DirectX</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\DirectX\DXTexture1D.cpp">
-      <Filter>Renderer\DirectX</Filter>
-    </ClCompile>
     <ClCompile Include="Core\FileUtils.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\DirectX\DXTexture3D.cpp">
-      <Filter>Renderer\DirectX</Filter>
+    <ClCompile Include="Core\Vertex3D.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\DepthStencilState.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Texture1D.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Texture3D.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\VertexBuffer.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Buffer.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\ArrayBuffer.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\IndexBuffer.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\ConstantBuffer.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\StructuredBuffer.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\InputLayout.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\ShaderProgram.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Material.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Shader.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\BlendState.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\RasterState.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Sampler.cpp">
+      <Filter>Renderer\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -312,9 +309,6 @@
     <ClInclude Include="Renderer\Window.hpp">
       <Filter>Renderer\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\OpenGL\OGLRenderer.hpp">
-      <Filter>Renderer\OpenGL</Filter>
-    </ClInclude>
     <ClInclude Include="Core\Win.hpp">
       <Filter>Core</Filter>
     </ClInclude>
@@ -330,56 +324,17 @@
     <ClInclude Include="RHI\RHITypes.hpp">
       <Filter>RHI</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\OpenGL\OGL.hpp">
-      <Filter>Renderer\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\DirectX\DXDevice.hpp">
-      <Filter>Renderer\DirectX</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\DirectX\DXDeviceContext.hpp">
-      <Filter>Renderer\DirectX</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\DirectX\DXInstance.hpp">
-      <Filter>Renderer\DirectX</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\DirectX\DXOutput.hpp">
-      <Filter>Renderer\DirectX</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\OpenGL\OGLDevice.hpp">
-      <Filter>Renderer\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\OpenGL\OGLDeviceContext.hpp">
-      <Filter>Renderer\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\OpenGL\OGLInstance.hpp">
-      <Filter>Renderer\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\OpenGL\OGLOutput.hpp">
-      <Filter>Renderer\OpenGL</Filter>
-    </ClInclude>
     <ClInclude Include="Core\ErrorWarningAssert.hpp">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Texture2D.hpp">
       <Filter>Renderer\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\DirectX\DXTexture2D.hpp">
-      <Filter>Renderer\DirectX</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\Texture.hpp">
-      <Filter>Renderer\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\DirectX\DXTexture.hpp">
-      <Filter>Renderer\DirectX</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\DepthStencilState.hpp">
       <Filter>Renderer\Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\DataUtils.hpp">
       <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\DirectX\DXDepthStencilState.hpp">
-      <Filter>Renderer\DirectX</Filter>
     </ClInclude>
     <ClInclude Include="Core\Image.hpp">
       <Filter>Core</Filter>
@@ -402,17 +357,59 @@
     <ClInclude Include="..\Thirdparty\OpenGL\wglext.h">
       <Filter>Thirdparty</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\DirectX\DX11Renderer.hpp">
-      <Filter>Renderer\DirectX</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\DirectX\DXTexture1D.hpp">
-      <Filter>Renderer\DirectX</Filter>
-    </ClInclude>
     <ClInclude Include="Core\FileUtils.hpp">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\DirectX\DXTexture3D.hpp">
-      <Filter>Renderer\DirectX</Filter>
+    <ClInclude Include="Core\Vertex3D.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\DepthStencilState.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Texture1D.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Texture3D.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\VertexBuffer.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Buffer.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\ArrayBuffer.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\IndexBuffer.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\ConstantBuffer.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\StructuredBuffer.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\InputLayout.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\ShaderProgram.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Material.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Shader.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\BlendState.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RasterState.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Sampler.hpp">
+      <Filter>Renderer\Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

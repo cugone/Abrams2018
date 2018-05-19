@@ -132,9 +132,11 @@ public:
     virtual void Render() const = 0;
     virtual void EndFrame() = 0;
 
-    virtual bool ProcessSystemMessage(const EngineMessage& msg) = 0;
+    virtual bool ProcessSystemMessage(const EngineMessage& msg);
 
     static WindowsSystemMessage GetWindowsSystemMessageFromUintMessage(unsigned int wmMessage);
+    void SetNextHandler(EngineSubsystem* next_handler);
 protected:
+    EngineSubsystem* _next_subsystem = nullptr;
 private:
 };

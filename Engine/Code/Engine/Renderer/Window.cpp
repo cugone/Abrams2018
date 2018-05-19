@@ -24,6 +24,27 @@ Window::Window() {
 
 }
 
+Window::Window(const IntVector2& position, const IntVector2& dimensions) {
+    if(_refCount == 0) {
+        if(Register()) {
+            ++_refCount;
+        }
+    }
+
+    RECT desktopRect;
+    HWND desktopHwnd = ::GetDesktopWindow();
+    GetClientRect(desktopHwnd, &desktopRect);
+    ::GetClipCursor(&_initialClippingArea);
+
+    RECT r;
+    r.left = position.x;
+    r.top = position.y;
+    r.right = r.left + dimensions.x;
+    r.bottom = r.top + dimensions.y;
+    ::AdjustWindowRectEx(&r, _styleFlags, _hasMenu, _styleFlagsEx);
+
+}
+
 Window::~Window() {
     Close();
     if(_refCount != 0) {
@@ -70,24 +91,40 @@ bool Window::IsClosed() {
 }
 
 bool Window::IsWindowed() const {
-    return _currentDisplayMode != RHIOutputMode::FULLSCREEN_DEDICATED;
+    return true;
 }
 
-IntVector2 Window::GetClientSize() const {
+bool Window::IsFullscreen() const {
+    return !IsWindowed();
+}
+
+IntVector2 Window::GetDimensions() const {
     return IntVector2(_width, _height);
 }
 
-void Window::SetClientSize(const IntVector2& client_position, const IntVector2& client_size) {
+IntVector2 Window::GetPosition() const {
+    return IntVector2(_positionX, _positionY);
+}
+
+void Window::SetDimensionsAndPosition(const IntVector2& new_position, const IntVector2& new_size) {
     RECT r;
-    r.top = client_position.y;
-    r.left = client_position.x;
-    r.bottom = r.top + client_size.y;
-    r.right = r.left + client_size.x;
+    r.top = new_position.y;
+    r.left = new_position.x;
+    r.bottom = r.top + new_size.y;
+    r.right = r.left + new_size.x;
     ::AdjustWindowRectEx(&r, _styleFlags, _hasMenu, _styleFlagsEx);
     _width = r.right - r.left;
     _height = r.bottom - r.top;
     _positionX = r.left;
     _positionY = r.top;
+}
+
+void Window::SetPosition(const IntVector2& new_position) {
+    SetDimensionsAndPosition(GetDimensions(), new_position);
+}
+
+void Window::SetDimensions(const IntVector2& new_dimensions) {
+    SetDimensionsAndPosition(GetPosition(), new_dimensions);
 }
 
 void Window::SetForegroundWindow() {
@@ -115,8 +152,8 @@ void Window::SetDisplayMode(const RHIOutputMode& display_mode) {
     RECT r;
     r.top = _positionY;
     r.left = _positionX;
-    r.bottom = _height;
-    r.right = _width;
+    r.bottom = r.top + _height;
+    r.right = r.left + _width;
     switch(_currentDisplayMode) {
         case RHIOutputMode::BORDERLESS:
         {
@@ -129,11 +166,9 @@ void Window::SetDisplayMode(const RHIOutputMode& display_mode) {
             long height = r.bottom - r.top;
             ::SetWindowLongPtr(_hWnd, GWL_STYLE, _styleFlags);
             ::SetWindowPos(_hWnd, nullptr, 0, 0, width, height, SWP_SHOWWINDOW);
-            SetClientSize(IntVector2::ZERO, IntVector2(width, height));
+            SetDimensionsAndPosition(IntVector2::ZERO, IntVector2(width, height));
             ::AdjustWindowRectEx(&r, _styleFlags, _hasMenu, _styleFlagsEx);
             return;
-
-            break;
         } case RHIOutputMode::WINDOWED:
         {
             _styleFlags = WS_CAPTION | WS_BORDER | WS_SYSMENU | WS_OVERLAPPED;
@@ -151,11 +186,10 @@ void Window::SetDisplayMode(const RHIOutputMode& display_mode) {
             long height = desktopRect.bottom - desktopRect.top;
             ::SetWindowLongPtr(_hWnd, GWL_STYLE, _styleFlags);
             ::SetWindowPos(_hWnd, nullptr, 0, 0, width, height, SWP_SHOWWINDOW);
-            SetClientSize(IntVector2::ZERO, IntVector2(width, height));
+            SetDimensionsAndPosition(IntVector2::ZERO, IntVector2(width, height));
             ::AdjustWindowRectEx(&r, _styleFlags, _hasMenu, _styleFlagsEx);
             return;
-        } case RHIOutputMode::FULLSCREEN_DEDICATED:
-            break;
+        }
         default:
             /* DO NOTHING */;
     }
@@ -164,15 +198,15 @@ void Window::SetDisplayMode(const RHIOutputMode& display_mode) {
 
 }
 
-void Window::SetTitle(const std::wstring& title) {
+void Window::SetTitle(const std::string& title) {
     _title = title;
-    ::SetWindowText(_hWnd, _title.data());
+    ::SetWindowTextA(_hWnd, _title.data());
 }
 
 bool Window::Register() {
     _hInstance = GetModuleHandle(nullptr);
     memset(&_wc, 0, sizeof(_wc));
-    auto window_class_name = L"Simple Window Class";
+    auto window_class_name = "Simple Window Class";
     _wc.cbSize = sizeof(_wc);
     _wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
     _wc.lpfnWndProc = EngineMessageHandlingProcedure;
@@ -198,7 +232,7 @@ bool Window::Create() {
     _hWnd = ::CreateWindowEx(
         _styleFlagsEx,                              // Optional window styles.
         _wc.lpszClassName,              // Window class
-        L"Learn to Program Windows",     // Window text
+        "Learn to Program Windows",     // Window text
         _styleFlags,            // Window style
         _positionX, _positionY,                           //Position XY
         _width, _height,    //Size WH

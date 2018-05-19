@@ -31,6 +31,7 @@
     <ClCompile Include="Core\Rgba.cpp" />
     <ClCompile Include="Core\StringUtils.cpp" />
     <ClCompile Include="Core\TimeUtils.cpp" />
+    <ClCompile Include="Core\Vertex3D.cpp" />
     <ClCompile Include="Input\InputSystem.cpp" />
     <ClCompile Include="Input\XboxController.cpp" />
     <ClCompile Include="Math\AABB2.cpp" />
@@ -53,27 +54,26 @@
     <ClCompile Include="Math\Vector2.cpp" />
     <ClCompile Include="Math\Vector3.cpp" />
     <ClCompile Include="Math\Vector4.cpp" />
+    <ClCompile Include="Renderer\ArrayBuffer.cpp" />
+    <ClCompile Include="Renderer\BlendState.cpp" />
+    <ClCompile Include="Renderer\Buffer.cpp" />
+    <ClCompile Include="Renderer\ConstantBuffer.cpp" />
     <ClCompile Include="Renderer\DepthStencilState.cpp" />
-    <ClCompile Include="Renderer\DirectX\DX11Renderer.cpp" />
     <ClCompile Include="Renderer\DirectX\DX11.cpp" />
-    <ClCompile Include="Renderer\DirectX\DXDepthStencilState.cpp" />
-    <ClCompile Include="Renderer\DirectX\DXDevice.cpp" />
-    <ClCompile Include="Renderer\DirectX\DXDeviceContext.cpp" />
-    <ClCompile Include="Renderer\DirectX\DXInstance.cpp" />
-    <ClCompile Include="Renderer\DirectX\DXOutput.cpp" />
-    <ClCompile Include="Renderer\DirectX\DXTexture.cpp" />
-    <ClCompile Include="Renderer\DirectX\DXTexture1D.cpp" />
-    <ClCompile Include="Renderer\DirectX\DXTexture2D.cpp" />
-    <ClCompile Include="Renderer\DirectX\DXTexture3D.cpp" />
-    <ClCompile Include="Renderer\OpenGL\OGL.cpp" />
-    <ClCompile Include="Renderer\OpenGL\OGLDevice.cpp" />
-    <ClCompile Include="Renderer\OpenGL\OGLDeviceContext.cpp" />
-    <ClCompile Include="Renderer\OpenGL\OGLInstance.cpp" />
-    <ClCompile Include="Renderer\OpenGL\OGLOutput.cpp" />
-    <ClCompile Include="Renderer\OpenGL\OGLRenderer.cpp" />
+    <ClCompile Include="Renderer\IndexBuffer.cpp" />
+    <ClCompile Include="Renderer\InputLayout.cpp" />
+    <ClCompile Include="Renderer\Material.cpp" />
+    <ClCompile Include="Renderer\RasterState.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
+    <ClCompile Include="Renderer\Sampler.cpp" />
+    <ClCompile Include="Renderer\Shader.cpp" />
+    <ClCompile Include="Renderer\ShaderProgram.cpp" />
+    <ClCompile Include="Renderer\StructuredBuffer.cpp" />
     <ClCompile Include="Renderer\Texture.cpp" />
+    <ClCompile Include="Renderer\Texture1D.cpp" />
     <ClCompile Include="Renderer\Texture2D.cpp" />
+    <ClCompile Include="Renderer\Texture3D.cpp" />
+    <ClCompile Include="Renderer\VertexBuffer.cpp" />
     <ClCompile Include="Renderer\Window.cpp" />
     <ClCompile Include="RHI\RHIDevice.cpp" />
     <ClCompile Include="RHI\RHIDeviceContext.cpp" />
@@ -97,6 +97,7 @@
     <ClInclude Include="Core\Rgba.hpp" />
     <ClInclude Include="Core\StringUtils.hpp" />
     <ClInclude Include="Core\TimeUtils.hpp" />
+    <ClInclude Include="Core\Vertex3D.hpp" />
     <ClInclude Include="Core\Win.hpp" />
     <ClInclude Include="Input\InputSystem.hpp" />
     <ClInclude Include="Input\XboxController.hpp" />
@@ -120,27 +121,26 @@
     <ClInclude Include="Math\Vector2.hpp" />
     <ClInclude Include="Math\Vector3.hpp" />
     <ClInclude Include="Math\Vector4.hpp" />
+    <ClInclude Include="Renderer\ArrayBuffer.hpp" />
+    <ClInclude Include="Renderer\BlendState.hpp" />
+    <ClInclude Include="Renderer\Buffer.hpp" />
+    <ClInclude Include="Renderer\ConstantBuffer.hpp" />
     <ClInclude Include="Renderer\DepthStencilState.hpp" />
-    <ClInclude Include="Renderer\DirectX\DX11Renderer.hpp" />
     <ClInclude Include="Renderer\DirectX\DX11.hpp" />
-    <ClInclude Include="Renderer\DirectX\DXDepthStencilState.hpp" />
-    <ClInclude Include="Renderer\DirectX\DXDevice.hpp" />
-    <ClInclude Include="Renderer\DirectX\DXDeviceContext.hpp" />
-    <ClInclude Include="Renderer\DirectX\DXInstance.hpp" />
-    <ClInclude Include="Renderer\DirectX\DXOutput.hpp" />
-    <ClInclude Include="Renderer\DirectX\DXTexture.hpp" />
-    <ClInclude Include="Renderer\DirectX\DXTexture1D.hpp" />
-    <ClInclude Include="Renderer\DirectX\DXTexture2D.hpp" />
-    <ClInclude Include="Renderer\DirectX\DXTexture3D.hpp" />
-    <ClInclude Include="Renderer\OpenGL\OGL.hpp" />
-    <ClInclude Include="Renderer\OpenGL\OGLDevice.hpp" />
-    <ClInclude Include="Renderer\OpenGL\OGLDeviceContext.hpp" />
-    <ClInclude Include="Renderer\OpenGL\OGLInstance.hpp" />
-    <ClInclude Include="Renderer\OpenGL\OGLOutput.hpp" />
-    <ClInclude Include="Renderer\OpenGL\OGLRenderer.hpp" />
+    <ClInclude Include="Renderer\IndexBuffer.hpp" />
+    <ClInclude Include="Renderer\InputLayout.hpp" />
+    <ClInclude Include="Renderer\Material.hpp" />
+    <ClInclude Include="Renderer\RasterState.hpp" />
     <ClInclude Include="Renderer\Renderer.hpp" />
+    <ClInclude Include="Renderer\Sampler.hpp" />
+    <ClInclude Include="Renderer\Shader.hpp" />
+    <ClInclude Include="Renderer\ShaderProgram.hpp" />
+    <ClInclude Include="Renderer\StructuredBuffer.hpp" />
     <ClInclude Include="Renderer\Texture.hpp" />
+    <ClInclude Include="Renderer\Texture1D.hpp" />
     <ClInclude Include="Renderer\Texture2D.hpp" />
+    <ClInclude Include="Renderer\Texture3D.hpp" />
+    <ClInclude Include="Renderer\VertexBuffer.hpp" />
     <ClInclude Include="Renderer\Window.hpp" />
     <ClInclude Include="RHI\RHI.hpp" />
     <ClInclude Include="RHI\RHIDevice.hpp" />
@@ -160,27 +160,27 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">

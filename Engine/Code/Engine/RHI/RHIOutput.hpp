@@ -7,14 +7,13 @@ class RHIDevice;
 class Texture;
 class IntVector2;
 class Rgba;
-
 struct IDXGISwapChain;
 
 class RHIOutput {
 public:
-    RHIOutput(RHIDevice* parent, Window* wnd);
+    RHIOutput(RHIDevice* parent, Window* wnd, IDXGISwapChain* swapchain);
 
-    virtual ~RHIOutput() = 0;
+    ~RHIOutput();
 
     const RHIDevice* GetParentDevice() const;
     RHIDevice* GetParentDevice();
@@ -26,16 +25,18 @@ public:
     IntVector2 GetDimensions() const;
     float GetAspectRatio() const;
 
-    virtual bool SetDisplayMode(const RHIOutputMode& newMode) = 0;
+    void SetDisplayMode(const RHIOutputMode& newMode);
+    void SetDimensions(const IntVector2& clientSize);
 
-    virtual void Present(bool vsync) = 0;
+    void Present(bool vsync);
 
 protected:
-    virtual void CreateBackbuffer() = 0;
-    virtual void ResetBackbuffer() = 0;
+    void CreateBackbuffer();
+    void ResetBackbuffer();
     Window * _window = nullptr;
-    RHIDevice* _parentDevice = nullptr;
+    RHIDevice* _parent_device = nullptr;
     Texture* _back_buffer = nullptr;
+    IDXGISwapChain* _dxgi_swapchain = nullptr;
 private:
 
 };

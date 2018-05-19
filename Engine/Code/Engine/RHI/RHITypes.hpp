@@ -2,29 +2,39 @@
 
 #include <type_traits>
 
-enum class RHIInstanceType : unsigned char {
-    NONE
-    ,DIRECTX
-    ,OPENGL
-};
-
-enum class RHIDeviceType: unsigned char {
-    NONE
-    ,DIRECTX
-    ,OPENGL
-};
-
 enum class RHIOutputMode : unsigned int {
     FIRST_
     , WINDOWED = FIRST_
     , BORDERLESS
     , FULLSCREEN_WINDOW
-    , FULLSCREEN_DEDICATED  // Dedicated Fullscreen Mode.
     , LAST_
 };
 
 RHIOutputMode& operator++(RHIOutputMode& mode);
 RHIOutputMode operator++(RHIOutputMode& mode, int);
+
+enum class BufferType : unsigned int {
+    NONE
+    , VERTEX
+    , INDEX
+    , STRUCTURED
+    , CONSTANT
+    , READWRITE
+};
+
+enum class PipelineStage : unsigned char {
+    NONE  = 0b00000000
+    , VS  = 0b00000001
+    , HS  = 0b00000010
+    , DS  = 0b00000100
+    , GS  = 0b00001000
+    , PS  = 0b00010000
+    , CS  = 0b00100000
+    , ALL = VS | HS | DS | GS | PS | CS
+};
+
+PipelineStage operator|(const PipelineStage& a, const PipelineStage& b);
+PipelineStage operator&(const PipelineStage& a, const PipelineStage& b);
 
 enum class ComparisonFunction {
     NEVER
@@ -255,3 +265,83 @@ enum class TextureAddressMode {
     , BORDER
     , MIRROR_ONCE
 };
+
+enum class BlendFactor {
+    ZERO,
+    ONE,
+    SRC_COLOR,
+    INV_SRC_COLOR,
+    SRC_ALPHA,
+    INV_SRC_ALPHA,
+    DEST_ALPHA,
+    INV_DEST_ALPHA,
+    DEST_COLOR,
+    INV_DEST_COLOR,
+    SRC_ALPHA_SAT,
+    BLEND_FACTOR,
+    INV_BLEND_FACTOR,
+    SRC1_COLOR,
+    INV_SRC1_COLOR,
+    SRC1_ALPHA,
+    INV_SRC1_ALPHA,
+};
+
+enum class BlendOperation {
+    ADD,
+    SUBTRACT,
+    REVERSE_SUBTRACT,
+    MIN,
+    MAX,
+};
+
+enum class BlendColorWriteEnable : unsigned char {
+    NONE = 0x00
+    , RED = 0x01
+    , GREEN = 0x02
+    , BLUE = 0x04
+    , ALPHA = 0x08
+    , ALL = 0x0F
+};
+
+BlendColorWriteEnable operator~(const BlendColorWriteEnable& a);
+BlendColorWriteEnable operator|(const BlendColorWriteEnable& a, const BlendColorWriteEnable& b);
+BlendColorWriteEnable operator&(const BlendColorWriteEnable& a, const BlendColorWriteEnable& b);
+BlendColorWriteEnable operator^(const BlendColorWriteEnable& a, const BlendColorWriteEnable& b);
+BlendColorWriteEnable& operator&=(BlendColorWriteEnable& a, const BlendColorWriteEnable& b);
+BlendColorWriteEnable& operator|=(BlendColorWriteEnable& a, const BlendColorWriteEnable& b);
+BlendColorWriteEnable& operator^=(BlendColorWriteEnable& a, const BlendColorWriteEnable& b);
+
+enum class FillMode {
+    SOLID,
+    WIREFRAME,
+};
+
+enum class CullMode {
+    NONE,
+    FRONT,
+    BACK,
+    BOTH,
+};
+
+enum class ResourceMiscFlag : long {
+     GENERATE_MIPS                   = 0x1L
+    ,SHARED                          = 0x2L
+    ,TEXTURECUBE                     = 0x4L
+    ,DRAWINDIRECT_ARGS               = 0x10L
+    ,ALLOW_RAW_VIEWS                 = 0x20L
+    ,STRUCTURED_BUFFER               = 0x40L
+    ,RESOURCE_CLAMP                  = 0x80L
+    ,SHARED_KEYEDMUTEX               = 0x100L
+    ,GDI_COMPATIBLE                  = 0x200L
+    ,SHARED_NTHANDLE                 = 0x800L
+    ,RESTRICTED_CONTENT              = 0x1000L
+    ,RESTRICT_SHARED_RESOURCE        = 0x2000L
+    ,RESTRICT_SHARED_RESOURCE_DRIVER = 0x4000L
+    ,GUARDED                         = 0x8000L
+    ,TILE_POOL                       = 0x20000L
+    ,TILED                           = 0x40000L
+    ,HW_PROTECTED                    = 0x80000L
+};
+
+ResourceMiscFlag operator|(const ResourceMiscFlag& a, const ResourceMiscFlag& b);
+ResourceMiscFlag operator&(const ResourceMiscFlag& a, const ResourceMiscFlag& b);

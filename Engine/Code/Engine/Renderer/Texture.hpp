@@ -2,7 +2,14 @@
 
 #include "Engine/Math/IntVector3.hpp"
 
+#include <string>
+
 class RHIDevice;
+
+struct ID3D11DepthStencilView;
+struct ID3D11RenderTargetView;
+struct ID3D11ShaderResourceView;
+struct ID3D11UnorderedAccessView;
 
 class Texture {
 public:
@@ -19,11 +26,19 @@ public:
     void IsLoaded(bool is_loaded) noexcept;
     bool IsLoaded() const noexcept;
 
-    virtual void SetDebugName([[maybe_unused]] char const* name) noexcept = 0;
+    ID3D11DepthStencilView* GetDepthStencilView();
+    ID3D11RenderTargetView* GetRenderTargetView();
+    ID3D11ShaderResourceView* GetShaderResourceView();
+
+    virtual void SetDebugName([[maybe_unused]] const std::string& name) noexcept = 0;
 
 protected:
     RHIDevice* _device = nullptr;
     IntVector3 _dimensions = IntVector3::ZERO;
     bool _isLoaded = false;
+    ID3D11DepthStencilView* _dsv = nullptr;
+    ID3D11RenderTargetView* _rtv = nullptr;
+    ID3D11ShaderResourceView* _srv = nullptr;
+    ID3D11UnorderedAccessView* _uav = nullptr;
 private:
 };

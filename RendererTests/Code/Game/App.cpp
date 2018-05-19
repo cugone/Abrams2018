@@ -3,65 +3,36 @@
 #include "Engine/Core/EngineSubsystem.hpp"
 
 #include "Engine/Core/TimeUtils.hpp"
-#include "Engine/Math/MathUtils.hpp"
-#include "Engine/Renderer/Renderer.hpp"
-#include "Engine/Renderer/DirectX/DX11Renderer.hpp"
-#include "Engine/RHI/RHIOutput.hpp"
+#include "Engine/Core/FileUtils.hpp"
 
+#include "Engine/Math/MathUtils.hpp"
+
+#include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Window.hpp"
+
+#include "Engine/RHI/RHIOutput.hpp"
 
 #include "Game/GameCommon.hpp"
 #include "Game/GameConfig.hpp"
 
 bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
-    EngineMessage msg;
-    std::memset(&msg, 0, sizeof(msg));
+    EngineMessage msg = {};
     msg.hWnd = hwnd;
     msg.wmMessageCode = EngineSubsystem::GetWindowsSystemMessageFromUintMessage(uMsg);
     msg.wparam = wParam;
     msg.lparam = lParam;
 
-    if(g_theInput && g_theInput->ProcessSystemMessage(msg)) {
+    if(g_theSubsystemHead && g_theSubsystemHead->ProcessSystemMessage(msg)) {
         return true;
-    } else {
-
-        switch(uMsg) {
-            case WM_CLOSE:
-            case WM_QUIT:
-            case WM_DESTROY:
-            {
-                g_theApp->SetIsQuitting(true);
-                return true;
-            }
-            default:
-            {
-                return false;
-            }
-        }
     }
+    return false;
 }
 
 App::App() {
-    g_theRenderer = new DX11Renderer(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
-    g_theRenderer->SetVSync(GRAPHICS_OPTION_VSYNC);
-    g_theRenderer->Initialize();
-
-    if(g_theRenderer->GetOutput()) {
-        Window* window = g_theRenderer->GetOutput()->GetWindow();
-        if(window) {
-            window->custom_message_handler = WindowProc;
-            window->SetTitle(L"Test Title");
-            bool is_fullscreen = false;
-            if(is_fullscreen) {
-                window->SetDisplayMode(RHIOutputMode::FULLSCREEN_WINDOW);
-            }
-        }
-    }
-
+    g_theRenderer = new Renderer(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
     g_theInput = new InputSystem();
     g_theGame = new Game();
-
 }
 
 App::~App() {
@@ -73,6 +44,7 @@ App::~App() {
     
     delete g_theRenderer;
     g_theRenderer = nullptr;
+
 }
 
 bool App::IsQuitting() const {
@@ -84,7 +56,21 @@ void App::SetIsQuitting(bool quit) {
 }
 
 void App::Initialize() {
-    /* DO NOTHING */
+    FileUtils::CreateFolders("Data/");
+    g_theRenderer->Initialize();
+    g_theRenderer->SetVSync(GRAPHICS_OPTION_VSYNC);
+    if(g_theRenderer->GetOutput()) {
+        Window* window = g_theRenderer->GetOutput()->GetWindow();
+        if(window) {
+            window->custom_message_handler = WindowProc;
+            window->SetTitle("Test Title");
+            bool is_fullscreen = false;
+            if(is_fullscreen) {
+                window->SetDisplayMode(RHIOutputMode::FULLSCREEN_WINDOW);
+            }
+        }
+    }
+
 }
 
 void App::RunFrame() {
@@ -102,6 +88,20 @@ void App::RunFrame() {
     Update(deltaSeconds);
     Render();
     EndFrame();
+}
+
+bool App::ProcessSystemMessage(const EngineMessage& msg) {
+    switch(msg.wmMessageCode) {
+        case WindowsSystemMessage::WINDOW_CLOSE:
+        case WindowsSystemMessage::WINDOW_QUIT:
+        case WindowsSystemMessage::WINDOW_DESTROY:
+        {
+            SetIsQuitting(true);
+            return true;
+        }
+        default:
+            return false;
+    }
 }
 
 void App::BeginFrame() {

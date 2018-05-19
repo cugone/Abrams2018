@@ -8,7 +8,7 @@
 
 class Image {
 public:
-    Image(const std::wstring& filePath);
+    Image(const std::string& filePath);
     Image(const Image& img) = delete;
     Image(Image&& img);
     Image& operator=(const Image& rhs) = delete;
@@ -24,7 +24,7 @@ public:
     Rgba GetTexel(const IntVector2& texelPos) const;
     void SetTexel(const IntVector2& texelPos, const Rgba& color);
 
-    const std::wstring& GetFilepath() const;
+    const std::string& GetFilepath() const;
     const IntVector2& GetDimensions() const;
 
     unsigned char* GetData() const;
@@ -35,7 +35,7 @@ private:
     unsigned char* m_texelBytes = nullptr;
     IntVector2 m_dimensions{};
     int m_bytesPerTexel = 0;
-    std::wstring m_filepath{};
+    std::string m_filepath{};
     bool m_memload = false;
     //static CriticalSection _cs;
 };

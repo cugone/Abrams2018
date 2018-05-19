@@ -27,6 +27,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpC
 
 void Initialize(HINSTANCE /*hInstance*/, LPWSTR /*lpCmdLine*/, int /*nShowCmd*/) {
     g_theApp = new App();
+
+    g_theInput->SetNextHandler(g_theApp);
+    g_theApp->SetNextHandler(nullptr);
+
+    g_theSubsystemHead = g_theInput;
+
+    g_theApp->Initialize();
 }
 
 void RunMessagePump() {
@@ -42,6 +49,8 @@ void RunMessagePump() {
 }
 
 void Shutdown() {
+    g_theSubsystemHead = g_theApp;
     delete g_theApp;
     g_theApp = nullptr;
+    g_theSubsystemHead = nullptr;
 }

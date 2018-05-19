@@ -3,48 +3,88 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 
 #include "Engine/Renderer/DirectX/DX11.hpp"
+
 #include "Engine/RHI/RHIDevice.hpp"
 
-DepthStencilState::DepthStencilState(RHIDevice* device, const XMLElement& element)
+DepthStencilState::DepthStencilState(RHIDevice* device
+                                     , bool enableDepthTest /*= true */
+                                     , bool enableStencilTest /*= false */
+                                     , bool enableDepthWrite /*= true */
+                                     , bool enableStencilRead /*= true */
+                                     , bool enableStencilWrite /*= true */
+                                     , const ComparisonFunction& depthComparison /*= ComparisonFunction::LESS */
+                                     , std::pair<const StencilOperation&, const StencilOperation&> failFrontBackOp /*= std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP) */
+                                     , std::pair<const StencilOperation&, const StencilOperation&> failDepthFrontBackOp /*= std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP) */
+                                     , std::pair<const StencilOperation&, const StencilOperation&> passFrontBackOp /*= std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP) */
+                                     , std::pair<const ComparisonFunction&, const ComparisonFunction&> stencilComparisonFrontBack /*= std::make_pair(ComparisonFunction::ALWAYS, ComparisonFunction::ALWAYS) */)
+: _enableDepthTest(enableDepthTest)
+, _enableStencilTest(enableStencilTest)
+, _enableDepthWrite(enableDepthWrite)
+, _enableStencilRead(enableStencilRead)
+, _enableStencilWrite(enableStencilWrite)
+, _depthComparison(depthComparison)
+, _failFrontBackOp(failFrontBackOp)
+, _failDepthFrontBackOp(failDepthFrontBackOp)
+, _passFrontBackOp(passFrontBackOp)
+, _stencilComparisonFrontBack(stencilComparisonFrontBack)
 {
-    bool load_succeeded = LoadFromXml(device, element);
-    if(!load_succeeded) {
-        ERROR_AND_DIE("DepthStencilState failed to load from Xml.");
+    bool succeeded = CreateDepthStencilState(device
+                                             ,_enableDepthTest
+                                             , _enableStencilTest
+                                             , _enableDepthWrite
+                                             , _enableStencilRead
+                                             , _enableStencilWrite
+                                             , _depthComparison
+                                             , _failFrontBackOp
+                                             , _failDepthFrontBackOp
+                                             , _passFrontBackOp
+                                             , _stencilComparisonFrontBack);
+    if(!succeeded) {
+        _dx_state->Release();
+        _dx_state = nullptr;
+        ERROR_AND_DIE("DepthStencilState failed to create.");
     }
 }
 
-DepthStencilState::DepthStencilState(
-    RHIDevice* device
-    , bool enableDepthTest /*= true*/
-    , bool enableStencilTest /*= false*/
-    , bool enableDepthWrite /*= true*/
-    , bool enableStencilRead /*= true*/
-    , bool enableStencilWrite /*= true*/
-    , const ComparisonFunction& depthComparison /*= ComparisonFunction::LESS*/
-    , std::pair<const StencilOperation&, const StencilOperation&> failFrontBackOp /*= std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP)*/
-    , std::pair<const StencilOperation&, const StencilOperation&> failDepthFrontBackOp /*= std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP)*/
-    , std::pair<const StencilOperation&, const StencilOperation&> passFrontBackOp /*= std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP)*/
-    , std::pair<const ComparisonFunction&, const ComparisonFunction&> stencilComparisonFrontBack /*= std::make_pair(ComparisonFunction::ALWAYS, ComparisonFunction::ALWAYS)*/
-)
+DepthStencilState::DepthStencilState(RHIDevice* device, const XMLElement& element)
 {
-    bool state_succeeded = CreateDepthStencilState(device,
-                                                   enableDepthTest,
-                                                   enableStencilTest,
-                                                   enableDepthWrite,
-                                                   enableStencilRead,
-                                                   enableStencilWrite,
-                                                   depthComparison,
-                                                   failFrontBackOp,
-                                                   failDepthFrontBackOp,
-                                                   passFrontBackOp,
-                                                   stencilComparisonFrontBack);
-    if(!state_succeeded) {
-        ERROR_AND_DIE("Depth Stencil failed to create.");
+    if(!LoadFromXml(device, element)) {
+        _dx_state->Release();
+        _dx_state = nullptr;
+        ERROR_AND_DIE("DepthStencilState: LoadFromXml failed.");
     }
 }
 
 DepthStencilState::~DepthStencilState() {
-    /* DO NOTHING */
+    _dx_state->Release();
+    _dx_state = nullptr;
+}
+
+ID3D11DepthStencilState* DepthStencilState::GetDxDepthStencilState() const {
+    return _dx_state;
+}
+
+bool DepthStencilState::CreateDepthStencilState(RHIDevice* device, bool enableDepthTest /*= true */, bool enableStencilTest /*= false */, bool enableDepthWrite /*= true */, bool enableStencilRead /*= true */, bool enableStencilWrite /*= true */, const ComparisonFunction& depthComparison /*= ComparisonFunction::LESS */, std::pair<const StencilOperation&, const StencilOperation&> failFrontBackOp /*= std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP) */, std::pair<const StencilOperation&, const StencilOperation&> failDepthFrontBackOp /*= std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP) */, std::pair<const StencilOperation&, const StencilOperation&> passFrontBackOp /*= std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP) */, std::pair<const ComparisonFunction&, const ComparisonFunction&> stencilComparisonFrontBack /*= std::make_pair(ComparisonFunction::ALWAYS, ComparisonFunction::ALWAYS)*/) {
+    D3D11_DEPTH_STENCIL_DESC desc;
+    desc.DepthEnable = enableDepthTest ? TRUE : FALSE;
+    desc.DepthWriteMask = enableDepthWrite ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
+    desc.StencilEnable = enableStencilTest ? TRUE : FALSE;
+    desc.StencilReadMask = enableStencilRead ? D3D11_DEFAULT_STENCIL_READ_MASK :  0x00;
+    desc.StencilWriteMask = enableStencilWrite ? D3D11_DEFAULT_STENCIL_WRITE_MASK : 0x00;
+    desc.DepthFunc = ComparisonFunctionToD3DComparisonFunction(depthComparison);
+
+    desc.FrontFace.StencilFailOp = StencilOperationToD3DStencilOperation(failFrontBackOp.first);
+    desc.FrontFace.StencilDepthFailOp = StencilOperationToD3DStencilOperation(failDepthFrontBackOp.first);
+    desc.FrontFace.StencilFunc = ComparisonFunctionToD3DComparisonFunction(stencilComparisonFrontBack.first);
+    desc.FrontFace.StencilPassOp = StencilOperationToD3DStencilOperation(passFrontBackOp.first);
+
+    desc.BackFace.StencilFailOp = StencilOperationToD3DStencilOperation(failFrontBackOp.second);
+    desc.BackFace.StencilDepthFailOp = StencilOperationToD3DStencilOperation(failDepthFrontBackOp.second);
+    desc.BackFace.StencilFunc = ComparisonFunctionToD3DComparisonFunction(stencilComparisonFrontBack.second);
+    desc.BackFace.StencilPassOp = StencilOperationToD3DStencilOperation(passFrontBackOp.second);
+
+    HRESULT hr = device->GetDxDevice()->CreateDepthStencilState(&desc, &_dx_state);
+    return SUCCEEDED(hr);
 }
 
 bool DepthStencilState::LoadFromXml(RHIDevice* device, const XMLElement& element) {
@@ -150,30 +190,4 @@ bool DepthStencilState::LoadFromXml(RHIDevice* device, const XMLElement& element
                                    passFBOp,
                                    stencilComparisonFB);
 
-}
-
-bool DepthStencilState::CreateDepthStencilState(RHIDevice* device,
-                                                bool enableDepthTest /*= true */,
-                                                bool enableStencilTest /*= false */,
-                                                bool enableDepthWrite /*= true */,
-                                                bool enableStencilRead /*= true */,
-                                                bool enableStencilWrite /*= true */,
-                                                const ComparisonFunction& depthComparison /*= ComparisonFunction::LESS */,
-                                                std::pair<const StencilOperation&, const StencilOperation&> failFrontBackOp /*= std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP) */,
-                                                std::pair<const StencilOperation&, const StencilOperation&> failDepthFrontBackOp /*= std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP) */,
-                                                std::pair<const StencilOperation&, const StencilOperation&> passFrontBackOp /*= std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP) */,
-                                                std::pair<const ComparisonFunction&, const ComparisonFunction&> stencilComparisonFrontBack /*= std::make_pair(ComparisonFunction::ALWAYS, ComparisonFunction::ALWAYS) */
-) {
-
-    return device->CreateDepthStencilState(this
-                                           , enableDepthTest
-                                           ,enableStencilTest
-                                           ,enableDepthWrite
-                                           ,enableStencilRead
-                                           ,enableStencilWrite
-                                           ,depthComparison
-                                           ,failFrontBackOp
-                                           ,failDepthFrontBackOp
-                                           ,passFrontBackOp
-                                           ,stencilComparisonFrontBack);
 }

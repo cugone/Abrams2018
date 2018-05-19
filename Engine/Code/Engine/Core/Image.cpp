@@ -14,11 +14,11 @@
 
 //CriticalSection Image::_cs;
 
-Image::Image(const std::wstring& filePath)
+Image::Image(const std::string& filePath)
     : m_filepath(filePath)
     , m_memload(false) {
 
-    std::string fp = StringUtils::ConvertUnicodeToMultiByte(filePath);
+    std::string fp = filePath;
 
     m_texelBytes = stbi_load(fp.c_str(), &m_dimensions.x, &m_dimensions.y, &m_bytesPerTexel, 4);
     std::ostringstream ss;
@@ -30,7 +30,6 @@ Image::Image(unsigned int width /*= 1*/, unsigned int height /*= 1*/)
     , m_bytesPerTexel(4)
     , m_memload(true) {
     m_texelBytes = new unsigned char[width * height * m_bytesPerTexel];
-    std::memset(m_texelBytes, 0, width * height * m_bytesPerTexel);
     std::fill(m_texelBytes, m_texelBytes + width * height * m_bytesPerTexel, static_cast<unsigned char>(0));
 }
 
@@ -67,15 +66,16 @@ Image::Image(const std::vector<unsigned char>& data, unsigned int width, unsigne
 }
 
 Image::Image(Image&& img)
-    : m_dimensions(std::move(img.m_dimensions))
-    , m_bytesPerTexel(std::move(img.m_bytesPerTexel))
-    , m_filepath(std::move(img.m_filepath))
-    , m_memload(std::move(img.m_memload))
-    , m_texelBytes(std::move(img.m_texelBytes)) {
+: m_dimensions(std::move(img.m_dimensions))
+, m_bytesPerTexel(std::move(img.m_bytesPerTexel))
+, m_filepath(std::move(img.m_filepath))
+, m_memload(std::move(img.m_memload))
+, m_texelBytes(std::move(img.m_texelBytes)) {
+
     img.m_texelBytes = nullptr;
     m_dimensions = IntVector2::ZERO;
     m_bytesPerTexel = 0;
-    m_filepath = L"";
+    m_filepath = "";
     m_memload = false;
 }
 
@@ -99,7 +99,7 @@ Image& Image::operator=(Image&& rhs) {
 
     rhs.m_texelBytes = nullptr;
     rhs.m_dimensions = IntVector2::ZERO;
-    rhs.m_filepath = L"";
+    rhs.m_filepath = "";
     rhs.m_bytesPerTexel = 0;
     rhs.m_memload = false;
 
@@ -144,7 +144,7 @@ void Image::SetTexel(const IntVector2& texelPos, const Rgba& color) {
     }
 }
 
-const std::wstring& Image::GetFilepath() const {
+const std::string& Image::GetFilepath() const {
     return m_filepath;
 }
 
@@ -155,11 +155,11 @@ unsigned char* Image::GetData() const {
     return m_texelBytes;
 }
 
-//bool Image::Export(const std::wstring& filepath, int bytes_per_pixel /*= 4*/, int jpg_quality /*= 100*/) {
+//bool Image::Export(const std::string& filepath, int bytes_per_pixel /*= 4*/, int jpg_quality /*= 100*/) {
 //
 //    namespace FS = std::experimental::filesystem;
 //    FS::path p(filepath);
-//    std::wstring extension = StringUtils::ToLowerCase(p.extension().wstring());
+//    std::string extension = StringUtils::ToLowerCase(p.extension().string());
 //
 //    const auto& dims = this->GetDimensions();
 //    int w = dims.x;
@@ -168,23 +168,23 @@ unsigned char* Image::GetData() const {
 //    int stride = bbp * w;
 //    int quality = jpg_quality;
 //    int result = 0;
-//    if(extension == L".png") {
+//    if(extension == ".png") {
 //        _cs.enter();
 //        result = stbi_write_png(filepath.c_str(), w, h, bbp, m_texelBytes, stride);
 //        _cs.leave();
-//    } else if(extension == L".bmp") {
+//    } else if(extension == ".bmp") {
 //        _cs.enter();
 //        result = stbi_write_bmp(filepath.c_str(), w, h, bbp, m_texelBytes);
 //        _cs.leave();
-//    } else if(extension == L".tga") {
+//    } else if(extension == ".tga") {
 //        _cs.enter();
 //        result = stbi_write_tga(filepath.c_str(), w, h, bbp, m_texelBytes);
 //        _cs.leave();
-//    } else if(extension == L".jpg") {
+//    } else if(extension == ".jpg") {
 //        _cs.enter();
 //        result = stbi_write_jpg(filepath.c_str(), w, h, bbp, m_texelBytes, quality);
 //        _cs.leave();
-//    } else if(extension == L".hdr") {
+//    } else if(extension == ".hdr") {
 //        std::vector<float> data;
 //        data.reserve(w * h * bbp);
 //        for(std::size_t i = 0; i < static_cast<std::size_t>(w * h); i += bbp) {

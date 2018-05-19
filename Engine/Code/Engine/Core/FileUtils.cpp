@@ -9,8 +9,7 @@
 
 namespace FileUtils {
 
-
-bool WriteBufferToFile(void* buffer, std::size_t size, const std::wstring& filePath) {
+bool WriteBufferToFile(void* buffer, std::size_t size, const std::string& filePath) {
 
     namespace FS = std::experimental::filesystem;
     FS::path p(filePath);
@@ -29,7 +28,7 @@ bool WriteBufferToFile(void* buffer, std::size_t size, const std::wstring& fileP
     return false;
 }
 
-bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::wstring& filePath) {
+bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::string& filePath) {
 
     namespace FS = std::experimental::filesystem;
     FS::path p(filePath);
@@ -53,7 +52,7 @@ bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::wstri
     return success;
 }
 
-bool CreateFolders(const std::wstring& filepath) {
+bool CreateFolders(const std::string& filepath) {
     namespace FS = std::experimental::filesystem;
 
     FS::path p(filepath);

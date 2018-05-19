@@ -124,7 +124,24 @@ void Renderer::Initialize() {
     CreateAndRegisterDefaultShaderPrograms();
     CreateAndRegisterDefaultShaders();
     CreateAndRegisterDefaultMaterials();
+    CreateAndRegisterDefaultRasterStates();
 
+}
+
+void Renderer::BeginFrame() {
+    /* DO NOTHING */
+}
+
+void Renderer::Update(float /*deltaSeconds*/) {
+    /* DO NOTHING */
+}
+
+void Renderer::Render() const {
+    /* DO NOTHING */
+}
+
+void Renderer::EndFrame() {
+    Present();
 }
 
 bool Renderer::RegisterTexture(const std::string& name, Texture* texture) {
@@ -166,6 +183,18 @@ void Renderer::Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& 
     Draw(topology, _temp_vbo, vertex_count);
 }
 
+void Renderer::DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo) {
+    UpdateVbo(vbo);
+    UpdateIbo(ibo);
+    DrawIndexed(topology, _temp_vbo, _temp_ibo, ibo.size());
+}
+
+void Renderer::DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo, std::size_t vertex_count) {
+    UpdateVbo(vbo);
+    UpdateIbo(ibo);
+    DrawIndexed(topology, _temp_vbo, _temp_ibo, vertex_count);
+}
+
 void Renderer::Draw(const PrimitiveType& topology, VertexBuffer* vbo, std::size_t vertex_count) {
 
     D3D11_PRIMITIVE_TOPOLOGY d3d_prim = PrimitiveTypeToD3dTopology(topology);
@@ -175,6 +204,18 @@ void Renderer::Draw(const PrimitiveType& topology, VertexBuffer* vbo, std::size_
     ID3D11Buffer* dx_vbo_buffer = vbo->GetDxBuffer();
     _rhi_context->GetDxContext()->IASetVertexBuffers(0, 1, &dx_vbo_buffer, &stride, &offsets);
     _rhi_context->Draw(vertex_count);
+}
+
+void Renderer::DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, IndexBuffer* ibo, std::size_t index_count) {
+    D3D11_PRIMITIVE_TOPOLOGY d3d_prim = PrimitiveTypeToD3dTopology(topology);
+    _rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
+    unsigned int stride = sizeof(VertexBuffer::arraybuffer_t);
+    unsigned int offsets = 0;
+    ID3D11Buffer* dx_vbo_buffer = vbo->GetDxBuffer();
+    ID3D11Buffer* dx_ibo_buffer = ibo->GetDxBuffer();
+    _rhi_context->GetDxContext()->IASetVertexBuffers(0, 1, &dx_vbo_buffer, &stride, &offsets);
+    _rhi_context->GetDxContext()->IASetIndexBuffer(dx_ibo_buffer, DXGI_FORMAT_R32_UINT, offsets);
+    _rhi_context->DrawIndexed(index_count);
 }
 
 void Renderer::CreateAndRegisterDefaultShaderPrograms() {
@@ -265,8 +306,89 @@ R"(
 
 }
 
+void Renderer::CreateAndRegisterDefaultRasterStates() {
+    RasterState* wireframe_raster = CreateWireframeRaster();
+    RegisterRasterState("__wireframe", wireframe_raster);
+
+    RasterState* solid_raster = CreateSolidRaster();
+    RegisterRasterState("__solid", solid_raster);
+
+    RasterState* wireframenc_raster = CreateWireframeNoCullingRaster();
+    RegisterRasterState("__wireframenc", wireframenc_raster);
+
+    RasterState* solidnc_raster = CreateSolidNoCullingRaster();
+    RegisterRasterState("__solidnc", solidnc_raster);
+
+    RasterState* wireframefc_raster = CreateWireframeFrontCullingRaster();
+    RegisterRasterState("__wireframefc", wireframefc_raster);
+
+    RasterState* solidfc_raster = CreateSolidFrontCullingRaster();
+    RegisterRasterState("__solidfc", solidfc_raster);
+
+}
+
+RasterState* Renderer::CreateWireframeRaster() {
+    RasterState* state = new RasterState(_rhi_device, FillMode::WIREFRAME, CullMode::BACK, true);
+    return state;
+}
+
+RasterState* Renderer::CreateSolidRaster() {
+    RasterState* state = new RasterState(_rhi_device, FillMode::SOLID, CullMode::BACK, true);
+    return state;
+}
+
+RasterState* Renderer::CreateWireframeNoCullingRaster() {
+    RasterState* state = new RasterState(_rhi_device, FillMode::WIREFRAME, CullMode::NONE, true);
+    return state;
+}
+
+RasterState* Renderer::CreateSolidNoCullingRaster() {
+    RasterState* state = new RasterState(_rhi_device, FillMode::SOLID, CullMode::NONE, true);
+    return state;
+}
+
+RasterState* Renderer::CreateWireframeFrontCullingRaster() {
+    RasterState* state = new RasterState(_rhi_device, FillMode::WIREFRAME, CullMode::FRONT, true);
+    return state;
+}
+
+RasterState* Renderer::CreateSolidFrontCullingRaster() {
+    RasterState* state = new RasterState(_rhi_device, FillMode::SOLID, CullMode::FRONT, true);
+    return state;
+}
+
+RasterState* Renderer::CreateWireframeBothCullingRaster() {
+    RasterState* state = new RasterState(_rhi_device, FillMode::WIREFRAME, CullMode::BOTH, true);
+    return state;
+}
+
+RasterState* Renderer::CreateSolidBothCullingRaster() {
+    RasterState* state = new RasterState(_rhi_device, FillMode::SOLID, CullMode::BOTH, true);
+    return state;
+}
+
 void Renderer::UnbindAllShaderResources() {
     _rhi_context->UnbindAllShaderResources();
+}
+
+RasterState* Renderer::GetRasterState(const std::string& name) {
+    auto found_iter = _rasters.find(name);
+    if(found_iter == _rasters.end()) {
+        return nullptr;
+    }
+    return found_iter->second;
+}
+
+void Renderer::RegisterRasterState(const std::string& name, RasterState* raster) {
+    if(raster == nullptr) {
+        return;
+    }
+    auto found_iter = _rasters.find(name);
+    if(found_iter != _rasters.end()) {
+        delete found_iter->second;
+        found_iter->second = nullptr;
+    }
+    _rasters.insert_or_assign(name, raster);
 }
 
 void Renderer::RegisterShader(const std::string& name, Shader* shader) {
@@ -629,22 +751,6 @@ Texture* Renderer::CreateTexture(const std::string& filepath,
     } else {
         return Create3DTexture(filepath, dimensions, bufferUsage, bindUsage, imageFormat);
     }
-}
-
-void Renderer::BeginFrame() {
-    /* DO NOTHING */
-}
-
-void Renderer::Update(float /*deltaSeconds*/) {
-    /* DO NOTHING */
-}
-
-void Renderer::Render() const {
-    /* DO NOTHING */
-}
-
-void Renderer::EndFrame() {
-    Present();
 }
 
 void Renderer::SetTexture(Texture* texture, unsigned int registerIndex /*= 0*/) {

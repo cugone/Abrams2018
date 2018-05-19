@@ -34,20 +34,22 @@ void Game::Render() const {
     //Vector2 leftBottom = Vector2(0.0f, GRAPHICS_OPTION_WINDOW_HEIGHT);
     //Vector2 rightTop = Vector2(GRAPHICS_OPTION_WINDOW_WIDTH, 0.0f);
     //g_theRenderer->SetOrthoProjection(leftBottom, rightTop, Vector2(0.0f, 1.0f));
-
+    g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
+    g_theRenderer->SetViewMatrix(Matrix4::GetIdentity());
+    g_theRenderer->SetProjectionMatrix(Matrix4::GetIdentity());
 
     g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__default"));
-    Vector3 pos = Vector3::ZERO;//(0.50f, 0.50f, 0.0f);//Vector2(GRAPHICS_OPTION_WINDOW_WIDTH * 0.25f, GRAPHICS_OPTION_WINDOW_HEIGHT * 0.50f), 0.0f);
-    std::vector<Vertex3D> vbo{ Vertex3D(pos) };
-    g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());//Matrix4::CreateTranslationMatrix(Vector3(pos)));
-    g_theRenderer->SetViewMatrix(Matrix4::GetIdentity());//Matrix4::CreateTranslationMatrix(Vector3(pos)));
-    g_theRenderer->SetProjectionMatrix(Matrix4::GetIdentity());//Matrix4::CreateTranslationMatrix(Vector3(pos)));
-    g_theRenderer->Draw(PrimitiveType::POINTS, vbo);
-    //Vector3 pos1 = Vector3(Vector2(GRAPHICS_OPTION_WINDOW_WIDTH * 0.25f, GRAPHICS_OPTION_WINDOW_HEIGHT * 0.50f), 0.0f);
-    //Vector3 pos2 = Vector3(Vector2(GRAPHICS_OPTION_WINDOW_WIDTH * 0.75f, GRAPHICS_OPTION_WINDOW_HEIGHT * 0.50f), 0.0f);
-    ////g_theRenderer->DrawLine(pos1, pos2);
-    //std::vector<Vertex3D> vbo{ Vertex3D(pos1), Vertex3D(pos2) };
-    //g_theRenderer->Draw(PrimitiveType::LINES, vbo);
+    Vector3 pos0 = Vector3(-1.0f, -1.0f, 0.0f);
+    Vector3 pos1 = Vector3(-1.0f, 1.0f, 0.0f);
+    Vector3 pos2 = Vector3(1.0f, 1.0f, 0.0f);
+    Vector3 pos3 = Vector3(1.0f, -1.0f, 0.0f);
+    std::vector<Vertex3D> vbo{ Vertex3D(pos0, Rgba::RED),  Vertex3D(pos1, Rgba::GREEN), Vertex3D(pos2, Rgba::BLUE), Vertex3D(pos3, Rgba::RED) };
+    std::vector<unsigned int> ibo{
+        0, 1, 2
+        ,0, 2, 3
+    };
+    //g_theRenderer->Draw(PrimitiveType::TRIANGLES, vbo);
+    g_theRenderer->DrawIndexed(PrimitiveType::TRIANGLES, vbo, ibo);
 
 }
 

@@ -23,7 +23,7 @@ bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     msg.wparam = wParam;
     msg.lparam = lParam;
 
-    if(g_theSubsystemHead && g_theSubsystemHead->ProcessSystemMessage(msg)) {
+    if(g_theSubsystemHead && g_theSubsystemHead->EngineSubsystem::ProcessSystemMessage(msg)) {
         return true;
     }
     return false;

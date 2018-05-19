@@ -114,6 +114,8 @@ public:
     void DrawPoint(const Vector3& point, const Rgba& color = Rgba::WHITE, const Vector2& tex_coords = Vector2::ZERO);
     void Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo);
     void Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, std::size_t vertex_count);
+    void DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo);
+    void DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo, std::size_t vertex_count);
 
     RHIDeviceContext* GetDeviceContext() const;
     RHIDevice* GetDevice() const;
@@ -150,11 +152,13 @@ private:
     void RegisterShaderProgram(const std::string& name, ShaderProgram * sp);
     void RegisterShader(const std::string& name, Shader* shader);
     void RegisterMaterial(const std::string name, Material* mat);
+    void RegisterRasterState(const std::string& name, RasterState* raster);
 
     void UpdateVbo(const VertexBuffer::buffer_t& vbo);
     void UpdateIbo(const IndexBuffer::buffer_t& ibo);
 
     void Draw(const PrimitiveType& topology, VertexBuffer* vbo, std::size_t vertex_count);
+    void DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, IndexBuffer* ibo, std::size_t index_count);
 
     void CreateAndRegisterDefaultTextures();
     Texture* CreateDefaultTexture();
@@ -175,6 +179,17 @@ private:
     void CreateAndRegisterDefaultMaterials();
     Material* CreateDefaultMaterial();
 
+    RasterState* GetRasterState(const std::string& name);
+    void CreateAndRegisterDefaultRasterStates();
+    RasterState* CreateWireframeRaster();
+    RasterState* CreateSolidRaster();
+    RasterState* CreateWireframeNoCullingRaster();
+    RasterState* CreateSolidNoCullingRaster();
+    RasterState* CreateWireframeFrontCullingRaster();
+    RasterState* CreateSolidFrontCullingRaster();
+    RasterState* CreateWireframeBothCullingRaster();
+    RasterState* CreateSolidBothCullingRaster();
+
     void UnbindAllShaderResources();
 
     matrix_buffer_t _matrix_data = {};
@@ -191,7 +206,6 @@ private:
     Texture* _default_depthstencil = nullptr;
     DepthStencilState* _current_depthstencil_state = nullptr;
     Material* _current_material = nullptr;
-    Shader* _current_shader = nullptr;
     IntVector2 _window_dimensions = IntVector2::ZERO;
     RHIOutputMode _current_outputMode = RHIOutputMode::WINDOWED;
     VertexBuffer* _temp_vbo = nullptr;

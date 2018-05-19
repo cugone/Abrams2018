@@ -106,7 +106,7 @@ bool RasterState::CreateRasterState(RHIDevice* device, const RasterDesc& raster_
 
     desc.FillMode = FillModeToD3DFillMode(raster_desc.fillmode);
     desc.CullMode = CullModeToD3DCullMode(raster_desc.cullmode);
-    desc.FrontCounterClockwise = true;
+    desc.FrontCounterClockwise = false;
     desc.AntialiasedLineEnable = raster_desc.antialiasedLineEnable;
     desc.DepthBias = raster_desc.depthBias;
     desc.DepthBiasClamp = raster_desc.depthBiasClamp;

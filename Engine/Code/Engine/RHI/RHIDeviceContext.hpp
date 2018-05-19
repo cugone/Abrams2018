@@ -51,6 +51,8 @@ public:
     RHIDevice* GetParentDevice() const;
     ID3D11DeviceContext* GetDxContext();
 
+    void UnbindAllShaderResources();
+
 private:
     void SetShader(Shader* shader);
     void SetShaderProgram(ShaderProgram* shaderProgram = nullptr);
@@ -63,6 +65,5 @@ private:
     RHIDevice* _device = nullptr;
     ID3D11DeviceContext* _dx_context = nullptr;
 
-public:
-    void UnbindAllShaderResources();
+    friend class Renderer;
 };

@@ -13,5 +13,4 @@ public:
 
 protected:
 private:
-
 };

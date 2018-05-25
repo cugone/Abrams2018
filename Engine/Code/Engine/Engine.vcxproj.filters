@@ -211,6 +211,9 @@
     <ClCompile Include="Renderer\Sampler.cpp">
       <Filter>Renderer\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\Camera.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -409,6 +412,9 @@
       <Filter>Renderer\Core</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Sampler.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Camera.hpp">
       <Filter>Renderer\Core</Filter>
     </ClInclude>
   </ItemGroup>

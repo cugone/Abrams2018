@@ -57,6 +57,7 @@
     <ClCompile Include="Renderer\ArrayBuffer.cpp" />
     <ClCompile Include="Renderer\BlendState.cpp" />
     <ClCompile Include="Renderer\Buffer.cpp" />
+    <ClCompile Include="Renderer\Camera.cpp" />
     <ClCompile Include="Renderer\ConstantBuffer.cpp" />
     <ClCompile Include="Renderer\DepthStencilState.cpp" />
     <ClCompile Include="Renderer\DirectX\DX11.cpp" />
@@ -124,6 +125,7 @@
     <ClInclude Include="Renderer\ArrayBuffer.hpp" />
     <ClInclude Include="Renderer\BlendState.hpp" />
     <ClInclude Include="Renderer\Buffer.hpp" />
+    <ClInclude Include="Renderer\Camera.hpp" />
     <ClInclude Include="Renderer\ConstantBuffer.hpp" />
     <ClInclude Include="Renderer\DepthStencilState.hpp" />
     <ClInclude Include="Renderer\DirectX\DX11.hpp" />

@@ -36,6 +36,7 @@ public:
     static Matrix4 CreateDXPerspectiveProjection(float vfovDegrees, float aspect, float nz, float fz);
     static Matrix4 CreateOrthographicProjectionMatrix(float top, float bottom, float right, float left, float nearZ, float farZ);
     static Matrix4 CreateLookAtMatrix(const Vector3& cameraPosition, const Vector3& lookAt, const Vector3& up);
+    static Matrix4 CalculateChangeOfBasisMatrix(const Matrix4& output_basis, const Matrix4& input_basis = Matrix4::GetIdentity());
 
     Matrix4();
     explicit Matrix4(const std::string& value);

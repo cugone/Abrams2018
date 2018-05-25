@@ -176,6 +176,11 @@ Matrix4 Matrix4::CreateScaleMatrix(const Vector2& scale) {
 Matrix4 Matrix4::CreateScaleMatrix(float scale) {
     return CreateScaleMatrix(Vector3(scale, scale, scale));
 }
+
+Matrix4 Matrix4::CalculateChangeOfBasisMatrix(const Matrix4& output_basis, const Matrix4& input_basis /*= Matrix4::GetIdentity()*/) {
+    return Matrix4::CalculateInverse(output_basis) * input_basis;
+}
+
 void Matrix4::SetIBasis(const Vector4& iBasis) {
     m_indicies[0] = iBasis.x;
     m_indicies[4] = iBasis.y;

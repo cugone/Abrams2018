@@ -117,6 +117,13 @@ void Renderer::Initialize() {
 
     _default_depthstencil = CreateDepthStencil(_rhi_device, _window_dimensions);
 
+    {
+    VertexBuffer::buffer_t default_vbo(1024);
+    IndexBuffer::buffer_t default_ibo(1024);
+    _temp_vbo = _rhi_device->CreateVertexBuffer(default_vbo, BufferUsage::DYNAMIC, BufferBindUsage::VERTEX_BUFFER);
+    _temp_ibo = _rhi_device->CreateIndexBuffer(default_ibo, BufferUsage::DYNAMIC, BufferBindUsage::INDEX_BUFFER);
+    }
+
     _matrix_cb = _rhi_device->CreateConstantBuffer(&_matrix_data, sizeof(_matrix_data), BufferUsage::DYNAMIC, BufferBindUsage::CONSTANT_BUFFER);
     //_time_cb = _rhi_device->CreateConstantBuffer(&_time_data, sizeof(_time_data), BufferUsage::DYNAMIC, BufferBindUsage::CONSTANT_BUFFER);
 
@@ -216,6 +223,36 @@ void Renderer::DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, Ind
     _rhi_context->GetDxContext()->IASetVertexBuffers(0, 1, &dx_vbo_buffer, &stride, &offsets);
     _rhi_context->GetDxContext()->IASetIndexBuffer(dx_ibo_buffer, DXGI_FORMAT_R32_UINT, offsets);
     _rhi_context->DrawIndexed(index_count);
+}
+
+void Renderer::DrawQuad2D(float left, float bottom, float right, float top, const Rgba& color /*= Rgba::WHITE*/) {
+    Vector3 pos0 = Vector3(left, bottom, 0.0f);
+    Vector3 pos1 = Vector3(left, top, 0.0f);
+    Vector3 pos2 = Vector3(right, top, 0.0f);
+    Vector3 pos3 = Vector3(right, bottom, 0.0f);
+    static std::vector<Vertex3D> vbo;
+    vbo.reserve(4);
+    vbo.clear();
+    vbo.push_back(Vertex3D(pos0, color));
+    vbo.push_back(Vertex3D(pos1, color));
+    vbo.push_back(Vertex3D(pos2, color));
+    vbo.push_back(Vertex3D(pos3, color));
+    static std::vector<unsigned int> ibo;
+    ibo.reserve(6);
+    ibo.clear();
+    ibo.push_back(0);
+    ibo.push_back(1);
+    ibo.push_back(2);
+    ibo.push_back(0);
+    ibo.push_back(2);
+    ibo.push_back(3);
+    DrawIndexed(PrimitiveType::TRIANGLES, vbo, ibo);
+}
+
+void Renderer::DrawQuad2D(const Vector2& position, const Vector2& halfExtents, const Rgba& color /*= Rgba::WHITE*/) {
+    Vector2 leftBottom = position - halfExtents;
+    Vector2 rightTop = position + halfExtents;
+    DrawQuad2D(leftBottom.x, leftBottom.y, rightTop.x, rightTop.y, color);
 }
 
 void Renderer::CreateAndRegisterDefaultShaderPrograms() {
@@ -584,6 +621,19 @@ ShaderProgram* Renderer::CreateShaderProgramFromHlslFile(const std::string& file
         return sp;
     }
     return nullptr;
+}
+
+void Renderer::CreateAndRegisterRasterStateFromRasterDescription(const std::string& name, const RasterDesc& desc) {
+    auto raster = new RasterState(_rhi_device, desc);
+    RegisterRasterState(name, raster);
+}
+
+void Renderer::SetRasterState(RasterState* raster) {
+    if(raster == _current_raster_state) {
+        return;
+    }
+    _current_raster_state = raster;
+    _rhi_context->SetRasterState(raster);
 }
 
 void Renderer::SetVSync(bool value) {

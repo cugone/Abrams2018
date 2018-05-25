@@ -22,6 +22,7 @@ class IndexBuffer;
 class IntVector3;
 class Material;
 class RasterState;
+struct RasterDesc;
 class Rgba;
 class RHIDeviceContext;
 class RHIDevice;
@@ -124,6 +125,10 @@ public:
     ShaderProgram* GetShaderProgram(const std::string& nameOrFile);
     ShaderProgram* CreateShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPoint, InputLayout* inputLayout, const PipelineStage& target);
 
+    void CreateAndRegisterRasterStateFromRasterDescription(const std::string& name, const RasterDesc& desc);
+    void SetRasterState(RasterState* raster);
+    RasterState* GetRasterState(const std::string& name);
+
     void SetVSync(bool value);
 
     std::size_t GetMaterialCount();
@@ -145,6 +150,9 @@ public:
 
     void SetConstantBuffer(unsigned int index, ConstantBuffer* buffer);
     void SetStructuredBuffer(unsigned int index, StructuredBuffer* buffer);
+
+    void DrawQuad2D(float left, float bottom, float right, float top, const Rgba& color = Rgba::WHITE);
+    void DrawQuad2D(const Vector2& position, const Vector2& halfExtents, const Rgba& color = Rgba::WHITE);
 
 protected:
 private:
@@ -179,7 +187,6 @@ private:
     void CreateAndRegisterDefaultMaterials();
     Material* CreateDefaultMaterial();
 
-    RasterState* GetRasterState(const std::string& name);
     void CreateAndRegisterDefaultRasterStates();
     RasterState* CreateWireframeRaster();
     RasterState* CreateSolidRaster();
@@ -205,6 +212,7 @@ private:
     Texture* _current_depthstencil = nullptr;
     Texture* _default_depthstencil = nullptr;
     DepthStencilState* _current_depthstencil_state = nullptr;
+    RasterState* _current_raster_state = nullptr;
     Material* _current_material = nullptr;
     IntVector2 _window_dimensions = IntVector2::ZERO;
     RHIOutputMode _current_outputMode = RHIOutputMode::WINDOWED;

@@ -26,6 +26,15 @@ RasterState::RasterState(RHIDevice* device, const XMLElement& element) {
         ERROR_AND_DIE("RasterState: Load from XML failed.\n");
     }
 }
+
+RasterState::RasterState(RHIDevice* device, const RasterDesc& desc) {
+    if(!CreateRasterState(device, desc)) {
+        _dx_state->Release();
+        _dx_state = nullptr;
+        ERROR_AND_DIE("RasterState: dx Rasterizer failed to create.\n");
+    }
+}
+
 RasterState::~RasterState() {
     _dx_state->Release();
     _dx_state = nullptr;

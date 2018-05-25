@@ -34,6 +34,7 @@ struct RasterDesc {
 
 class RasterState {
 public:
+    RasterState(RHIDevice* device, const RasterDesc& desc);
     RasterState(RHIDevice* device, const FillMode& fillmode = FillMode::SOLID, const CullMode& cullmode = CullMode::BACK, bool antiAliasing = false);
     RasterState(RHIDevice* device, const XMLElement& element);
     ~RasterState();
@@ -45,4 +46,5 @@ protected:
     bool CreateRasterState(RHIDevice* device, const RasterDesc& raster_desc = RasterDesc());
 private:
     ID3D11RasterizerState* _dx_state;
+
 };

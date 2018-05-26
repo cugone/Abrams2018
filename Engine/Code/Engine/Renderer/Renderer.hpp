@@ -14,7 +14,6 @@
 #include <map>
 #include <string>
 
-
 class BlendState;
 class ConstantBuffer;
 class DepthStencilState;
@@ -71,7 +70,7 @@ class Renderer {
 public:
     Renderer() = default;
     Renderer(unsigned int width, unsigned int height);
-    virtual ~Renderer();
+    ~Renderer();
 
     void Initialize();
     void BeginFrame();

@@ -29,6 +29,7 @@ class RHIDevice;
 class RHIOutput;
 class RHIInstance;
 class Sampler;
+struct SamplerDesc;
 class Shader;
 class ShaderProgram;
 class StructuredBuffer;
@@ -129,6 +130,10 @@ public:
     void SetRasterState(RasterState* raster);
     RasterState* GetRasterState(const std::string& name);
 
+    void CreateAndRegisterSamplerFromSamplerDescription(const std::string& name, const SamplerDesc& desc);
+    Sampler* GetSampler(const std::string& name);
+    void SetSampler(Sampler* sampler);
+
     void SetVSync(bool value);
 
     std::size_t GetMaterialCount();
@@ -173,6 +178,7 @@ private:
     void RegisterShader(const std::string& name, Shader* shader);
     void RegisterMaterial(const std::string name, Material* mat);
     void RegisterRasterState(const std::string& name, RasterState* raster);
+    void RegisterSampler(const std::string& name, Sampler* sampler);
 
     void UpdateVbo(const VertexBuffer::buffer_t& vbo);
     void UpdateIbo(const IndexBuffer::buffer_t& ibo);
@@ -192,12 +198,18 @@ private:
 
     void CreateAndRegisterDefaultShaderPrograms();
     ShaderProgram* CreateDefaultShaderProgram();
+    ShaderProgram* CreateDefaultUnlitShaderProgram();
 
     void CreateAndRegisterDefaultShaders();
     Shader* CreateDefaultShader();
+    Shader* CreateDefaultUnlitShader();
 
     void CreateAndRegisterDefaultMaterials();
     Material* CreateDefaultMaterial();
+    Material* CreateDefaultUnlitMaterial();
+
+    void CreateAndRegisterDefaultSamplers();
+    Sampler* CreateDefaultSampler();
 
     void CreateAndRegisterDefaultRasterStates();
     RasterState* CreateWireframeRaster();
@@ -223,6 +235,7 @@ private:
     Texture* _default_depthstencil = nullptr;
     DepthStencilState* _current_depthstencil_state = nullptr;
     RasterState* _current_raster_state = nullptr;
+    Sampler* _current_sampler = nullptr;
     Material* _current_material = nullptr;
     IntVector2 _window_dimensions = IntVector2::ZERO;
     RHIOutputMode _current_outputMode = RHIOutputMode::WINDOWED;
@@ -237,5 +250,7 @@ private:
     std::map<std::string, Sampler*> _samplers = {};
     std::map<std::string, RasterState*> _rasters = {};
     bool _vsync = false;
+
+    friend class Shader;
 
 };

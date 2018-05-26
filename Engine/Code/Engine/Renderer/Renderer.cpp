@@ -93,6 +93,10 @@ Renderer::~Renderer() {
     delete _current_depthstencil_state;
     _current_depthstencil_state = nullptr;
 
+    _current_raster_state = nullptr;
+    _current_sampler = nullptr;
+    _current_material = nullptr;
+
     delete _matrix_cb;
     _matrix_cb = nullptr;
 
@@ -133,11 +137,12 @@ void Renderer::Initialize() {
     _matrix_cb = _rhi_device->CreateConstantBuffer(&_matrix_data, sizeof(_matrix_data), BufferUsage::DYNAMIC, BufferBindUsage::CONSTANT_BUFFER);
     //_time_cb = _rhi_device->CreateConstantBuffer(&_time_data, sizeof(_time_data), BufferUsage::DYNAMIC, BufferBindUsage::CONSTANT_BUFFER);
 
+    CreateAndRegisterDefaultSamplers();
+    CreateAndRegisterDefaultRasterStates();
     CreateAndRegisterDefaultTextures();
     CreateAndRegisterDefaultShaderPrograms();
     CreateAndRegisterDefaultShaders();
     CreateAndRegisterDefaultMaterials();
-    CreateAndRegisterDefaultRasterStates();
 
 }
 
@@ -372,9 +377,84 @@ void Renderer::DrawPolygon2D(const Vector2& center, float radius, std::size_t nu
 void Renderer::CreateAndRegisterDefaultShaderPrograms() {
     auto sp = CreateDefaultShaderProgram();
     RegisterShaderProgram(sp->GetName(), sp);
+
+    auto unlit_sp = CreateDefaultUnlitShaderProgram();
+    RegisterShaderProgram(unlit_sp->GetName(), unlit_sp);
+
 }
 
 ShaderProgram* Renderer::CreateDefaultShaderProgram() {
+    std::string program =
+R"(
+
+cbuffer matrix_cb : register(b0) {
+    float4x4 g_MODEL;
+    float4x4 g_VIEW;
+    float4x4 g_PROJECTION;
+};
+
+
+struct vs_in_t {
+    float3 position : POSITION;
+    float4 color : COLOR;
+    float2 uv : UV;
+};
+
+struct ps_in_t {
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
+    float2 uv : UV;
+};
+
+SamplerState sSampler : register(s0);
+
+Texture2D<float4> tImage    : register(t0);
+Texture2D<float4> tNormal   : register(t1);
+Texture2D<float4> tLighting : register(t2);
+Texture2D<float4> tSpecular : register(t3);
+Texture2D<float4> tOcclusion : register(t4);
+Texture2D<float4> tEmissive : register(t5);
+
+ps_in_t VertexFunction(vs_in_t input_vertex) {
+    ps_in_t output;
+
+    float4 local = float4(input_vertex.position, 1.0f);
+    float4 world = mul(local, g_MODEL);
+    float4 view = mul(world, g_VIEW);
+    float4 clip = mul(view, g_PROJECTION);
+
+    output.position = clip;
+    output.color = input_vertex.color;
+    output.uv = input_vertex.uv;
+
+    return output;
+}
+
+float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
+    float4 albedo = tImage.Sample(sSampler, input_pixel.uv);
+    return albedo * input_pixel.color;
+}
+
+)";
+    InputLayout* il = _rhi_device->CreateInputLayout();
+    auto pos_offset = offsetof(Vertex3D, position);
+    auto color_offset = offsetof(Vertex3D, color);
+    auto uv_offset = offsetof(Vertex3D, texcoords);
+    il->AddElement(pos_offset, ImageFormat::R32G32B32_FLOAT, "POSITION");
+    il->AddElement(color_offset, ImageFormat::R8G8B8A8_UNORM, "COLOR");
+    il->AddElement(uv_offset, ImageFormat::R32G32_FLOAT, "UV");
+    auto vs_bytecode = _rhi_device->CompileShader("__defaultVS", program.data(), program.size(), "VertexFunction", PipelineStage::VS);
+    ID3D11VertexShader* vs = nullptr;
+    _rhi_device->GetDxDevice()->CreateVertexShader(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize(), nullptr, &vs);
+    il->CreateInputLayout(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize());
+    auto ps_bytecode = _rhi_device->CompileShader("__defaultPS", program.data(), program.size(), "PixelFunction", PipelineStage::PS);
+    ID3D11PixelShader* ps = nullptr;
+    _rhi_device->GetDxDevice()->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBufferSize(), nullptr, &ps);
+    ShaderProgram* shader = new ShaderProgram("__default", _rhi_device, vs, ps, vs_bytecode, ps_bytecode, il);
+    return shader;
+}
+
+ShaderProgram* Renderer::CreateDefaultUnlitShaderProgram() {
     std::string program =
         R"(
 
@@ -397,6 +477,16 @@ struct ps_in_t {
     float2 uv : UV;
 };
 
+SamplerState sSampler : register(s0);
+
+Texture2D<float4> tImage    : register(t0);
+Texture2D<float4> tNormal   : register(t1);
+Texture2D<float4> tLighting : register(t2);
+Texture2D<float4> tSpecular : register(t3);
+Texture2D<float4> tOcclusion : register(t4);
+Texture2D<float4> tEmissive : register(t5);
+
+
 ps_in_t VertexFunction(vs_in_t input_vertex) {
     ps_in_t output;
 
@@ -413,10 +503,12 @@ ps_in_t VertexFunction(vs_in_t input_vertex) {
 }
 
 float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
-    return input_pixel.color;
+    float4 albedo = tImage.Sample(sSampler, input_pixel.uv);
+    return albedo * input_pixel.color;
 }
 
 )";
+
     InputLayout* il = _rhi_device->CreateInputLayout();
     auto pos_offset = offsetof(Vertex3D, position);
     auto color_offset = offsetof(Vertex3D, color);
@@ -424,20 +516,25 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     il->AddElement(pos_offset, ImageFormat::R32G32B32_FLOAT, "POSITION");
     il->AddElement(color_offset, ImageFormat::R8G8B8A8_UNORM, "COLOR");
     il->AddElement(uv_offset, ImageFormat::R32G32_FLOAT, "UV");
-    auto vs_bytecode = _rhi_device->CompileShader("__defaultVS", program.data(), program.size(), "VertexFunction", PipelineStage::VS);
+    auto vs_bytecode = _rhi_device->CompileShader("__unlitVS", program.data(), program.size(), "VertexFunction", PipelineStage::VS);
     ID3D11VertexShader* vs = nullptr;
     _rhi_device->GetDxDevice()->CreateVertexShader(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize(), nullptr, &vs);
     il->CreateInputLayout(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize());
-    auto ps_bytecode = _rhi_device->CompileShader("__defaultPS", program.data(), program.size(), "PixelFunction", PipelineStage::PS);
+    auto ps_bytecode = _rhi_device->CompileShader("__unlitPS", program.data(), program.size(), "PixelFunction", PipelineStage::PS);
     ID3D11PixelShader* ps = nullptr;
     _rhi_device->GetDxDevice()->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBufferSize(), nullptr, &ps);
-    ShaderProgram* shader = new ShaderProgram("__default", _rhi_device, vs, ps, vs_bytecode, ps_bytecode, il);
+    ShaderProgram* shader = new ShaderProgram("__unlit", _rhi_device, vs, ps, vs_bytecode, ps_bytecode, il);
     return shader;
+
 }
 
 void Renderer::CreateAndRegisterDefaultMaterials() {
-    auto mat = CreateDefaultMaterial();
-    RegisterMaterial(mat->GetName(), mat);
+    auto default_mat = CreateDefaultMaterial();
+    RegisterMaterial(default_mat->GetName(), default_mat);
+
+    auto unlit_mat = CreateDefaultUnlitMaterial();
+    RegisterMaterial(unlit_mat->GetName(), unlit_mat);
+
 }
 
 Material* Renderer::CreateDefaultMaterial() {
@@ -455,6 +552,32 @@ R"(
     }
     return new Material(this, *doc.RootElement());
 
+}
+
+Material* Renderer::CreateDefaultUnlitMaterial() {
+    std::string material =
+        R"(
+<material name="__unlit">
+    <shader src="__unlit" />
+</material>
+)";
+
+    tinyxml2::XMLDocument doc;
+    auto parse_result = doc.Parse(material.c_str(), material.size());
+    if(parse_result != tinyxml2::XML_SUCCESS) {
+        return nullptr;
+    }
+    return new Material(this, *doc.RootElement());
+
+}
+
+void Renderer::CreateAndRegisterDefaultSamplers() {
+    auto default_sampler = CreateDefaultSampler();
+    RegisterSampler("__default", default_sampler);
+}
+
+Sampler* Renderer::CreateDefaultSampler() {
+    return new Sampler(_rhi_device, SamplerDesc{});
 }
 
 void Renderer::CreateAndRegisterDefaultRasterStates() {
@@ -520,6 +643,27 @@ RasterState* Renderer::GetRasterState(const std::string& name) {
     return found_iter->second;
 }
 
+void Renderer::CreateAndRegisterSamplerFromSamplerDescription(const std::string& name, const SamplerDesc& desc) {
+    Sampler* sampler = new Sampler(_rhi_device, desc);
+    RegisterSampler(name, sampler);
+}
+
+Sampler* Renderer::GetSampler(const std::string& name) {
+    auto found_iter = _samplers.find(name);
+    if(found_iter == _samplers.end()) {
+        return nullptr;
+    }
+    return found_iter->second;
+}
+
+void Renderer::SetSampler(Sampler* sampler) {
+    if(sampler == _current_sampler) {
+        return;
+    }
+    _current_sampler = sampler;
+    _rhi_context->SetSampler(sampler);
+}
+
 void Renderer::RegisterRasterState(const std::string& name, RasterState* raster) {
     if(raster == nullptr) {
         return;
@@ -530,6 +674,18 @@ void Renderer::RegisterRasterState(const std::string& name, RasterState* raster)
         found_iter->second = nullptr;
     }
     _rasters.insert_or_assign(name, raster);
+}
+
+void Renderer::RegisterSampler(const std::string& name, Sampler* sampler) {
+    if(sampler == nullptr) {
+        return;
+    }
+    auto found_iter = _samplers.find(name);
+    if(found_iter != _samplers.end()) {
+        delete found_iter->second;
+        found_iter->second = nullptr;
+    }
+    _samplers.insert_or_assign(name, sampler);
 }
 
 void Renderer::RegisterShader(const std::string& name, Shader* shader) {
@@ -628,6 +784,9 @@ Texture* Renderer::CreateDefaultEmissiveTexture() {
 void Renderer::CreateAndRegisterDefaultShaders() {
     auto default_shader = CreateDefaultShader();
     RegisterShader(default_shader->GetName(), default_shader);
+
+    auto default_unlit = CreateDefaultUnlitShader();
+    RegisterShader(default_unlit->GetName(), default_unlit);
 }
 
 Shader* Renderer::CreateDefaultShader() {
@@ -635,6 +794,31 @@ Shader* Renderer::CreateDefaultShader() {
 R"(
 <shader name="__default">
     <shaderprogram src="__default" />
+    <raster src="__solid" />
+    <sampler src="__default" />
+    <blends>
+        <blend enable="true">
+            <color src="src_alpha" dest="inv_src_alpha" op="add" />
+        </blend>
+    </blends>
+</shader>
+)";
+    tinyxml2::XMLDocument doc;
+    auto parse_result = doc.Parse(shader.c_str(), shader.size());
+    if(parse_result != tinyxml2::XML_SUCCESS) {
+        return nullptr;
+    }
+
+    return new Shader(this, *doc.RootElement());
+}
+
+Shader* Renderer::CreateDefaultUnlitShader() {
+    std::string shader =
+        R"(
+<shader name="__unlit">
+    <shaderprogram src="__unlit" />
+    <raster src="__solid" />
+    <sampler src="__default" />
     <blends>
         <blend enable="true">
             <color src="src_alpha" dest="inv_src_alpha" op="add" />

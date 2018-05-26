@@ -11,6 +11,7 @@
 #include "Engine/Renderer/IndexBuffer.hpp"
 #include "Engine/Renderer/InputLayout.hpp"
 #include "Engine/Renderer/Material.hpp"
+#include "Engine/Renderer/Sampler.hpp"
 #include "Engine/Renderer/Shader.hpp"
 #include "Engine/Renderer/ShaderProgram.hpp"
 #include "Engine/Renderer/StructuredBuffer.hpp"
@@ -209,6 +210,26 @@ void RHIDeviceContext::SetBlendState(BlendState* blendState /*= nullptr*/) {
     }
 }
 
+void RHIDeviceContext::SetSampler(Sampler* sampler) {
+    if(sampler == nullptr) {
+        ID3D11SamplerState* no_samplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] = { nullptr };
+        _dx_context->VSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, no_samplers);
+        _dx_context->PSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, no_samplers);
+        _dx_context->DSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, no_samplers);
+        _dx_context->HSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, no_samplers);
+        _dx_context->GSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, no_samplers);
+        _dx_context->CSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, no_samplers);
+    } else {
+        ID3D11SamplerState* const dx_sampler = sampler->GetDxSampler();
+        _dx_context->VSSetSamplers(0, 1, &dx_sampler);
+        _dx_context->PSSetSamplers(0, 1, &dx_sampler);
+        _dx_context->DSSetSamplers(0, 1, &dx_sampler);
+        _dx_context->HSSetSamplers(0, 1, &dx_sampler);
+        _dx_context->GSSetSamplers(0, 1, &dx_sampler);
+        _dx_context->CSSetSamplers(0, 1, &dx_sampler);
+    }
+}
+
 void RHIDeviceContext::UnbindAllShaderResources() {
     ID3D11ShaderResourceView* no_srvs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = { nullptr };
     _dx_context->VSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, &no_srvs[0]);
@@ -225,10 +246,12 @@ void RHIDeviceContext::SetShader(Shader* shader) {
         SetRasterState(nullptr);
         SetDepthStencilState(nullptr);
         SetBlendState(nullptr);
+        SetSampler(nullptr);
     } else {
         SetShaderProgram(shader->GetShaderProgram());
         SetRasterState(shader->GetRasterState());
         SetDepthStencilState(shader->GetDepthStencilState());
         SetBlendState(shader->GetBlendState());
+        SetSampler(shader->GetSampler());
     }
 }

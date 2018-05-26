@@ -13,7 +13,7 @@ class Sampler;
 
 class Shader {
 public:
-    Shader(Renderer* renderer, ShaderProgram* shaderProgram = nullptr, DepthStencilState* depthStencil = nullptr, RasterState* rasterState = nullptr, BlendState* blendState = nullptr);
+    Shader(Renderer* renderer, ShaderProgram* shaderProgram = nullptr, DepthStencilState* depthStencil = nullptr, RasterState* rasterState = nullptr, BlendState* blendState = nullptr, Sampler* sampler = nullptr);
     Shader(Renderer* renderer, const XMLElement& element);
     ~Shader();
 
@@ -34,6 +34,10 @@ public:
 protected:
 private:
     bool LoadFromXml(Renderer* renderer, const XMLElement& element);
+
+    void CreateAndRegisterNewSamplerFromXml(const XMLElement& element);
+    void CreateAndRegisterNewRasterFromXml(const XMLElement& element);
+
     std::string _name = "SHADER";
     Renderer* _renderer = nullptr;
     ShaderProgram* _shader_program = nullptr;
@@ -41,4 +45,6 @@ private:
     RasterState* _raster_state = nullptr;
     BlendState* _blend_state = nullptr;
     Sampler* _sampler = nullptr;
+    bool _raster_from_db = false;
+    bool _sampler_from_db = false;
 };

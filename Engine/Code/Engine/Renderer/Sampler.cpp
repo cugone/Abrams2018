@@ -56,6 +56,10 @@ Sampler::~Sampler() {
     _dx_state = nullptr;
 }
 
+ID3D11SamplerState* Sampler::GetDxSampler() const {
+    return _dx_state;
+}
+
 bool Sampler::LoadFromXml(RHIDevice* device, const XMLElement& element) {
 
     SamplerDesc desc;

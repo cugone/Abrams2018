@@ -11,12 +11,14 @@
 #include <filesystem>
 #include <sstream>
 
-Shader::Shader(Renderer* renderer, ShaderProgram* shaderProgram /*= nullptr*/, DepthStencilState* depthStencil /*= nullptr*/, RasterState* rasterState /*= nullptr*/, BlendState* blendState /*= nullptr*/)
-    : _renderer(renderer)
-    , _shader_program(shaderProgram)
-    , _depth_stencil_state(depthStencil)
-    , _raster_state(rasterState)
-    , _blend_state(blendState) {
+Shader::Shader(Renderer* renderer, ShaderProgram* shaderProgram /*= nullptr*/, DepthStencilState* depthStencil /*= nullptr*/, RasterState* rasterState /*= nullptr*/, BlendState* blendState /*= nullptr*/, Sampler* sampler /*= nullptr*/)
+: _renderer(renderer)
+, _shader_program(shaderProgram)
+, _depth_stencil_state(depthStencil)
+, _raster_state(rasterState)
+, _blend_state(blendState)
+, _sampler(sampler)
+{
     std::size_t count = renderer->GetShaderCount();
     std::ostringstream ss;
     ss << '_' << count;
@@ -37,21 +39,12 @@ Shader::Shader(Renderer* renderer, const XMLElement& element)
 
 Shader::~Shader() {
     _renderer = nullptr;
-    if(_sampler) {
-        delete _sampler;
-        _sampler = nullptr;
-    }
-
-    if(_raster_state) {
-        delete _raster_state;
-        _raster_state = nullptr;
-    }
-
+    _sampler = nullptr;
+    _raster_state = nullptr;
     if(_blend_state) {
         delete _blend_state;
         _blend_state = nullptr;
     }
-
     if(_depth_stencil_state) {
         delete _depth_stencil_state;
         _depth_stencil_state = nullptr;
@@ -115,7 +108,7 @@ bool Shader::LoadFromXml(Renderer* renderer, const XMLElement& element) {
 
     DataUtils::ValidateXmlElement(element, "shader", "shaderprogram", "name", "depth,stencil,blends,raster,sampler");
 
-    _name = DataUtils::ParseXmlAttribute(element, std::string("name"), "UNNAMED_SHADER");
+    _name = DataUtils::ParseXmlAttribute(element, std::string("name"), _name);
 
     auto xml_SP = element.FirstChildElement("shaderprogram");
     DataUtils::ValidateXmlElement(*xml_SP, "shaderprogram", "", "src");
@@ -131,15 +124,50 @@ bool Shader::LoadFromXml(Renderer* renderer, const XMLElement& element) {
         ERROR_AND_DIE("ShaderProgram referenced in Shader file does not already exist.");
     }
     _shader_program = program;
-
     _depth_stencil_state = new DepthStencilState(_renderer->GetDevice(), element);
-
     _blend_state = new BlendState(_renderer->GetDevice(), element);
 
-    _raster_state = new RasterState(_renderer->GetDevice(), element);
-
-    _sampler = new Sampler(_renderer->GetDevice(), element);
+    {
+        auto xml_raster = element.FirstChildElement("raster");
+        if(!xml_raster) {
+            CreateAndRegisterNewRasterFromXml(element);
+        } else {
+            std::string rs_src = DataUtils::ParseXmlAttribute(*xml_raster, "src", "");
+            auto found_raster = _renderer->GetRasterState(rs_src);
+            if(!found_raster) {
+                CreateAndRegisterNewRasterFromXml(element);
+            } else {
+                _raster_state = found_raster;
+            }
+        }
+    }
+    {
+        auto xml_sampler = element.FirstChildElement("sampler");
+        if(!xml_sampler) {
+            CreateAndRegisterNewSamplerFromXml(element);
+        } else {
+            std::string s_src = DataUtils::ParseXmlAttribute(*xml_sampler, "src", "");
+            auto found_sampler = _renderer->GetSampler(s_src);
+            if(!found_sampler) {
+                CreateAndRegisterNewRasterFromXml(element);
+            } else {
+                _sampler = found_sampler;
+            }
+        }
+    }
 
     return true;
 
+}
+
+void Shader::CreateAndRegisterNewSamplerFromXml(const XMLElement& element) {
+    _sampler = new Sampler(_renderer->GetDevice(), element);
+    std::string ns = _name + "_sampler";
+    _renderer->RegisterSampler(ns, _sampler);
+}
+
+void Shader::CreateAndRegisterNewRasterFromXml(const XMLElement& element) {
+    _raster_state = new RasterState(_renderer->GetDevice(), element);
+    std::string nr = _name + "_raster";
+    _renderer->RegisterRasterState(nr, _raster_state);
 }

@@ -59,7 +59,7 @@ public:
     explicit Sampler(RHIDevice* device, const SamplerDesc& desc);
     explicit Sampler(RHIDevice* device, const XMLElement& element);
     ~Sampler();
-
+    ID3D11SamplerState* GetDxSampler() const;
 protected:
     bool LoadFromXml(RHIDevice* device, const XMLElement& element);
     bool CreateSamplerState(RHIDevice* device, const SamplerDesc& desc = SamplerDesc());

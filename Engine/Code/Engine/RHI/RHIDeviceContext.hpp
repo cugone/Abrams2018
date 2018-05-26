@@ -13,6 +13,7 @@ class VertexBuffer;
 class IndexBuffer;
 class StructuredBuffer;
 class ConstantBuffer;
+class Sampler;
 class Shader;
 class ShaderProgram;
 class DepthStencilState;
@@ -59,6 +60,7 @@ private:
     void SetDepthStencilState(DepthStencilState* depthStencilState = nullptr);
     void SetRasterState(RasterState* rasterState = nullptr);
     void SetBlendState(BlendState* blendState = nullptr);
+    void SetSampler(Sampler* sampler = nullptr);
 
     static constexpr unsigned int STRUCTURED_BUFFER_OFFSET = 64;
 

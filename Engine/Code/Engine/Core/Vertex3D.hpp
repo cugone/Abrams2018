@@ -13,7 +13,8 @@ public:
     Vertex3D(const Vector3& pos = Vector3::ZERO, const Rgba& color = Rgba::WHITE, const Vector2& tex_coords = Vector2::ZERO);
     Vertex3D(const Vertex3D& other) = default;
     Vertex3D(Vertex3D&& other) = default;
-
+    Vertex3D& operator=(const Vertex3D& other) = default;
+    Vertex3D& operator=(Vertex3D&& other) = default;
     Vector3 position = Vector3::ZERO;
     Rgba color = Rgba::WHITE;
     Vector2 texcoords = Vector2::ZERO;

@@ -12,14 +12,13 @@ public:
     
     float trauma = 0.0f;
     float traumaRecoveryRate = 1.0f;
-    float GetAspectRatio() const;
+    float aspectRatio = MathUtils::M_16_BY_9_RATIO;
+    float fovVerticalDegrees = 60.0f;
+    float nearDistance = 0.01f;
+    float farDistance = 1000.0f;
+    Vector3 position = Vector3::ZERO;
+    Vector3 worldUp = Vector3::Y_AXIS;
 protected:
 private:
-    float _aspectRatio = MathUtils::M_16_BY_9_RATIO;
-    Vector3 _position = Vector3::ZERO;
-    float _fovVerticalDegrees = 60.0f;
-    float _nearDistance = 0.01f;
-    float _farDistance = 1000.0f;
 
-    Vector3 _worldUp = Vector3::Y_AXIS;
 };

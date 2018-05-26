@@ -1,9 +1,11 @@
 #pragma once
 
+class Camera;
+
 class Game {
 public:
-    Game() = default;
-    ~Game() = default;
+    Game();
+    ~Game();
 
     void Initialize();
     void BeginFrame();
@@ -13,4 +15,9 @@ public:
 
 protected:
 private:
+    float _angleDegrees = 0.0f;
+    float _rotationRateDegrees = 45.0f;
+    float _thickness = 0.0f;
+    Camera* _camera = nullptr;
+    size_t _poly_sides = 2;
 };

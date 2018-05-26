@@ -8,7 +8,7 @@ public:
     Camera() = default;
     ~Camera() = default;
 
-    void SetupView(float fovVerticalDegrees, float aspectRatio = MathUtils::M_16_BY_9_RATIO, float nearDistance = 0.01f, float farDistance = 1000.0f, const Vector3& worldUp = Vector3::Y_AXIS);
+    void SetupView(float fov_VerticalDegrees, float aspect_Ratio = MathUtils::M_16_BY_9_RATIO, float near_Distance = 0.01f, float far_Distance = 1000.0f, const Vector3& world_Up = Vector3::Y_AXIS);
     
     float trauma = 0.0f;
     float traumaRecoveryRate = 1.0f;

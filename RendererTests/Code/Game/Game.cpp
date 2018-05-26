@@ -6,6 +6,10 @@
 #include "Engine/Math/MathUtils.hpp"
 
 #include "Engine/Renderer/Camera.hpp"
+#include "Engine/Renderer/Texture.hpp"
+#include "Engine/Renderer/Texture1D.hpp"
+#include "Engine/Renderer/Texture2D.hpp"
+#include "Engine/Renderer/Texture3D.hpp"
 
 #include "Game/GameCommon.hpp"
 #include "Game/GameConfig.hpp"
@@ -22,7 +26,7 @@ Game::~Game() {
 }
 
 void Game::Initialize() {
-    /* DO NOTHING */
+    _tex = g_theRenderer->CreateOrGetTexture("Data/Images/Test_StbiAndDirectX.png", IntVector3::XY_AXIS);
 }
 
 void Game::BeginFrame() {
@@ -42,14 +46,10 @@ void Game::Update(float deltaSeconds) {
     }
 
 
-    if(g_theInput->WasKeyJustPressed(KeyCode::UP)) {
-        if(_poly_sides <= 64) {
-            ++_poly_sides;
-        }
-    } else if(g_theInput->WasKeyJustPressed(KeyCode::DOWN)) {
-        if(_poly_sides > 0) {
-            --_poly_sides;
-        }
+    if(g_theInput->IsKeyDown(KeyCode::UP)) {
+        ++_poly_sides;
+    } else if(g_theInput->IsKeyDown(KeyCode::DOWN)) {
+        --_poly_sides;
     }
 
 
@@ -59,6 +59,7 @@ void Game::Update(float deltaSeconds) {
         _thickness += 0.001f;
     }
 
+    _poly_sides = MathUtils::Clamp(_poly_sides, static_cast<std::size_t>(1), _poly_sides);
     _thickness = MathUtils::Clamp(_thickness, 0.0f, _thickness);
 
 }
@@ -66,7 +67,7 @@ void Game::Update(float deltaSeconds) {
 void Game::Render() const {
 
     g_theRenderer->SetRenderTarget(nullptr);
-    g_theRenderer->ClearColor(Rgba::BLACK);
+    g_theRenderer->ClearColor(Rgba::OLIVE);
     g_theRenderer->ClearDepthStencilBuffer();
 
     g_theRenderer->SetViewport(0, 0, static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
@@ -74,26 +75,18 @@ void Game::Render() const {
 
     g_theRenderer->SetProjectionMatrix(Matrix4::GetIdentity());
 
-    Vector3 cam_pos = Vector3(0.0f, 0.0f, 0.0f);
-    g_theRenderer->SetViewMatrix(Matrix4::CreateTranslationMatrix(-cam_pos));
-    
-    float view_height = 900.0f;
-    float view_width = view_height * _camera->GetAspectRatio();
-    Vector2 view_half_extents = Vector2(view_width, view_height) * 0.50f;
-    Vector2 leftBottom = Vector2(-view_half_extents.x, view_half_extents.y);
-    Vector2 rightTop = Vector2(view_half_extents.x, -view_half_extents.y);
-    g_theRenderer->SetOrthoProjection(leftBottom, rightTop, Vector2(0.0f, 1.0f));
+    //g_theRenderer->SetViewMatrix(Matrix4::CreateTranslationMatrix(-_camera->position));    
+    g_theRenderer->SetViewMatrix(Matrix4::GetIdentity());
+    //g_theRenderer->SetOrthoProjectionFromViewHeight(2.0f, _camera->aspectRatio, 0.0f, 1.0f);
 
     Matrix4 s = Matrix4::GetIdentity();
     Matrix4 t = Matrix4::GetIdentity();
-    Matrix4 r = Matrix4::Create2DRotationDegreesMatrix(_angleDegrees);
+    Matrix4 r = Matrix4::GetIdentity();
     Matrix4 mat = t * r * s;
     g_theRenderer->SetModelMatrix(mat);
     g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__default"));
-    g_theRenderer->DrawCircle2D(Vector2::ZERO, 100.0f);
-    g_theRenderer->DrawPoint2D(Vector2::ZERO);
-    //g_theRenderer->DrawLine2D(Vector2::ZERO, Vector2(800.0f, 0.0f), Rgba::WHITE, _thickness);
-    //g_theRenderer->DrawPolygon2D(Vector2::ZERO, 1.0f, poly_sides);
+    g_theRenderer->SetTexture(_tex);
+    g_theRenderer->DrawQuad2D(Vector2::ZERO, Vector2::ONE);
 
 }
 

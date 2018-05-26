@@ -70,7 +70,7 @@ void App::Initialize() {
             }
         }
     }
-
+    g_theGame->Initialize();
 }
 
 void App::RunFrame() {

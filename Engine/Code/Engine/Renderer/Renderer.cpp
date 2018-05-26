@@ -163,7 +163,9 @@ void Renderer::EndFrame() {
 }
 
 bool Renderer::RegisterTexture(const std::string& name, Texture* texture) {
-    auto found_texture = _textures.find(name);
+    namespace FS = std::experimental::filesystem;
+    FS::path p(name);
+    auto found_texture = _textures.find(p.string());
     if(found_texture == _textures.end()) {
         _textures.insert_or_assign(name, texture);
         return true;
@@ -311,29 +313,29 @@ void Renderer::DrawQuad2D(float left, float bottom, float right, float top, cons
     Vector3 pos1 = Vector3(left, top, 0.0f);
     Vector3 pos2 = Vector3(right, top, 0.0f);
     Vector3 pos3 = Vector3(right, bottom, 0.0f);
-    std::vector<Vertex3D> vbo;
-    vbo.clear();
-    vbo.reserve(4);
-    vbo.push_back(Vertex3D(pos0, color));
-    vbo.push_back(Vertex3D(pos1, color));
-    vbo.push_back(Vertex3D(pos2, color));
-    vbo.push_back(Vertex3D(pos3, color));
-    std::vector<unsigned int> ibo;
-    ibo.clear();
-    ibo.reserve(6);
-    ibo.push_back(0);
-    ibo.push_back(1);
-    ibo.push_back(2);
-    ibo.push_back(0);
-    ibo.push_back(2);
-    ibo.push_back(3);
+    Vector2 uv_lb = Vector2(0.0f, 0.0f);
+    Vector2 uv_lt = Vector2(0.0f, 1.0f);
+    Vector2 uv_rb = Vector2(1.0f, 0.0f);
+    Vector2 uv_rt = Vector2(1.0f, 1.0f);
+    std::vector<Vertex3D> vbo = {
+     Vertex3D(pos0, color, uv_lb)
+    ,Vertex3D(pos1, color, uv_lt)
+    ,Vertex3D(pos2, color, uv_rt)
+    ,Vertex3D(pos3, color, uv_rb)
+    };
+    std::vector<unsigned int> ibo = {
+          0, 1, 2
+        , 0, 2, 3
+    };
     DrawIndexed(PrimitiveType::TRIANGLES, vbo, ibo);
 }
 
 void Renderer::DrawQuad2D(const Vector2& position, const Vector2& halfExtents, const Rgba& color /*= Rgba::WHITE*/) {
-    Vector2 leftBottom = position - halfExtents;
-    Vector2 rightTop = position + halfExtents;
-    DrawQuad2D(leftBottom.x, leftBottom.y, rightTop.x, rightTop.y, color);
+    float left = position.x - halfExtents.x;
+    float bottom = position.y + halfExtents.y;
+    float right = position.x + halfExtents.x;
+    float top = position.y - halfExtents.y;
+    DrawQuad2D(left, bottom, right, top, color);
 }
 
 void Renderer::DrawCircle2D(float centerX, float centerY, float radius, const Rgba& color /*= Rgba::WHITE*/) {

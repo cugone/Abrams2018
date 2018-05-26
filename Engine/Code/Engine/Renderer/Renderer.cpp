@@ -8,6 +8,8 @@
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/Vertex3D.hpp"
 
+#include "Engine/Math/MathUtils.hpp"
+
 #include "Engine/RHI/RHIInstance.hpp"
 #include "Engine/RHI/RHIDevice.hpp"
 #include "Engine/RHI/RHIDeviceContext.hpp"
@@ -122,6 +124,8 @@ void Renderer::Initialize() {
     IndexBuffer::buffer_t default_ibo(1024);
     _temp_vbo = _rhi_device->CreateVertexBuffer(default_vbo, BufferUsage::DYNAMIC, BufferBindUsage::VERTEX_BUFFER);
     _temp_ibo = _rhi_device->CreateIndexBuffer(default_ibo, BufferUsage::DYNAMIC, BufferBindUsage::INDEX_BUFFER);
+    _current_vbo_size = default_vbo.size();
+    _current_ibo_size = default_ibo.size();
     }
 
     _matrix_cb = _rhi_device->CreateConstantBuffer(&_matrix_data, sizeof(_matrix_data), BufferUsage::DYNAMIC, BufferBindUsage::CONSTANT_BUFFER);
@@ -172,8 +176,9 @@ Texture* Renderer::GetTexture(const std::string& nameOrFile) {
 }
 
 void Renderer::DrawPoint(const Vertex3D& point) {
-    static std::vector<Vertex3D> vbo = { point };
-    Draw(PrimitiveType::POINTS, vbo);
+    std::vector<Vertex3D> vbo = { point };
+    std::vector<unsigned int> ibo = { 0 };
+    DrawIndexed(PrimitiveType::POINTS, vbo, ibo);
 }
 
 void Renderer::DrawPoint(const Vector3& point, const Rgba& color /*= Rgba::WHITE*/, const Vector2& tex_coords /*= Vector2::ZERO*/) {
@@ -225,21 +230,82 @@ void Renderer::DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, Ind
     _rhi_context->DrawIndexed(index_count);
 }
 
+void Renderer::DrawPoint2D(float pointX, float pointY, const Rgba& color /*= Rgba::WHITE*/) {
+    DrawPoint(Vertex3D(Vector3(Vector2(pointX, pointY), 0.0f), color));
+}
+void Renderer::DrawPoint2D(const Vector2& point, const Rgba& color /*= Rgba::WHITE*/) {
+    DrawPoint2D(point.x, point.y, color);
+}
+
+void Renderer::DrawLine2D(float startX, float startY, float endX, float endY, const Rgba& color /*= Rgba::WHITE*/, float thickness /*= 0.0f*/) {
+    bool use_thickness = thickness > 0.0f;
+    if(!use_thickness) {
+        Vertex3D start = Vertex3D(Vector3(Vector2(startX, startY), 0.0f), color);
+        Vertex3D end = Vertex3D(Vector3(Vector2(endX, endY), 0.0f), color);
+        std::vector<Vertex3D> vbo;
+        vbo.clear();
+        vbo.reserve(2);
+        vbo.push_back(start);
+        vbo.push_back(end);
+        std::vector<unsigned int> ibo;
+        ibo.clear();
+        ibo.reserve(2);
+        ibo.push_back(0);
+        ibo.push_back(1);
+        DrawIndexed(PrimitiveType::LINES, vbo, ibo);
+        return;
+    }
+    Vector3 start = Vector3(Vector2(startX, startY), 0.0f);
+    Vector3 end = Vector3(Vector2(endX, endY), 0.0f);
+    Vector3 displacement = end - start;
+    float length = displacement.CalcLength();
+    if(length > 0.0f) {
+        Vector3 direction = displacement.GetNormalize();
+        Vector3 left_normal = Vector3(-direction.y, direction.x, 0.0f);
+        Vector3 right_normal = Vector3(direction.y, -direction.x, 0.0f);
+        Vector3 start_left = start + left_normal * thickness * 0.5f;
+        Vector3 start_right = start + right_normal * thickness * 0.5f;
+        Vector3 end_left = end + left_normal * thickness * 0.5f;
+        Vector3 end_right = end + right_normal * thickness * 0.5f;
+        std::vector<Vertex3D> vbo;
+        vbo.clear();
+        vbo.reserve(4);
+        vbo.push_back(Vertex3D(start_right, color));
+        vbo.push_back(Vertex3D(start_left, color));
+        vbo.push_back(Vertex3D(end_left, color));
+        vbo.push_back(Vertex3D(end_right, color));
+        std::vector<unsigned int> ibo;
+        ibo.clear();
+        ibo.reserve(6);
+        ibo.push_back(0);
+        ibo.push_back(1);
+        ibo.push_back(2);
+        ibo.push_back(0);
+        ibo.push_back(2);
+        ibo.push_back(3);
+        DrawIndexed(PrimitiveType::TRIANGLES, vbo, ibo);
+    }
+}
+
+void Renderer::DrawLine2D(const Vector2& start, const Vector2& end, const Rgba& color /*= Rgba::WHITE*/, float thickness /*= 0.0f*/) {
+    DrawLine2D(start.x, start.y, end.x, end.y, color, thickness);
+}
+
 void Renderer::DrawQuad2D(float left, float bottom, float right, float top, const Rgba& color /*= Rgba::WHITE*/) {
     Vector3 pos0 = Vector3(left, bottom, 0.0f);
     Vector3 pos1 = Vector3(left, top, 0.0f);
     Vector3 pos2 = Vector3(right, top, 0.0f);
     Vector3 pos3 = Vector3(right, bottom, 0.0f);
-    static std::vector<Vertex3D> vbo;
-    vbo.reserve(4);
+    std::vector<Vertex3D> vbo;
     vbo.clear();
+    vbo.reserve(4);
     vbo.push_back(Vertex3D(pos0, color));
     vbo.push_back(Vertex3D(pos1, color));
     vbo.push_back(Vertex3D(pos2, color));
     vbo.push_back(Vertex3D(pos3, color));
-    static std::vector<unsigned int> ibo;
-    ibo.reserve(6);
+    std::vector<unsigned int> ibo;
     ibo.clear();
+    ibo.reserve(6);
     ibo.push_back(0);
     ibo.push_back(1);
     ibo.push_back(2);
@@ -253,6 +319,42 @@ void Renderer::DrawQuad2D(const Vector2& position, const Vector2& halfExtents, c
     Vector2 leftBottom = position - halfExtents;
     Vector2 rightTop = position + halfExtents;
     DrawQuad2D(leftBottom.x, leftBottom.y, rightTop.x, rightTop.y, color);
+}
+
+void Renderer::DrawCircle2D(float centerX, float centerY, float radius, const Rgba& color /*= Rgba::WHITE*/) {
+    DrawPolygon2D(centerX, centerY, radius, 65, color);
+}
+
+void Renderer::DrawCircle2D(const Vector2& center, float radius, const Rgba& color /*= Rgba::WHITE*/) {
+    DrawCircle2D(center.x, center.y, radius, color);
+}
+
+void Renderer::DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides /*= 3*/, const Rgba& color /*= Rgba::WHITE*/) {
+    if(numSides > 0) {
+        std::vector<Vertex3D> vbo = {};
+        vbo.clear();
+        vbo.reserve(numSides);
+        const float inv_num_sides = 1.0f / numSides;
+        const float anglePerSide = 360.0f * inv_num_sides;
+        const float max_angle = 360.0f;
+        Vector3 center = Vector3(centerX, centerY, 0.0f);
+        for(float angle = 0.0f; angle < max_angle; angle += anglePerSide) {
+            const float angleRadians = MathUtils::ConvertDegreesToRadians(angle);
+            vbo.push_back(Vertex3D(center + (radius * Vector3(std::cos(angleRadians), std::sin(angleRadians), 0.0f)), color));
+        }
+        std::vector<unsigned int> ibo = {};
+        ibo.clear();
+        ibo.reserve(numSides + 1);
+        for(std::size_t i = 0; i < numSides; ++i) {
+            ibo.push_back(i);
+        }
+        ibo.push_back(0);
+        DrawIndexed(PrimitiveType::LINESSTRIP, vbo, ibo);
+    }
+}
+
+void Renderer::DrawPolygon2D(const Vector2& center, float radius, std::size_t numSides /*= 3*/, const Rgba& color /*= Rgba::WHITE*/) {
+    DrawPolygon2D(center.x, center.y, radius, numSides, color);
 }
 
 void Renderer::CreateAndRegisterDefaultShaderPrograms() {

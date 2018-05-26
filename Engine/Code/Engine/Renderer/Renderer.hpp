@@ -151,8 +151,17 @@ public:
     void SetConstantBuffer(unsigned int index, ConstantBuffer* buffer);
     void SetStructuredBuffer(unsigned int index, StructuredBuffer* buffer);
 
+    void DrawPoint2D(float pointX, float pointY, const Rgba& color = Rgba::WHITE);
+    void DrawPoint2D(const Vector2& point, const Rgba& color = Rgba::WHITE);
+    void DrawLine2D(float startX, float startY, float endX, float endY, const Rgba& color = Rgba::WHITE, float thickness = 0.0f);
+    void DrawLine2D(const Vector2& start, const Vector2& end, const Rgba& color = Rgba::WHITE, float thickness = 0.0f);
     void DrawQuad2D(float left, float bottom, float right, float top, const Rgba& color = Rgba::WHITE);
     void DrawQuad2D(const Vector2& position, const Vector2& halfExtents, const Rgba& color = Rgba::WHITE);
+    void DrawCircle2D(float centerX, float centerY, float radius, const Rgba& color = Rgba::WHITE);
+    void DrawCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::WHITE);
+
+    void DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::WHITE);
+    void DrawPolygon2D(const Vector2& center, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::WHITE);
 
 protected:
 private:

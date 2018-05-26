@@ -15,6 +15,7 @@
 #include <string>
 
 class BlendState;
+class Camera;
 class ConstantBuffer;
 class DepthStencilState;
 class IndexBuffer;
@@ -142,8 +143,11 @@ public:
     void SetViewMatrix(const Matrix4& mat);
     void SetProjectionMatrix(const Matrix4& mat);
     void SetOrthoProjection(const Vector2& leftBottom, const Vector2& rightTop, const Vector2& near_far);
+    void SetOrthoProjection(const Vector2& dimensions, const Vector2& origin, float nearz, float farz);
+    void SetOrthoProjectionFromViewHeight(float viewHeight, float aspectRatio, float nearz, float farz);
+    void SetOrthoProjectionFromViewWidth(float viewWidth, float aspectRatio, float nearz, float farz);
     void SetPerspectiveProjection(const Vector2& vfovDegrees_aspect, const Vector2& nz_fz);
-    //void SetPerspectiveProjectionFromCamera(const Camera3D& camera);
+    void SetPerspectiveProjectionFromCamera(const Camera& camera);
 
     void AppendModelMatrix(const Matrix4& modelMatrix);
 
@@ -202,8 +206,6 @@ private:
     RasterState* CreateSolidNoCullingRaster();
     RasterState* CreateWireframeFrontCullingRaster();
     RasterState* CreateSolidFrontCullingRaster();
-    RasterState* CreateWireframeBothCullingRaster();
-    RasterState* CreateSolidBothCullingRaster();
 
     void UnbindAllShaderResources();
 

@@ -9,12 +9,14 @@
 #include "Engine/Core/Vertex3D.hpp"
 
 #include "Engine/Math/MathUtils.hpp"
+#include "Engine/Math/Vector2.hpp"
 
 #include "Engine/RHI/RHIInstance.hpp"
 #include "Engine/RHI/RHIDevice.hpp"
 #include "Engine/RHI/RHIDeviceContext.hpp"
 #include "Engine/RHI/RHIOutput.hpp"
 
+#include "Engine/Renderer/Camera.hpp"
 #include "Engine/Renderer/ConstantBuffer.hpp"
 #include "Engine/Renderer/DepthStencilState.hpp"
 #include "Engine/Renderer/InputLayout.hpp"
@@ -231,7 +233,15 @@ void Renderer::DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, Ind
 }
 
 void Renderer::DrawPoint2D(float pointX, float pointY, const Rgba& color /*= Rgba::WHITE*/) {
-    DrawPoint(Vertex3D(Vector3(Vector2(pointX, pointY), 0.0f), color));
+    std::vector<Vertex3D> vbo;
+    vbo.clear();
+    vbo.reserve(1);
+    vbo.push_back(Vertex3D(Vector3(pointX, pointY, 0.0f), color));
+    std::vector<unsigned int> ibo;
+    ibo.clear();
+    ibo.reserve(1);
+    ibo.push_back(0);
+    DrawIndexed(PrimitiveType::POINTS, vbo, ibo);
 }
 void Renderer::DrawPoint2D(const Vector2& point, const Rgba& color /*= Rgba::WHITE*/) {
     DrawPoint2D(point.x, point.y, color);
@@ -330,27 +340,29 @@ void Renderer::DrawCircle2D(const Vector2& center, float radius, const Rgba& col
 }
 
 void Renderer::DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides /*= 3*/, const Rgba& color /*= Rgba::WHITE*/) {
-    if(numSides > 0) {
-        std::vector<Vertex3D> vbo = {};
-        vbo.clear();
-        vbo.reserve(numSides);
-        const float inv_num_sides = 1.0f / numSides;
-        const float anglePerSide = 360.0f * inv_num_sides;
-        const float max_angle = 360.0f;
-        Vector3 center = Vector3(centerX, centerY, 0.0f);
-        for(float angle = 0.0f; angle < max_angle; angle += anglePerSide) {
-            const float angleRadians = MathUtils::ConvertDegreesToRadians(angle);
-            vbo.push_back(Vertex3D(center + (radius * Vector3(std::cos(angleRadians), std::sin(angleRadians), 0.0f)), color));
-        }
-        std::vector<unsigned int> ibo = {};
-        ibo.clear();
-        ibo.reserve(numSides + 1);
-        for(std::size_t i = 0; i < numSides; ++i) {
-            ibo.push_back(i);
-        }
-        ibo.push_back(0);
-        DrawIndexed(PrimitiveType::LINESSTRIP, vbo, ibo);
+    float num_sides_as_float = static_cast<float>(numSides);
+    std::vector<Vector3> verts;
+    verts.reserve(numSides);
+    float anglePerVertex = 360.0f / num_sides_as_float;
+    for(float degrees = 0.0f; degrees < 360.0f; degrees += anglePerVertex) {
+        float radians = MathUtils::ConvertDegreesToRadians(degrees);
+        float pX = radius * std::cos(radians) + centerX;
+        float pY = radius * std::sin(radians) + centerY;
+        verts.push_back(Vector3(Vector2(pX, pY), 0.0f));
     }
+
+    std::vector<Vertex3D> vbo;
+    vbo.resize(verts.size());
+    for(std::size_t i = 0; i < vbo.size(); ++i) {
+        vbo[i] = Vertex3D(verts[i], color);
+    }
+
+    std::vector<unsigned int> ibo;
+    ibo.resize(numSides + 1);
+    for(std::size_t i = 0; i < ibo.size(); ++i) {
+        ibo[i] = i % numSides;
+    }
+    DrawIndexed(PrimitiveType::LINESSTRIP, vbo, ibo);
 }
 
 void Renderer::DrawPolygon2D(const Vector2& center, float radius, std::size_t numSides /*= 3*/, const Rgba& color /*= Rgba::WHITE*/) {
@@ -493,16 +505,6 @@ RasterState* Renderer::CreateWireframeFrontCullingRaster() {
 
 RasterState* Renderer::CreateSolidFrontCullingRaster() {
     RasterState* state = new RasterState(_rhi_device, FillMode::SOLID, CullMode::FRONT, true);
-    return state;
-}
-
-RasterState* Renderer::CreateWireframeBothCullingRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::WIREFRAME, CullMode::BOTH, true);
-    return state;
-}
-
-RasterState* Renderer::CreateSolidBothCullingRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::SOLID, CullMode::BOTH, true);
     return state;
 }
 
@@ -802,20 +804,41 @@ void Renderer::SetOrthoProjection(const Vector2& leftBottom, const Vector2& righ
     SetProjectionMatrix(proj);
 }
 
-//void SimpleRenderer::SetOrthoProjection(const Vector2& dimensions, const Vector2& origin) {
-//    Vector2 leftBottom = Vector2(origin.x - dimensions.x, origin.y + dimensions.y);
-//    Vector2 rightTop = Vector2(origin.x + dimensions.x, origin.y - dimensions.y);
-//    SetOrthoProjection(leftBottom, rightTop, Vector2(0.0f, 1.0f));
-//}
+void Renderer::SetOrthoProjection(const Vector2& dimensions, const Vector2& origin, float nearz, float farz) {
+    Vector2 half_extents = dimensions * 0.5f;
+    Vector2 leftBottom = Vector2(origin.x - half_extents.x, origin.y + half_extents.y);
+    Vector2 rightTop = Vector2(origin.x + half_extents.x, origin.y - half_extents.y);
+    SetOrthoProjection(leftBottom, rightTop, Vector2(nearz, farz));
+}
+
+void Renderer::SetOrthoProjectionFromViewHeight(float viewHeight, float aspectRatio, float nearz, float farz) {
+    float view_height = viewHeight;
+    float view_width = view_height * aspectRatio;
+    Vector2 view_half_extents = Vector2(view_width, view_height) * 0.50f;
+    Vector2 leftBottom = Vector2(-view_half_extents.x, view_half_extents.y);
+    Vector2 rightTop = Vector2(view_half_extents.x, -view_half_extents.y);
+    SetOrthoProjection(leftBottom, rightTop, Vector2(nearz, farz));
+}
+
+void Renderer::SetOrthoProjectionFromViewWidth(float viewWidth, float aspectRatio, float nearz, float farz) {
+    float inv_aspect_ratio = 1.0f / aspectRatio;
+    float view_width = viewWidth;
+    float view_height = view_width * inv_aspect_ratio;
+    Vector2 view_half_extents = Vector2(view_width, view_height) * 0.50f;
+    Vector2 leftBottom = Vector2(-view_half_extents.x, view_half_extents.y);
+    Vector2 rightTop = Vector2(view_half_extents.x, -view_half_extents.y);
+    SetOrthoProjection(leftBottom, rightTop, Vector2(nearz, farz));
+}
+
 
 void Renderer::SetPerspectiveProjection(const Vector2& vfovDegrees_aspect, const Vector2& nz_fz) {
     Matrix4 proj = Matrix4::CreateDXPerspectiveProjection(vfovDegrees_aspect.x, vfovDegrees_aspect.y, nz_fz.x, nz_fz.y);
     SetProjectionMatrix(proj);
 }
 
-//void Renderer::SetPerspectiveProjectionFromCamera(const Camera3D& camera) {
-//    SetPerspectiveProjection({ camera.m_fovVerticalDegrees, camera.m_aspectRatio }, { camera.m_nearDistance, camera.m_farDistance });
-//}
+void Renderer::SetPerspectiveProjectionFromCamera(const Camera& camera) {
+    SetPerspectiveProjection(Vector2{ camera.fovVerticalDegrees, camera.aspectRatio }, Vector2{ camera.nearDistance, camera.farDistance });
+}
 
 void Renderer::SetConstantBuffer(unsigned int index, ConstantBuffer* buffer) {
     _rhi_context->SetConstantBuffer(index, buffer);

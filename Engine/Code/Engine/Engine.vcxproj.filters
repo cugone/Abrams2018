@@ -217,7 +217,7 @@
     <ClCompile Include="Renderer\Camera2D.cpp">
       <Filter>Renderer\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\FileLogger.cpp">
+    <ClCompile Include="Core\FileLogger.cpp">
       <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -426,7 +426,7 @@
     <ClInclude Include="Renderer\Camera2D.hpp">
       <Filter>Renderer\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\FileLogger.hpp">
+    <ClInclude Include="Core\FileLogger.hpp">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

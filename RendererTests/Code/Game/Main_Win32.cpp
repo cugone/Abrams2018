@@ -26,6 +26,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpC
 
 
 void Initialize(HINSTANCE /*hInstance*/, LPWSTR /*lpCmdLine*/, int /*nShowCmd*/) {
+    
+    g_theFileLogger = new FileLogger();
     g_theApp = new App();
 
     g_theInput->SetNextHandler(g_theApp);
@@ -33,6 +35,7 @@ void Initialize(HINSTANCE /*hInstance*/, LPWSTR /*lpCmdLine*/, int /*nShowCmd*/)
 
     g_theSubsystemHead = g_theInput;
 
+    g_theFileLogger->Initialize("game");
     g_theApp->Initialize();
 }
 
@@ -53,4 +56,6 @@ void Shutdown() {
     delete g_theApp;
     g_theApp = nullptr;
     g_theSubsystemHead = nullptr;
+    delete g_theFileLogger;
+    g_theFileLogger = nullptr;
 }

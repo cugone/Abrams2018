@@ -5,3 +5,4 @@ Renderer* g_theRenderer = nullptr;
 Game* g_theGame = nullptr;
 InputSystem* g_theInput = nullptr;
 EngineSubsystem* g_theSubsystemHead = nullptr;
+FileLogger* g_theFileLogger = nullptr;

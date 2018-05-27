@@ -1,6 +1,7 @@
 #pragma once
 
 class Camera3D;
+class Camera2D;
 class Texture;
 
 class Game {
@@ -17,8 +18,9 @@ public:
 protected:
 private:
     float _angleDegrees = 0.0f;
-    float _rotationRateDegrees = 0.0f;
-    float _cameraSpeed = 1.0f;
-    Camera3D* _camera = nullptr;
+    float _rotationRateDegrees = 10.0f;
+    float _cameraSpeed = 10.0f;
+    Camera3D* _camera3 = nullptr;
+    Camera2D* _camera2 = nullptr;
     Texture* _tex = nullptr;
 };

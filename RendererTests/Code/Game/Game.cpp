@@ -6,6 +6,7 @@
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/IntVector2.hpp"
 
+#include "Engine/Renderer/Camera2D.hpp"
 #include "Engine/Renderer/Camera3D.hpp"
 #include "Engine/Renderer/Texture.hpp"
 #include "Engine/Renderer/Texture1D.hpp"
@@ -20,16 +21,21 @@
 #include <sstream>
 
 Game::Game() {
-    _camera = new Camera3D;
+    _camera3 = new Camera3D;
+    _camera2 = new Camera2D;
 }
 
 Game::~Game() {
-    delete _camera;
-    _camera = nullptr;
+    delete _camera3;
+    _camera3 = nullptr;
+    delete _camera2;
+    _camera2 = nullptr;
 }
 
 void Game::Initialize() {
     _tex = g_theRenderer->CreateOrGetTexture("Data/Images/Test_StbiAndDirectX.png", IntVector3::XY_AXIS);
+    _camera2->SetRotationDegrees(45.0f);
+    _camera2->Translate(Vector2(50.0f, 50.0f));
 }
 
 void Game::BeginFrame() {
@@ -50,16 +56,35 @@ void Game::Update(float deltaSeconds) {
 
 
     if(g_theInput->IsKeyDown(KeyCode::UP)) {
-        _camera->Translate2D(0.0f, _cameraSpeed);
+        _camera3->Translate(0.0f, _cameraSpeed);
+        _camera2->Translate(0.0f, _cameraSpeed);
     } else if(g_theInput->IsKeyDown(KeyCode::DOWN)) {
-        _camera->Translate2D(0.0f, -_cameraSpeed);
+        _camera3->Translate(0.0f, -_cameraSpeed);
+        _camera2->Translate(0.0f, -_cameraSpeed);
     }
 
     if(g_theInput->IsKeyDown(KeyCode::LEFT)) {
-        _camera->Translate2D(-_cameraSpeed, 0.0f);
+        _camera3->Translate(-_cameraSpeed, 0.0f);
+        _camera2->Translate(-_cameraSpeed, 0.0f);
     } else if(g_theInput->IsKeyDown(KeyCode::RIGHT)) {
-        _camera->Translate2D(_cameraSpeed, 0.0f);
+        _camera3->Translate(_cameraSpeed, 0.0f);
+        _camera2->Translate(_cameraSpeed, 0.0f);
     }
+
+    if(g_theInput->IsKeyDown(KeyCode::R)) {
+        _camera2->SetRotationDegrees(0.0f);
+        _camera2->SetPosition(Vector2::ZERO);
+    }
+    if(g_theInput->IsKeyDown(KeyCode::E)) {
+        _camera2->ApplyRotationDegrees(-_rotationRateDegrees * deltaSeconds);
+    } else if(g_theInput->IsKeyDown(KeyCode::Q)) {
+        _camera2->ApplyRotationDegrees(_rotationRateDegrees * deltaSeconds);
+    }
+
+
+
+    _camera3->Update(deltaSeconds);
+    _camera2->Update(deltaSeconds);
 
 }
 
@@ -70,7 +95,7 @@ void Game::Render() const {
     g_theRenderer->ClearDepthStencilBuffer();
 
     g_theRenderer->SetViewport(0, 0, static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
-    _camera->SetupView(90.0f);
+    //_camera3->SetupView(90.0f);
 
     const auto& window_dimensions = g_theRenderer->GetOutput()->GetDimensions();
     float window_width = static_cast<float>(window_dimensions.x);
@@ -78,17 +103,14 @@ void Game::Render() const {
     float view_half_width  = window_width * 0.50f;
     float view_half_height = window_height * 0.50f;
 
-    Vector2 leftBottom = Vector2(-view_half_width, view_half_height);
-    Vector2 rightTop   = Vector2(view_half_width, -view_half_height);
+    Vector2 leftBottom = Vector2(-view_half_width, -view_half_height);
+    Vector2 rightTop   = Vector2(view_half_width, view_half_height);
     Vector2 nearFar = Vector2(0.0f, 1.0f);
-    Vector2 cam_pos = Vector2(_camera->GetPosition());
+    Vector2 cam_pos2 = Vector2(_camera2->GetPosition());
+    _camera2->SetupView(leftBottom, rightTop, nearFar, MathUtils::M_16_BY_9_RATIO, -Vector3::Y_AXIS);
 
-    Matrix4 vT = Matrix4::CreateTranslationMatrix(cam_pos);
-    Matrix4 v = vT;
-    g_theRenderer->SetViewMatrix(v);
-    //g_theRenderer->SetOrthoProjection(leftBottom, rightTop, nearFar);
-    //g_theRenderer->SetProjectionMatrix(_camera->GetProjectionMatrix());
-    //g_theRenderer->SetOrthoProjectionFromViewWidth(1600.0f, _camera->GetAspectRatio(), _camera->GetNearDistance(), _camera->GetFarDistance());
+    g_theRenderer->SetViewMatrix(_camera2->GetViewMatrix());
+    g_theRenderer->SetProjectionMatrix(_camera2->GetProjectionMatrix());
     Matrix4 s = Matrix4::CreateScaleMatrix(Vector2((float)_tex->GetDimensions().x, (float)_tex->GetDimensions().y) * 0.50f);
     Matrix4 t = Matrix4::GetIdentity();
     Matrix4 r = Matrix4::GetIdentity();

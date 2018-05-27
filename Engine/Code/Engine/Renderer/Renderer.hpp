@@ -11,6 +11,7 @@
 #include "Engine/Renderer/StructuredBuffer.hpp"
 #include "Engine/Renderer/VertexBuffer.hpp"
 
+#include <filesystem>
 #include <map>
 #include <string>
 
@@ -136,6 +137,8 @@ public:
 
     void SetVSync(bool value);
 
+    bool RegisterMaterial(const std::string filepath);
+    void RegisterMaterialsFromFolder(const std::string& folderpath, bool recursive = false);
     std::size_t GetMaterialCount();
     Material* GetMaterial(const std::string& nameOrFile);
     void SetMaterial(Material* material);
@@ -178,6 +181,8 @@ private:
     void RegisterShaderProgram(const std::string& name, ShaderProgram * sp);
     void RegisterShader(const std::string& name, Shader* shader);
     void RegisterMaterial(const std::string name, Material* mat);
+    bool RegisterMaterial(const std::experimental::filesystem::path& filepath);
+    void RegisterMaterialsFromFolder(const std::experimental::filesystem::path& folderpath, bool recursive = false);
     void RegisterRasterState(const std::string& name, RasterState* raster);
     void RegisterSampler(const std::string& name, Sampler* sampler);
 

@@ -257,18 +257,15 @@ void Renderer::DrawPoint2D(const Vector2& point, const Rgba& color /*= Rgba::WHI
 void Renderer::DrawLine2D(float startX, float startY, float endX, float endY, const Rgba& color /*= Rgba::WHITE*/, float thickness /*= 0.0f*/) {
     bool use_thickness = thickness > 0.0f;
     if(!use_thickness) {
-        Vertex3D start = Vertex3D(Vector3(Vector2(startX, startY), 0.0f), color);
-        Vertex3D end = Vertex3D(Vector3(Vector2(endX, endY), 0.0f), color);
-        std::vector<Vertex3D> vbo;
-        vbo.clear();
-        vbo.reserve(2);
-        vbo.push_back(start);
-        vbo.push_back(end);
-        std::vector<unsigned int> ibo;
-        ibo.clear();
-        ibo.reserve(2);
-        ibo.push_back(0);
-        ibo.push_back(1);
+        Vertex3D start = Vertex3D(Vector3(Vector2(startX, startY), 0.0f), color, Vector2::ZERO);
+        Vertex3D end = Vertex3D(Vector3(Vector2(endX, endY), 0.0f), color, Vector2::ONE);
+        std::vector<Vertex3D> vbo = {
+            start
+            , end
+        };
+        std::vector<unsigned int> ibo = {
+            0, 1
+        };
         DrawIndexed(PrimitiveType::LINES, vbo, ibo);
         return;
     }
@@ -284,23 +281,7 @@ void Renderer::DrawLine2D(float startX, float startY, float endX, float endY, co
         Vector3 start_right = start + right_normal * thickness * 0.5f;
         Vector3 end_left = end + left_normal * thickness * 0.5f;
         Vector3 end_right = end + right_normal * thickness * 0.5f;
-        std::vector<Vertex3D> vbo;
-        vbo.clear();
-        vbo.reserve(4);
-        vbo.push_back(Vertex3D(start_right, color));
-        vbo.push_back(Vertex3D(start_left, color));
-        vbo.push_back(Vertex3D(end_left, color));
-        vbo.push_back(Vertex3D(end_right, color));
-        std::vector<unsigned int> ibo;
-        ibo.clear();
-        ibo.reserve(6);
-        ibo.push_back(0);
-        ibo.push_back(1);
-        ibo.push_back(2);
-        ibo.push_back(0);
-        ibo.push_back(2);
-        ibo.push_back(3);
-        DrawIndexed(PrimitiveType::TRIANGLES, vbo, ibo);
+        DrawQuad2D(Vector2(start + direction * length * 0.5f), Vector2(displacement * 0.5f), color);
     }
 }
 
@@ -309,19 +290,19 @@ void Renderer::DrawLine2D(const Vector2& start, const Vector2& end, const Rgba& 
 }
 
 void Renderer::DrawQuad2D(float left, float bottom, float right, float top, const Rgba& color /*= Rgba::WHITE*/) {
-    Vector3 pos0 = Vector3(left, bottom, 0.0f);
-    Vector3 pos1 = Vector3(left, top, 0.0f);
-    Vector3 pos2 = Vector3(right, top, 0.0f);
-    Vector3 pos3 = Vector3(right, bottom, 0.0f);
-    Vector2 uv_lb = Vector2(0.0f, 0.0f);
-    Vector2 uv_lt = Vector2(0.0f, 1.0f);
-    Vector2 uv_rb = Vector2(1.0f, 0.0f);
-    Vector2 uv_rt = Vector2(1.0f, 1.0f);
+    Vector3 v_lb = Vector3(left, bottom, 0.0f);
+    Vector3 v_rt = Vector3(right, top, 0.0f);
+    Vector3 v_lt = Vector3(left, top, 0.0f);
+    Vector3 v_rb = Vector3(right, bottom, 0.0f);
+    Vector2 uv_lt = Vector2(0.0f, 0.0f);
+    Vector2 uv_lb = Vector2(0.0f, 1.0f);
+    Vector2 uv_rt = Vector2(1.0f, 0.0f);
+    Vector2 uv_rb = Vector2(1.0f, 1.0f);
     std::vector<Vertex3D> vbo = {
-     Vertex3D(pos0, color, uv_lb)
-    ,Vertex3D(pos1, color, uv_lt)
-    ,Vertex3D(pos2, color, uv_rt)
-    ,Vertex3D(pos3, color, uv_rb)
+     Vertex3D(v_lb, color, uv_lb)
+    ,Vertex3D(v_lt, color, uv_lt)
+    ,Vertex3D(v_rt, color, uv_rt)
+    ,Vertex3D(v_rb, color, uv_rb)
     };
     std::vector<unsigned int> ibo = {
           0, 1, 2
@@ -847,10 +828,57 @@ void Renderer::RegisterMaterial(const std::string name, Material* mat) {
     }
     auto found_iter = _materials.find(name);
     if(found_iter != _materials.end()) {
+        std::ostringstream ss;
+        //TODO: File Logger!
+        ss << __FUNCTION__ << ": Material \"" << name << "\" already exists. Overwriting.\n";
+        ERROR_RECOVERABLE(ss.str());
         delete found_iter->second;
         found_iter->second = nullptr;
     }
     _materials.insert_or_assign(name, mat);
+}
+
+bool Renderer::RegisterMaterial(const std::string filepath) {
+    namespace FS = std::experimental::filesystem;
+    return RegisterMaterial(FS::path{filepath});
+}
+
+bool Renderer::RegisterMaterial(const std::experimental::filesystem::path& filepath) {
+    namespace FS = std::experimental::filesystem;
+    tinyxml2::XMLDocument doc;
+    if(filepath.has_extension() && filepath.extension() == ".material") {
+        const auto p_str = filepath.string();
+        if(doc.LoadFile(p_str.c_str()) == tinyxml2::XML_SUCCESS) {
+            Material* mat = new Material(this, *doc.RootElement());
+            RegisterMaterial(mat->GetName(), mat);
+            return true;
+        }
+    }
+    return false;
+}
+
+void Renderer::RegisterMaterialsFromFolder(const std::string& folderpath, bool recursive /*= false*/) {
+    namespace FS = std::experimental::filesystem;
+    RegisterMaterialsFromFolder(FS::path{folderpath}, recursive);
+}
+
+void Renderer::RegisterMaterialsFromFolder(const std::experimental::filesystem::path& folderpath, bool recursive /*= false*/) {
+    namespace FS = std::experimental::filesystem;
+    bool is_folder = FS::is_directory(folderpath);
+    if(!is_folder) {
+        return;
+    }
+    if(!recursive) {
+        for(auto iter = FS::directory_iterator{folderpath}; iter != FS::directory_iterator{}; ++iter) {
+            auto cur_path = iter->path();
+            RegisterMaterial(cur_path);
+        }
+    } else {
+        for(auto iter = FS::recursive_directory_iterator{folderpath}; iter != FS::recursive_directory_iterator{}; ++iter) {
+            auto cur_path = iter->path();
+            RegisterMaterial(cur_path);
+        }
+    }
 }
 
 void Renderer::RegisterShaderProgram(const std::string& name, ShaderProgram * sp) {

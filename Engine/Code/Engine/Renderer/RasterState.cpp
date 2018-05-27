@@ -134,7 +134,7 @@ bool RasterState::CreateRasterState(RHIDevice* device, const FillMode& fillmode 
 
     desc.FillMode = FillModeToD3DFillMode(fillmode);
     desc.CullMode = CullModeToD3DCullMode(cullmode);
-    desc.FrontCounterClockwise = true;
+    desc.FrontCounterClockwise = false;
     desc.AntialiasedLineEnable = antiAliasing;
     desc.DepthBias = 0;
     desc.DepthBiasClamp = 0.0f;

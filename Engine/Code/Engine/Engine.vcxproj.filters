@@ -217,6 +217,9 @@
     <ClCompile Include="Renderer\Camera2D.cpp">
       <Filter>Renderer\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\FileLogger.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -422,6 +425,9 @@
     </ClInclude>
     <ClInclude Include="Renderer\Camera2D.hpp">
       <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\FileLogger.hpp">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,0 +1,6 @@
+<material name="Test">
+    <shader src="__default" />
+    <textures>
+        <diffuse src="Data/Images/Test_StbiAndDirectX.png" />
+    </textures>
+</material>

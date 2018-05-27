@@ -179,6 +179,9 @@
   <ItemGroup>
     <Image Include="..\Run_Win32\Data\Images\Test_StbiAndDirectX.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Run_Win32\Data\Materials\Test.material" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

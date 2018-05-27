@@ -62,6 +62,7 @@
     <ClCompile Include="Renderer\ConstantBuffer.cpp" />
     <ClCompile Include="Renderer\DepthStencilState.cpp" />
     <ClCompile Include="Renderer\DirectX\DX11.cpp" />
+    <ClCompile Include="Renderer\FileLogger.cpp" />
     <ClCompile Include="Renderer\IndexBuffer.cpp" />
     <ClCompile Include="Renderer\InputLayout.cpp" />
     <ClCompile Include="Renderer\Material.cpp" />
@@ -131,6 +132,7 @@
     <ClInclude Include="Renderer\ConstantBuffer.hpp" />
     <ClInclude Include="Renderer\DepthStencilState.hpp" />
     <ClInclude Include="Renderer\DirectX\DX11.hpp" />
+    <ClInclude Include="Renderer\FileLogger.hpp" />
     <ClInclude Include="Renderer\IndexBuffer.hpp" />
     <ClInclude Include="Renderer\InputLayout.hpp" />
     <ClInclude Include="Renderer\Material.hpp" />

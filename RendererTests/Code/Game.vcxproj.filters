@@ -14,6 +14,9 @@
     <Filter Include="Data\Images">
       <UniqueIdentifier>{0121e9fb-90a7-42f7-bcdb-39aa7352eb08}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data\Materials">
+      <UniqueIdentifier>{1a2c010f-9ceb-4925-b4a0-bacb1648f5c9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\App.cpp">
@@ -50,5 +53,10 @@
     <Image Include="..\Run_Win32\Data\Images\Test_StbiAndDirectX.png">
       <Filter>Data\Images</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Run_Win32\Data\Materials\Test.material">
+      <Filter>Data\Materials</Filter>
+    </None>
   </ItemGroup>
 </Project>

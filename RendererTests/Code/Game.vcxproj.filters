@@ -8,6 +8,12 @@
     <Filter Include="Gameplay">
       <UniqueIdentifier>{1958491f-fdfe-4271-88ff-a15d28740fd1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data">
+      <UniqueIdentifier>{cda8afb1-51e4-46c8-a6bf-177669df9d10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\Images">
+      <UniqueIdentifier>{0121e9fb-90a7-42f7-bcdb-39aa7352eb08}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\App.cpp">
@@ -39,5 +45,10 @@
     <ClInclude Include="Game\Game.hpp">
       <Filter>Gameplay</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Run_Win32\Data\Images\Test_StbiAndDirectX.png">
+      <Filter>Data\Images</Filter>
+    </Image>
   </ItemGroup>
 </Project>

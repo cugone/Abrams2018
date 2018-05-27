@@ -211,7 +211,7 @@
     <ClCompile Include="Renderer\Sampler.cpp">
       <Filter>Renderer\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Camera.cpp">
+    <ClCompile Include="Renderer\Camera3D.cpp">
       <Filter>Renderer\Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -414,7 +414,7 @@
     <ClInclude Include="Renderer\Sampler.hpp">
       <Filter>Renderer\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Camera.hpp">
+    <ClInclude Include="Renderer\Camera3D.hpp">
       <Filter>Renderer\Core</Filter>
     </ClInclude>
   </ItemGroup>

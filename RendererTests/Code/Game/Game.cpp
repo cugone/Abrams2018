@@ -4,12 +4,15 @@
 #include "Engine/Core/Rgba.hpp"
 
 #include "Engine/Math/MathUtils.hpp"
+#include "Engine/Math/IntVector2.hpp"
 
-#include "Engine/Renderer/Camera.hpp"
+#include "Engine/Renderer/Camera3D.hpp"
 #include "Engine/Renderer/Texture.hpp"
 #include "Engine/Renderer/Texture1D.hpp"
 #include "Engine/Renderer/Texture2D.hpp"
 #include "Engine/Renderer/Texture3D.hpp"
+
+#include "Engine/RHI/RHIOutput.hpp"
 
 #include "Game/GameCommon.hpp"
 #include "Game/GameConfig.hpp"
@@ -17,7 +20,7 @@
 #include <sstream>
 
 Game::Game() {
-    _camera = new Camera;
+    _camera = new Camera3D;
 }
 
 Game::~Game() {
@@ -47,20 +50,16 @@ void Game::Update(float deltaSeconds) {
 
 
     if(g_theInput->IsKeyDown(KeyCode::UP)) {
-        ++_poly_sides;
+        _camera->Translate2D(0.0f, _cameraSpeed);
     } else if(g_theInput->IsKeyDown(KeyCode::DOWN)) {
-        --_poly_sides;
+        _camera->Translate2D(0.0f, -_cameraSpeed);
     }
-
 
     if(g_theInput->IsKeyDown(KeyCode::LEFT)) {
-        _thickness -= 0.001f;
+        _camera->Translate2D(-_cameraSpeed, 0.0f);
     } else if(g_theInput->IsKeyDown(KeyCode::RIGHT)) {
-        _thickness += 0.001f;
+        _camera->Translate2D(_cameraSpeed, 0.0f);
     }
-
-    _poly_sides = MathUtils::Clamp(_poly_sides, static_cast<std::size_t>(1), _poly_sides);
-    _thickness = MathUtils::Clamp(_thickness, 0.0f, _thickness);
 
 }
 
@@ -73,20 +72,31 @@ void Game::Render() const {
     g_theRenderer->SetViewport(0, 0, static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
     _camera->SetupView(90.0f);
 
-    g_theRenderer->SetProjectionMatrix(Matrix4::GetIdentity());
+    const auto& window_dimensions = g_theRenderer->GetOutput()->GetDimensions();
+    float window_width = static_cast<float>(window_dimensions.x);
+    float window_height = static_cast<float>(window_dimensions.y);
+    float view_half_width  = window_width * 0.50f;
+    float view_half_height = window_height * 0.50f;
 
-    //g_theRenderer->SetViewMatrix(Matrix4::CreateTranslationMatrix(-_camera->position));    
-    g_theRenderer->SetViewMatrix(Matrix4::GetIdentity());
-    //g_theRenderer->SetOrthoProjectionFromViewHeight(2.0f, _camera->aspectRatio, 0.0f, 1.0f);
+    Vector2 leftBottom = Vector2(-view_half_width, view_half_height);
+    Vector2 rightTop   = Vector2(view_half_width, -view_half_height);
+    Vector2 nearFar = Vector2(0.0f, 1.0f);
+    Vector2 cam_pos = Vector2(_camera->GetPosition());
 
-    Matrix4 s = Matrix4::GetIdentity();
+    Matrix4 vT = Matrix4::CreateTranslationMatrix(cam_pos);
+    Matrix4 v = vT;
+    g_theRenderer->SetViewMatrix(v);
+    //g_theRenderer->SetOrthoProjection(leftBottom, rightTop, nearFar);
+    //g_theRenderer->SetProjectionMatrix(_camera->GetProjectionMatrix());
+    //g_theRenderer->SetOrthoProjectionFromViewWidth(1600.0f, _camera->GetAspectRatio(), _camera->GetNearDistance(), _camera->GetFarDistance());
+    Matrix4 s = Matrix4::CreateScaleMatrix(Vector2((float)_tex->GetDimensions().x, (float)_tex->GetDimensions().y) * 0.50f);
     Matrix4 t = Matrix4::GetIdentity();
     Matrix4 r = Matrix4::GetIdentity();
     Matrix4 mat = t * r * s;
     g_theRenderer->SetModelMatrix(mat);
     g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__default"));
     g_theRenderer->SetTexture(_tex);
-    g_theRenderer->DrawQuad2D(Vector2::ZERO, Vector2::ONE);
+    g_theRenderer->DrawQuad2D(Vector2::ZERO);
 
 }
 

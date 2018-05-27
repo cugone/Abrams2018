@@ -15,7 +15,7 @@
 #include <string>
 
 class BlendState;
-class Camera;
+class Camera3D;
 class ConstantBuffer;
 class DepthStencilState;
 class IndexBuffer;
@@ -151,8 +151,9 @@ public:
     void SetOrthoProjection(const Vector2& dimensions, const Vector2& origin, float nearz, float farz);
     void SetOrthoProjectionFromViewHeight(float viewHeight, float aspectRatio, float nearz, float farz);
     void SetOrthoProjectionFromViewWidth(float viewWidth, float aspectRatio, float nearz, float farz);
+    void SetOrthoProjectionFromCamera(const Camera3D& camera);
     void SetPerspectiveProjection(const Vector2& vfovDegrees_aspect, const Vector2& nz_fz);
-    void SetPerspectiveProjectionFromCamera(const Camera& camera);
+    void SetPerspectiveProjectionFromCamera(const Camera3D& camera);
 
     void AppendModelMatrix(const Matrix4& modelMatrix);
 
@@ -164,7 +165,7 @@ public:
     void DrawLine2D(float startX, float startY, float endX, float endY, const Rgba& color = Rgba::WHITE, float thickness = 0.0f);
     void DrawLine2D(const Vector2& start, const Vector2& end, const Rgba& color = Rgba::WHITE, float thickness = 0.0f);
     void DrawQuad2D(float left, float bottom, float right, float top, const Rgba& color = Rgba::WHITE);
-    void DrawQuad2D(const Vector2& position, const Vector2& halfExtents, const Rgba& color = Rgba::WHITE);
+    void DrawQuad2D(const Vector2& position, const Vector2& halfExtents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::WHITE);
     void DrawCircle2D(float centerX, float centerY, float radius, const Rgba& color = Rgba::WHITE);
     void DrawCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::WHITE);
 

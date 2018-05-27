@@ -16,7 +16,7 @@
 #include "Engine/RHI/RHIDeviceContext.hpp"
 #include "Engine/RHI/RHIOutput.hpp"
 
-#include "Engine/Renderer/Camera.hpp"
+#include "Engine/Renderer/Camera3D.hpp"
 #include "Engine/Renderer/ConstantBuffer.hpp"
 #include "Engine/Renderer/DepthStencilState.hpp"
 #include "Engine/Renderer/InputLayout.hpp"
@@ -330,7 +330,7 @@ void Renderer::DrawQuad2D(float left, float bottom, float right, float top, cons
     DrawIndexed(PrimitiveType::TRIANGLES, vbo, ibo);
 }
 
-void Renderer::DrawQuad2D(const Vector2& position, const Vector2& halfExtents, const Rgba& color /*= Rgba::WHITE*/) {
+void Renderer::DrawQuad2D(const Vector2& position, const Vector2& halfExtents /*= Vector2(0.5f, 0.5f)*/, const Rgba& color /*= Rgba::WHITE*/) {
     float left = position.x - halfExtents.x;
     float bottom = position.y + halfExtents.y;
     float right = position.x + halfExtents.x;
@@ -992,8 +992,8 @@ void Renderer::SetOrthoProjection(const Vector2& leftBottom, const Vector2& righ
 
 void Renderer::SetOrthoProjection(const Vector2& dimensions, const Vector2& origin, float nearz, float farz) {
     Vector2 half_extents = dimensions * 0.5f;
-    Vector2 leftBottom = Vector2(origin.x - half_extents.x, origin.y + half_extents.y);
-    Vector2 rightTop = Vector2(origin.x + half_extents.x, origin.y - half_extents.y);
+    Vector2 leftBottom = Vector2(origin.x - half_extents.x, origin.y - half_extents.y);
+    Vector2 rightTop = Vector2(origin.x + half_extents.x, origin.y + half_extents.y);
     SetOrthoProjection(leftBottom, rightTop, Vector2(nearz, farz));
 }
 
@@ -1001,8 +1001,8 @@ void Renderer::SetOrthoProjectionFromViewHeight(float viewHeight, float aspectRa
     float view_height = viewHeight;
     float view_width = view_height * aspectRatio;
     Vector2 view_half_extents = Vector2(view_width, view_height) * 0.50f;
-    Vector2 leftBottom = Vector2(-view_half_extents.x, view_half_extents.y);
-    Vector2 rightTop = Vector2(view_half_extents.x, -view_half_extents.y);
+    Vector2 leftBottom = Vector2(-view_half_extents.x, -view_half_extents.y);
+    Vector2 rightTop = Vector2(view_half_extents.x, view_half_extents.y);
     SetOrthoProjection(leftBottom, rightTop, Vector2(nearz, farz));
 }
 
@@ -1011,19 +1011,27 @@ void Renderer::SetOrthoProjectionFromViewWidth(float viewWidth, float aspectRati
     float view_width = viewWidth;
     float view_height = view_width * inv_aspect_ratio;
     Vector2 view_half_extents = Vector2(view_width, view_height) * 0.50f;
-    Vector2 leftBottom = Vector2(-view_half_extents.x, view_half_extents.y);
-    Vector2 rightTop = Vector2(view_half_extents.x, -view_half_extents.y);
+    Vector2 leftBottom = Vector2(-view_half_extents.x, -view_half_extents.y);
+    Vector2 rightTop = Vector2(view_half_extents.x, view_half_extents.y);
     SetOrthoProjection(leftBottom, rightTop, Vector2(nearz, farz));
 }
 
+void Renderer::SetOrthoProjectionFromCamera(const Camera3D& camera) {
+    float view_height = camera.CalcNearViewHeight();
+    float view_width = view_height * camera.GetAspectRatio();
+    Vector2 view_half_extents = Vector2(view_width, view_height) * 0.50f;
+    Vector2 leftBottom = Vector2(-view_half_extents.x, -view_half_extents.y);
+    Vector2 rightTop = Vector2(view_half_extents.x, view_half_extents.y);
+    SetOrthoProjection(leftBottom, rightTop, Vector2(camera.GetNearDistance(), camera.GetFarDistance()));
+}
 
 void Renderer::SetPerspectiveProjection(const Vector2& vfovDegrees_aspect, const Vector2& nz_fz) {
     Matrix4 proj = Matrix4::CreateDXPerspectiveProjection(vfovDegrees_aspect.x, vfovDegrees_aspect.y, nz_fz.x, nz_fz.y);
     SetProjectionMatrix(proj);
 }
 
-void Renderer::SetPerspectiveProjectionFromCamera(const Camera& camera) {
-    SetPerspectiveProjection(Vector2{ camera.fovVerticalDegrees, camera.aspectRatio }, Vector2{ camera.nearDistance, camera.farDistance });
+void Renderer::SetPerspectiveProjectionFromCamera(const Camera3D& camera) {
+    SetPerspectiveProjection(Vector2{ camera.GetFovYDegrees(), camera.GetAspectRatio()}, Vector2{ camera.GetNearDistance(), camera.GetFarDistance()});
 }
 
 void Renderer::SetConstantBuffer(unsigned int index, ConstantBuffer* buffer) {

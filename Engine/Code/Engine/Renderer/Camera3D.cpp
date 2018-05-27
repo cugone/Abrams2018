@@ -37,11 +37,26 @@ void Camera3D::CalcViewMatrix() {
 
 void Camera3D::Update(float deltaSeconds) {
     trauma -= trauma_recovery_rate * deltaSeconds;
-    CalcViewMatrix();
 }
 
 const Vector3& Camera3D::GetPosition() const {
     return position;
+}
+
+void Camera3D::SetPosition(const Vector3& newPosition) {
+    position = newPosition;
+}
+
+void Camera3D::SetPosition(float x, float y, float z) {
+    SetPosition(Vector3{ x, y, z });
+}
+
+void Camera3D::SetPosition(const Vector2& newPosition) {
+    SetPosition(newPosition.x, newPosition.y, 0.0f);
+}
+
+void Camera3D::SetPosition(float x, float y) {
+    SetPosition(Vector2{ x, y });
 }
 
 void Camera3D::Translate(const Vector3& displacement) {
@@ -52,12 +67,12 @@ void Camera3D::Translate(float x, float y, float z) {
     Translate(Vector3{ x, y, z });
 }
 
-void Camera3D::Translate2D(const Vector2& displacement) {
+void Camera3D::Translate(const Vector2& displacement) {
     Translate(displacement.x, displacement.y, 0.0f);
 }
 
-void Camera3D::Translate2D(float x, float y) {
-    Translate2D(Vector2{ x, y });
+void Camera3D::Translate(float x, float y) {
+    Translate(Vector2{ x, y });
 }
 
 float Camera3D::GetFovYDegrees() const {

@@ -14,10 +14,14 @@ public:
     void Update(float deltaSeconds);
 
     const Vector3& GetPosition() const;
+    void SetPosition(const Vector3& newPosition);
+    void SetPosition(float x, float y, float z);
+    void SetPosition(const Vector2& newPosition);
+    void SetPosition(float x, float y);
     void Translate(const Vector3& displacement);
     void Translate(float x, float y, float z);
-    void Translate2D(const Vector2& displacement);
-    void Translate2D(float x, float y);
+    void Translate(const Vector2& displacement);
+    void Translate(float x, float y);
 
     float GetFovYDegrees() const;
     float CalcFovXDegrees() const;

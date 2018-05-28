@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Core/ThreadSafeQueue.hpp"
+
 #include <fstream>
 #include <mutex>
 #include <sstream>
@@ -15,16 +17,20 @@ public:
     void Shutdown();
     void Log(const std::string& msg);
     void LogLine(const std::string& msg);
-
+    void LogAndFlush(const std::string& msg);
+    void LogLineAndFlush(const std::string& msg);
+    void Flush();
+    void SetIsRunning(bool value = true);
 protected:
 private:
     void Log_helper();
+    void RequestFlush();
+    bool IsRunning();
     std::mutex _cs{};
     std::ofstream _stream{};
-    std::ostringstream _stream_buffer{};
     std::string _path{};
     std::thread _worker{};
+    ThreadSafeQueue<std::string> _queue;
     bool _is_running = false;
-    bool _has_work = false;
-    bool _shutting_down = false;
+    bool _requesting_flush = false;
 };

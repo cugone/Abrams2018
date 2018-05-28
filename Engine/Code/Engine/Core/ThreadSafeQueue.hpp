@@ -11,10 +11,10 @@ public:
 
     void push(const T& t);
     void pop();
-    decltype(auto) size() const;
-    T& back() const;
-    bool empty() const;
-    T& front() const;
+    decltype(auto) size();
+    T& back();
+    bool empty();
+    T& front();
 
 protected:
 private:
@@ -24,37 +24,41 @@ private:
 };
 
 template<typename T>
-T& ThreadSafeQueue<T>::front() const {
+T& ThreadSafeQueue<T>::front() {
+    T* val = nullptr;
     {
     std::scoped_lock<std::mutex> lock(_cs);
-    auto val = _queue.front();
+    val = &_queue.front();
+    }
+    return *val;
+}
+
+template<typename T>
+bool ThreadSafeQueue<T>::empty() {
+    bool val = false;
+    {
+    std::scoped_lock<std::mutex> lock(_cs);
+    val = _queue.empty();
     }
     return val;
 }
 
 template<typename T>
-bool ThreadSafeQueue<T>::empty() const {
+T& ThreadSafeQueue<T>::back() {
+    T* val = nullptr;
     {
     std::scoped_lock<std::mutex> lock(_cs);
-    auto val = _queue.empty();
+    val = &_queue.back();
     }
-    return val;
+    return *val;
 }
 
 template<typename T>
-T& ThreadSafeQueue<T>::back() const {
+decltype(auto) ThreadSafeQueue<T>::size() {
+    std::size_t val{};
     {
     std::scoped_lock<std::mutex> lock(_cs);
-    auto val = _queue.back();
-    }
-    return val;
-}
-
-template<typename T>
-decltype(auto) ThreadSafeQueue<T>::size() const {
-    {
-    std::scoped_lock<std::mutex> lock(_cs);
-    auto val = _queue.size();
+    val = _queue.size();
     }
     return val;
 }

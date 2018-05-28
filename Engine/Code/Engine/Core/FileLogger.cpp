@@ -1,5 +1,6 @@
 #include "Engine/Core/FileLogger.hpp"
 
+#include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/FileUtils.hpp"
 
 #include <chrono>
@@ -10,25 +11,32 @@ FileLogger::~FileLogger() {
 }
 
 void FileLogger::Log_helper() {
-    for(;;) {
-        if(_is_running) {
-            if(_has_work) {
-                std::scoped_lock<std::mutex> lock(_cs);
-                _stream.open(_path, std::ios_base::app);
-                _stream << _stream_buffer.str();
-                _stream.close();
-                _stream_buffer.str("");
-                _stream_buffer.clear();
-                _has_work = false;
-            } else {
-                std::this_thread::yield();
-            }
-        } else {
-            break;
+    while(IsRunning()) {
+        while(!_queue.empty()) {
+            std::scoped_lock<std::mutex> lock(_cs);
+            auto str = _queue.front();
+            _queue.pop();
+            _stream.write(str.data(), str.size());
         }
+        RequestFlush();
     }
 }
 
+void FileLogger::RequestFlush() {
+    if(_requesting_flush) {
+        _stream.flush();
+        _requesting_flush = false;
+    }
+}
+
+bool FileLogger::IsRunning() {
+    bool running = false;
+    {
+    std::scoped_lock<std::mutex> lock(_cs);
+    running = _is_running;
+    }
+    return running;
+}
 
 void FileLogger::Initialize(const std::string& log_name) {
     namespace FS = std::experimental::filesystem;
@@ -36,34 +44,55 @@ void FileLogger::Initialize(const std::string& log_name) {
     FS::path p{ log_str };
     FileUtils::CreateFolders(p.string());
     _path = p.string();
-    _stream.open(_path);
-    _stream.close();
     _is_running = true;
-    _worker = std::thread([this](){ this->Log_helper(); });
-    _worker.detach();
+    _stream.open(_path);
+    if(_stream.fail()) {
+        DebuggerPrintf("FileLogger failed to initialize.\n");
+        _stream.clear();
+        _is_running = false;
+    }
+    _worker = std::thread([this]() { this->Log_helper(); });
     std::string init_log = "Initializing Logger: " + log_name + ".log...";
     LogLine(init_log);
 }
 
 void FileLogger::Shutdown() {
-    std::scoped_lock<std::mutex> lock(_cs);
-    if(_is_running) {
-        _shutting_down = true;
-        _is_running = false;
-        if(_worker.joinable()) {
-            _worker.join();
-        }
+    if(IsRunning()) {
+        SetIsRunning(false);
+        _worker.join();
+        _stream.flush();
+        _stream.close();
     }
 }
 
 void FileLogger::Log(const std::string& msg) {
     std::scoped_lock<std::mutex> lock(_cs);
-    _stream_buffer << msg;
-    _has_work = true;
+    _queue.push(msg);
 }
 
 void FileLogger::LogLine(const std::string& msg) {
     std::scoped_lock<std::mutex> lock(_cs);
-    _stream_buffer << msg << '\n';
-    _has_work = true;
+    _queue.push(msg + '\n');
+}
+
+void FileLogger::LogAndFlush(const std::string& msg) {
+    Log(msg);
+    Flush();
+}
+
+void FileLogger::LogLineAndFlush(const std::string& msg) {
+    LogLine(msg);
+    Flush();
+}
+
+void FileLogger::Flush() {
+    _requesting_flush = true;
+    while(_requesting_flush) {
+        std::this_thread::yield();
+    }
+}
+
+void FileLogger::SetIsRunning(bool value /*= true*/) {
+    std::scoped_lock<std::mutex> lock(_cs);
+    _is_running = value;
 }

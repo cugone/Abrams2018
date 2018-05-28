@@ -31,6 +31,7 @@
     <ClCompile Include="Core\Image.cpp" />
     <ClCompile Include="Core\Rgba.cpp" />
     <ClCompile Include="Core\StringUtils.cpp" />
+    <ClCompile Include="Core\ThreadSafeQueue.cpp" />
     <ClCompile Include="Core\TimeUtils.cpp" />
     <ClCompile Include="Core\Vertex3D.cpp" />
     <ClCompile Include="Input\InputSystem.cpp" />
@@ -100,6 +101,7 @@
     <ClInclude Include="Core\Image.hpp" />
     <ClInclude Include="Core\Rgba.hpp" />
     <ClInclude Include="Core\StringUtils.hpp" />
+    <ClInclude Include="Core\ThreadSafeQueue.hpp" />
     <ClInclude Include="Core\TimeUtils.hpp" />
     <ClInclude Include="Core\Vertex3D.hpp" />
     <ClInclude Include="Core\Win.hpp" />

@@ -220,6 +220,9 @@
     <ClCompile Include="Core\FileLogger.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Core\ThreadSafeQueue.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -427,6 +430,9 @@
       <Filter>Renderer\Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\FileLogger.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\ThreadSafeQueue.hpp">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

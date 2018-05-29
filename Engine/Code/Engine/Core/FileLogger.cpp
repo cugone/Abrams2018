@@ -2,7 +2,10 @@
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/FileUtils.hpp"
+#include "Engine/Core/TimeUtils.hpp"
 
+#include <cstdio>
+#include <cstdarg>
 #include <chrono>
 #include <filesystem>
 
@@ -10,7 +13,7 @@ FileLogger::~FileLogger() {
     Shutdown();
 }
 
-void FileLogger::Log_helper() {
+void FileLogger::Log_worker() {
     while(IsRunning()) {
         while(!_queue.empty()) {
             std::scoped_lock<std::mutex> lock(_cs);
@@ -51,9 +54,10 @@ void FileLogger::Initialize(const std::string& log_name) {
         _stream.clear();
         _is_running = false;
     }
-    _worker = std::thread([this]() { this->Log_helper(); });
-    std::string init_log = "Initializing Logger: " + log_name + ".log...";
-    LogLine(init_log);
+    _worker = std::thread([this]() { this->Log_worker(); });
+    std::ostringstream ss;
+    ss << "Initializing Logger: " << log_str << "...";
+    LogPrintLine(ss.str());
 }
 
 void FileLogger::Shutdown() {
@@ -83,6 +87,58 @@ void FileLogger::LogAndFlush(const std::string& msg) {
 void FileLogger::LogLineAndFlush(const std::string& msg) {
     LogLine(msg);
     Flush();
+}
+
+void FileLogger::LogPrint(const std::string& msg) {
+    LogTag("log", msg);
+}
+
+void FileLogger::LogWarn(const std::string& msg) {
+    LogTag("warning", msg);
+}
+
+void FileLogger::LogError(const std::string& msg) {
+    LogTag("error", msg);
+}
+
+void FileLogger::LogTag(const std::string& tag, const std::string& msg) {
+
+    std::stringstream ss;
+    InsertTimeStamp(ss);
+    InsertTag(ss, tag);
+    InsertMessage(ss, msg);
+
+    _queue.push(ss.str());
+
+}
+
+void FileLogger::LogPrintLine(const std::string& msg) {
+    LogTagLine("log", msg);
+}
+
+void FileLogger::LogWarnLine(const std::string& msg) {
+    LogTagLine("warning", msg);
+}
+
+void FileLogger::LogErrorLine(const std::string& msg) {
+    LogTagLine("error", msg);
+}
+
+void FileLogger::LogTagLine(const std::string& tag, const std::string& msg) {
+    std::string msgWithLine = msg + '\n';
+    LogTag(tag, msgWithLine);
+}
+
+void FileLogger::InsertTimeStamp(std::stringstream& msg) {
+    msg << "[" << TimeUtils::GetDateTimeStampFromNow(true) << "]";
+}
+
+void FileLogger::InsertTag(std::stringstream& msg, const std::string& tag) {
+    msg << "[" << tag << "]";
+}
+
+void FileLogger::InsertMessage(std::stringstream& msg, const std::string& messageLiteral) {
+    msg << messageLiteral;
 }
 
 void FileLogger::Flush() {

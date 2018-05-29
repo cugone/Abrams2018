@@ -14,8 +14,8 @@ decltype(auto) GetCurrentTimeElapsed() {
     return (now - initial_now).count();
 }
 
-std::string GetDateTimeStampFromNow(bool use_24_hour_clock = true, bool include_ms = true);
-std::string GetTimeStampFromNow(bool use_24_hour_clock = true, bool include_ms = true);
-std::string GetDateStampFromNow();
+std::string GetDateTimeStampFromNow(bool use_separator = false, bool use_24_hour_clock = true, bool include_ms = true);
+std::string GetTimeStampFromNow(bool use_separator = false, bool use_24_hour_clock = true, bool include_ms = true);
+std::string GetDateStampFromNow(bool use_separator = false);
 
 }

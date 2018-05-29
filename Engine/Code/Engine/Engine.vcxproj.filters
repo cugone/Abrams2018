@@ -223,11 +223,11 @@
     <ClCompile Include="Core\ThreadSafeQueue.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\KerningFont.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer\SpriteSheet.cpp">
       <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\KerningFont.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -441,11 +441,11 @@
     <ClInclude Include="Core\ThreadSafeQueue.hpp">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\KerningFont.hpp">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\SpriteSheet.hpp">
       <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\KerningFont.hpp">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

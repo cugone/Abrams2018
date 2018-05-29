@@ -29,6 +29,7 @@
     <ClCompile Include="Core\FileLogger.cpp" />
     <ClCompile Include="Core\FileUtils.cpp" />
     <ClCompile Include="Core\Image.cpp" />
+    <ClCompile Include="Core\KerningFont.cpp" />
     <ClCompile Include="Core\Rgba.cpp" />
     <ClCompile Include="Core\StringUtils.cpp" />
     <ClCompile Include="Core\ThreadSafeQueue.cpp" />
@@ -66,7 +67,6 @@
     <ClCompile Include="Renderer\DirectX\DX11.cpp" />
     <ClCompile Include="Renderer\IndexBuffer.cpp" />
     <ClCompile Include="Renderer\InputLayout.cpp" />
-    <ClCompile Include="Renderer\KerningFont.cpp" />
     <ClCompile Include="Renderer\Material.cpp" />
     <ClCompile Include="Renderer\RasterState.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
@@ -101,6 +101,7 @@
     <ClInclude Include="Core\FileLogger.hpp" />
     <ClInclude Include="Core\FileUtils.hpp" />
     <ClInclude Include="Core\Image.hpp" />
+    <ClInclude Include="Core\KerningFont.hpp" />
     <ClInclude Include="Core\Rgba.hpp" />
     <ClInclude Include="Core\StringUtils.hpp" />
     <ClInclude Include="Core\ThreadSafeQueue.hpp" />
@@ -139,7 +140,6 @@
     <ClInclude Include="Renderer\DirectX\DX11.hpp" />
     <ClInclude Include="Renderer\IndexBuffer.hpp" />
     <ClInclude Include="Renderer\InputLayout.hpp" />
-    <ClInclude Include="Renderer\KerningFont.hpp" />
     <ClInclude Include="Renderer\Material.hpp" />
     <ClInclude Include="Renderer\RasterState.hpp" />
     <ClInclude Include="Renderer\Renderer.hpp" />

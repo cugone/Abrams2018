@@ -73,6 +73,7 @@
     <ClCompile Include="Renderer\Sampler.cpp" />
     <ClCompile Include="Renderer\Shader.cpp" />
     <ClCompile Include="Renderer\ShaderProgram.cpp" />
+    <ClCompile Include="Renderer\SpriteSheet.cpp" />
     <ClCompile Include="Renderer\StructuredBuffer.cpp" />
     <ClCompile Include="Renderer\Texture.cpp" />
     <ClCompile Include="Renderer\Texture1D.cpp" />
@@ -145,6 +146,7 @@
     <ClInclude Include="Renderer\Sampler.hpp" />
     <ClInclude Include="Renderer\Shader.hpp" />
     <ClInclude Include="Renderer\ShaderProgram.hpp" />
+    <ClInclude Include="Renderer\SpriteSheet.hpp" />
     <ClInclude Include="Renderer\StructuredBuffer.hpp" />
     <ClInclude Include="Renderer\Texture.hpp" />
     <ClInclude Include="Renderer\Texture1D.hpp" />

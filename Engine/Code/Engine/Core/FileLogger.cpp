@@ -46,9 +46,9 @@ void FileLogger::Initialize(const std::string& log_name) {
     std::string log_str = "Data/Logs/" + log_name + ".log";
     FS::path p{ log_str };
     FileUtils::CreateFolders(p.string());
-    _path = p.string();
+    std::string pathAsString = p.string();
     _is_running = true;
-    _stream.open(_path);
+    _stream.open(pathAsString);
     if(_stream.fail()) {
         DebuggerPrintf("FileLogger failed to initialize.\n");
         _stream.clear();

@@ -40,7 +40,6 @@ private:
     bool IsRunning();
     std::mutex _cs{};
     std::ofstream _stream{};
-    std::string _path{};
     std::thread _worker{};
     ThreadSafeQueue<std::string> _queue;
     bool _is_running = false;

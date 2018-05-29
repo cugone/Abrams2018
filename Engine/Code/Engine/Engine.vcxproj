@@ -66,6 +66,7 @@
     <ClCompile Include="Renderer\DirectX\DX11.cpp" />
     <ClCompile Include="Renderer\IndexBuffer.cpp" />
     <ClCompile Include="Renderer\InputLayout.cpp" />
+    <ClCompile Include="Renderer\KerningFont.cpp" />
     <ClCompile Include="Renderer\Material.cpp" />
     <ClCompile Include="Renderer\RasterState.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
@@ -137,6 +138,7 @@
     <ClInclude Include="Renderer\DirectX\DX11.hpp" />
     <ClInclude Include="Renderer\IndexBuffer.hpp" />
     <ClInclude Include="Renderer\InputLayout.hpp" />
+    <ClInclude Include="Renderer\KerningFont.hpp" />
     <ClInclude Include="Renderer\Material.hpp" />
     <ClInclude Include="Renderer\RasterState.hpp" />
     <ClInclude Include="Renderer\Renderer.hpp" />

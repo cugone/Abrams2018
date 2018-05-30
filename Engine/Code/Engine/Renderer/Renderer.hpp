@@ -21,6 +21,7 @@ class ConstantBuffer;
 class DepthStencilState;
 class IndexBuffer;
 class IntVector3;
+class KerningFont;
 class Material;
 class RasterState;
 struct RasterDesc;
@@ -137,7 +138,7 @@ public:
 
     void SetVSync(bool value);
 
-    bool RegisterMaterial(const std::string filepath);
+    bool RegisterMaterial(const std::string& filepath);
     void RegisterMaterialsFromFolder(const std::string& folderpath, bool recursive = false);
     std::size_t GetMaterialCount();
     Material* GetMaterial(const std::string& nameOrFile);
@@ -146,6 +147,10 @@ public:
 
     std::size_t GetShaderCount() const;
     Shader* GetShader(const std::string& nameOrFile);
+
+    KerningFont* GetFont(const std::string& nameOrFile);
+    bool RegisterFont(const std::string& filepath);
+    void RegisterFontsFromFolder(const std::string& folderpath, bool recursive = false);
 
     void SetModelMatrix(const Matrix4& mat);
     void SetViewMatrix(const Matrix4& mat);
@@ -180,11 +185,14 @@ private:
 
     void RegisterShaderProgram(const std::string& name, ShaderProgram * sp);
     void RegisterShader(const std::string& name, Shader* shader);
-    void RegisterMaterial(const std::string name, Material* mat);
+    void RegisterMaterial(const std::string& name, Material* mat);
     bool RegisterMaterial(const std::experimental::filesystem::path& filepath);
     void RegisterMaterialsFromFolder(const std::experimental::filesystem::path& folderpath, bool recursive = false);
     void RegisterRasterState(const std::string& name, RasterState* raster);
     void RegisterSampler(const std::string& name, Sampler* sampler);
+    void RegisterFont(const std::string& name, KerningFont* font);
+    bool RegisterFont(const std::experimental::filesystem::path& filepath);
+    void RegisterFontsFromFolder(const std::experimental::filesystem::path& folderpath, bool recursive = false);
 
     void UpdateVbo(const VertexBuffer::buffer_t& vbo);
     void UpdateIbo(const IndexBuffer::buffer_t& ibo);
@@ -255,6 +263,7 @@ private:
     std::map<std::string, Shader*> _shaders = {};
     std::map<std::string, Sampler*> _samplers = {};
     std::map<std::string, RasterState*> _rasters = {};
+    std::map<std::string, KerningFont*> _fonts = {};
     bool _vsync = false;
 
     friend class Shader;

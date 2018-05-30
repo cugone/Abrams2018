@@ -5,6 +5,7 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/Image.hpp"
+#include "Engine/Core/KerningFont.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/Vertex3D.hpp"
 
@@ -80,6 +81,12 @@ Renderer::~Renderer() {
         raster.second = nullptr;
     }
     _rasters.clear();
+
+    for(auto& font : _fonts) {
+        delete font.second;
+        font.second = nullptr;
+    }
+    _fonts.clear();
 
     delete _temp_vbo;
     _temp_vbo = nullptr;
@@ -683,6 +690,59 @@ void Renderer::RegisterShader(const std::string& name, Shader* shader) {
     _shaders.insert_or_assign(name, shader);
 }
 
+void Renderer::RegisterFont(const std::string& name, KerningFont* font) {
+    if(font == nullptr) {
+        return;
+    }
+    auto found_iter = _fonts.find(name);
+    if(found_iter != _fonts.end()) {
+        delete found_iter->second;
+        found_iter->second = nullptr;
+    }
+    _fonts.insert_or_assign(name, font);
+}
+
+bool Renderer::RegisterFont(const std::string& filepath) {
+    namespace FS = std::experimental::filesystem;
+    return RegisterFont(FS::path{ filepath });
+}
+
+bool Renderer::RegisterFont(const std::experimental::filesystem::path& filepath) {
+    auto font = new KerningFont(this);
+    if(font->LoadFromFile(filepath.string())) {
+        RegisterFont(font->GetName(), font);
+        return true;
+    }
+    delete font;
+    font = nullptr;
+    return false;
+}
+
+void Renderer::RegisterFontsFromFolder(const std::string& folderpath, bool recursive /*= false*/) {
+    namespace FS = std::experimental::filesystem;
+    return RegisterFontsFromFolder(FS::path{ folderpath }, recursive);
+}
+
+//TODO: RegisterFontsFromFolder
+void Renderer::RegisterFontsFromFolder(const std::experimental::filesystem::path& folderpath, bool recursive /*= false*/) {
+    namespace FS = std::experimental::filesystem;
+    bool is_folder = FS::is_directory(folderpath);
+    if(!is_folder) {
+        return;
+    }
+    if(!recursive) {
+        for(auto iter = FS::directory_iterator{ folderpath }; iter != FS::directory_iterator{}; ++iter) {
+            auto cur_path = iter->path();
+            RegisterFont(cur_path);
+        }
+    } else {
+        for(auto iter = FS::recursive_directory_iterator{ folderpath }; iter != FS::recursive_directory_iterator{}; ++iter) {
+            auto cur_path = iter->path();
+            RegisterFont(cur_path);
+        }
+    }
+}
+
 void Renderer::CreateAndRegisterDefaultTextures() {
     auto default_texture = CreateDefaultTexture();
     RegisterTexture("__default", default_texture);
@@ -822,7 +882,7 @@ std::size_t Renderer::GetMaterialCount() {
     return _materials.size();
 }
 
-void Renderer::RegisterMaterial(const std::string name, Material* mat) {
+void Renderer::RegisterMaterial(const std::string& name, Material* mat) {
     if(mat == nullptr) {
         return;
     }
@@ -838,7 +898,7 @@ void Renderer::RegisterMaterial(const std::string name, Material* mat) {
     _materials.insert_or_assign(name, mat);
 }
 
-bool Renderer::RegisterMaterial(const std::string filepath) {
+bool Renderer::RegisterMaterial(const std::string& filepath) {
     namespace FS = std::experimental::filesystem;
     return RegisterMaterial(FS::path{filepath});
 }
@@ -984,6 +1044,14 @@ const std::map<std::string, Texture*>& Renderer::GetLoadedTextures() const {
 Shader* Renderer::GetShader(const std::string& nameOrFile) {
     auto found_iter = _shaders.find(nameOrFile);
     if(found_iter == _shaders.end()) {
+        return nullptr;
+    }
+    return found_iter->second;
+}
+
+KerningFont* Renderer::GetFont(const std::string& nameOrFile) {
+    auto found_iter = _fonts.find(nameOrFile);
+    if(found_iter == _fonts.end()) {
         return nullptr;
     }
     return found_iter->second;

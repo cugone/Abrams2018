@@ -35,6 +35,7 @@ Game::~Game() {
 void Game::Initialize() {
     _tex = g_theRenderer->CreateOrGetTexture("Data/Images/Test_StbiAndDirectX.png", IntVector3::XY_AXIS);
     g_theRenderer->RegisterMaterialsFromFolder(std::string{"Data/Materials"});
+    g_theRenderer->RegisterFontsFromFolder(std::string{"Data/Fonts"});
 }
 
 void Game::BeginFrame() {

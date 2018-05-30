@@ -24,7 +24,7 @@ std::string GetDateTimeStampFromNow(bool use_separator /*= false*/, bool use_24_
         fmt.insert(fmt.begin() + 11, ':');
         fmt.insert(fmt.begin() + 14, ':');
         if(include_ms) {
-            fmt.insert(fmt.end() - 1, '.');
+            fmt.insert(fmt.end(), '.');
         }
     }
     msg << std::put_time(&tm, fmt.c_str());

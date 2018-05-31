@@ -1,7 +1,9 @@
 #include "Engine/Renderer/Material.hpp"
 
-#include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Core/StringUtils.hpp"
+
+#include "Engine/Renderer/Renderer.hpp"
 
 #include <algorithm>
 #include <filesystem>
@@ -58,7 +60,10 @@ bool Material::LoadFromXml(const XMLElement& element) {
         FS::path p(file);
         auto shader = _renderer->GetShader(p.string());
         if(shader == nullptr) {
-            ERROR_AND_DIE("Shader referenced in Material file does not already exist.");
+            std::ostringstream ss;
+            ss << "Shader referenced in Material file \"" << _name << "\" does not already exist.";
+            ERROR_AND_DIE(ss.str().c_str());
+            return false;
         }
         _shader = shader;
     }
@@ -142,8 +147,6 @@ bool Material::LoadFromXml(const XMLElement& element) {
 
         auto numTextures = DataUtils::GetChildElementCount(*xml_textures, "texture");
         if(numTextures >= MAX_CUSTOM_TEXTURE_COUNT) {
-            //TODO: File Logger!
-            //g_theFileLogger->LogWarnf("Max custom texture count exceeded. Cannot bind more than %i custom textures.", MAX_CUSTOM_TEXTURE_COUNT);
             DebuggerPrintf("Max custom texture count exceeded. Cannot bind more than %i custom textures.", MAX_CUSTOM_TEXTURE_COUNT);
         }
         AddTextureSlots(numTextures);
@@ -152,7 +155,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
             xml_texture = xml_texture->NextSiblingElement("texture")) {
             DataUtils::ValidateXmlElement(*xml_texture, "texture", "", "index,src");
             std::size_t index = CUSTOM_TEXTURE_INDEX_OFFSET + DataUtils::ParseXmlAttribute(*xml_texture, std::string("index"), 0u);
-            if(index >= MAX_CUSTOM_TEXTURE_COUNT) {
+            if(index >= CUSTOM_TEXTURE_INDEX_OFFSET + MAX_CUSTOM_TEXTURE_COUNT) {
                 continue;
             }
             auto file = DataUtils::ParseXmlAttribute(*xml_texture, "src", "");
@@ -170,7 +173,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
 
 void Material::AddTextureSlots(std::size_t count) {
     std::size_t old_size = _textures.size();
-    std::size_t new_size = old_size + (std::min)(MAX_CUSTOM_TEXTURE_COUNT, count);
+    std::size_t new_size = (std::min)(old_size + MAX_CUSTOM_TEXTURE_COUNT, old_size + (std::min)(MAX_CUSTOM_TEXTURE_COUNT, count));
     _textures.resize(new_size);
     for(std::size_t i = old_size; i < new_size; ++i) {
         _textures[i] = nullptr;

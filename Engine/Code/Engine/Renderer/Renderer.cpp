@@ -364,6 +364,61 @@ void Renderer::DrawPolygon2D(const Vector2& center, float radius, std::size_t nu
     DrawPolygon2D(center.x, center.y, radius, numSides, color);
 }
 
+void Renderer::DrawTextLine(KerningFont* font, const std::string& text, const Rgba& color /*= Rgba::WHITE*/, float /*scale*/ /*= 1.0f*/) {
+    if(font == nullptr) {
+        return;
+    }
+    //Yes, it's inefficient but I need the size later anyway!
+    std::size_t text_size = text.size();
+    if(text_size == 0) {
+        return;
+    }
+
+    float cursor_x = 0.0f;
+    float cursor_y = 0.0f;
+    float line_top = cursor_y - font->GetCommonDef().base;
+    float texture_w = static_cast<float>(font->GetCommonDef().scale.x);
+    float texture_h = static_cast<float>(font->GetCommonDef().scale.y);
+    std::vector<Vertex3D> vbo;
+    vbo.reserve(text_size * 4);
+    std::vector<unsigned int> ibo;
+    ibo.reserve(text_size * 6);
+
+    for(auto text_iter = text.begin(); text_iter != text.end(); /* DO NOTHING */) {
+        KerningFont::CharDef current_def = font->GetCharDef(*text_iter);
+        float char_uvl = current_def.position.x / texture_w;
+        float char_uvt = current_def.position.y / texture_h;
+        float char_uvr = char_uvl + (current_def.dimensions.x / texture_w);
+        float char_uvb = char_uvt + (current_def.dimensions.y / texture_h);
+
+        float quad_top = line_top + current_def.offsets.y;
+        float quad_bottom = quad_top + current_def.dimensions.y;
+        float quad_left = cursor_x - current_def.offsets.x;
+        float quad_right = quad_left + current_def.dimensions.x;
+
+        vbo.push_back(Vertex3D(Vector3(quad_left, quad_bottom, 0.0f), color, Vector2(char_uvl, char_uvb)));
+        vbo.push_back(Vertex3D(Vector3(quad_left, quad_top, 0.0f), color, Vector2(char_uvl, char_uvt)));
+        vbo.push_back(Vertex3D(Vector3(quad_right, quad_top, 0.0f), color, Vector2(char_uvr, char_uvt)));
+        vbo.push_back(Vertex3D(Vector3(quad_right, quad_bottom, 0.0f), color, Vector2(char_uvr, char_uvb)));
+
+        unsigned int s = static_cast<unsigned int>(vbo.size());
+        ibo.push_back(s - 4);
+        ibo.push_back(s - 3);
+        ibo.push_back(s - 2);
+        ibo.push_back(s - 4);
+        ibo.push_back(s - 2);
+        ibo.push_back(s - 1);
+
+        auto previous_char = text_iter;
+        ++text_iter;
+        if(text_iter != text.end()) {
+            int kern_value = font->GetKerningValue(*previous_char, *text_iter);
+            cursor_x += (current_def.xadvance + kern_value);
+        }
+    }
+    DrawIndexed(PrimitiveType::TRIANGLES, vbo, ibo);
+}
+
 void Renderer::CreateAndRegisterDefaultShaderPrograms() {
     auto sp = CreateDefaultShaderProgram();
     RegisterShaderProgram(sp->GetName(), sp);
@@ -561,6 +616,50 @@ Material* Renderer::CreateDefaultUnlitMaterial() {
 
 }
 
+Material* Renderer::CreateDefaultFontMaterial(KerningFont* font) {
+    namespace FS = std::experimental::filesystem;
+    FS::path folderpath = font->GetFilePath();
+    folderpath = folderpath.parent_path();
+    std::string name = font->GetName();
+    std::string shader = "__unlit";
+    std::ostringstream material_stream;
+    material_stream << "<material name=\"Font_" << name << "\">";
+    material_stream << "<shader src=\"" << shader << "\" />";
+    std::size_t image_count = font->GetImagePaths().size();
+    bool has_textures = image_count > 0;
+    if(has_textures) {
+        material_stream << "<textures>";
+    }
+    bool has_lots_of_textures = has_textures && image_count > 6;
+    for(std::size_t i = 0; i < image_count; ++i) {
+        switch(i) {
+            case 0:  (material_stream << "<diffuse src=\""   << folderpath << "\\" << font->GetImagePaths()[i] << "\" />"); break;
+            case 1:  (material_stream << "<normal src=\""    << folderpath << "\\" << font->GetImagePaths()[i] << "\" />"); break;
+            case 2:  (material_stream << "<lighting src=\""  << folderpath << "\\" << font->GetImagePaths()[i] << "\" />"); break;
+            case 3:  (material_stream << "<specular src=\""  << folderpath << "\\" << font->GetImagePaths()[i] << "\" />"); break;
+            case 4:  (material_stream << "<occlusion src=\"" << folderpath << "\\" << font->GetImagePaths()[i] << "\" />"); break;
+            case 5:  (material_stream << "<emissive src=\""  << folderpath << "\\" << font->GetImagePaths()[i] << "\" />"); break;
+            default: /* DO NOTHING */;
+        }
+        if(i >= 6 && has_lots_of_textures) {
+            material_stream << "<texture index=\"" << (i-6) << "\" src=\"" << folderpath << "\\" << font->GetImagePaths()[i] << "\" />";
+        }
+    }
+    if(has_textures) {
+        material_stream << "</textures>";
+    }
+    material_stream << "</material>";
+    tinyxml2::XMLDocument doc;
+    std::string material_string = material_stream.str();
+    auto result = doc.Parse(material_string.c_str(), material_string.size());
+    if(result != tinyxml2::XML_SUCCESS) {
+        return nullptr;
+    }
+    FS::path save_path = folderpath.string() + "/" + font->GetName() + std::string(".material");
+    doc.SaveFile(save_path.string().c_str());
+    return new Material(this, *doc.RootElement());
+}
+
 void Renderer::CreateAndRegisterDefaultSamplers() {
     auto default_sampler = CreateDefaultSampler();
     RegisterSampler("__default", default_sampler);
@@ -710,8 +809,20 @@ bool Renderer::RegisterFont(const std::string& filepath) {
 bool Renderer::RegisterFont(const std::experimental::filesystem::path& filepath) {
     auto font = new KerningFont(this);
     if(font->LoadFromFile(filepath.string())) {
-        RegisterFont(font->GetName(), font);
-        return true;
+        for(auto& texture_filename : font->GetImagePaths()) {
+            namespace FS = std::experimental::filesystem;
+            FS::path folderpath = font->GetFilePath();
+            folderpath = folderpath.parent_path();
+            std::string texture_path = folderpath.string() + "\\" + texture_filename;
+            CreateTexture(texture_path, IntVector3::XY_AXIS);
+        }
+        Material* mat = CreateDefaultFontMaterial(font);
+        if(mat) {
+            font->SetMaterial(mat);
+            RegisterMaterial(mat->GetName(), mat);
+            RegisterFont(font->GetName(), font);
+            return true;
+        }
     }
     delete font;
     font = nullptr;
@@ -723,7 +834,6 @@ void Renderer::RegisterFontsFromFolder(const std::string& folderpath, bool recur
     return RegisterFontsFromFolder(FS::path{ folderpath }, recursive);
 }
 
-//TODO: RegisterFontsFromFolder
 void Renderer::RegisterFontsFromFolder(const std::experimental::filesystem::path& folderpath, bool recursive /*= false*/) {
     namespace FS = std::experimental::filesystem;
     bool is_folder = FS::is_directory(folderpath);
@@ -889,9 +999,8 @@ void Renderer::RegisterMaterial(const std::string& name, Material* mat) {
     auto found_iter = _materials.find(name);
     if(found_iter != _materials.end()) {
         std::ostringstream ss;
-        //TODO: File Logger!
         ss << __FUNCTION__ << ": Material \"" << name << "\" already exists. Overwriting.\n";
-        ERROR_RECOVERABLE(ss.str());
+        DebuggerPrintf(ss.str().c_str());
         delete found_iter->second;
         found_iter->second = nullptr;
     }
@@ -1047,6 +1156,10 @@ Shader* Renderer::GetShader(const std::string& nameOrFile) {
         return nullptr;
     }
     return found_iter->second;
+}
+
+std::size_t Renderer::GetFontCount() const {
+    return _fonts.size();
 }
 
 KerningFont* Renderer::GetFont(const std::string& nameOrFile) {

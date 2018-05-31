@@ -148,6 +148,7 @@ public:
     std::size_t GetShaderCount() const;
     Shader* GetShader(const std::string& nameOrFile);
 
+    std::size_t GetFontCount() const;
     KerningFont* GetFont(const std::string& nameOrFile);
     bool RegisterFont(const std::string& filepath);
     void RegisterFontsFromFolder(const std::string& folderpath, bool recursive = false);
@@ -179,6 +180,8 @@ public:
 
     void DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::WHITE);
     void DrawPolygon2D(const Vector2& center, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::WHITE);
+
+    void DrawTextLine(KerningFont* font, const std::string& text, const Rgba& color = Rgba::WHITE, float scale = 1.0f);
 
 protected:
 private:
@@ -221,6 +224,7 @@ private:
     void CreateAndRegisterDefaultMaterials();
     Material* CreateDefaultMaterial();
     Material* CreateDefaultUnlitMaterial();
+    Material* CreateDefaultFontMaterial(KerningFont* font);
 
     void CreateAndRegisterDefaultSamplers();
     Sampler* CreateDefaultSampler();

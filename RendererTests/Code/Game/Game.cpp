@@ -1,6 +1,7 @@
 #include "Game/Game.hpp"
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Core/KerningFont.hpp"
 #include "Engine/Core/Rgba.hpp"
 
 #include "Engine/Math/MathUtils.hpp"
@@ -115,17 +116,21 @@ void Game::Render() const {
     g_theRenderer->SetViewMatrix(_camera2->GetViewMatrix());
     g_theRenderer->SetProjectionMatrix(_camera2->GetProjectionMatrix());
 
-    g_theRenderer->SetMaterial(nullptr);
-    for(float x = -view_half_width; x <= view_half_width; x += 100.0f) {
-        Vector2 start{ x, -view_half_height };
-        Vector2 end{ x, view_half_height };
-        g_theRenderer->DrawLine2D(start, end, Rgba::WHITE);
-    }
-    for(float y = -view_half_height; y <= view_half_height; y += 100.0f) {
-        Vector2 start{ view_half_width, y };
-        Vector2 end{ -view_half_width, y };
-        g_theRenderer->DrawLine2D(start, end, Rgba::WHITE);
-    }
+    //g_theRenderer->SetMaterial(nullptr);
+    //for(float x = -view_half_width; x <= view_half_width; x += 100.0f) {
+    //    Vector2 start{ x, -view_half_height };
+    //    Vector2 end{ x, view_half_height };
+    //    g_theRenderer->DrawLine2D(start, end, Rgba::WHITE);
+    //}
+    //for(float y = -view_half_height; y <= view_half_height; y += 100.0f) {
+    //    Vector2 start{ view_half_width, y };
+    //    Vector2 end{ -view_half_width, y };
+    //    g_theRenderer->DrawLine2D(start, end, Rgba::WHITE);
+    //}
+
+    g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
+    g_theRenderer->SetMaterial(g_theRenderer->GetFont("Arial32")->GetMaterial());
+    g_theRenderer->DrawTextLine(g_theRenderer->GetFont("Arial32"), "Hello World");
 
     Matrix4 s = Matrix4::CreateScaleMatrix(Vector2((float)_tex->GetDimensions().x, (float)_tex->GetDimensions().y) * 0.50f);
     Matrix4 t = Matrix4::GetIdentity();
@@ -134,7 +139,6 @@ void Game::Render() const {
     g_theRenderer->SetModelMatrix(mat);
     g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
     g_theRenderer->DrawQuad2D(Vector2::ZERO);
-
 }
 
 void Game::EndFrame() {

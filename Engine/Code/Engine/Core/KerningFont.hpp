@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 
+class Material;
 class Renderer;
 
 class KerningFont {
@@ -97,7 +98,14 @@ using KerningMap = std::map<std::pair<int, int>, int>;
     const KerningFont::CommonDef& GetCommonDef() const;
     const KerningFont::InfoDef& GetInfoDef() const;
 
+    const std::vector<std::string>& GetImagePaths() const;
+    const std::string& GetFilePath() const;
     bool LoadFromFile(const std::string& filepath);
+
+    Material* GetMaterial() const;
+    void SetMaterial(Material* mat);
+
+    int GetKerningValue(int first, int second);
 
 protected:
 private:
@@ -106,11 +114,13 @@ private:
     bool LoadFromXml(std::vector<unsigned char>& buffer);
     bool LoadFromBinary(std::vector<unsigned char>& buffer);
 
-    uint8_t* ParseInfoBlockBinary(uint8_t*& cur_position);
-
-    bool IsCorrectBmfVersionBinary(uint8_t*& cur_position, const uint8_t CURRENT_BMF_VERSION);
-
-    bool IsBmfFileBinary(uint8_t*& cur_position);
+    bool IsInfoLine(const std::string& cur_line);
+    bool IsCommonLine(const std::string& cur_line);
+    bool IsPageLine(const std::string& cur_line);
+    bool IsCharsLine(const std::string& cur_line);
+    bool IsCharLine(const std::string& cur_line);
+    bool IsKerningsLine(const std::string& cur_line);
+    bool IsKerningLine(const std::string& cur_line);
 
     bool ParseInfoLine(const std::string& infoLine);
     bool ParseCommonLine(const std::string& commonLine);
@@ -120,7 +130,16 @@ private:
     bool ParseKerningsLine(const std::string& kerningsLine);
     bool ParseKerningLine(const std::string& kerningLine);
 
+    bool IsBmfFileBinary(uint8_t*& cur_position);
+    bool IsCorrectBmfVersionBinary(uint8_t*& cur_position, const uint8_t CURRENT_BMF_VERSION);
+    uint8_t* ParseInfoBlockBinary(uint8_t*& cur_position, int32_t& blockSize);
+    uint8_t* ParseCommonBlockBinary(uint8_t*& cur_position, int32_t& blockSize);
+    uint8_t* ParsePagesBlockBinary(uint8_t* cur_position, int32_t& pages_block_size, uint16_t page_count);
+    uint8_t* ParseCharsBlockBinary(uint8_t*& cur_position, int32_t& chars_block_size);
+    uint8_t* ParseKerningBlockBinary(uint8_t*& cur_position, int32_t& kerning_block_size);
+
     Renderer* _renderer = nullptr;
+    Material* _material = nullptr;
     std::string _name{};
     std::vector<std::string> _image_paths{};
     std::string _filepath{};
@@ -130,5 +149,6 @@ private:
     CommonDef _common{};
     std::size_t _char_count = 0;
     std::size_t _kerns_count = 0;
-    friend class Renderer;
+    bool _is_loaded = false;
+
 };

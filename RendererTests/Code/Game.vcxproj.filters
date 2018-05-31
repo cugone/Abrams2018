@@ -17,6 +17,9 @@
     <Filter Include="Data\Materials">
       <UniqueIdentifier>{1a2c010f-9ceb-4925-b4a0-bacb1648f5c9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data\Fonts">
+      <UniqueIdentifier>{6e1c69e5-be94-49e7-a932-1678c953a0e8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\App.cpp">

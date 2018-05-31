@@ -1,0 +1,6 @@
+<material name="Font_Arial32">
+    <shader src="__unlit"/>
+    <textures>
+        <diffuse src="Data\Fonts\Arial32_0.png"/>
+    </textures>
+</material>

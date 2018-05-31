@@ -2,6 +2,7 @@
 
 #include "Engine/Core/ThreadSafeQueue.hpp"
 
+#include <iostream>
 #include <fstream>
 #include <mutex>
 #include <sstream>
@@ -40,8 +41,9 @@ private:
     bool IsRunning();
     std::mutex _cs{};
     std::ofstream _stream{};
+    decltype(std::cout.rdbuf()) _old_cout{};
     std::thread _worker{};
     ThreadSafeQueue<std::string> _queue;
-    bool _is_running = false;
+    static bool _is_running;
     bool _requesting_flush = false;
 };

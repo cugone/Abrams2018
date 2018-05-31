@@ -8,6 +8,9 @@
 #include <cstdarg>
 #include <chrono>
 #include <filesystem>
+#include <iostream>
+
+bool FileLogger::_is_running = false;
 
 FileLogger::~FileLogger() {
     Shutdown();
@@ -19,7 +22,7 @@ void FileLogger::Log_worker() {
             std::scoped_lock<std::mutex> lock(_cs);
             auto str = _queue.front();
             _queue.pop();
-            _stream.write(str.data(), str.size());
+            _stream << str;
         }
         RequestFlush();
     }
@@ -42,6 +45,10 @@ bool FileLogger::IsRunning() {
 }
 
 void FileLogger::Initialize(const std::string& log_name) {
+    if(IsRunning()) {
+        LogLine("FileLogger already running.");
+        return;
+    }
     namespace FS = std::experimental::filesystem;
     std::string log_str = "Data/Logs/" + log_name + ".log";
     FS::path p{ log_str };
@@ -53,11 +60,13 @@ void FileLogger::Initialize(const std::string& log_name) {
         DebuggerPrintf("FileLogger failed to initialize.\n");
         _stream.clear();
         _is_running = false;
+        return;
     }
+    _old_cout = std::cout.rdbuf(_stream.rdbuf());
     _worker = std::thread([this]() { this->Log_worker(); });
     std::ostringstream ss;
     ss << "Initializing Logger: " << log_str << "...";
-    LogPrintLine(ss.str());
+    LogLine(ss.str().c_str());
 }
 
 void FileLogger::Shutdown() {
@@ -66,6 +75,7 @@ void FileLogger::Shutdown() {
         _worker.join();
         _stream.flush();
         _stream.close();
+        std::cout.rdbuf(_old_cout);
     }
 }
 

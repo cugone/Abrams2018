@@ -273,7 +273,7 @@ KeyCode operator++(KeyCode& keycode, int);
 class InputSystem : public EngineSubsystem {
 public:
     InputSystem() = default;
-    ~InputSystem() = default;
+    virtual ~InputSystem() = default;
 
     void RegisterKeyDown(unsigned char keyIndex);
     void RegisterKeyUp(unsigned char keyIndex);

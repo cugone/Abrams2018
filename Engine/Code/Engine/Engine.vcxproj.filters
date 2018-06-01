@@ -229,6 +229,9 @@
     <ClCompile Include="Core\KerningFont.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Console.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -445,6 +448,9 @@
       <Filter>Renderer\Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\KerningFont.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Console.hpp">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

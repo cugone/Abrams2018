@@ -1,5 +1,5 @@
 <material name="Font_Arial32">
-    <shader src="__unlit"/>
+    <shader src="__2D"/>
     <textures>
         <diffuse src="Data\Fonts\Arial32_0.png"/>
     </textures>

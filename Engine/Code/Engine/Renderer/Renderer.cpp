@@ -621,7 +621,7 @@ Material* Renderer::CreateDefaultFontMaterial(KerningFont* font) {
     FS::path folderpath = font->GetFilePath();
     folderpath = folderpath.parent_path();
     std::string name = font->GetName();
-    std::string shader = "__unlit";
+    std::string shader = "__2D";
     std::ostringstream material_stream;
     material_stream << "<material name=\"Font_" << name << "\">";
     material_stream << "<shader src=\"" << shader << "\" />";
@@ -940,6 +940,9 @@ void Renderer::CreateAndRegisterDefaultShaders() {
 
     auto default_unlit = CreateDefaultUnlitShader();
     RegisterShader(default_unlit->GetName(), default_unlit);
+
+    auto default_2D = CreateDefault2DShader();
+    RegisterShader(default_2D->GetName(), default_2D);
 }
 
 Shader* Renderer::CreateDefaultShader() {
@@ -977,6 +980,34 @@ Shader* Renderer::CreateDefaultUnlitShader() {
             <color src="src_alpha" dest="inv_src_alpha" op="add" />
         </blend>
     </blends>
+</shader>
+)";
+    tinyxml2::XMLDocument doc;
+    auto parse_result = doc.Parse(shader.c_str(), shader.size());
+    if(parse_result != tinyxml2::XML_SUCCESS) {
+        return nullptr;
+    }
+
+    return new Shader(this, *doc.RootElement());
+}
+
+Shader* Renderer::CreateDefault2DShader() {
+std::string shader =
+R"(
+<shader name = "__2D">
+    <shaderprogram src = "__unlit" />
+    <raster>
+        <fill>solid</fill>
+        <cull>none</cull>
+        <antialiasing>true</antialiasing>
+    </raster>
+        <blends>
+            <blend enable = "true">
+            <color src = "src_alpha" dest = "inv_src_alpha" op = "add" />
+        </blend>
+    </blends>
+    <depth enable = "false" writable = "false" />
+    <stencil enable = "false" readable = "false" writable = "false" />
 </shader>
 )";
     tinyxml2::XMLDocument doc;

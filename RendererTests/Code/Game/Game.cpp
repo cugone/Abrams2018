@@ -128,10 +128,6 @@ void Game::Render() const {
     //    g_theRenderer->DrawLine2D(start, end, Rgba::WHITE);
     //}
 
-    g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
-    g_theRenderer->SetMaterial(g_theRenderer->GetFont("Arial32")->GetMaterial());
-    g_theRenderer->DrawTextLine(g_theRenderer->GetFont("Arial32"), "Hello World");
-
     Matrix4 s = Matrix4::CreateScaleMatrix(Vector2((float)_tex->GetDimensions().x, (float)_tex->GetDimensions().y) * 0.50f);
     Matrix4 t = Matrix4::GetIdentity();
     Matrix4 r = Matrix4::GetIdentity();
@@ -139,6 +135,11 @@ void Game::Render() const {
     g_theRenderer->SetModelMatrix(mat);
     g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
     g_theRenderer->DrawQuad2D(Vector2::ZERO);
+
+    g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
+    g_theRenderer->SetMaterial(g_theRenderer->GetFont("Arial32")->GetMaterial());
+    g_theRenderer->DrawTextLine(g_theRenderer->GetFont("Arial32"), "Hello World");
+
 }
 
 void Game::EndFrame() {

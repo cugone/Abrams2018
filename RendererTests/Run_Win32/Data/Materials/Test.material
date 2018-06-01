@@ -1,5 +1,5 @@
 <material name="Test">
-    <shader src="__default" />
+    <shader src="__2D" />
     <textures>
         <diffuse src="Data/Images/Test_StbiAndDirectX.png" />
     </textures>

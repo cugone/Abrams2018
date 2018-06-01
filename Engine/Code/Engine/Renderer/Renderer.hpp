@@ -220,6 +220,7 @@ private:
     void CreateAndRegisterDefaultShaders();
     Shader* CreateDefaultShader();
     Shader* CreateDefaultUnlitShader();
+    Shader* CreateDefault2DShader();
 
     void CreateAndRegisterDefaultMaterials();
     Material* CreateDefaultMaterial();

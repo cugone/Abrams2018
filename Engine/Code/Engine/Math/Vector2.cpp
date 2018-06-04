@@ -1,9 +1,11 @@
 #include "Engine/Math/Vector2.hpp"
 
-#include <cmath>
-#include <sstream>
+#include "Engine/Core/StringUtils.hpp"
 
 #include "Engine/Math/MathUtils.hpp"
+
+#include <cmath>
+#include <sstream>
 
 const Vector2 Vector2::ZERO(0.0f, 0.0f);
 const Vector2 Vector2::X_AXIS(1.0f, 0.0f);
@@ -30,12 +32,14 @@ Vector2::Vector2(const std::string& value)
 {
     if(value[0] == '[') {
         if(value.back() == ']') {
-            std::stringstream ss(value.substr(1, value.size() - 1));
-            std::string curLine;
-            for(int i = 0; std::getline(ss, curLine, ','); ++i) {
+            std::string contents_str = value.substr(1, value.size() - 1);
+            auto values = StringUtils::Split(contents_str);
+            auto s = values.size();
+            for(std::size_t i = 0; i < s; ++i) {
                 switch(i) {
-                    case 0: x = std::stof(curLine); break;
-                    case 1: y = std::stof(curLine); break;
+                    case 0: x = std::stof(values[i]);
+                    case 1: y = std::stof(values[i]);
+                    default: break;
                 }
             }
         }

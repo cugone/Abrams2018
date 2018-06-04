@@ -1,13 +1,15 @@
 #include "Engine/Math/IntVector4.hpp"
 
-#include <cmath>
-#include <sstream>
+#include "Engine/Core/StringUtils.hpp"
 
 #include "Engine/Math/IntVector2.hpp"
 #include "Engine/Math/IntVector3.hpp"
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"
 #include "Engine/Math/Vector4.hpp"
+
+#include <cmath>
+#include <sstream>
 
 const IntVector4 IntVector4::ZERO(0, 0, 0, 0);
 const IntVector4 IntVector4::ONE(1, 1, 1, 1);
@@ -115,14 +117,16 @@ IntVector4::IntVector4(const std::string& value)
     , w(0) {
     if(value[0] == '[') {
         if(value.back() == ']') {
-            std::stringstream ss(value.substr(1, value.size() - 1));
-            std::string curLine;
-            for(int i = 0; std::getline(ss, curLine, ','); ++i) {
+            std::string contents_str = value.substr(1, value.size() - 1);
+            auto values = StringUtils::Split(contents_str);
+            auto s = values.size();
+            for(std::size_t i = 0; i < s; ++i) {
                 switch(i) {
-                    case 0: x = std::stoi(curLine); break;
-                    case 1: y = std::stoi(curLine); break;
-                    case 2: z = std::stoi(curLine); break;
-                    case 3: w = std::stoi(curLine); break;
+                    case 0: x = std::stoi(values[i]);
+                    case 1: y = std::stoi(values[i]);
+                    case 2: y = std::stoi(values[i]);
+                    case 3: w = std::stoi(values[i]);
+                    default: break;
                 }
             }
         }

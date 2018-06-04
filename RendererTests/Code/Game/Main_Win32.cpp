@@ -30,10 +30,11 @@ void Initialize(HINSTANCE /*hInstance*/, LPWSTR /*lpCmdLine*/, int /*nShowCmd*/)
     g_theFileLogger = new FileLogger();
     g_theApp = new App();
 
+    g_theConsole->SetNextHandler(g_theInput);
     g_theInput->SetNextHandler(g_theApp);
     g_theApp->SetNextHandler(nullptr);
 
-    g_theSubsystemHead = g_theInput;
+    g_theSubsystemHead = g_theConsole;
 
     g_theFileLogger->Initialize("game");
     g_theApp->Initialize();

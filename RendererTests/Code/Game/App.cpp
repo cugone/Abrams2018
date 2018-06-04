@@ -32,12 +32,16 @@ bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 App::App() {
     g_theRenderer = new Renderer(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
     g_theInput = new InputSystem();
+    g_theConsole = new Console(g_theRenderer);
     g_theGame = new Game();
 }
 
 App::~App() {
     delete g_theGame;
     g_theGame = nullptr;
+
+    delete g_theConsole;
+    g_theConsole = nullptr;
 
     delete g_theInput;
     g_theInput = nullptr;
@@ -70,6 +74,8 @@ void App::Initialize() {
             }
         }
     }
+    g_theInput->Initialize();
+    g_theConsole->Initialize();
     g_theGame->Initialize();
 }
 
@@ -106,24 +112,28 @@ bool App::ProcessSystemMessage(const EngineMessage& msg) {
 
 void App::BeginFrame() {
     g_theInput->BeginFrame();
+    g_theConsole->BeginFrame();
     g_theGame->BeginFrame();
     g_theRenderer->BeginFrame();
 }
 
 void App::Update(float deltaSeconds) {
     g_theInput->Update(deltaSeconds);
+    g_theConsole->Update(deltaSeconds);
     g_theGame->Update(deltaSeconds);
     g_theRenderer->Update(deltaSeconds);
 }
 
 void App::Render() const {
     g_theGame->Render();
+    g_theConsole->Render();
     g_theInput->Render();
     g_theRenderer->Render();
 }
 
 void App::EndFrame() {
     g_theGame->EndFrame();
+    g_theConsole->EndFrame();
     g_theInput->EndFrame();
     g_theRenderer->EndFrame();
 }

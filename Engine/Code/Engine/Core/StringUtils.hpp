@@ -21,4 +21,6 @@ std::wstring ConvertMultiByteToUnicode(const std::string& filePath);
 bool StartsWith(const std::string& string, const std::string& search);
 bool EndsWith(const std::string& string, const std::string& search);
 
+std::string TrimWhitespace(std::string string);
+
 }

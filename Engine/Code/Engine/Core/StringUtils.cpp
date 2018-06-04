@@ -138,4 +138,10 @@ bool EndsWith(const std::string& string, const std::string& search) {
     return found_loc != std::string::npos && found_loc == string.size() - search.size();
 }
 
+std::string TrimWhitespace(std::string string) {
+    auto first_non_space = string.find_first_not_of(" \n\t\v\f\r");
+    auto last_non_space = string.find_last_not_of(" \n\t\v\f\r");
+    return string.substr(first_non_space, last_non_space - first_non_space + 1);
+}
+
 } //End StringUtils

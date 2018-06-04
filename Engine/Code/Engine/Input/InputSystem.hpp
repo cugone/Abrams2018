@@ -296,8 +296,12 @@ public:
     const XboxController& GetXboxController(const std::size_t& controllerIndex) const;
     XboxController& GetXboxController(const std::size_t& controllerIndex);
 
+    static unsigned char ConvertKeyCodeToWinVK(const KeyCode& code);
+    static KeyCode ConvertWinVKToKeyCode(unsigned char winVK);
+
 protected:
 private:
+
     std::array<XboxController, 4> _xboxControllers{};
     std::bitset<(std::size_t)KeyCode::UNKNOWN> _previousKeys{};
     std::bitset<(std::size_t)KeyCode::UNKNOWN> _currentKeys{};

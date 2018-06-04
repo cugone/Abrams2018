@@ -8,9 +8,6 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Math/MathUtils.hpp"
 
-unsigned char ConvertKeyCodeToWinVK(const KeyCode& code);
-KeyCode ConvertWinVKToKeyCode(unsigned char winVK);
-
 KeyCode& operator++(KeyCode& keycode) {
     using IntType = typename std::underlying_type_t<KeyCode>;
     keycode = static_cast<KeyCode>(static_cast<IntType>(keycode) + 1);
@@ -23,7 +20,7 @@ KeyCode operator++(KeyCode& keycode, int) {
     return result;
 }
 
-unsigned char ConvertKeyCodeToWinVK(const KeyCode& code) {
+unsigned char InputSystem::ConvertKeyCodeToWinVK(const KeyCode& code) {
     switch(code) {
     case KeyCode::LBUTTON: return VK_LBUTTON;
     case KeyCode::RBUTTON: return VK_RBUTTON;
@@ -222,7 +219,7 @@ unsigned char ConvertKeyCodeToWinVK(const KeyCode& code) {
     }
 }
 
-KeyCode ConvertWinVKToKeyCode(unsigned char winVK) {
+KeyCode InputSystem::ConvertWinVKToKeyCode(unsigned char winVK) {
     switch(winVK) {
     case VK_LBUTTON: return KeyCode::LBUTTON;
     case VK_RBUTTON: return KeyCode::RBUTTON;

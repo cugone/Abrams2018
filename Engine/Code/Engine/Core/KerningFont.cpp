@@ -21,7 +21,7 @@ KerningFont::KerningFont(Renderer* renderer)
 float KerningFont::CalculateTextWidth(const KerningFont& font, const std::string& text, float scale /*= 1.0f*/) {
     float cursor_x = 0.0f;
 
-    for(auto char_iter = text.begin(); char_iter != text.end(); ++char_iter) {
+    for(auto char_iter = text.begin(); char_iter != text.end(); /* DO NOTHING */) {
         KerningFont::CharDef current_char_def = font.GetCharDef(*char_iter);
         auto previous_char = char_iter++;
         float kern_value = 0.0f;

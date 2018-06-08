@@ -1,18 +1,17 @@
 #include "Engine/Core/Image.hpp"
 
-#include "Engine/Core/Win.hpp"
-
-#include <filesystem>
-#include <sstream>
-#include <vector>
-
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
+#include "Engine/Core/Win.hpp"
+
+#include "Engine/Math/MathUtils.hpp"
 
 #include "ThirdParty/stb/stb_image.h"
 #include "ThirdParty/stb/stb_image_write.h"
 
-//CriticalSection Image::_cs;
+#include <filesystem>
+#include <sstream>
+#include <vector>
 
 Image::Image(const std::string& filePath)
     : m_filepath(filePath)
@@ -155,66 +154,63 @@ unsigned char* Image::GetData() const {
     return m_texelBytes;
 }
 
-//bool Image::Export(const std::string& filepath, int bytes_per_pixel /*= 4*/, int jpg_quality /*= 100*/) {
-//
-//    namespace FS = std::experimental::filesystem;
-//    FS::path p(filepath);
-//    std::string extension = StringUtils::ToLowerCase(p.extension().string());
-//
-//    const auto& dims = this->GetDimensions();
-//    int w = dims.x;
-//    int h = dims.y;
-//    int bbp = bytes_per_pixel;
-//    int stride = bbp * w;
-//    int quality = jpg_quality;
-//    int result = 0;
-//    if(extension == ".png") {
-//        _cs.enter();
-//        result = stbi_write_png(filepath.c_str(), w, h, bbp, m_texelBytes, stride);
-//        _cs.leave();
-//    } else if(extension == ".bmp") {
-//        _cs.enter();
-//        result = stbi_write_bmp(filepath.c_str(), w, h, bbp, m_texelBytes);
-//        _cs.leave();
-//    } else if(extension == ".tga") {
-//        _cs.enter();
-//        result = stbi_write_tga(filepath.c_str(), w, h, bbp, m_texelBytes);
-//        _cs.leave();
-//    } else if(extension == ".jpg") {
-//        _cs.enter();
-//        result = stbi_write_jpg(filepath.c_str(), w, h, bbp, m_texelBytes, quality);
-//        _cs.leave();
-//    } else if(extension == ".hdr") {
-//        std::vector<float> data;
-//        data.reserve(w * h * bbp);
-//        for(std::size_t i = 0; i < static_cast<std::size_t>(w * h); i += bbp) {
-//            float color[4];
-//            color[0] = m_texelBytes[i] / 255.0f;
-//            if(bbp > 1) { //YA
-//                color[1] = m_texelBytes[i + 1] / 255.0f;
-//                if(bbp > 2) { //RGB
-//                    color[2] = m_texelBytes[i + 2] / 255.0f;
-//                    if(bbp > 3) { //RGBA
-//                        color[3] = m_texelBytes[i + 3] / 255.0f;
-//                    } else { //RGB
-//                        color[3] = 1.0f;
-//                    }
-//                } else { //YA
-//                    color[3] = color[1];
-//                    color[1] = color[2] = color[0];
-//                }
-//            } else { //Y
-//                color[3] = 1.0f;
-//                color[1] = color[2] = color[0];
-//            }
-//            data.push_back(color[0]);
-//            data.push_back(color[1]);
-//            data.push_back(color[2]);
-//            data.push_back(color[3]);
-//        }
-//        _cs.enter();
-//        result = stbi_write_hdr(filepath.c_str(), w, h, bbp, data.data());
-//        _cs.leave();
-//    }
-//    return 0 != result;
-//}
+bool Image::Export(const std::string& filepath, int bytes_per_pixel /*= 4*/, int jpg_quality /*= 100*/) {
+
+    namespace FS = std::experimental::filesystem;
+    FS::path p(filepath);
+    std::string extension = StringUtils::ToLowerCase(p.extension().string());
+
+    const auto& dims = this->GetDimensions();
+    int w = dims.x;
+    int h = dims.y;
+    int bbp = bytes_per_pixel;
+    int stride = bbp * w;
+    int quality = MathUtils::Clamp(jpg_quality, 0, 100);
+    int result = 0;
+    if(extension == ".png") {
+        std::scoped_lock<std::mutex> lock(_cs);
+        result = stbi_write_png(filepath.c_str(), w, h, bbp, m_texelBytes, stride);
+    } else if(extension == ".bmp") {
+        std::scoped_lock<std::mutex> lock(_cs);
+        result = stbi_write_bmp(filepath.c_str(), w, h, bbp, m_texelBytes);
+    } else if(extension == ".tga") {
+        std::scoped_lock<std::mutex> lock(_cs);
+        result = stbi_write_tga(filepath.c_str(), w, h, bbp, m_texelBytes);
+    } else if(extension == ".jpg") {
+        std::scoped_lock<std::mutex> lock(_cs);
+        result = stbi_write_jpg(filepath.c_str(), w, h, bbp, m_texelBytes, quality);
+    } else if(extension == ".hdr") {
+        std::vector<float> data;
+        data.reserve(w * h * bbp);
+        for(std::size_t i = 0; i < static_cast<std::size_t>(w * h); i += bbp) {
+            float color[4];
+            color[0] = m_texelBytes[i] / 255.0f;
+            if(bbp > 1) { //YA
+                color[1] = m_texelBytes[i + 1] / 255.0f;
+                if(bbp > 2) { //RGB
+                    color[2] = m_texelBytes[i + 2] / 255.0f;
+                    if(bbp > 3) { //RGBA
+                        color[3] = m_texelBytes[i + 3] / 255.0f;
+                    } else { //RGB
+                        color[3] = 1.0f;
+                    }
+                } else { //YA
+                    color[3] = color[1];
+                    color[1] = color[2] = color[0];
+                }
+            } else { //Y
+                color[3] = 1.0f;
+                color[1] = color[2] = color[0];
+            }
+            data.push_back(color[0]);
+            data.push_back(color[1]);
+            data.push_back(color[2]);
+            data.push_back(color[3]);
+        }
+        {
+            std::scoped_lock<std::mutex> lock(_cs);
+            result = stbi_write_hdr(filepath.c_str(), w, h, bbp, data.data());
+        }
+    }
+    return 0 != result;
+}

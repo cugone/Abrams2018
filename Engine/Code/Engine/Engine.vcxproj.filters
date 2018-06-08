@@ -235,6 +235,9 @@
     <ClCompile Include="Core\ArgumentParser.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\TextureArray2D.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -458,6 +461,9 @@
     </ClInclude>
     <ClInclude Include="Core\ArgumentParser.hpp">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\TextureArray2D.hpp">
+      <Filter>Renderer\Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

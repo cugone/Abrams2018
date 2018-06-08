@@ -26,6 +26,8 @@ public:
     void IsLoaded(bool is_loaded) noexcept;
     bool IsLoaded() const noexcept;
 
+    bool IsArray() const;
+
     ID3D11DepthStencilView* GetDepthStencilView();
     ID3D11RenderTargetView* GetRenderTargetView();
     ID3D11ShaderResourceView* GetShaderResourceView();
@@ -35,10 +37,11 @@ public:
 protected:
     RHIDevice* _device = nullptr;
     IntVector3 _dimensions = IntVector3::ZERO;
-    bool _isLoaded = false;
     ID3D11DepthStencilView* _dsv = nullptr;
     ID3D11RenderTargetView* _rtv = nullptr;
     ID3D11ShaderResourceView* _srv = nullptr;
     ID3D11UnorderedAccessView* _uav = nullptr;
+    bool _isLoaded = false;
+    bool _isArray = false;
 private:
 };

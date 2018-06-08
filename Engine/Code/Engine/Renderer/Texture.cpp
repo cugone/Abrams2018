@@ -70,6 +70,10 @@ bool Texture::IsLoaded() const noexcept {
     return _isLoaded;
 }
 
+bool Texture::IsArray() const {
+    return _isArray;
+}
+
 ID3D11DepthStencilView* Texture::GetDepthStencilView() {
     return _dsv;
 }

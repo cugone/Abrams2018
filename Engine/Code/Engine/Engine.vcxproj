@@ -81,6 +81,7 @@
     <ClCompile Include="Renderer\Texture1D.cpp" />
     <ClCompile Include="Renderer\Texture2D.cpp" />
     <ClCompile Include="Renderer\Texture3D.cpp" />
+    <ClCompile Include="Renderer\TextureArray2D.cpp" />
     <ClCompile Include="Renderer\VertexBuffer.cpp" />
     <ClCompile Include="Renderer\Window.cpp" />
     <ClCompile Include="RHI\RHIDevice.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="Renderer\Texture1D.hpp" />
     <ClInclude Include="Renderer\Texture2D.hpp" />
     <ClInclude Include="Renderer\Texture3D.hpp" />
+    <ClInclude Include="Renderer\TextureArray2D.hpp" />
     <ClInclude Include="Renderer\VertexBuffer.hpp" />
     <ClInclude Include="Renderer\Window.hpp" />
     <ClInclude Include="RHI\RHI.hpp" />

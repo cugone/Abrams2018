@@ -34,6 +34,7 @@ class Sampler;
 struct SamplerDesc;
 class Shader;
 class ShaderProgram;
+class SpriteSheet;
 class StructuredBuffer;
 class Texture;
 class Texture1D;
@@ -97,6 +98,7 @@ public:
     Texture* Create2DTexture(const std::string& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
     Texture* Create2DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
     Texture* Create2DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
+    Texture* Create2DTextureArrayFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
     Texture* Create3DTexture(const std::string& filepath, const IntVector3& dimensions, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
     Texture* Create3DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
     Texture* Create3DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
@@ -105,6 +107,8 @@ public:
                            , const BufferUsage& bufferUsage = BufferUsage::STATIC
                            , const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE
                            , const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
+
+    SpriteSheet* CreateSpriteSheet(const std::string& filepath);
 
     void SetRenderTarget(Texture* color_target = nullptr, Texture* depthstencil_target = nullptr);
     void SetViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
@@ -240,6 +244,8 @@ private:
 
     void UnbindAllShaderResources();
 
+    SpriteSheet* CreateSpriteSheetFromGif(const std::string& filepath);
+
     matrix_buffer_t _matrix_data = {};
     time_buffer_t _time_data = {};
     std::size_t _current_vbo_size = 0;
@@ -272,5 +278,4 @@ private:
     bool _vsync = false;
 
     friend class Shader;
-
 };

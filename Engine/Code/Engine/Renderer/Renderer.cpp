@@ -26,13 +26,17 @@
 #include "Engine/Renderer/Sampler.hpp"
 #include "Engine/Renderer/Shader.hpp"
 #include "Engine/Renderer/ShaderProgram.hpp"
+#include "Engine/Renderer/SpriteSheet.hpp"
 #include "Engine/Renderer/StructuredBuffer.hpp"
 #include "Engine/Renderer/Texture1D.hpp"
 #include "Engine/Renderer/Texture2D.hpp"
 #include "Engine/Renderer/Texture3D.hpp"
 #include "Engine/Renderer/Window.hpp"
 
+#include "Thirdparty/stb/stb_image.h"
+
 #include <filesystem>
+#include <fstream>
 #include <sstream>
 #include <cstddef>
 
@@ -724,6 +728,37 @@ void Renderer::UnbindAllShaderResources() {
     _rhi_context->UnbindAllShaderResources();
 }
 
+SpriteSheet* Renderer::CreateSpriteSheetFromGif(const std::string& filepath) {
+    namespace FS = std::experimental::filesystem;
+    FS::path p(filepath);
+    if(p.extension() != ".gif") {
+        return nullptr;
+    }
+
+    int width = 0;
+    int height = 0;
+    int depth = 0;
+    int comp = 0;
+    int req_comp = 4;
+    int* delays = nullptr;
+    std::vector<unsigned char> buffer{};
+    if(!FileUtils::ReadBufferFromFile(buffer, p.string())) {
+        return nullptr;
+    }
+    auto gif_buffer = stbi_load_gif_from_memory(reinterpret_cast<const unsigned char*>(buffer.data()), buffer.size(), &delays, &width, &height, &depth, &comp, req_comp);
+    if(gif_buffer == nullptr) {
+        return nullptr;
+    }
+    auto tex = Create2DTextureArrayFromMemory(gif_buffer, width, height, depth);
+    auto spr = new SpriteSheet(tex, depth, 1);
+    tex = nullptr;
+    delete spr;
+    spr = nullptr;
+    delete[] gif_buffer;
+    gif_buffer = nullptr;
+    return nullptr;
+}
+
 RasterState* Renderer::GetRasterState(const std::string& name) {
     auto found_iter = _rasters.find(name);
     if(found_iter == _rasters.end()) {
@@ -1362,6 +1397,18 @@ Texture* Renderer::CreateTexture(const std::string& filepath,
     }
 }
 
+SpriteSheet* Renderer::CreateSpriteSheet(const std::string& filepath) {
+    namespace FS = std::experimental::filesystem;
+    FS::path p(filepath);
+
+    if(p.extension() == ".gif") {
+        return CreateSpriteSheetFromGif(p.string());
+    } else {
+        return nullptr;
+    }
+
+}
+
 void Renderer::SetTexture(Texture* texture, unsigned int registerIndex /*= 0*/) {
     if(_current_target == texture) {
         return;
@@ -1700,6 +1747,53 @@ Texture* Renderer::Create2DTextureFromMemory(const std::vector<Rgba>& data, unsi
     bool mustUseInitialData = isImmutable || isMultiSampled;
 
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
+    bool succeeded = SUCCEEDED(hr);
+    if(succeeded) {
+        return new Texture2D(_rhi_device, dx_tex);
+    } else {
+        return nullptr;
+    }
+}
+
+Texture* Renderer::Create2DTextureArrayFromMemory(const unsigned char* data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, unsigned int depth /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) {
+    D3D11_TEXTURE2D_DESC tex_desc = {};
+
+    tex_desc.Width = width;
+    tex_desc.Height = height;
+    tex_desc.MipLevels = 1;
+    tex_desc.ArraySize = depth;
+    tex_desc.Usage = BufferUsageToD3DUsage(bufferUsage);
+    tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
+    tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
+    //Make every texture a target and shader resource
+    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::SHADER_RESOURCE);
+    tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
+    //Force specific usages for unordered access
+    if(bindUsage == BufferBindUsage::UNORDERED_ACCESS) {
+        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::GPU);
+        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::STAGING);
+    }
+    tex_desc.MiscFlags = 0;
+    tex_desc.SampleDesc.Count = 1;
+    tex_desc.SampleDesc.Quality = 0;
+
+    // Setup Initial Data
+    D3D11_SUBRESOURCE_DATA* subresource_data = new D3D11_SUBRESOURCE_DATA[depth];
+    for(unsigned int i = 0; i < depth; ++i) {
+        subresource_data[i].pSysMem = data;
+        subresource_data[i].SysMemPitch = width * sizeof(unsigned char);
+        subresource_data[i].SysMemSlicePitch = width * height * sizeof(unsigned char);
+    }
+    ID3D11Texture2D* dx_tex = nullptr;
+
+    //If IMMUTABLE or not multi-sampled, must use initial data.
+    bool isMultiSampled = tex_desc.SampleDesc.Count != 1 || tex_desc.SampleDesc.Quality != 0;
+    bool isImmutable = bufferUsage == BufferUsage::STATIC;
+    bool mustUseInitialData = isImmutable || !isMultiSampled;
+
+    HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? subresource_data : nullptr), &dx_tex);
+    delete[] subresource_data;
+    subresource_data = nullptr;
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
         return new Texture2D(_rhi_device, dx_tex);

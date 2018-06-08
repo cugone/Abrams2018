@@ -2,6 +2,8 @@
 
 class Camera3D;
 class Camera2D;
+class Image;
+class SpriteSheet;
 class Texture;
 
 class Game {
@@ -23,4 +25,5 @@ private:
     Camera3D* _camera3 = nullptr;
     Camera2D* _camera2 = nullptr;
     Texture* _tex = nullptr;
+    SpriteSheet* _gif_test = nullptr;
 };

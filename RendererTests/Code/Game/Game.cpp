@@ -1,6 +1,7 @@
 #include "Game/Game.hpp"
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Core/Image.hpp"
 #include "Engine/Core/KerningFont.hpp"
 #include "Engine/Core/Rgba.hpp"
 
@@ -9,6 +10,7 @@
 
 #include "Engine/Renderer/Camera2D.hpp"
 #include "Engine/Renderer/Camera3D.hpp"
+#include "Engine/Renderer/SpriteSheet.hpp"
 #include "Engine/Renderer/Texture.hpp"
 #include "Engine/Renderer/Texture1D.hpp"
 #include "Engine/Renderer/Texture2D.hpp"
@@ -31,12 +33,15 @@ Game::~Game() {
     _camera3 = nullptr;
     delete _camera2;
     _camera2 = nullptr;
+    delete _gif_test;
+    _gif_test = nullptr;
 }
 
 void Game::Initialize() {
     _tex = g_theRenderer->CreateOrGetTexture("Data/Images/Test_StbiAndDirectX.png", IntVector3::XY_AXIS);
     g_theRenderer->RegisterMaterialsFromFolder(std::string{"Data/Materials"});
     g_theRenderer->RegisterFontsFromFolder(std::string{"Data/Fonts"});
+    _gif_test = g_theRenderer->CreateSpriteSheet("Data/Images/cute_sif.gif");
 }
 
 void Game::BeginFrame() {

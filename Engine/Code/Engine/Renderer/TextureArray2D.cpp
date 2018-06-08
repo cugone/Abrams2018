@@ -1,4 +1,4 @@
-#include "Engine/Renderer/Texture2D.hpp"
+#include "Engine/Renderer/TextureArray2D.hpp"
 
 
 #include "Engine/Core/BuildConfig.cpp"
@@ -8,40 +8,40 @@
 
 #include "Engine/RHI/RHIDevice.hpp"
 
-Texture2D::Texture2D(RHIDevice* device, ID3D11Texture2D* dxTexture)
+TextureArray2D::TextureArray2D(RHIDevice* device, ID3D11Texture2D* dxTexture)
     : Texture(device)
     , _dx_tex(dxTexture)
 {
     SetDeviceAndTexture(device, _dx_tex);
 }
 
-void Texture2D::SetDebugName([[maybe_unused]] const std::string& name) noexcept {
+void TextureArray2D::SetDebugName([[maybe_unused]] const std::string& name) noexcept {
 #ifdef RENDER_DEBUG
     _dx_tex->SetPrivateData(WKPDID_D3DDebugObjectName, name.size(), name.data());
 #endif
 }
 
-Texture2D::~Texture2D() {
+TextureArray2D::~TextureArray2D() {
     _device = nullptr;
     _dx_tex->Release();
     _dx_tex = nullptr;
 }
 
-Texture2D::Texture2D(Texture2D&& r_other) noexcept
+TextureArray2D::TextureArray2D(TextureArray2D&& r_other) noexcept
     : Texture(std::move(r_other))
     , _dx_tex(std::move(r_other._dx_tex))
 {
     r_other._dx_tex = nullptr;
 }
 
-Texture2D& Texture2D::operator=(Texture2D&& rhs) noexcept {
+TextureArray2D& TextureArray2D::operator=(TextureArray2D&& rhs) noexcept {
     Texture::operator=(std::move(rhs));
     _dx_tex = std::move(rhs._dx_tex);
     rhs._dx_tex = nullptr;
     return *this;
 }
 
-void Texture2D::SetDeviceAndTexture(RHIDevice* device, ID3D11Texture2D* texture) noexcept {
+void TextureArray2D::SetDeviceAndTexture(RHIDevice* device, ID3D11Texture2D* texture) noexcept {
 
     _device = device;
     _dx_tex = texture;
@@ -49,7 +49,8 @@ void Texture2D::SetDeviceAndTexture(RHIDevice* device, ID3D11Texture2D* texture)
     D3D11_TEXTURE2D_DESC t_desc;
     _dx_tex->GetDesc(&t_desc);
     auto depth = t_desc.ArraySize;
-    _dimensions = IntVector3(t_desc.Width, t_desc.Height, depth == 1 ? 0 : depth);
+    _dimensions = IntVector3(t_desc.Width, t_desc.Height, depth);
+    _isArray = true;
 
     bool success = true;
     if(t_desc.BindFlags & D3D11_BIND_RENDER_TARGET) {

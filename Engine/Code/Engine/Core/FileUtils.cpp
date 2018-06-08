@@ -13,7 +13,7 @@ bool WriteBufferToFile(void* buffer, std::size_t size, const std::string& filePa
 
     namespace FS = std::experimental::filesystem;
     FS::path p(filePath);
-    bool not_valid_path = !FS::is_directory(p);
+    bool not_valid_path = FS::is_directory(p);
     if(not_valid_path) {
         return false;
     }

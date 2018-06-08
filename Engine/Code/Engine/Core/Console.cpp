@@ -1,5 +1,6 @@
 #include "Engine/Core/Console.hpp"
 
+#include "engine/Core/ArgumentParser.hpp"
 #include "Engine/Core/KerningFont.hpp"
 #include "Engine/Core/StringUtils.hpp"
 
@@ -428,12 +429,20 @@ void Console::RegisterDefaultCommands() {
     };
     RegisterCommand(help);
 
-    //Console::Command echo{};
-    //echo.command_name = "echo";
-    //echo.help_text_short = "Displays command and arguments of entryline.";
-    //echo.help_text_long = "echo [text]";
-    //echo.command_function = [](const std::string& /*args*/)->void { /* DO NOTHING */ };
-    //RegisterCommand(echo);
+    Console::Command echo{};
+    echo.command_name = "echo";
+    echo.help_text_short = "Displays arguments as text.";
+    echo.help_text_long = "echo [text]";
+    echo.command_function = [this](const std::string& args)->void {
+        ArgumentParser arg_set(args);
+        std::string cur_arg{};
+        std::ostringstream ss;
+        while(arg_set.GetNext(cur_arg)) {
+            ss << cur_arg << ' ';
+        }
+        PrintMsg(ss.str());
+    };
+    RegisterCommand(echo);
 
     Console::Command clear{};
     clear.command_name = "clear";
@@ -496,14 +505,75 @@ void Console::DrawOutput(const Vector2& view_half_extents) const {
     auto font = _renderer->GetFont("Arial32");
     _renderer->SetMaterial(font->GetMaterial());
     float y = font->GetLineHeight();
-    std::size_t s = _output_buffer.size();
-    for(std::size_t i = s - 1; i < s; --i) {
-        auto entry = _output_buffer[i];
-        Matrix4 cursor_t = Matrix4::CreateTranslationMatrix(Vector3(-view_half_extents.x, (view_half_extents.y * 0.99f) - (y * static_cast<float>(i + 1)), 0.0f));// -(static_cast<float>(s - 1) * y), 0.0f));
+    float draw_loc_y = view_half_extents.y;
+    float draw_loc_x = -view_half_extents.x;
+    auto draw_loc = Vector2(draw_loc_x, draw_loc_y);
+
+    _renderer->SetModelMatrix(Matrix4::GetIdentity());
+    static std::vector<Vertex3D> vbo{};
+    vbo.clear();
+    static std::vector<unsigned int> ibo{};
+    ibo.clear();
+    for(auto iter = _output_buffer.rbegin(); iter != _output_buffer.rend(); ++iter) {
+        Matrix4 cursor_t = Matrix4::CreateTranslationMatrix(Vector3(draw_loc, 0.0f));
+        draw_loc.y -= y;
         Matrix4 model_cursor_mat = cursor_t;
-        _renderer->SetModelMatrix(model_cursor_mat);
-        _renderer->DrawTextLine(font, entry.str, entry.color);
+        BuildOutputBuffer(font, iter->str, draw_loc, iter->color, vbo, ibo);
     }
+    _renderer->DrawIndexed(PrimitiveType::TRIANGLES, vbo, ibo);
+}
+
+void Console::BuildOutputBuffer(KerningFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo) const {
+    if(font == nullptr) {
+        return;
+    }
+    //Yes, it's inefficient but I need the size later anyway!
+    std::size_t text_size = text.size();
+    if(text_size == 0) {
+        return;
+    }
+
+    float cursor_x = start_position.x;
+    float cursor_y = start_position.y;
+    float line_top = cursor_y - font->GetCommonDef().base;
+    float texture_w = static_cast<float>(font->GetCommonDef().scale.x);
+    float texture_h = static_cast<float>(font->GetCommonDef().scale.y);
+    vbo.reserve(text_size * 4);
+    ibo.reserve(text_size * 6);
+
+    for(auto text_iter = text.begin(); text_iter != text.end(); /* DO NOTHING */) {
+        KerningFont::CharDef current_def = font->GetCharDef(*text_iter);
+        float char_uvl = current_def.position.x / texture_w;
+        float char_uvt = current_def.position.y / texture_h;
+        float char_uvr = char_uvl + (current_def.dimensions.x / texture_w);
+        float char_uvb = char_uvt + (current_def.dimensions.y / texture_h);
+
+        float quad_top = line_top + current_def.offsets.y;
+        float quad_bottom = quad_top + current_def.dimensions.y;
+        float quad_left = cursor_x - current_def.offsets.x;
+        float quad_right = quad_left + current_def.dimensions.x;
+
+        vbo.push_back(Vertex3D(Vector3(quad_left, quad_bottom, 0.0f), color, Vector2(char_uvl, char_uvb)));
+        vbo.push_back(Vertex3D(Vector3(quad_left, quad_top, 0.0f), color, Vector2(char_uvl, char_uvt)));
+        vbo.push_back(Vertex3D(Vector3(quad_right, quad_top, 0.0f), color, Vector2(char_uvr, char_uvt)));
+        vbo.push_back(Vertex3D(Vector3(quad_right, quad_bottom, 0.0f), color, Vector2(char_uvr, char_uvb)));
+
+        unsigned int s = static_cast<unsigned int>(vbo.size());
+        ibo.push_back(s - 4);
+        ibo.push_back(s - 3);
+        ibo.push_back(s - 2);
+        ibo.push_back(s - 4);
+        ibo.push_back(s - 2);
+        ibo.push_back(s - 1);
+
+        auto previous_char = text_iter;
+        ++text_iter;
+        if(text_iter != text.end()) {
+            int kern_value = font->GetKerningValue(*previous_char, *text_iter);
+            cursor_x += (current_def.xadvance + kern_value);
+        }
+    }
+
 }
 
 void Console::OutputMsg(const std::string& msg, const Rgba& color) {

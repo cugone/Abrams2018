@@ -2,14 +2,17 @@
 
 #include "Engine/Core/EngineSubsystem.hpp"
 #include "Engine/Core/Rgba.hpp"
+#include "Engine/Core/Vertex3D.hpp"
 
 #include "Engine/Math/Vector2.hpp"
 
 #include <functional>
 #include <map>
 #include <string>
+#include <vector>
 
 class Camera2D;
+class KerningFont;
 class Renderer;
 
 class Console : public EngineSubsystem {
@@ -68,6 +71,7 @@ private:
     void DrawEntryLine(const Vector2& view_half_extents) const;
     void DrawCursor(const Vector2& view_half_extents) const;
     void DrawOutput(const Vector2& view_half_extents) const;
+    void BuildOutputBuffer(KerningFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo) const;
 
     void OutputMsg(const std::string& msg, const Rgba& color);
 

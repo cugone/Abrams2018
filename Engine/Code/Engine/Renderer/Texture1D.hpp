@@ -8,7 +8,6 @@ struct ID3D11Texture1D;
 
 class Texture1D : public Texture {
 public:
-    Texture1D() = default;
     Texture1D(RHIDevice* device, ID3D11Texture1D* dxTexture);
     Texture1D(Texture1D&& r_other) noexcept;
     Texture1D(const Texture1D& other) noexcept = delete;

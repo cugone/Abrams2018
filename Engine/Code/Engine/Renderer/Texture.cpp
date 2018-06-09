@@ -12,12 +12,14 @@ Texture::Texture(Texture&& r_other) noexcept
 : _device(r_other._device)
 ,_dimensions(r_other._dimensions)
 ,_isLoaded(r_other._isLoaded)
+,_isArray(r_other._isArray)
 ,_dsv(r_other._dsv)
 ,_rtv(r_other._rtv)
 {
     r_other._device = nullptr;
     r_other._dimensions = IntVector3::ZERO;
     r_other._isLoaded = false;
+    r_other._isArray = false;
     r_other._dsv = nullptr;
     r_other._rtv = nullptr;
 }
@@ -26,12 +28,14 @@ Texture& Texture::operator=(Texture&& rhs) noexcept {
     _device = rhs._device;
     _dimensions = rhs._dimensions;
     _isLoaded = rhs._isLoaded;
+    _isArray = rhs._isArray;
     _dsv = rhs._dsv;
     _rtv = rhs._rtv;
 
     rhs._device = nullptr;
     rhs._dimensions = IntVector3::ZERO;
     rhs._isLoaded = false;
+    rhs._isArray = false;
     rhs._dsv = nullptr;
     rhs._rtv = nullptr;
 

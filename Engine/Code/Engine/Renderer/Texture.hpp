@@ -13,7 +13,6 @@ struct ID3D11UnorderedAccessView;
 
 class Texture {
 public:
-    Texture() noexcept = default;
     Texture(RHIDevice* device) noexcept;
     Texture(Texture&& r_other) noexcept;
     Texture(const Texture& other) noexcept = delete;

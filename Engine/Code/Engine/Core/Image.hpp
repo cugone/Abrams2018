@@ -17,7 +17,7 @@ public:
 
     Image(unsigned char* data, unsigned int width, unsigned int height);
     Image(Rgba* data, unsigned int width, unsigned int height);
-    Image(unsigned int width = 1, unsigned int height = 1);
+    Image(unsigned int width, unsigned int height);
     Image(const std::vector<Rgba>& data, unsigned int width, unsigned int height);
     Image(const std::vector<unsigned char>& data, unsigned int width, unsigned int height);
     ~Image();
@@ -31,8 +31,10 @@ public:
     unsigned char* GetData() const;
 
     bool Export(const std::string& filepath, int bytes_per_pixel = 4, int jpg_quality = 100);
+    static Image* CreateImageFromFileBuffer(const std::vector<unsigned char>& data);
 protected:
 private:
+    Image() = default;
     unsigned char* m_texelBytes = nullptr;
     IntVector2 m_dimensions{};
     int m_bytesPerTexel = 0;

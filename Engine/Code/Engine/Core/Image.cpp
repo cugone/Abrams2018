@@ -24,7 +24,7 @@ Image::Image(const std::string& filePath)
     ss << "Failed to load image. " << fp << " is not a supported image type.";
     ASSERT_OR_DIE(m_texelBytes != nullptr, ss.str());
 }
-Image::Image(unsigned int width /*= 1*/, unsigned int height /*= 1*/)
+Image::Image(unsigned int width, unsigned int height)
     : m_dimensions(width, height)
     , m_bytesPerTexel(4)
     , m_memload(true) {
@@ -213,4 +213,17 @@ bool Image::Export(const std::string& filepath, int bytes_per_pixel /*= 4*/, int
         }
     }
     return 0 != result;
+}
+
+Image* Image::CreateImageFromFileBuffer(const std::vector<unsigned char>& data) {
+    if(data.empty()) {
+        return nullptr;
+    }
+    Image* result = new Image;
+    int comp = 0;
+    int req_comp = 4;
+    result->m_texelBytes = stbi_load_from_memory(data.data(), data.size(), &result->m_dimensions.x, &result->m_dimensions.y, &comp, req_comp);
+    result->m_bytesPerTexel = comp;
+    result->m_memload = false;
+    return result;
 }

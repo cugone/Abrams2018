@@ -15,7 +15,7 @@ TextureArray2D::TextureArray2D(RHIDevice* device, ID3D11Texture2D* dxTexture)
     SetDeviceAndTexture(device, _dx_tex);
 }
 
-void TextureArray2D::SetDebugName([[maybe_unused]] const std::string& name) noexcept {
+void TextureArray2D::SetDebugName([[maybe_unused]] const std::string& name) const noexcept {
 #ifdef RENDER_DEBUG
     _dx_tex->SetPrivateData(WKPDID_D3DDebugObjectName, name.size(), name.data());
 #endif

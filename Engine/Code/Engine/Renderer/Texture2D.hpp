@@ -14,7 +14,7 @@ public:
     Texture2D& operator=(const Texture2D& rhs) noexcept = delete;
     Texture2D& operator=(Texture2D&& rhs) noexcept;
 
-    virtual void SetDebugName([[maybe_unused]] const std::string& name) noexcept;
+    virtual void SetDebugName([[maybe_unused]] const std::string& name) const noexcept override;
 
     virtual ~Texture2D();
 

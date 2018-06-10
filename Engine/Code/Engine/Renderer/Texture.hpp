@@ -31,7 +31,7 @@ public:
     ID3D11RenderTargetView* GetRenderTargetView();
     ID3D11ShaderResourceView* GetShaderResourceView();
 
-    virtual void SetDebugName([[maybe_unused]] const std::string& name) noexcept = 0;
+    virtual void SetDebugName([[maybe_unused]] const std::string& name) const noexcept = 0;
 
 protected:
     RHIDevice* _device = nullptr;

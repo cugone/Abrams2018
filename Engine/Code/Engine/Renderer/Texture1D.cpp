@@ -11,7 +11,7 @@ Texture1D::Texture1D(RHIDevice* device, ID3D11Texture1D* dxTexture)
     /* DO NOTHING */
 }
 
-void Texture1D::SetDebugName([[maybe_unused]] const std::string& name) noexcept {
+void Texture1D::SetDebugName([[maybe_unused]] const std::string& name) const noexcept {
 #ifdef RENDER_DEBUG
     _dx_tex->SetPrivateData(WKPDID_D3DDebugObjectName, name.size(), name.data());
 #endif

@@ -142,7 +142,9 @@ public:
 
     void SetVSync(bool value);
 
+    Material* CreateMaterialFromFont(KerningFont* font);
     bool RegisterMaterial(const std::string& filepath);
+    void RegisterMaterial(Material* mat);
     void RegisterMaterialsFromFolder(const std::string& folderpath, bool recursive = false);
     std::size_t GetMaterialCount();
     Material* GetMaterial(const std::string& nameOrFile);
@@ -155,6 +157,7 @@ public:
     std::size_t GetFontCount() const;
     KerningFont* GetFont(const std::string& nameOrFile);
     bool RegisterFont(const std::string& filepath);
+    void RegisterFont(KerningFont* font);
     void RegisterFontsFromFolder(const std::string& folderpath, bool recursive = false);
 
     void SetModelMatrix(const Matrix4& mat);
@@ -178,7 +181,8 @@ public:
     void DrawLine2D(float startX, float startY, float endX, float endY, const Rgba& color = Rgba::WHITE, float thickness = 0.0f);
     void DrawLine2D(const Vector2& start, const Vector2& end, const Rgba& color = Rgba::WHITE, float thickness = 0.0f);
     void DrawQuad2D(float left, float bottom, float right, float top, const Rgba& color = Rgba::WHITE);
-    void DrawQuad2D(const Vector2& position, const Vector2& halfExtents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::WHITE);
+    void DrawQuad2D(const Vector2& position = Vector2::ZERO, const Vector2& halfExtents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::WHITE);
+    void DrawQuad2D(const Rgba& color);
     void DrawCircle2D(float centerX, float centerY, float radius, const Rgba& color = Rgba::WHITE);
     void DrawCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::WHITE);
 
@@ -229,7 +233,6 @@ private:
     void CreateAndRegisterDefaultMaterials();
     Material* CreateDefaultMaterial();
     Material* CreateDefaultUnlitMaterial();
-    Material* CreateDefaultFontMaterial(KerningFont* font);
 
     void CreateAndRegisterDefaultSamplers();
     Sampler* CreateDefaultSampler();

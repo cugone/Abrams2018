@@ -322,12 +322,16 @@ void Renderer::DrawQuad2D(float left, float bottom, float right, float top, cons
     DrawIndexed(PrimitiveType::TRIANGLES, vbo, ibo);
 }
 
-void Renderer::DrawQuad2D(const Vector2& position, const Vector2& halfExtents /*= Vector2(0.5f, 0.5f)*/, const Rgba& color /*= Rgba::WHITE*/) {
+void Renderer::DrawQuad2D(const Vector2& position /*= Vector2::ZERO*/, const Vector2& halfExtents /*= Vector2(0.5f, 0.5f)*/, const Rgba& color /*= Rgba::WHITE*/) {
     float left = position.x - halfExtents.x;
     float bottom = position.y + halfExtents.y;
     float right = position.x + halfExtents.x;
     float top = position.y - halfExtents.y;
     DrawQuad2D(left, bottom, right, top, color);
+}
+
+void Renderer::DrawQuad2D(const Rgba& color) {
+    DrawQuad2D(Vector2::ZERO, Vector2(0.5f, 0.5f), color);
 }
 
 void Renderer::DrawCircle2D(float centerX, float centerY, float radius, const Rgba& color /*= Rgba::WHITE*/) {
@@ -620,7 +624,10 @@ Material* Renderer::CreateDefaultUnlitMaterial() {
 
 }
 
-Material* Renderer::CreateDefaultFontMaterial(KerningFont* font) {
+Material* Renderer::CreateMaterialFromFont(KerningFont* font) {
+    if(font == nullptr) {
+        return nullptr;
+    }
     namespace FS = std::experimental::filesystem;
     FS::path folderpath = font->GetFilePath();
     folderpath = folderpath.parent_path();
@@ -659,8 +666,6 @@ Material* Renderer::CreateDefaultFontMaterial(KerningFont* font) {
     if(result != tinyxml2::XML_SUCCESS) {
         return nullptr;
     }
-    FS::path save_path = folderpath.string() + "/" + font->GetName() + std::string(".material");
-    doc.SaveFile(save_path.string().c_str());
     return new Material(this, *doc.RootElement());
 }
 
@@ -731,7 +736,7 @@ void Renderer::UnbindAllShaderResources() {
 SpriteSheet* Renderer::CreateSpriteSheetFromGif(const std::string& filepath) {
     namespace FS = std::experimental::filesystem;
     FS::path p(filepath);
-    if(p.extension() != ".gif") {
+    if(StringUtils::ToLowerCase(p.extension().string()) != ".gif") {
         return nullptr;
     }
 
@@ -750,6 +755,8 @@ SpriteSheet* Renderer::CreateSpriteSheetFromGif(const std::string& filepath) {
         return nullptr;
     }
     auto tex = Create2DTextureArrayFromMemory(gif_buffer, width, height, depth);
+    tex->SetDebugName(p.string());
+    RegisterTexture(p.string(), tex);
     auto spr = new SpriteSheet(tex, depth, 1);
     tex = nullptr;
     delete spr;
@@ -836,6 +843,19 @@ void Renderer::RegisterFont(const std::string& name, KerningFont* font) {
     _fonts.insert_or_assign(name, font);
 }
 
+void Renderer::RegisterFont(KerningFont* font) {
+    if(font == nullptr) {
+        return;
+    }
+    std::string name = font->GetName();
+    auto found_iter = _fonts.find(name);
+    if(found_iter != _fonts.end()) {
+        delete found_iter->second;
+        found_iter->second = nullptr;
+    }
+    _fonts.insert_or_assign(name, font);
+}
+
 bool Renderer::RegisterFont(const std::string& filepath) {
     namespace FS = std::experimental::filesystem;
     return RegisterFont(FS::path{ filepath });
@@ -851,7 +871,7 @@ bool Renderer::RegisterFont(const std::experimental::filesystem::path& filepath)
             std::string texture_path = folderpath.string() + "\\" + texture_filename;
             CreateTexture(texture_path, IntVector3::XY_AXIS);
         }
-        Material* mat = CreateDefaultFontMaterial(font);
+        Material* mat = CreateMaterialFromFont(font);
         if(mat) {
             font->SetMaterial(mat);
             RegisterMaterial(mat->GetName(), mat);
@@ -878,12 +898,16 @@ void Renderer::RegisterFontsFromFolder(const std::experimental::filesystem::path
     if(!recursive) {
         for(auto iter = FS::directory_iterator{ folderpath }; iter != FS::directory_iterator{}; ++iter) {
             auto cur_path = iter->path();
-            RegisterFont(cur_path);
+            if(cur_path.has_extension() && StringUtils::ToLowerCase(cur_path.extension().string()) == ".fnt") {
+                RegisterFont(cur_path);
+            }
         }
     } else {
         for(auto iter = FS::recursive_directory_iterator{ folderpath }; iter != FS::recursive_directory_iterator{}; ++iter) {
             auto cur_path = iter->path();
-            RegisterFont(cur_path);
+            if(cur_path.has_extension() && StringUtils::ToLowerCase(cur_path.extension().string()) == ".fnt") {
+                RegisterFont(cur_path);
+            }
         }
     }
 }
@@ -1062,6 +1086,22 @@ void Renderer::RegisterMaterial(const std::string& name, Material* mat) {
     if(mat == nullptr) {
         return;
     }
+    auto found_iter = _materials.find(name);
+    if(found_iter != _materials.end()) {
+        std::ostringstream ss;
+        ss << __FUNCTION__ << ": Material \"" << name << "\" already exists. Overwriting.\n";
+        DebuggerPrintf(ss.str().c_str());
+        delete found_iter->second;
+        found_iter->second = nullptr;
+    }
+    _materials.insert_or_assign(name, mat);
+}
+
+void Renderer::RegisterMaterial(Material* mat) {
+    if(mat == nullptr) {
+        return;
+    }
+    std::string name = mat->GetName();
     auto found_iter = _materials.find(name);
     if(found_iter != _materials.end()) {
         std::ostringstream ss;

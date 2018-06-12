@@ -98,7 +98,7 @@ bool KerningFont::LoadFromFile(const std::string& filepath) {
         bool path_exists = FS::exists(path);
         bool is_not_directory = !FS::is_directory(path);
         bool is_file = FS::is_regular_file(path);
-        bool is_fnt = path.has_extension() && path.extension() == ".fnt";
+        bool is_fnt = path.has_extension() && StringUtils::ToLowerCase(path.extension().string()) == ".fnt";
         bool is_valid = path_exists && is_not_directory && is_file && is_fnt;
         std::string pathAsStr = path.string();
         if(!is_valid) {
@@ -123,7 +123,11 @@ bool KerningFont::LoadFromFile(const std::string& filepath) {
         DebuggerPrintf(ss.str().c_str());
         return false;
     }
+    return LoadFromBuffer(out_buffer);
+}
 
+bool KerningFont::LoadFromBuffer(const std::vector<unsigned char>& buffer) {
+    std::vector<unsigned char> out_buffer(buffer);
     bool is_binary = out_buffer[0] == 66 && out_buffer[1] == 77 && out_buffer[2] == 70;
     bool is_text = out_buffer[0] == 105 && out_buffer[1] == 110 && out_buffer[2] == 102 && out_buffer[3] == 111;
     if(is_binary) {
@@ -649,287 +653,214 @@ bool KerningFont::LoadFromXml(std::vector<unsigned char>& buffer) {
     return true;
 }
 
-//TODO: LoadFontFromBinary
 bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) {
     //See http://www.angelcode.com/products/bmfont/doc/file_format.html#bin
     //for specifics regarding layout
 
-    constexpr const uint8_t CURRENT_BMF_VERSION = 3;
+    struct BMFBinaryHeader {
+        char id[3];
+        uint8_t version{};
+    };
 
-    uint8_t* cur_position = buffer.data();
-    bool is_bmf = IsBmfFileBinary(cur_position);
-    if(!is_bmf) {
-        buffer.clear();
-        buffer.shrink_to_fit();
-        std::ostringstream ss;
-        ss << _filepath << " is not a BMFont file.\n";
-        DebuggerPrintf(ss.str().c_str());
-        return false;
-    }
-    cur_position += 3;
-    bool is_correct_version = IsCorrectBmfVersionBinary(cur_position, CURRENT_BMF_VERSION);
-    if(!is_correct_version) {
-        buffer.clear();
-        buffer.shrink_to_fit();
-        DebuggerPrintf("BMF VERSION HAS CHANGED. See http://www.angelcode.com/products/bmfont/doc/file_format.html#bin for updates!\n");
-        return false;
-    }
-    cur_position += 1;
-    int32_t info_block_size = 0;
-    int32_t common_block_size = 0;
-    int32_t pages_block_size = 0;
-    int32_t chars_block_size = 0;
-    //int32_t kerning_block_size = 0;
-    cur_position = ParseInfoBlockBinary(cur_position, info_block_size);
-    cur_position = ParseCommonBlockBinary(cur_position, common_block_size);
-    cur_position = ParsePagesBlockBinary(cur_position, pages_block_size, (uint16_t)_common.page_count);
-    cur_position = ParseCharsBlockBinary(cur_position, chars_block_size);
+    struct BMFBinaryInfo {
+        int16_t font_size{};
+        uint8_t suibfr3_bitfield{};
+        uint8_t char_set{};
+        uint16_t stretch_height{};
+        uint8_t aa{};
+        uint8_t padding_up{};
+        uint8_t padding_right{};
+        uint8_t padding_down{};
+        uint8_t padding_left{};
+        uint8_t spacing_h{};
+        uint8_t spacing_v{};
+        uint8_t outline{};
+    };
+
+    struct BMFBinaryCommon {
+        uint16_t line_height{};
+        uint16_t base{};
+        uint16_t scale_w{};
+        uint16_t scale_h{};
+        uint16_t pages{};
+        uint8_t r7p_bitfield{};
+        uint8_t alpha_channel{};
+        uint8_t red_channel{};
+        uint8_t green_channel{};
+        uint8_t blue_channel{};
+    };
+
+    struct BMFBinaryChars {
+        uint32_t id{};
+        uint16_t x{};
+        uint16_t y{};
+        uint16_t width{};
+        uint16_t height{};
+        uint16_t x_offset{};
+        uint16_t y_offset{};
+        uint16_t x_advance{};
+        uint8_t page{};
+        uint8_t channel{};
+    };
+
+    struct BMFBinaryPages {
+        char* page_names{};
+    };
+
+    struct BMFBinaryKerning {
+        uint32_t first{};
+        uint32_t second{};
+        int16_t amount{};
+    };
+
+    BMFBinaryHeader header{};
+    BMFBinaryInfo info{};
+    BMFBinaryCommon common{};
+    BMFBinaryChars chars{};
+    BMFBinaryPages pages{};
+    BMFBinaryKerning kerning{};
+    std::stringstream bss(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
+    bss.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
     buffer.clear();
     buffer.shrink_to_fit();
-    cur_position = nullptr;
-    return false;
-    //std::size_t current_size = info_block_size + common_block_size + pages_block_size + chars_block_size;
-    //std::size_t total_size = buffer.size();
-    //if(current_size < total_size) {
-    //    cur_position = ParseKerningBlockBinary(cur_position, kerning_block_size);
-    //}
-    //buffer.clear();
-    //buffer.shrink_to_fit();
-    //cur_position = nullptr;
-    //return false;
-}
 
-bool KerningFont::IsBmfFileBinary(uint8_t*& cur_position) {
-    bool is_bmf = (*cur_position) == 'B' && (*(cur_position + 1)) == 'M' && (*(cur_position + 2)) == 'F';
-    return is_bmf;
-}
-
-bool KerningFont::IsCorrectBmfVersionBinary(uint8_t*& cur_position, const uint8_t CURRENT_BMF_VERSION) {
-    bool is_correct_ver = (*cur_position) == CURRENT_BMF_VERSION;
-    return is_correct_ver;
-}
-
-uint8_t* KerningFont::ParseInfoBlockBinary(uint8_t*& cur_position, int32_t& blockSize) {
-    uint8_t block_type = *((uint8_t*)cur_position);
-    if(block_type != 1) {
+    bss.clear();
+    bss.seekg(0);
+    bss.seekp(0);
+    uint8_t block_id{};
+    uint32_t block_size{};
+    constexpr const uint8_t CURRENT_BMF_VERSION = 3;
+    if(bss.read(reinterpret_cast<char*>(&header), sizeof(header))) {
+        if(!(header.id[0] == 'B' && header.id[1] == 'M' && header.id[2] == 'F')) {
+            std::ostringstream ss;
+            ss << _filepath << " is not a BMFont file.\n";
+            DebuggerPrintf(ss.str().c_str());
+            return false;
+        }
+        if(header.version != CURRENT_BMF_VERSION) {
+            DebuggerPrintf("BMF VERSION NUMBER HAS CHANGED. See http://www.angelcode.com/products/bmfont/doc/file_format.html#bin for updates!\n");
+            return false;
+        }
+    }
+    int successful_block_reads = 0;
+    constexpr const uint8_t BLOCK_ID_INFO = 1;
+    constexpr const uint8_t BLOCK_ID_COMMON = 2;
+    constexpr const uint8_t BLOCK_ID_PAGES = 3;
+    constexpr const uint8_t BLOCK_ID_CHARS = 4;
+    constexpr const uint8_t BLOCK_ID_KERNINGS = 5;
+    while(bss.read(reinterpret_cast<char*>(&block_id), sizeof(block_id))) {
+        switch(block_id) {
+            case BLOCK_ID_INFO:
+            {
+                ++successful_block_reads;
+                bss.read(reinterpret_cast<char*>(&block_size), sizeof(block_size));
+                bss.read(reinterpret_cast<char*>(&info), sizeof(info));
+                std::string font_name(block_size - sizeof(info), '\0');
+                bss.read(font_name.data(), font_name.size());
+                if(info.font_size < 0) {
+                    std::ostringstream ss;
+                    ss << _filepath << " uses \"Match char height option which will result in negative font sizes.\"\n";
+                    DebuggerPrintf(ss.str().c_str());
+                }
+                _info.charset = info.char_set;
+                _info.em_size = info.font_size;
+                _info.face = font_name.c_str();
+                _info.is_aliased = info.aa != 0;
+                _info.is_smoothed    = (info.suibfr3_bitfield & 0b10000000) != 0;
+                _info.is_unicode     = (info.suibfr3_bitfield & 0b01000000) != 0;
+                _info.is_italic      = (info.suibfr3_bitfield & 0b00100000) != 0;
+                _info.is_bold        = (info.suibfr3_bitfield & 0b00010000) != 0;
+                _info.is_fixedHeight = (info.suibfr3_bitfield & 0b00001000) != 0;
+                _info.outline = info.outline;
+                _info.padding = IntVector4(info.padding_up, info.padding_right, info.padding_down, info.padding_left);
+                _info.spacing = IntVector2(info.spacing_h, info.spacing_v);
+                _info.stretch_height = info.stretch_height / 100.0f;
+                std::ostringstream ss;
+                ss << _info.face << _info.em_size;
+                _name = ss.str();
+                break;
+            }
+            case BLOCK_ID_COMMON:
+            {
+                ++successful_block_reads;
+                bss.read(reinterpret_cast<char*>(&block_size), sizeof(block_size));
+                bss.read(reinterpret_cast<char*>(&common), block_size);
+                _common.alpha_channel = common.alpha_channel;
+                _common.base = common.base;
+                _common.blue_channel = common.blue_channel;
+                _common.green_channel = common.green_channel;
+                _common.is_packed = (common.r7p_bitfield & 0b00000001) != 0;
+                _common.line_height = common.line_height;
+                _common.page_count = common.pages;
+                _image_paths.resize(_common.page_count);
+                _common.red_channel = common.red_channel;
+                _common.scale = IntVector2(common.scale_w, common.scale_h);
+                break;
+            }
+            case BLOCK_ID_PAGES:
+            {
+                ++successful_block_reads;
+                bss.read(reinterpret_cast<char*>(&block_size), sizeof(block_size));
+                uint8_t page_name_length = (uint8_t)(((uint32_t)block_size / (uint32_t)_common.page_count) - (uint32_t)1);
+                for(std::size_t i = 0; i < static_cast<std::size_t>(_common.page_count); ++i) {
+                    _image_paths[i].resize(page_name_length);
+                    bss.read(_image_paths[i].data(), _image_paths[i].size() + 1);
+                }
+                break;
+            }
+            case BLOCK_ID_CHARS:
+            {
+                ++successful_block_reads;
+                bss.read(reinterpret_cast<char*>(&block_size), sizeof(block_size));
+                uint32_t chars_size = sizeof(chars);
+                uint32_t char_count = block_size / chars_size;
+                for(uint32_t i = 0; i < char_count; ++i) {
+                    if(!bss.read(reinterpret_cast<char*>(&chars), chars_size)) {
+                        std::ostringstream ss;
+                        ss << _filepath << " is not a BMFont file.\n";
+                        DebuggerPrintf(ss.str().c_str());
+                        return false;
+                    }
+                    CharDef d{};
+                    d.channel_id = chars.channel;
+                    d.dimensions = IntVector2(chars.width, chars.height);
+                    d.id = chars.id;
+                    d.offsets = IntVector2(chars.x_offset, chars.y_offset);
+                    d.page_id = chars.page;
+                    d.position = IntVector2(chars.x, chars.y);
+                    d.xadvance = chars.x_advance;
+                    _charmap.insert_or_assign(d.id, d);
+                }
+                break;
+            }
+            case BLOCK_ID_KERNINGS:
+            {
+                ++successful_block_reads;
+                bss.read(reinterpret_cast<char*>(&block_size), sizeof(block_size));
+                uint32_t kerns_size = sizeof(kerning);
+                uint32_t kerns_count = block_size / kerns_size;
+                for(uint32_t i = 0; i < kerns_count; ++i) {
+                    if(bss.read(reinterpret_cast<char*>(&kerning), kerns_size)) {
+                        KerningDef d{};
+                        d.first = kerning.first;
+                        d.second = kerning.second;
+                        d.amount = kerning.amount;
+                        _kernmap.insert_or_assign(std::make_pair(d.first, d.second), d.amount);
+                    }
+                }
+                break;
+            }
+            default:
+            {
+                DebuggerPrintf("BMF LAYOUT HAS CHANGED. See http://www.angelcode.com/products/bmfont/doc/file_format.html#bin for updates!\n");
+                return false;
+            }
+        }
+    }
+    if(successful_block_reads < BLOCK_ID_KERNINGS) {
         std::ostringstream ss;
-        ss << __FUNCTION__ << ": block is not an info block.\n";
+        ss << "No kerning pairs found in font \"" << _name << "\"\n";
         DebuggerPrintf(ss.str().c_str());
-        return cur_position;
     }
-    cur_position += 1;
-    int32_t block_size = *((int32_t*)cur_position);
-    blockSize = block_size;
-    cur_position = (uint8_t*)(((int32_t*)cur_position) + 1);
-    int16_t font_size = *((int16_t*)cur_position);
-    cur_position = (uint8_t*)(((int16_t*)cur_position) + 1);
-    uint8_t bit_field = *((uint8_t*)cur_position);
-    cur_position += 1;
-    uint8_t char_set = *((uint8_t*)cur_position);
-    cur_position += 1;
-    uint16_t stretch_height = *((uint16_t*)cur_position);
-    cur_position = (uint8_t*)(((uint16_t*)cur_position) + 1);
-    uint8_t aliasing = *((uint8_t*)cur_position);
-    cur_position += 1;
-    uint8_t paddingUp = *((uint8_t*)cur_position);
-    cur_position += 1;
-    uint8_t paddingRight = *((uint8_t*)cur_position);
-    cur_position += 1;
-    uint8_t paddingDown = *((uint8_t*)cur_position);
-    cur_position += 1;
-    uint8_t paddingLeft = *((uint8_t*)cur_position);
-    cur_position += 1;
-    uint8_t spacingHoriz = *((uint8_t*)cur_position);
-    cur_position += 1;
-    uint8_t spacingVert = *((uint8_t*)cur_position);
-    cur_position += 1;
-    uint8_t outline = *((uint8_t*)cur_position);
-    cur_position += 1;
-    std::size_t font_name_length = 0;
-    uint8_t* font_name_start = cur_position;
-    while(*cur_position != '\0') {
-        ++font_name_length;
-        ++cur_position;
-    }
-    ++cur_position;
-    std::string font_name = std::string(font_name_start, font_name_start + font_name_length);
-
-    _info.face = font_name;
-    _info.charset = char_set;
-    _info.em_size = font_size;
-    _info.is_aliased = aliasing != 0;
-    _info.is_smoothed = (bit_field & 0b1000'0000) != 0;
-    _info.is_unicode = (bit_field & 0b0100'0000) != 0;
-    _info.is_italic = (bit_field & 0b0010'0000) != 0;
-    _info.is_bold = (bit_field & 0b0001'0000) != 0;
-    _info.is_fixedHeight = (bit_field & 0b0000'1000) != 0;
-    _info.padding = IntVector4(paddingUp, paddingRight, paddingDown, paddingLeft);
-    _info.spacing = IntVector2(spacingHoriz, spacingVert);
-    _info.outline = outline;
-    _info.stretch_height = stretch_height / 100.0f;
-
-    {
-    std::ostringstream ss;
-    ss << _info.face << _info.em_size;
-    _name = ss.str();
-    }
-
-    return cur_position;
-}
-
-uint8_t* KerningFont::ParseCommonBlockBinary(uint8_t*& cur_position, int32_t& blockSize) {
-    uint8_t block_type = *((uint8_t*)cur_position);
-    if(block_type != 2) {
-        std::ostringstream ss;
-        ss << __FUNCTION__ << ": block is not a common block.\n";
-        DebuggerPrintf(ss.str().c_str());
-        return cur_position;
-    }
-    cur_position += 1;
-    int32_t block_size = *((int32_t*)cur_position);
-    blockSize = block_size;
-    cur_position = (uint8_t*)(((uint32_t*)cur_position) + 1);
-
-    uint16_t line_height = *((uint16_t*)cur_position);
-    cur_position = (uint8_t*)(((uint16_t*)cur_position) + 1);
-    uint16_t base = *((uint16_t*)cur_position);
-    cur_position = (uint8_t*)(((uint16_t*)cur_position) + 1);
-    uint16_t scaleW = *((uint16_t*)cur_position);
-    cur_position = (uint8_t*)(((uint16_t*)cur_position) + 1);
-    uint16_t scaleH = *((uint16_t*)cur_position);
-    cur_position = (uint8_t*)(((uint16_t*)cur_position) + 1);
-    uint16_t pages = *((uint16_t*)cur_position);
-    cur_position = (uint8_t*)(((uint16_t*)cur_position) + 1);
-    uint8_t bit_field = *((uint8_t*)cur_position);
-    cur_position += 1;
-    uint8_t alpha_channel = *((uint8_t*)cur_position);
-    cur_position += 1;
-    uint8_t red_channel = *((uint8_t*)cur_position);
-    cur_position += 1;
-    uint8_t green_channel = *((uint8_t*)cur_position);
-    cur_position += 1;
-    uint8_t blue_channel = *((uint8_t*)cur_position);
-    cur_position += 1;
-
-    _common.alpha_channel = alpha_channel;
-    _common.base = base;
-    _common.blue_channel = blue_channel;
-    _common.green_channel = green_channel;
-    _common.is_packed = (bit_field & 0b00000001) != 0;
-    _common.line_height = line_height;
-    _common.page_count = pages;
-    _common.red_channel = red_channel;
-    _common.scale.x = scaleW;
-    _common.scale.y = scaleH;
-
-    return cur_position;
-}
-
-uint8_t* KerningFont::ParsePagesBlockBinary(uint8_t* cur_position, int32_t& pages_block_size, uint16_t page_count) {
-    pages_block_size = 0;
-    _image_paths.resize(page_count);
-    if(page_count == 0) {
-        std::ostringstream ss;
-        ss << __FUNCTION__ << ": No pages to parse.\n";
-        DebuggerPrintf(ss.str().c_str());
-        return cur_position;
-    }
-
-    uint8_t block_type = *((uint8_t*)cur_position);
-    if(block_type != 3) {
-        std::ostringstream ss;
-        ss << __FUNCTION__ << ": Not a pages block.\n";
-        DebuggerPrintf(ss.str().c_str());
-        return cur_position;
-    }
-    cur_position += 1;
-    int32_t block_size = *((int32_t*)cur_position);
-    cur_position = (uint8_t*)(((int32_t*)cur_position) + 1);
-    pages_block_size = block_size;
-    uint8_t page_name_length = (uint8_t)(((uint32_t)block_size / (uint32_t)page_count) - (uint32_t)1);
-    uint8_t* page_start = cur_position;
-    for(std::size_t i = 0; i < page_count; ++i) {
-        _image_paths[i] = std::string(page_start, page_start + page_name_length);
-        cur_position += (page_name_length + 1); //Account for null-terminator
-        page_start = cur_position;
-    }
-    return cur_position;
-}
-
-uint8_t* KerningFont::ParseCharsBlockBinary(uint8_t*& cur_position, int32_t& chars_block_size) {
-    uint8_t block_type = *((uint8_t*)cur_position);
-    if(block_type != 4) {
-        std::ostringstream ss;
-        ss << __FUNCTION__ << ": Not a chars block.\n";
-        DebuggerPrintf(ss.str().c_str());
-        return cur_position;
-    }
-
-    cur_position += 1;
-    int32_t block_size = *((int32_t*)cur_position);
-    cur_position = (uint8_t*)(((int32_t*)cur_position) + 1);
-    chars_block_size = block_size;
-    _char_count = static_cast<std::size_t>(block_size / (uint32_t)20);
-    
-    for(std::size_t i = 0; i < _char_count; ++i) {
-        uint32_t id = *(uint32_t*)(cur_position);
-        cur_position = (uint8_t*)(((uint32_t*)cur_position) + 1);
-        uint16_t x = *(uint16_t*)(cur_position);
-        cur_position = (uint8_t*)(((uint16_t*)cur_position) + 1);
-        uint16_t y = *(uint16_t*)(cur_position);
-        cur_position = (uint8_t*)(((uint16_t*)cur_position) + 1);
-        uint16_t width = *(uint16_t*)(cur_position);
-        cur_position = (uint8_t*)(((uint16_t*)cur_position) + 1);
-        uint16_t height = *(uint16_t*)(cur_position);
-        cur_position = (uint8_t*)(((uint16_t*)cur_position) + 1);
-        int16_t xoffset = *(int16_t*)(cur_position);
-        cur_position = (uint8_t*)(((int16_t*)cur_position) + 1);
-        int16_t yoffset = *(int16_t*)(cur_position);
-        cur_position = (uint8_t*)(((int16_t*)cur_position) + 1);
-        int16_t xadvance = *(int16_t*)(cur_position);
-        cur_position = (uint8_t*)(((uint16_t*)cur_position) + 1);
-        uint8_t page = *(uint8_t*)(cur_position);
-        cur_position = (uint8_t*)(((uint8_t*)cur_position) + 1);
-        uint8_t channel = *(uint8_t*)(cur_position);
-        cur_position = (uint8_t*)(((uint8_t*)cur_position) + 1);
-
-        CharDef d{};
-        d.id = id;
-        d.position = IntVector2(x, y);
-        d.dimensions = IntVector2(width, height);
-        d.offsets = IntVector2(xoffset, yoffset);
-        d.xadvance = xadvance;
-        d.page_id = page;
-        d.channel_id = channel;
-
-        _charmap.insert_or_assign(d.id, d);
-    }
-    return cur_position;
-}
-
-uint8_t* KerningFont::ParseKerningBlockBinary(uint8_t*& cur_position, int32_t& kerning_block_size) {
-    uint8_t block_type = *((uint8_t*)cur_position);
-    if(block_type != 5) {
-        std::ostringstream ss;
-        ss << __FUNCTION__ << ": Not a kernings block.\n";
-        DebuggerPrintf(ss.str().c_str());
-        return cur_position;
-    }
-
-    cur_position += 1;
-    int32_t block_size = *((int32_t*)cur_position);
-    cur_position = (uint8_t*)(((int32_t*)cur_position) + 1);
-    kerning_block_size = block_size;
-    _kerns_count = static_cast<std::size_t>(block_size / (uint32_t)10);
-    for(std::size_t i = 0; i < _kerns_count; ++i) {
-        uint32_t first = *(uint32_t*)cur_position;
-        cur_position = (uint8_t*)(((uint32_t*)cur_position) + 1);
-        uint32_t second = *(uint32_t*)cur_position;
-        cur_position = (uint8_t*)(((uint32_t*)cur_position) + 1);
-        int16_t amount = *(int16_t*)cur_position;
-        cur_position = (uint8_t*)(((uint16_t*)cur_position) + 1);
-        _kernmap.insert_or_assign(std::make_pair(first, second), amount);
-    }
-
-    return cur_position;
+    return true;
 }

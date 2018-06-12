@@ -101,6 +101,7 @@ using KerningMap = std::map<std::pair<int, int>, int>;
     const std::vector<std::string>& GetImagePaths() const;
     const std::string& GetFilePath() const;
     bool LoadFromFile(const std::string& filepath);
+    bool LoadFromBuffer(const std::vector<unsigned char>& buffer);
 
     Material* GetMaterial() const;
     void SetMaterial(Material* mat);
@@ -129,14 +130,6 @@ private:
     bool ParseCharLine(const std::string& charLine);
     bool ParseKerningsLine(const std::string& kerningsLine);
     bool ParseKerningLine(const std::string& kerningLine);
-
-    bool IsBmfFileBinary(uint8_t*& cur_position);
-    bool IsCorrectBmfVersionBinary(uint8_t*& cur_position, const uint8_t CURRENT_BMF_VERSION);
-    uint8_t* ParseInfoBlockBinary(uint8_t*& cur_position, int32_t& blockSize);
-    uint8_t* ParseCommonBlockBinary(uint8_t*& cur_position, int32_t& blockSize);
-    uint8_t* ParsePagesBlockBinary(uint8_t* cur_position, int32_t& pages_block_size, uint16_t page_count);
-    uint8_t* ParseCharsBlockBinary(uint8_t*& cur_position, int32_t& chars_block_size);
-    uint8_t* ParseKerningBlockBinary(uint8_t*& cur_position, int32_t& kerning_block_size);
 
     Renderer* _renderer = nullptr;
     Material* _material = nullptr;

@@ -116,22 +116,10 @@ void Game::Render() const {
     Vector2 rightTop   = Vector2(view_half_width, -view_half_height);
     Vector2 nearFar = Vector2(0.0f, 1.0f);
     Vector2 cam_pos2 = Vector2(_camera2->GetPosition());
-    _camera2->SetupView(leftBottom, rightTop, nearFar, MathUtils::M_16_BY_9_RATIO, -Vector3::Y_AXIS);
+    _camera2->SetupView(leftBottom, rightTop, nearFar, MathUtils::M_16_BY_9_RATIO);
 
     g_theRenderer->SetViewMatrix(_camera2->GetViewMatrix());
     g_theRenderer->SetProjectionMatrix(_camera2->GetProjectionMatrix());
-
-    //g_theRenderer->SetMaterial(nullptr);
-    //for(float x = -view_half_width; x <= view_half_width; x += 100.0f) {
-    //    Vector2 start{ x, -view_half_height };
-    //    Vector2 end{ x, view_half_height };
-    //    g_theRenderer->DrawLine2D(start, end, Rgba::WHITE);
-    //}
-    //for(float y = -view_half_height; y <= view_half_height; y += 100.0f) {
-    //    Vector2 start{ view_half_width, y };
-    //    Vector2 end{ -view_half_width, y };
-    //    g_theRenderer->DrawLine2D(start, end, Rgba::WHITE);
-    //}
 
     Matrix4 s = Matrix4::CreateScaleMatrix(Vector2((float)_tex->GetDimensions().x, (float)_tex->GetDimensions().y) * 0.50f);
     Matrix4 t = Matrix4::GetIdentity();
@@ -139,7 +127,7 @@ void Game::Render() const {
     Matrix4 mat = t * r * s;
     g_theRenderer->SetModelMatrix(mat);
     g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
-    g_theRenderer->DrawQuad2D(Vector2::ZERO);
+    g_theRenderer->DrawQuad2D();
 
     g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
     g_theRenderer->SetMaterial(g_theRenderer->GetFont("Arial32")->GetMaterial());

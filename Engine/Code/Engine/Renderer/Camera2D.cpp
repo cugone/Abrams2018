@@ -1,10 +1,10 @@
 #include "Engine/Renderer/Camera2D.hpp"
 
-void Camera2D::SetupView(float left, float right, float top, float bottom, float nearDistance /*= 0.0f*/, float farDistance /*= 1.0f*/, float aspectRatio /*= MathUtils::M_16_BY_9_RATIO*/, const Vector3& worldUp /*= Vector3::Y_AXIS*/) {
-    SetupView(Vector2(left, bottom), Vector2(right, top), Vector2(nearDistance, farDistance), aspectRatio, worldUp);
+void Camera2D::SetupView(float left, float right, float top, float bottom, float nearDistance /*= 0.0f*/, float farDistance /*= 1.0f*/, float aspectRatio /*= MathUtils::M_16_BY_9_RATIO*/) {
+    SetupView(Vector2(left, bottom), Vector2(right, top), Vector2(nearDistance, farDistance), aspectRatio);
 }
 
-void Camera2D::SetupView(const Vector2& leftBottom, const Vector2& rightTop, const Vector2& nearFar /*= Vector2(0.0f, 1.0f)*/, float aspectRatio /*= MathUtils::M_16_BY_9_RATIO*/, const Vector3& worldUp /*= Vector3::Y_AXIS*/) {
+void Camera2D::SetupView(const Vector2& leftBottom, const Vector2& rightTop, const Vector2& nearFar /*= Vector2(0.0f, 1.0f)*/, float aspectRatio /*= MathUtils::M_16_BY_9_RATIO*/) {
     left_view = leftBottom.x;
     right_view = rightTop.x;
     bottom_view = leftBottom.y;
@@ -12,7 +12,6 @@ void Camera2D::SetupView(const Vector2& leftBottom, const Vector2& rightTop, con
     aspect_ratio = aspectRatio;
     near_distance = nearFar.x;
     far_distance = nearFar.y;
-    world_up = worldUp.GetNormalize();
     CalcViewMatrix();
     CalcProjectionMatrix();
     CalcViewProjectionMatrix();

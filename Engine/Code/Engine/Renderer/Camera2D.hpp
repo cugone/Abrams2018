@@ -10,8 +10,8 @@ public:
     Camera2D() = default;
     ~Camera2D() = default;
 
-    void SetupView(float left, float right, float top, float bottom, float nearDistance = 0.0f, float farDistance = 1.0f, float aspectRatio = MathUtils::M_16_BY_9_RATIO, const Vector3& worldUp = Vector3::Y_AXIS);
-    void SetupView(const Vector2& leftBottom, const Vector2& rightTop, const Vector2& nearFar = Vector2(0.0f, 1.0f), float aspectRatio = MathUtils::M_16_BY_9_RATIO, const Vector3& worldUp = Vector3::Y_AXIS);
+    void SetupView(float left, float right, float top, float bottom, float nearDistance = 0.0f, float farDistance = 1.0f, float aspectRatio = MathUtils::M_16_BY_9_RATIO);
+    void SetupView(const Vector2& leftBottom, const Vector2& rightTop, const Vector2& nearFar = Vector2(0.0f, 1.0f), float aspectRatio = MathUtils::M_16_BY_9_RATIO);
     void Update(float deltaSeconds);
 
     const Vector2& GetPosition() const;
@@ -53,7 +53,6 @@ private:
     float far_distance = 1.0f;
     float orientation_degrees = 0.0f;
     Vector2 position = Vector2::ZERO;
-    Vector3 world_up = Vector3::Y_AXIS;
     Matrix4 view_matrix = Matrix4::GetIdentity();
     Matrix4 projection_matrix = Matrix4::GetIdentity();
     Matrix4 view_projection_matrix = Matrix4::GetIdentity();

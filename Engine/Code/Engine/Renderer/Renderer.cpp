@@ -1575,8 +1575,8 @@ Texture* Renderer::Create1DTextureFromMemory(const unsigned char* data, unsigned
     D3D11_SUBRESOURCE_DATA subresource_data = {};
 
     subresource_data.pSysMem = data;
-    subresource_data.SysMemPitch = width * sizeof(unsigned char);
-    subresource_data.SysMemSlicePitch = width * sizeof(unsigned char);
+    subresource_data.SysMemPitch = width * sizeof(unsigned int);
+    subresource_data.SysMemSlicePitch = width * sizeof(unsigned int);
 
     ID3D11Texture1D* dx_tex = nullptr;
 
@@ -1731,8 +1731,8 @@ Texture* Renderer::Create2DTextureFromMemory(const unsigned char* data, unsigned
     D3D11_SUBRESOURCE_DATA subresource_data = {};
 
     subresource_data.pSysMem = data;
-    subresource_data.SysMemPitch = width * sizeof(unsigned char);
-    subresource_data.SysMemSlicePitch = width * height * sizeof(unsigned char);
+    subresource_data.SysMemPitch = width * sizeof(unsigned int);
+    subresource_data.SysMemSlicePitch = width * height * sizeof(unsigned int);
 
     ID3D11Texture2D* dx_tex = nullptr;
 
@@ -1821,8 +1821,8 @@ Texture* Renderer::Create2DTextureArrayFromMemory(const unsigned char* data, uns
     D3D11_SUBRESOURCE_DATA* subresource_data = new D3D11_SUBRESOURCE_DATA[depth];
     for(unsigned int i = 0; i < depth; ++i) {
         subresource_data[i].pSysMem = data;
-        subresource_data[i].SysMemPitch = width * sizeof(unsigned char);
-        subresource_data[i].SysMemSlicePitch = width * height * sizeof(unsigned char);
+        subresource_data[i].SysMemPitch = width * sizeof(unsigned int);
+        subresource_data[i].SysMemSlicePitch = width * height * sizeof(unsigned int);
     }
     ID3D11Texture2D* dx_tex = nullptr;
 
@@ -1934,8 +1934,8 @@ Texture* Renderer::Create3DTextureFromMemory(const unsigned char* data, unsigned
     D3D11_SUBRESOURCE_DATA subresource_data = {};
 
     subresource_data.pSysMem = data;
-    subresource_data.SysMemPitch = width * sizeof(unsigned char);
-    subresource_data.SysMemSlicePitch = width * height * sizeof(unsigned char);
+    subresource_data.SysMemPitch = width * sizeof(unsigned int);
+    subresource_data.SysMemSlicePitch = width * height * sizeof(unsigned int);
 
     ID3D11Texture3D* dx_tex = nullptr;
 

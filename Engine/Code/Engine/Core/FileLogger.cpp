@@ -4,6 +4,8 @@
 #include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/TimeUtils.hpp"
 
+#include "Engine/Core/Win.hpp"
+
 #include <cstdio>
 #include <cstdarg>
 #include <chrono>
@@ -64,6 +66,7 @@ void FileLogger::Initialize(const std::string& log_name) {
     }
     _old_cout = std::cout.rdbuf(_stream.rdbuf());
     _worker = std::thread([this]() { this->Log_worker(); });
+    ::SetThreadDescription(_worker.native_handle(), L"FileLogger");
     std::ostringstream ss;
     ss << "Initializing Logger: " << log_str << "...";
     LogLine(ss.str().c_str());

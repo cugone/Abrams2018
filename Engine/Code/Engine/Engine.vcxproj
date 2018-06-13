@@ -59,6 +59,7 @@
     <ClCompile Include="Math\Vector2.cpp" />
     <ClCompile Include="Math\Vector3.cpp" />
     <ClCompile Include="Math\Vector4.cpp" />
+    <ClCompile Include="Renderer\AnimatedSprite.cpp" />
     <ClCompile Include="Renderer\ArrayBuffer.cpp" />
     <ClCompile Include="Renderer\BlendState.cpp" />
     <ClCompile Include="Renderer\Buffer.cpp" />
@@ -135,6 +136,7 @@
     <ClInclude Include="Math\Vector2.hpp" />
     <ClInclude Include="Math\Vector3.hpp" />
     <ClInclude Include="Math\Vector4.hpp" />
+    <ClInclude Include="Renderer\AnimatedSprite.hpp" />
     <ClInclude Include="Renderer\ArrayBuffer.hpp" />
     <ClInclude Include="Renderer\BlendState.hpp" />
     <ClInclude Include="Renderer\Buffer.hpp" />

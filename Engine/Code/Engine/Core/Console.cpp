@@ -709,9 +709,7 @@ void Console::RegisterDefaultFont() {
         Texture* tex = _renderer->Create2DTextureFromMemory(img->GetData(), img->GetDimensions().x, img->GetDimensions().y);
         std::string tex_name = "__Font_";
         tex_name += font_system32->GetName();
-#ifdef RENDER_DEBUG
         tex->SetDebugName(tex_name);
-#endif
         _renderer->RegisterTexture(tex_name, tex);
         delete img;
         img = nullptr;

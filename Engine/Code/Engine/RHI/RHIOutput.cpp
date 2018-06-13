@@ -95,9 +95,7 @@ void RHIOutput::CreateBackbuffer() {
     ID3D11Texture2D* back_buffer = nullptr;
     _dxgi_swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<LPVOID*>(&back_buffer));
     _back_buffer = new Texture2D(_parent_device, back_buffer);
-#ifdef RENDER_DEBUG
     _back_buffer->SetDebugName("__back_buffer");
-#endif
 }
 
 void RHIOutput::ResetBackbuffer() {

@@ -4,6 +4,7 @@
 
 #include "Engine/Math/AABB2.hpp"
 
+class Material;
 class Renderer;
 class SpriteSheet;
 class Texture;
@@ -19,7 +20,7 @@ public:
         NUM_SPRITE_ANIM_MODES,
     };
 
-    AnimatedSprite(SpriteSheet* spriteSheet, float durationSeconds,
+    AnimatedSprite(Renderer& renderer, SpriteSheet* spriteSheet, float durationSeconds,
                    int startSpriteIndex, int frameLength, SpriteAnimMode playbackMode = SpriteAnimMode::LOOPING);
     AnimatedSprite(Renderer& renderer, const XMLElement& elem);
     ~AnimatedSprite();
@@ -27,6 +28,7 @@ public:
     void Update(float deltaSeconds);
     AABB2 GetCurrentTexCoords() const;	               // Based on the current elapsed time
     const Texture* const GetTexture() const;
+    int GetNumSprites() const;
     void TogglePause();
     void Pause();					                   // Starts unpaused (playing) by default
     void Resume();				                       // Resume after pausing
@@ -47,7 +49,8 @@ private:
     void LoadFromXml(Renderer& renderer, const XMLElement& elem);
     SpriteAnimMode GetAnimModeFromOptions(bool looping, bool backwards, bool ping_pong /*= false*/);
 
-    SpriteSheet* _sheet;
+    Renderer* _renderer = nullptr;
+    SpriteSheet* _sheet = nullptr;
     float _duration_seconds = 0.016f;
     float _elapsed_seconds = 0.0f;
     float _elapsed_frame_delta_seconds = 0.0f;
@@ -56,5 +59,6 @@ private:
     int _start_index = 0;
     int _end_index = 1;
     bool _is_playing = true;
+    bool _padding[3]{};
 
 };

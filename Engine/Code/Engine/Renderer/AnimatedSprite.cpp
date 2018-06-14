@@ -9,12 +9,14 @@
 #include "Engine/Renderer/Texture.hpp"
 #include "Engine/Renderer/Texture2D.hpp"
 
-AnimatedSprite::AnimatedSprite(SpriteSheet* spriteSheet,
+AnimatedSprite::AnimatedSprite(Renderer& renderer,
+                               SpriteSheet* spriteSheet,
                                float durationSeconds,
                                int startSpriteIndex,
                                int frameLength,
                                SpriteAnimMode playbackMode /*= SpriteAnimMode::LOOPING*/)
-    : _sheet(spriteSheet)
+    : _renderer(&renderer)
+    , _sheet(spriteSheet)
     , _duration_seconds(durationSeconds)
     , _playback_mode(playbackMode)
     , _start_index(startSpriteIndex)
@@ -24,11 +26,14 @@ AnimatedSprite::AnimatedSprite(SpriteSheet* spriteSheet,
     _max_frame_delta_seconds = _duration_seconds / (has_frames ? (_end_index - _start_index) : 1);
 }
 
-AnimatedSprite::AnimatedSprite(Renderer& renderer, const XMLElement& elem) {
-    LoadFromXml(renderer, elem);
+AnimatedSprite::AnimatedSprite(Renderer& renderer, const XMLElement& elem)
+    : _renderer(&renderer)
+{
+    LoadFromXml(*_renderer, elem);
 }
 
 AnimatedSprite::~AnimatedSprite() {
+    _renderer = nullptr;
     delete _sheet;
     _sheet = nullptr;
 }
@@ -91,29 +96,29 @@ AABB2 AnimatedSprite::GetCurrentTexCoords() const {
     auto length = _end_index - _start_index;
     switch(_playback_mode) {
         case SpriteAnimMode::PLAY_TO_END:
-            if(frameIndex >= length - 1) {
-                frameIndex = _end_index;
+            if(frameIndex >= length) {
+                frameIndex = _end_index - 1;
             }
             break;
         case SpriteAnimMode::PLAY_TO_BEGINNING:
-            if(frameIndex <= 0) {
+            if(frameIndex < 0) {
                 frameIndex = 0;
             }
             break;
         case SpriteAnimMode::LOOPING: /* FALLTHROUGH */
         case SpriteAnimMode::LOOPING_REVERSE:
-            if(frameIndex >= length - 1) {
+            if(frameIndex >= length) {
                 frameIndex = 0;
             }
-            if(frameIndex <= 0) {
-                frameIndex = _end_index;
+            if(frameIndex < 0) {
+                frameIndex = _end_index - 1;
             }
             break;
         case SpriteAnimMode::PINGPONG:
-            if(frameIndex >= length - 1) {
-                frameIndex = _end_index;
+            if(frameIndex >= length) {
+                frameIndex = _end_index - 1;
             }
-            if(frameIndex <= 0) {
+            if(frameIndex < 0) {
                 frameIndex = 0;
             }
             break;
@@ -126,6 +131,10 @@ AABB2 AnimatedSprite::GetCurrentTexCoords() const {
 
 const Texture* const AnimatedSprite::GetTexture() const {
     return &_sheet->GetTexture();
+}
+
+int AnimatedSprite::GetNumSprites() const {
+    return _sheet->GetNumSprites();
 }
 
 void AnimatedSprite::TogglePause() {

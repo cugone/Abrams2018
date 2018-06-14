@@ -790,7 +790,7 @@ void Console::ErrorMsg(const std::string& msg) {
 void Console::DrawBackground(const Vector2& view_half_extents) const {
     _renderer->SetModelMatrix(Matrix4::CreateScaleMatrix(view_half_extents * 2.0f));
     _renderer->SetMaterial(_renderer->GetMaterial("__2D"));
-    _renderer->DrawQuad2D(Vector2::ZERO, Vector2::ONE * 0.5f, Rgba(0, 0, 0, 128));
+    _renderer->DrawQuad2D(Rgba(0, 0, 0, 128));
 }
 
 void Console::DrawEntryLine(const Vector2& view_half_extents) const {

@@ -8,6 +8,7 @@
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/IntVector2.hpp"
 
+#include "Engine/Renderer/AnimatedSprite.hpp"
 #include "Engine/Renderer/Camera2D.hpp"
 #include "Engine/Renderer/Camera3D.hpp"
 #include "Engine/Renderer/SpriteSheet.hpp"
@@ -38,10 +39,12 @@ Game::~Game() {
 }
 
 void Game::Initialize() {
-    _tex = g_theRenderer->CreateOrGetTexture("Data/Images/Test_StbiAndDirectX.png", IntVector3::XY_AXIS);
+    g_theRenderer->RegisterTexturesFromFolder(std::string{"Data/Images"});
     g_theRenderer->RegisterMaterialsFromFolder(std::string{"Data/Materials"});
     g_theRenderer->RegisterFontsFromFolder(std::string{"Data/Fonts"});
-    _gif_test = g_theRenderer->CreateSpriteSheet("Data/Images/cute_sif.gif");
+    auto gif_sheet = g_theRenderer->CreateSpriteSheet("Data/Images/cute_sif.png", 4, 3);
+    _gif_test = new AnimatedSprite(*g_theRenderer, gif_sheet, 0.88f, 0, 11);
+    _tex = g_theRenderer->CreateOrGetTexture("Data/Images/Test_StbiAndDirectX.png", IntVector3::XY_AXIS);
 }
 
 void Game::BeginFrame() {
@@ -54,12 +57,6 @@ void Game::Update(float deltaSeconds) {
         g_theApp->SetIsQuitting(true);
         return;
     }
-
-    _angleDegrees += _rotationRateDegrees * deltaSeconds;
-    while(_angleDegrees >= 360.0f) {
-        _angleDegrees -= 360.f;
-    }
-
 
     if(g_theInput->IsKeyDown(KeyCode::UP)) {
         _camera3->Translate(0.0f, -_cameraSpeed);
@@ -77,20 +74,9 @@ void Game::Update(float deltaSeconds) {
         _camera2->Translate(_cameraSpeed, 0.0f);
     }
 
-    if(g_theInput->IsKeyDown(KeyCode::R)) {
-        _camera2->SetRotationDegrees(0.0f);
-        _camera2->SetPosition(Vector2::ZERO);
-    }
-    if(g_theInput->IsKeyDown(KeyCode::E)) {
-        _camera2->ApplyRotationDegrees(-_rotationRateDegrees * deltaSeconds);
-    } else if(g_theInput->IsKeyDown(KeyCode::Q)) {
-        _camera2->ApplyRotationDegrees(_rotationRateDegrees * deltaSeconds);
-    }
-
-
-
     _camera3->Update(deltaSeconds);
     _camera2->Update(deltaSeconds);
+    _gif_test->Update(deltaSeconds);
 
 }
 
@@ -112,16 +98,17 @@ void Game::Render() const {
     float view_half_width  = window_width * 0.50f;
     float view_half_height = window_height * 0.50f;
 
-    Vector2 leftBottom = Vector2(-view_half_width, view_half_height);
-    Vector2 rightTop   = Vector2(view_half_width, -view_half_height);
-    Vector2 nearFar = Vector2(0.0f, 1.0f);
+    Vector2 view_leftBottom = Vector2(-view_half_width, view_half_height);
+    Vector2 view_rightTop   = Vector2(view_half_width, -view_half_height);
+    Vector2 view_nearFar = Vector2(0.0f, 1.0f);
     Vector2 cam_pos2 = Vector2(_camera2->GetPosition());
-    _camera2->SetupView(leftBottom, rightTop, nearFar, MathUtils::M_16_BY_9_RATIO);
+    _camera2->SetupView(view_leftBottom, view_rightTop, view_nearFar, MathUtils::M_16_BY_9_RATIO);
 
     g_theRenderer->SetViewMatrix(_camera2->GetViewMatrix());
     g_theRenderer->SetProjectionMatrix(_camera2->GetProjectionMatrix());
 
-    Matrix4 s = Matrix4::CreateScaleMatrix(Vector2((float)_tex->GetDimensions().x, (float)_tex->GetDimensions().y) * 0.50f);
+    auto tex_dims = _tex->GetDimensions();
+    Matrix4 s = Matrix4::CreateScaleMatrix(Vector2(static_cast<float>(tex_dims.x), static_cast<float>(tex_dims.y)) * 0.50f);
     Matrix4 t = Matrix4::GetIdentity();
     Matrix4 r = Matrix4::GetIdentity();
     Matrix4 mat = t * r * s;
@@ -132,6 +119,23 @@ void Game::Render() const {
     g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
     g_theRenderer->SetMaterial(g_theRenderer->GetFont("Arial32")->GetMaterial());
     g_theRenderer->DrawTextLine(g_theRenderer->GetFont("Arial32"), "Hello World");
+
+    auto gif_dims = _gif_test->GetTexture()->GetDimensions();
+    auto frames_x = gif_dims.x % _gif_test->GetNumSprites();
+    auto frames_y = gif_dims.y / _gif_test->GetNumSprites();
+    frames_x;
+    frames_y;
+    Matrix4 gif_s = Matrix4::CreateScaleMatrix(Vector2(static_cast<float>(gif_dims.x), static_cast<float>(gif_dims.y)) * 0.50f);
+    Matrix4 gif_t = Matrix4::CreateTranslationMatrix(Vector2(-view_half_width, view_half_height) * 0.50f);
+    Matrix4 gif_r = Matrix4::GetIdentity();
+    Matrix4 gif_mat = gif_t * gif_r * gif_s;
+    g_theRenderer->SetModelMatrix(gif_mat);
+
+    auto tex_coords = _gif_test->GetCurrentTexCoords();
+    Vector2 lefttop = Vector2(tex_coords.mins.x, tex_coords.mins.y);
+    Vector2 rightbottom = Vector2(tex_coords.maxs.x, tex_coords.maxs.y);
+    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("SifGif"));
+    g_theRenderer->DrawQuad2D(Vector4(lefttop, rightbottom));
 
 }
 

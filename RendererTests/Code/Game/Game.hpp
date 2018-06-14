@@ -1,5 +1,6 @@
 #pragma once
 
+class AnimatedSprite;
 class Camera3D;
 class Camera2D;
 class Image;
@@ -19,11 +20,9 @@ public:
 
 protected:
 private:
-    float _angleDegrees = 0.0f;
-    float _rotationRateDegrees = 10.0f;
     float _cameraSpeed = 10.0f;
     Camera3D* _camera3 = nullptr;
     Camera2D* _camera2 = nullptr;
     Texture* _tex = nullptr;
-    SpriteSheet* _gif_test = nullptr;
+    AnimatedSprite* _gif_test = nullptr;
 };

@@ -54,25 +54,50 @@ void TextureArray2D::SetDeviceAndTexture(RHIDevice* device, ID3D11Texture2D* tex
 
     bool success = true;
     if(t_desc.BindFlags & D3D11_BIND_RENDER_TARGET) {
-        success &= SUCCEEDED(_device->GetDxDevice()->CreateRenderTargetView(_dx_tex, nullptr, &_rtv)) == true;
+        D3D11_RENDER_TARGET_VIEW_DESC rtv_desc{};
+        rtv_desc.Format = t_desc.Format;
+        rtv_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
+        rtv_desc.Texture2DArray.ArraySize = depth;
+        rtv_desc.Texture2DArray.MipSlice = 0;
+        rtv_desc.Texture2DArray.FirstArraySlice = 0;
+        success &= SUCCEEDED(_device->GetDxDevice()->CreateRenderTargetView(_dx_tex, &rtv_desc, &_rtv)) == true;
     }
 
     if(t_desc.BindFlags & D3D11_BIND_SHADER_RESOURCE) {
-        success &= SUCCEEDED(_device->GetDxDevice()->CreateShaderResourceView(_dx_tex, nullptr, &_srv)) == true;
+        D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc{};
+        srv_desc.Format = t_desc.Format;
+        srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+        srv_desc.Texture2DArray.ArraySize = depth;
+        srv_desc.Texture2DArray.MipLevels = t_desc.MipLevels;
+        srv_desc.Texture2DArray.FirstArraySlice = 0;
+        srv_desc.Texture2DArray.MostDetailedMip = 0;
+        success &= SUCCEEDED(_device->GetDxDevice()->CreateShaderResourceView(_dx_tex, &srv_desc, &_srv)) == true;
     }
 
     if(t_desc.BindFlags & D3D11_BIND_DEPTH_STENCIL) {
-        success &= SUCCEEDED(_device->GetDxDevice()->CreateDepthStencilView(_dx_tex, nullptr, &_dsv));
+        D3D11_DEPTH_STENCIL_VIEW_DESC ds_desc{};
+        ds_desc.Format = t_desc.Format;
+        ds_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+        ds_desc.Texture2DArray.ArraySize = depth;
+        ds_desc.Texture2DArray.MipSlice = 0;
+        ds_desc.Texture2DArray.FirstArraySlice = 0;
+        success &= SUCCEEDED(_device->GetDxDevice()->CreateDepthStencilView(_dx_tex, &ds_desc, &_dsv));
     }
 
     if(t_desc.BindFlags & D3D11_BIND_UNORDERED_ACCESS) {
-        D3D11_UNORDERED_ACCESS_VIEW_DESC desc;
-        ZeroMemory(&desc, sizeof(desc));
-        desc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-        desc.Texture2D.MipSlice = 0;
-        desc.Format = t_desc.Format;
-
-        success &= SUCCEEDED(_device->GetDxDevice()->CreateUnorderedAccessView(_dx_tex, &desc, &_uav));
+        D3D11_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
+        uav_desc.Format = t_desc.Format;
+        uav_desc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
+        uav_desc.Texture2DArray.MipSlice = 0;
+        uav_desc.Texture2DArray.FirstArraySlice = 0;
+        uav_desc.Texture2DArray.ArraySize = depth;
+        success &= SUCCEEDED(_device->GetDxDevice()->CreateUnorderedAccessView(_dx_tex, &uav_desc, &_uav));
     }
-    ASSERT_OR_DIE(success, "Set device and texture failed.");
+    if(!success) {
+        if(_dsv) { _dsv->Release(); _dsv = nullptr; }
+        if(_rtv) { _rtv->Release(); _rtv = nullptr; }
+        if(_srv) { _srv->Release(); _srv = nullptr; }
+        if(_uav) { _uav->Release(); _uav = nullptr; }
+        ERROR_AND_DIE("Set device and texture failed.");
+    }
 }

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Engine/RHI/RHITypes.hpp"
-
+#include "Engine/Core/DataUtils.hpp"
 #include "Engine/Core/Vertex3D.hpp"
 
 #include "Engine/Math/IntVector2.hpp"
@@ -11,10 +10,13 @@
 #include "Engine/Renderer/StructuredBuffer.hpp"
 #include "Engine/Renderer/VertexBuffer.hpp"
 
+#include "Engine/RHI/RHITypes.hpp"
+
 #include <filesystem>
 #include <map>
 #include <string>
 
+class AnimatedSprite;
 class BlendState;
 class Camera3D;
 class ConstantBuffer;
@@ -84,7 +86,7 @@ public:
     void EndFrame();
 
     Texture* CreateOrGetTexture(const std::string& filepath, const IntVector3& dimensions);
-
+    void RegisterTexturesFromFolder(const std::string& folderpath, bool recursive = false);
     bool RegisterTexture(const std::string& name, Texture* texture);
     void SetTexture(Texture* texture, unsigned int registerIndex = 0);
 
@@ -99,6 +101,8 @@ public:
     Texture* Create2DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
     Texture* Create2DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
     Texture* Create2DTextureArrayFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
+    Texture* Create2DTextureFromGifBuffer(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
+    Texture* Create2DTextureArrayFromGifBuffer(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
     Texture* Create3DTexture(const std::string& filepath, const IntVector3& dimensions, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
     Texture* Create3DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
     Texture* Create3DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
@@ -108,7 +112,8 @@ public:
                            , const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE
                            , const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
 
-    SpriteSheet* CreateSpriteSheet(const std::string& filepath);
+    SpriteSheet* CreateSpriteSheet(const std::string& filepath, unsigned int width, unsigned int height);
+    SpriteSheet* CreateSpriteSheet(const XMLElement& elem);
 
     void SetRenderTarget(Texture* color_target = nullptr, Texture* depthstencil_target = nullptr);
     void SetViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
@@ -180,9 +185,11 @@ public:
     void DrawPoint2D(const Vector2& point, const Rgba& color = Rgba::WHITE);
     void DrawLine2D(float startX, float startY, float endX, float endY, const Rgba& color = Rgba::WHITE, float thickness = 0.0f);
     void DrawLine2D(const Vector2& start, const Vector2& end, const Rgba& color = Rgba::WHITE, float thickness = 0.0f);
-    void DrawQuad2D(float left, float bottom, float right, float top, const Rgba& color = Rgba::WHITE);
-    void DrawQuad2D(const Vector2& position = Vector2::ZERO, const Vector2& halfExtents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::WHITE);
+    void DrawQuad2D(float left, float bottom, float right, float top, const Rgba& color = Rgba::WHITE, const Vector4& texCoords = Vector4::ZW_AXIS);
+    void DrawQuad2D(const Vector2& position = Vector2::ZERO, const Vector2& halfExtents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::WHITE, const Vector4& texCoords = Vector4::ZW_AXIS);
     void DrawQuad2D(const Rgba& color);
+    void DrawQuad2D(const Vector4& texCoords);
+    void DrawQuad2D(const Rgba& color, const Vector4& texCoords);
     void DrawCircle2D(float centerX, float centerY, float radius, const Rgba& color = Rgba::WHITE);
     void DrawCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::WHITE);
 
@@ -194,6 +201,8 @@ public:
 protected:
 private:
 
+    void RegisterTexturesFromFolder(const std::experimental::filesystem::path& folderpath, bool recursive = false);
+    bool RegisterTexture(const std::experimental::filesystem::path& filepath);
     void RegisterShaderProgram(const std::string& name, ShaderProgram * sp);
     void RegisterShader(const std::string& name, Shader* shader);
     void RegisterMaterial(const std::string& name, Material* mat);
@@ -246,8 +255,6 @@ private:
     RasterState* CreateSolidFrontCullingRaster();
 
     void UnbindAllShaderResources();
-
-    SpriteSheet* CreateSpriteSheetFromGif(const std::string& filepath);
 
     matrix_buffer_t _matrix_data = {};
     time_buffer_t _time_data = {};

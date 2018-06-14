@@ -42,7 +42,19 @@ AABB2 SpriteSheet::GetTexCoordsFromSpriteIndex(int spriteIndex) const {
 }
 
 int SpriteSheet::GetNumSprites() const {
-    return ((*_spriteSheetTexture).GetDimensions().x / _spriteLayout.x) * _spriteLayout.y;
+    return _spriteLayout.x * _spriteLayout.y;
+}
+
+int SpriteSheet::GetFrameWidth() const {
+    return ((*_spriteSheetTexture).GetDimensions().x / _spriteLayout.x);
+}
+
+int SpriteSheet::GetFrameHeight() const {
+    return ((*_spriteSheetTexture).GetDimensions().y / _spriteLayout.y);
+}
+
+IntVector2 SpriteSheet::GetFrameDimensions() const {
+    return IntVector2(GetFrameWidth(), GetFrameHeight());
 }
 
 const Texture& SpriteSheet::GetTexture() const {

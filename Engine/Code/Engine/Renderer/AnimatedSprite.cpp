@@ -137,6 +137,10 @@ int AnimatedSprite::GetNumSprites() const {
     return _sheet->GetNumSprites();
 }
 
+IntVector2 AnimatedSprite::GetFrameDimensions() const {
+    return _sheet->GetFrameDimensions();
+}
+
 void AnimatedSprite::TogglePause() {
     _is_playing = !_is_playing;
 }

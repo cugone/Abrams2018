@@ -112,7 +112,7 @@ public:
                            , const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE
                            , const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
 
-    SpriteSheet* CreateSpriteSheet(const std::string& filepath, unsigned int width, unsigned int height);
+    SpriteSheet* CreateSpriteSheet(const std::string& filepath, unsigned int width = 1, unsigned int height = 1);
     SpriteSheet* CreateSpriteSheet(const XMLElement& elem);
 
     void SetRenderTarget(Texture* color_target = nullptr, Texture* depthstencil_target = nullptr);

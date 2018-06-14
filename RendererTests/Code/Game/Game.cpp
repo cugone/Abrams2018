@@ -42,7 +42,7 @@ void Game::Initialize() {
     g_theRenderer->RegisterTexturesFromFolder(std::string{"Data/Images"});
     g_theRenderer->RegisterMaterialsFromFolder(std::string{"Data/Materials"});
     g_theRenderer->RegisterFontsFromFolder(std::string{"Data/Fonts"});
-    auto gif_sheet = g_theRenderer->CreateSpriteSheet("Data/Images/cute_sif.png", 4, 3);
+    auto gif_sheet = g_theRenderer->CreateSpriteSheet("Data/Images/cute_sif.png", 4, 4);
     _gif_test = new AnimatedSprite(*g_theRenderer, gif_sheet, 0.88f, 0, 11);
     _tex = g_theRenderer->CreateOrGetTexture("Data/Images/Test_StbiAndDirectX.png", IntVector3::XY_AXIS);
 }
@@ -120,11 +120,7 @@ void Game::Render() const {
     g_theRenderer->SetMaterial(g_theRenderer->GetFont("Arial32")->GetMaterial());
     g_theRenderer->DrawTextLine(g_theRenderer->GetFont("Arial32"), "Hello World");
 
-    auto gif_dims = _gif_test->GetTexture()->GetDimensions();
-    auto frames_x = gif_dims.x % _gif_test->GetNumSprites();
-    auto frames_y = gif_dims.y / _gif_test->GetNumSprites();
-    frames_x;
-    frames_y;
+    auto gif_dims = _gif_test->GetFrameDimensions();
     Matrix4 gif_s = Matrix4::CreateScaleMatrix(Vector2(static_cast<float>(gif_dims.x), static_cast<float>(gif_dims.y)) * 0.50f);
     Matrix4 gif_t = Matrix4::CreateTranslationMatrix(Vector2(-view_half_width, view_half_height) * 0.50f);
     Matrix4 gif_r = Matrix4::GetIdentity();

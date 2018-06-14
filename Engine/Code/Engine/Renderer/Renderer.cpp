@@ -1453,7 +1453,7 @@ Texture* Renderer::CreateTexture(const std::string& filepath,
 SpriteSheet* Renderer::CreateSpriteSheet(const XMLElement& elem) {
     return new SpriteSheet(*this, elem);
 }
-SpriteSheet* Renderer::CreateSpriteSheet(const std::string& filepath, unsigned int width, unsigned int height) {
+SpriteSheet* Renderer::CreateSpriteSheet(const std::string& filepath, unsigned int width /*= 1*/, unsigned int height /*= 1*/) {
     namespace FS = std::experimental::filesystem;
     FS::path p(filepath);
     if(!FS::exists(p)) {

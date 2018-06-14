@@ -29,6 +29,7 @@ public:
     AABB2 GetCurrentTexCoords() const;	               // Based on the current elapsed time
     const Texture* const GetTexture() const;
     int GetNumSprites() const;
+    IntVector2 GetFrameDimensions() const;
     void TogglePause();
     void Pause();					                   // Starts unpaused (playing) by default
     void Resume();				                       // Resume after pausing

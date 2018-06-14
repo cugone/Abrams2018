@@ -21,6 +21,9 @@ public:
     AABB2 GetTexCoordsFromSpriteCoords(const IntVector2& spriteCoords) const;
     AABB2 GetTexCoordsFromSpriteIndex(int spriteIndex) const;
     int GetNumSprites() const;
+    int GetFrameWidth() const;
+    int GetFrameHeight() const;
+    IntVector2 GetFrameDimensions() const;
     const Texture& GetTexture() const;
 protected:
 private:

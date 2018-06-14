@@ -43,7 +43,7 @@ void Game::Initialize() {
     g_theRenderer->RegisterMaterialsFromFolder(std::string{"Data/Materials"});
     g_theRenderer->RegisterFontsFromFolder(std::string{"Data/Fonts"});
     auto gif_sheet = g_theRenderer->CreateSpriteSheet("Data/Images/cute_sif.png", 4, 4);
-    _gif_test = new AnimatedSprite(*g_theRenderer, gif_sheet, 0.88f, 0, 11);
+    _gif_test = new AnimatedSprite(*g_theRenderer, gif_sheet, 0.88f, 0, 12);
     _tex = g_theRenderer->CreateOrGetTexture("Data/Images/Test_StbiAndDirectX.png", IntVector3::XY_AXIS);
 }
 

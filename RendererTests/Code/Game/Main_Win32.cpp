@@ -1,11 +1,15 @@
 #include <memory>
 #include <sstream>
 
+#include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/Win.hpp"
 
 #include "Engine/Renderer/Window.hpp"
 
+#include "Engine/RHI/RHIOutput.hpp"
+
 #include "Game/GameCommon.hpp"
+
 
 void Initialize(HINSTANCE hInstance, LPWSTR lpCmdLine, int nShowCmd);
 void Shutdown();
@@ -47,8 +51,13 @@ void RunMessagePump() {
         if(!hasMsg) {
             break;
         }
-        ::TranslateMessage(&msg);
-        ::DispatchMessage(&msg);
+        auto window = g_theRenderer->GetOutput()->GetWindow();
+        auto hWnd = window->GetWindowHandle();
+        HACCEL tbl = reinterpret_cast<HACCEL>(g_theConsole->GetAcceleratorTable());
+        if(!::TranslateAcceleratorA(hWnd, tbl, &msg)) {
+            ::TranslateMessage(&msg);
+            ::DispatchMessage(&msg);
+        }
     }
 }
 

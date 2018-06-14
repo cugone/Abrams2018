@@ -2,11 +2,13 @@
 
 #include "Engine/Core/ArgumentParser.hpp"
 #include "Engine/Core/BuildConfig.cpp"
+#include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/Image.hpp"
 #include "Engine/Core/KerningFont.hpp"
 #include "Engine/Core/StringUtils.hpp"
+#include "Engine/Core/Win.hpp"
 
-#include "ENgine/Input/InputSystem.hpp"
+#include "Engine/Input/InputSystem.hpp"
 
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Matrix4.hpp"
@@ -17,6 +19,7 @@
 #include "Engine/Renderer/Material.hpp"
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Texture.hpp"
+#include "Engine/Renderer/Window.hpp"
 
 #include "Engine/RHI/RHIOutput.hpp"
 
@@ -25,14 +28,42 @@
 #include <string>
 #include <utility>
 
+constexpr const uint16_t IDM_COPY = 0;
+constexpr const uint16_t IDM_PASTE = 1;
+constexpr const uint16_t IDM_CUT = 2;
+HACCEL hAcceleratorTable{};
+
+void* Console::GetAcceleratorTable() const {
+    return reinterpret_cast<void*>(hAcceleratorTable);
+}
+
 Console::Console(Renderer* renderer)
     : EngineSubsystem()
     , _renderer(renderer)
 {
-    /* DO NOTHING */
+    ACCEL copy{};
+    copy.fVirt = FCONTROL | FVIRTKEY;
+    copy.key = InputSystem::ConvertKeyCodeToWinVK(KeyCode::C);
+    copy.cmd = IDM_COPY;
+
+    ACCEL paste{};
+    paste.fVirt = FCONTROL | FVIRTKEY;
+    paste.key = InputSystem::ConvertKeyCodeToWinVK(KeyCode::V);
+    paste.cmd = IDM_PASTE;
+
+    ACCEL cut{};
+    cut.fVirt = FCONTROL | FVIRTKEY;
+    cut.key = InputSystem::ConvertKeyCodeToWinVK(KeyCode::X);
+    cut.cmd = IDM_CUT;
+
+    std::vector<ACCEL> accelerators = { copy, paste, cut };
+    hAcceleratorTable = ::CreateAcceleratorTableA(accelerators.data(), accelerators.size());
 }
 
 Console::~Console() {
+
+    ::DestroyAcceleratorTable(hAcceleratorTable);
+
     delete _camera;
     _camera = nullptr;
 
@@ -45,6 +76,30 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
     LPARAM lp = msg.lparam;
     WPARAM wp = msg.wparam;
     switch(msg.wmMessageCode) {
+        case WindowsSystemMessage::MENU_SYSCOMMAND:
+        case WindowsSystemMessage::MENU_COMMAND:
+        {
+            bool is_lp_not_valid = lp ? true : false;
+            bool is_closed = IsClosed();
+            bool is_not_from_accelerator = HIWORD(wp) == 0;
+            bool wont_handle = is_closed || is_lp_not_valid || is_not_from_accelerator;
+            if(wont_handle) {
+                return false;
+            }
+            auto id = LOWORD(wp);
+            switch(id) {
+                case IDM_COPY:
+                    HandleClipboardCopy();
+                    break;
+                case IDM_PASTE:
+                    HandleClipboardPaste();
+                    break;
+                case IDM_CUT:
+                    HandleClipboardCut();
+                    break;
+            }
+            return true;
+        }
         case WindowsSystemMessage::KEYBOARD_SYSKEYDOWN:
         case WindowsSystemMessage::KEYBOARD_KEYDOWN:
         {
@@ -209,6 +264,53 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
         }
     }
 
+}
+
+bool Console::HandleClipboardCopy() {
+    bool did_copy = false;
+    if(_cursor_position != _selection_position) {
+        std::string copied_text = CopyText(_cursor_position, _selection_position);
+        auto hwnd = _renderer->GetOutput()->GetWindow()->GetWindowHandle();
+        if(::OpenClipboard(hwnd)) {
+            if(::EmptyClipboard()) {
+                auto hgblcopy = ::GlobalAlloc(GMEM_MOVEABLE, (copied_text.size() + 1) * sizeof(std::string::value_type));
+                if(hgblcopy) {
+                    LPTSTR lpstrcopy = reinterpret_cast<LPTSTR>(::GlobalLock(hgblcopy));
+                    std::memcpy(lpstrcopy, copied_text.data(), copied_text.size() + 1);
+                    lpstrcopy[copied_text.size() + 1] = '\0';
+                    ::GlobalUnlock(hgblcopy);
+                    ::SetClipboardData(CF_TEXT, hgblcopy);
+                    did_copy = true;
+                }
+            }
+            ::CloseClipboard();
+        }
+    }
+    return did_copy;
+}
+
+void Console::HandleClipboardPaste() {
+    if(::IsClipboardFormatAvailable(CF_TEXT)) {
+        auto hwnd = _renderer->GetOutput()->GetWindow()->GetWindowHandle();
+        if(::OpenClipboard(hwnd)) {
+            HGLOBAL hglb = ::GetClipboardData(CF_TEXT);
+            if(hglb) {
+                LPTSTR lpstrpaste = reinterpret_cast<LPTSTR>(::GlobalLock(hglb));
+                if(lpstrpaste) {
+                    std::string text_to_paste = lpstrpaste;
+                    PasteText(text_to_paste, _cursor_position);
+                    ::GlobalUnlock(hglb);
+                }
+            }
+            ::CloseClipboard();
+        }
+    }
+}
+
+void Console::HandleClipboardCut() {
+    if(HandleClipboardCopy()) {
+        RemoveText(_cursor_position, _selection_position);
+    }
 }
 
 bool Console::HandleEscapeKey() {
@@ -513,6 +615,22 @@ void Console::RemoveText(std::string::const_iterator start, std::string::const_i
         std::swap(start, end);
     }
     _cursor_position = _entryline.erase(start, end);
+    _selection_position = _cursor_position;
+    _entryline_changed = true;
+}
+
+std::string Console::CopyText(std::string::const_iterator start, std::string::const_iterator end) {
+    if(end < start) {
+        std::swap(start, end);
+    }
+    return std::string(start, end);
+}
+
+void Console::PasteText(const std::string& text, std::string::const_iterator loc) {
+    if(_cursor_position != _selection_position) {
+        RemoveText(_cursor_position, _selection_position);
+    }
+    _cursor_position = _entryline.insert(loc, std::begin(text), std::end(text)) + text.size();
     _selection_position = _cursor_position;
     _entryline_changed = true;
 }

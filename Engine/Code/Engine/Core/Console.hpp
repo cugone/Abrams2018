@@ -40,6 +40,8 @@ public:
     void PrintMsg(const std::string& msg);
     void WarnMsg(const std::string& msg);
     void ErrorMsg(const std::string& msg);
+
+    void* GetAcceleratorTable() const;
 protected:
 private:
     struct OutputEntry {
@@ -68,6 +70,9 @@ private:
     bool HandleBackspaceKey();
     bool HandleEscapeKey();
     bool HandleTabKey();
+    bool HandleClipboardCopy();
+    void HandleClipboardPaste();
+    void HandleClipboardCut();
 
     void HistoryUp();
     void HistoryDown();
@@ -77,7 +82,8 @@ private:
     void RemoveTextInFrontOfCaret();
     void RemoveTextBehindCaret();
     void RemoveText(std::string::const_iterator start, std::string::const_iterator end);
-
+    std::string CopyText(std::string::const_iterator start, std::string::const_iterator end);
+    void PasteText(const std::string& text, std::string::const_iterator loc);
     void DrawBackground(const Vector2& view_half_extents) const;
     void DrawEntryLine(const Vector2& view_half_extents) const;
     void DrawCursor(const Vector2& view_half_extents) const;

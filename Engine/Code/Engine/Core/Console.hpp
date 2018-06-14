@@ -67,6 +67,7 @@ private:
     bool HandleDownKey();
     bool HandleBackspaceKey();
     bool HandleEscapeKey();
+    bool HandleTabKey();
 
     void HistoryUp();
     void HistoryDown();
@@ -101,6 +102,8 @@ private:
     void SetOutputChanged(bool value);
     void SetSkipNonWhitespaceMode(bool value);
 
+    void AutoCompleteEntryline();
+
     Vector2 SetupViewFromCamera() const;
 
     Renderer* _renderer = nullptr;
@@ -123,4 +126,5 @@ private:
     bool _non_rendering_char = false;
     bool _entryline_changed = false;
     bool _output_changed = false;
+
 };

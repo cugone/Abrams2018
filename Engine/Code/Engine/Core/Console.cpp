@@ -45,6 +45,7 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
     LPARAM lp = msg.lparam;
     WPARAM wp = msg.wparam;
     switch(msg.wmMessageCode) {
+        case WindowsSystemMessage::KEYBOARD_SYSKEYDOWN:
         case WindowsSystemMessage::KEYBOARD_KEYDOWN:
         {
             _non_rendering_char = false;
@@ -75,17 +76,8 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
                     return false;
                 }
                 switch(my_key) {
-                    case KeyCode::ALT:
-                    {
-                        my_key = KeyCode::RALT;
-                        return true;
-                    }
-                    case KeyCode::CTRL:
-                    {
-                        my_key = KeyCode::RCTRL;
-                        _skip_nonwhitespace_mode = true;
-                        break;
-                    }
+                    case KeyCode::ALT: return true;
+                    case KeyCode::CTRL: SetSkipNonWhitespaceMode(true); return true;
                     //On Num Pad
                     case KeyCode::RETURN: return HandleReturnKey();
                     case KeyCode::LWIN: return true;
@@ -126,7 +118,10 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
                 case KeyCode::HOME: return HandleHomeKey();
                 //on Num Pad
                 case KeyCode::END: return HandleEndKey();
+                case KeyCode::CTRL: SetSkipNonWhitespaceMode(true); return true;
                 case KeyCode::SHIFT: SetHighlightMode(true); return true;
+                case KeyCode::TAB: return HandleTabKey();
+                case KeyCode::F1: RunCommand("help"); return true;
                 default:
                 {
                     if(!_non_rendering_char) {
@@ -165,6 +160,7 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
             InsertCharInEntryLine(char_code);
             return true;
         }
+        case WindowsSystemMessage::KEYBOARD_SYSKEYUP:
         case WindowsSystemMessage::KEYBOARD_KEYUP:
         {
             if(IsClosed()) {
@@ -193,16 +189,8 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
             auto my_key = InputSystem::ConvertWinVKToKeyCode(char_code);
             if(is_extended_key) {
                 switch(my_key) {
-                    case KeyCode::CTRL:
-                    {
-                        my_key = KeyCode::RCTRL;
-                        break;
-                    }
-                    case KeyCode::SHIFT:
-                    {
-                        my_key = KeyCode::SHIFT;
-                        break;
-                    }
+                    case KeyCode::CTRL: SetSkipNonWhitespaceMode(false); return true;
+                    case KeyCode::SHIFT: SetHighlightMode(false); return true;
                     //Numpad Enter
                     case KeyCode::RETURN: SetOutputChanged(true); return true;
                     default: return false;
@@ -226,6 +214,20 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
 bool Console::HandleEscapeKey() {
     _entryline.empty() ? Close() : ClearEntryLine();
     return true;
+}
+
+bool Console::HandleTabKey() {
+    AutoCompleteEntryline();
+    return true;
+}
+
+void Console::AutoCompleteEntryline() {
+    for(const auto& entry : _commands) {
+        if(StringUtils::StartsWith(entry.first, _entryline)) {
+            _entryline = entry.first;
+            MoveCursorToEnd();
+        }
+    }
 }
 
 bool Console::HandleBackspaceKey() {
@@ -446,8 +448,7 @@ void Console::UpdateSelectedRange(int distance) {
             _cursor_position = std::end(_entryline);
         }
 
-        int direction = _cursor_position != std::end(_entryline) ? distance : 0;
-        auto rangeStart = _cursor_position + direction;
+        auto rangeStart = _cursor_position;
         auto rangeEnd = _selection_position;
         if(!_highlight_mode && _selection_position < _cursor_position) {
             rangeStart = _selection_position;
@@ -463,8 +464,7 @@ void Console::UpdateSelectedRange(int distance) {
             _cursor_position = std::begin(_entryline);
         }
 
-        int direction = _cursor_position != std::begin(_entryline) ? distance : 0;
-        auto rangeStart = _cursor_position + direction;
+        auto rangeStart = _cursor_position;
         auto rangeEnd = _selection_position;
         if(!_highlight_mode && _selection_position < _cursor_position) {
             rangeStart = _selection_position;
@@ -761,6 +761,9 @@ void Console::HistoryDown() {
 void Console::InsertCharInEntryLine(unsigned char c) {
     _entryline_changed = true;
     if(!_entryline.empty()) {
+        if(_cursor_position != _selection_position) {
+            RemoveText(_cursor_position, _selection_position);
+        }
         if(_cursor_position == _entryline.end()) {
             _entryline.push_back(c);
             _cursor_position = _entryline.end();
@@ -814,27 +817,28 @@ void Console::DrawEntryLine(const Vector2& view_half_extents) const {
             std::swap(xPosOffsetToCaret, xPosOffsetToSelect);
         }
 
+        _renderer->SetModelMatrix(Matrix4::CreateScaleMatrix(Vector2(500.0f, 500.0f)));
+        _renderer->SetMaterial(_renderer->GetMaterial("__2D"));
+        _renderer->DrawQuad2D();
+
+        _renderer->SetModelMatrix(model_entryline_mat);
+        _renderer->SetMaterial(font->GetMaterial());
+
         _renderer->DrawTextLine(font, std::string(_entryline, 0, std::distance(std::cbegin(_entryline), rangeStart)), Rgba::WHITE);
         Matrix4 rightside_t = Matrix4::CreateTranslationMatrix(Vector3(xPosOffsetToSelect, 0.0f, 0.0f));
         rightside_t = rightside_t * model_entryline_mat;
         _renderer->SetModelMatrix(rightside_t);
-        _renderer->DrawTextLine(font, std::string(_entryline, std::distance(std::cbegin(_entryline), rangeStart), std::distance(rangeEnd, std::cend(_entryline))), Rgba::WHITE);
+        _renderer->DrawTextLine(font, std::string(_entryline, std::distance(std::cbegin(_entryline), rangeEnd), std::distance(rangeEnd, std::cend(_entryline))), Rgba::WHITE);
 
-        float x_highlight_scale = font->CalculateTextWidth(std::string(rangeStart, rangeEnd));
-        float y_highlight_scale = font->GetLineHeight();
         float xPosOffsetToStart = font->CalculateTextWidth(std::string(std::begin(_entryline), rangeStart));
         Matrix4 blacktext_t = Matrix4::CreateTranslationMatrix(Vector3(xPosOffsetToStart, 0.0f, 0.0f));
-        Matrix4 highlight_t = Matrix4::CreateScaleMatrix(Vector2(x_highlight_scale, y_highlight_scale));
         Matrix4 model_mat_blacktext = blacktext_t * model_entryline_mat;
         _renderer->SetModelMatrix(model_mat_blacktext);
         _renderer->DrawTextLine(font, std::string(rangeStart, rangeEnd), Rgba::BLACK);
 
-        Matrix4 model_mat_highlight = blacktext_t * model_entryline_mat * highlight_t;
-        _renderer->SetModelMatrix(Matrix4::GetIdentity());//Matrix4::CreateScaleMatrix(Vector2(250.0f, 250.0f)));//model_mat_highlight);
-        _renderer->SetMaterial(_renderer->GetMaterial("__2D"));
-        _renderer->DrawQuad2D(Rgba::WHITE);//Rgba(64, 64, 0, 255));
-
     } else {
+        _renderer->SetModelMatrix(model_entryline_mat);
+        _renderer->SetMaterial(font->GetMaterial());
         _renderer->DrawTextLine(font, _entryline, Rgba::WHITE);
     }
 }

@@ -31,6 +31,7 @@
 constexpr const uint16_t IDM_COPY = 0;
 constexpr const uint16_t IDM_PASTE = 1;
 constexpr const uint16_t IDM_CUT = 2;
+constexpr const uint16_t IDM_SELECTALL = 3;
 HACCEL hAcceleratorTable{};
 
 void* Console::GetAcceleratorTable() const {
@@ -56,7 +57,12 @@ Console::Console(Renderer* renderer)
     cut.key = InputSystem::ConvertKeyCodeToWinVK(KeyCode::X);
     cut.cmd = IDM_CUT;
 
-    std::vector<ACCEL> accelerators = { copy, paste, cut };
+    ACCEL select_all{};
+    select_all.fVirt = FCONTROL | FVIRTKEY;
+    select_all.key = InputSystem::ConvertKeyCodeToWinVK(KeyCode::A);
+    select_all.cmd = IDM_SELECTALL;
+
+    std::vector<ACCEL> accelerators = { copy, paste, cut, select_all };
     hAcceleratorTable = ::CreateAcceleratorTableA(accelerators.data(), accelerators.size());
 }
 
@@ -96,6 +102,9 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
                     break;
                 case IDM_CUT:
                     HandleClipboardCut();
+                    break;
+                case IDM_SELECTALL:
+                    HandleSelectAll();
                     break;
             }
             return true;
@@ -176,7 +185,7 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
                 case KeyCode::CTRL: SetSkipNonWhitespaceMode(true); return true;
                 case KeyCode::SHIFT: SetHighlightMode(true); return true;
                 case KeyCode::TAB: return HandleTabKey();
-                case KeyCode::F1: RunCommand("help"); return true;
+                case KeyCode::F1: RunCommand(std::string("help ") + _entryline); return true;
                 default:
                 {
                     if(!_non_rendering_char) {
@@ -311,6 +320,11 @@ void Console::HandleClipboardCut() {
     if(HandleClipboardCopy()) {
         RemoveText(_cursor_position, _selection_position);
     }
+}
+
+void Console::HandleSelectAll() {
+    _cursor_position = _entryline.end();
+    _selection_position = _entryline.begin();
 }
 
 bool Console::HandleEscapeKey() {
@@ -645,13 +659,33 @@ void Console::RegisterDefaultCommands() {
     Console::Command help{};
     help.command_name = "help";
     help.help_text_short = "Displays every command with brief description.";
-    help.help_text_long = help.help_text_short;
-    help.command_function = [this](const std::string& /*args*/)->void {
+    help.help_text_long = "help [command|string]: Displays command's long description or all commands starting with \'string\'.";
+    help.command_function = [this](const std::string& args)->void {
         RunCommand("clear");
-        for(auto& entry : _commands) {
-            std::ostringstream ss;
-            ss << entry.second.command_name << ": " << entry.second.help_text_short;
-            PrintMsg(ss.str());
+        ArgumentParser arg_set(args);
+        std::string line{};
+        if(arg_set.GetNext(line)) {
+            line = StringUtils::TrimWhitespace(line);
+            auto found_iter = _commands.find(line);
+            if(found_iter != _commands.end()) {
+                std::ostringstream ss;
+                ss << found_iter->second.command_name << ": " << found_iter->second.help_text_long;
+                PrintMsg(ss.str());
+                return;
+            }
+            for(auto& entry : _commands) {
+                if(StringUtils::StartsWith(entry.first, line)) {
+                    std::ostringstream ss;
+                    ss << entry.second.command_name << ": " << entry.second.help_text_short;
+                    PrintMsg(ss.str());
+                }
+            }
+        } else {
+            for(auto& entry : _commands) {
+                std::ostringstream ss;
+                ss << entry.second.command_name << ": " << entry.second.help_text_short;
+                PrintMsg(ss.str());
+            }
         }
     };
     RegisterCommand(help);
@@ -674,6 +708,7 @@ void Console::RegisterDefaultCommands() {
     Console::Command clear{};
     clear.command_name = "clear";
     clear.help_text_short = "Clears the output buffer.";
+    clear.help_text_long = clear.help_text_short;
     clear.command_function = [this](const std::string& /*args*/)->void {
         _output_changed = true;
         _output_buffer.clear();

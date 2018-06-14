@@ -73,6 +73,7 @@ private:
     bool HandleClipboardCopy();
     void HandleClipboardPaste();
     void HandleClipboardCut();
+    void HandleSelectAll();
 
     void HistoryUp();
     void HistoryDown();

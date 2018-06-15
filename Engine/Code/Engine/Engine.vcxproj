@@ -100,9 +100,6 @@
     <ClCompile Include="RHI\RHITypes.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Thirdparty\OpenGL\glcorearb.h" />
-    <ClInclude Include="..\Thirdparty\OpenGL\glext.h" />
-    <ClInclude Include="..\Thirdparty\OpenGL\wglext.h" />
     <ClInclude Include="..\Thirdparty\stb\stb_image.h" />
     <ClInclude Include="..\Thirdparty\stb\stb_image_write.h" />
     <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h" />

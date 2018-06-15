@@ -77,6 +77,14 @@ void App::Initialize() {
     g_theInput->Initialize();
     g_theConsole->Initialize();
     g_theGame->Initialize();
+
+    Console::Command quit{};
+    quit.command_name = "quit";
+    quit.help_text_short = "Quits the application.";
+    quit.help_text_long = "Quits the application.";
+    quit.command_function = [this](const std::string& /*args*/) { this->SetIsQuitting(true); };
+    g_theConsole->RegisterCommand(quit);
+
 }
 
 void App::RunFrame() {

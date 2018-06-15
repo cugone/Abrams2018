@@ -21,7 +21,7 @@ public:
         std::string command_name{};
         std::string help_text_short{};
         std::string help_text_long{};
-        std::function<void(const std::string& args)> command_function{};
+        std::function<void(const std::string& args)> command_function = [](const std::string& /*args*/) {};
     };
     Console(Renderer* renderer);
     virtual ~Console();

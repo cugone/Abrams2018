@@ -443,6 +443,9 @@ void Console::RunCommand(std::string name_and_args) {
 }
 
 void Console::RegisterCommand(const Command& command) {
+    if(command.command_name.empty()) {
+        return;
+    }
     auto iter = _commands.find(command.command_name);
     if(iter == _commands.end()) {
         _commands.insert_or_assign(command.command_name, command);

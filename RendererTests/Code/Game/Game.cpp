@@ -116,10 +116,6 @@ void Game::Render() const {
     g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
     g_theRenderer->DrawQuad2D();
 
-    g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
-    g_theRenderer->SetMaterial(g_theRenderer->GetFont("Arial32")->GetMaterial());
-    g_theRenderer->DrawTextLine(g_theRenderer->GetFont("Arial32"), "Hello World");
-
     auto gif_dims = _gif_test->GetFrameDimensions();
     Matrix4 gif_s = Matrix4::CreateScaleMatrix(Vector2(static_cast<float>(gif_dims.x), static_cast<float>(gif_dims.y)) * 0.50f);
     Matrix4 gif_t = Matrix4::CreateTranslationMatrix(Vector2(-view_half_width, view_half_height) * 0.50f);

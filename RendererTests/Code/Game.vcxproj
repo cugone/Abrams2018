@@ -261,6 +261,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\Run_Win32\Data\Images\cute_sif.png" />
     <Image Include="..\Run_Win32\Data\Images\Test_StbiAndDirectX.png" />
   </ItemGroup>
   <ItemGroup>

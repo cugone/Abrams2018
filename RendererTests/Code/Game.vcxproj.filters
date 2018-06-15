@@ -56,6 +56,9 @@
     <Image Include="..\Run_Win32\Data\Images\Test_StbiAndDirectX.png">
       <Filter>Data\Images</Filter>
     </Image>
+    <Image Include="..\Run_Win32\Data\Images\cute_sif.png">
+      <Filter>Data\Images</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Run_Win32\Data\Materials\Test.material">

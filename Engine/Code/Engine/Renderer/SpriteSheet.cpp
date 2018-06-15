@@ -37,7 +37,7 @@ AABB2 SpriteSheet::GetTexCoordsFromSpriteCoords(const IntVector2& spriteCoords) 
 
 AABB2 SpriteSheet::GetTexCoordsFromSpriteIndex(int spriteIndex) const {
     int x = spriteIndex % _spriteLayout.x;
-    int y = spriteIndex / _spriteLayout.y;
+    int y = spriteIndex / _spriteLayout.x;
     return GetTexCoordsFromSpriteCoords(x, y);
 }
 

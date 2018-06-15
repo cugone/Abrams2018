@@ -1,11 +1,12 @@
 #include "Engine/Core/FileUtils.hpp"
 
+#include "Engine/Core/StringUtils.hpp"
+
 #include <cstdio>
 #include <filesystem>
-
 #include <fstream>
+#include <ShlObj.h>
 
-#include "Engine/Core/StringUtils.hpp"
 
 namespace FileUtils {
 
@@ -62,6 +63,18 @@ bool CreateFolders(const std::string& filepath) {
         return true;
     }
     return false;
+}
+
+std::string GetAppDataPath() {
+    namespace FS = std::experimental::filesystem;
+    PWSTR ppszPath = nullptr;
+    bool success = SUCCEEDED(::SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, nullptr, &ppszPath));
+    if(success) {
+        FS::path p(ppszPath);
+        ::CoTaskMemFree(ppszPath);
+        return p.string();
+    }
+    return std::string{};
 }
 
 } //End FileUtils

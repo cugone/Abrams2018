@@ -131,7 +131,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)../Engine/Code/;$(SolutionDir)Code/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <PostBuildEvent>
       <Message>Copying $(TargetFileName) to $(SolutionDir)Run_$(Platform)</Message>
@@ -147,7 +147,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)../Engine/Code/;$(SolutionDir)Code/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <PostBuildEvent>
       <Message>Copying $(TargetFileName) to $(SolutionDir)Run_$(Platform)</Message>
@@ -187,7 +187,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)../Engine/Code/;$(SolutionDir)Code/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -231,7 +231,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)../Engine/Code/;$(SolutionDir)Code/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

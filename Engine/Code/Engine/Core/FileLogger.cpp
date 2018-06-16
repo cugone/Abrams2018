@@ -52,9 +52,11 @@ void FileLogger::Initialize(const std::string& log_name) {
         return;
     }
     namespace FS = std::experimental::filesystem;
-    std::string log_str = "Data/Logs/" + log_name + ".log";
+    std::string folder_str = "Data/Logs/";
+    std::string log_str = folder_str + log_name + ".log";
+    FS::path folder_p{ folder_str };
     FS::path p{ log_str };
-    FileUtils::CreateFolders(p.string());
+    FileUtils::CreateFolders(folder_p.string());
     std::string pathAsString = p.string();
     _is_running = true;
     _stream.open(pathAsString);

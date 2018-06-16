@@ -29,6 +29,7 @@
   <ItemGroup>
     <ClCompile Include="..\Thirdparty\stb\stb.cpp" />
     <ClCompile Include="..\Thirdparty\TinyXML2\tinyxml2.cpp" />
+    <ClCompile Include="Audio\AudioSystem.cpp" />
     <ClCompile Include="Core\ArgumentParser.cpp" />
     <ClCompile Include="Core\BuildConfig.cpp" />
     <ClCompile Include="Core\Console.cpp" />
@@ -103,6 +104,7 @@
     <ClInclude Include="..\Thirdparty\stb\stb_image.h" />
     <ClInclude Include="..\Thirdparty\stb\stb_image_write.h" />
     <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h" />
+    <ClInclude Include="Audio\AudioSystem.hpp" />
     <ClInclude Include="Core\ArgumentParser.hpp" />
     <ClInclude Include="Core\Console.hpp" />
     <ClInclude Include="Core\DataUtils.hpp" />

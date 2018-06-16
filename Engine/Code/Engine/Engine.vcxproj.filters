@@ -244,6 +244,9 @@
     <ClCompile Include="Renderer\AnimatedSprite.cpp">
       <Filter>Renderer\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Audio\AudioSystem.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -464,6 +467,9 @@
     </ClInclude>
     <ClInclude Include="Renderer\AnimatedSprite.hpp">
       <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\AudioSystem.hpp">
+      <Filter>Audio</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

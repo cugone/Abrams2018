@@ -57,12 +57,7 @@ bool CreateFolders(const std::string& filepath) {
     namespace FS = std::experimental::filesystem;
 
     FS::path p(filepath);
-    FS::path parent_path = (FS::is_directory(p) ? p : p.parent_path());
-    if(!FS::exists(parent_path)) {
-        FS::create_directories(parent_path);
-        return true;
-    }
-    return false;
+    return FS::create_directories(p);
 }
 
 std::string GetAppDataPath() {

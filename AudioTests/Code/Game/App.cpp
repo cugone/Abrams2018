@@ -1,5 +1,7 @@
 #include "Game/App.hpp"
 
+#include "Engine/Audio/AudioSystem.hpp"
+
 #include "Engine/Core/EngineSubsystem.hpp"
 
 #include "Engine/Core/TimeUtils.hpp"
@@ -31,6 +33,7 @@ bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 App::App() {
     g_theRenderer = new Renderer(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
+    g_theAudio = new AudioSystem();
     g_theInput = new InputSystem();
     g_theConsole = new Console(g_theRenderer);
     g_theGame = new Game();
@@ -46,6 +49,9 @@ App::~App() {
     delete g_theInput;
     g_theInput = nullptr;
     
+    delete g_theAudio;
+    g_theAudio = nullptr;
+
     delete g_theRenderer;
     g_theRenderer = nullptr;
 
@@ -74,6 +80,7 @@ void App::Initialize() {
             }
         }
     }
+    g_theAudio->Initialize();
     g_theInput->Initialize();
     g_theConsole->Initialize();
     g_theGame->Initialize();
@@ -119,6 +126,7 @@ bool App::ProcessSystemMessage(const EngineMessage& msg) {
 }
 
 void App::BeginFrame() {
+    g_theAudio->BeginFrame();
     g_theInput->BeginFrame();
     g_theConsole->BeginFrame();
     g_theGame->BeginFrame();
@@ -126,6 +134,7 @@ void App::BeginFrame() {
 }
 
 void App::Update(float deltaSeconds) {
+    g_theAudio->Update(deltaSeconds);
     g_theInput->Update(deltaSeconds);
     g_theConsole->Update(deltaSeconds);
     g_theGame->Update(deltaSeconds);
@@ -136,6 +145,7 @@ void App::Render() const {
     g_theGame->Render();
     g_theConsole->Render();
     g_theInput->Render();
+    g_theAudio->Render();
     g_theRenderer->Render();
 }
 
@@ -143,5 +153,6 @@ void App::EndFrame() {
     g_theGame->EndFrame();
     g_theConsole->EndFrame();
     g_theInput->EndFrame();
+    g_theAudio->EndFrame();
     g_theRenderer->EndFrame();
 }

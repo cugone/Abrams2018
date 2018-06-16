@@ -8,6 +8,7 @@
 
 #ifdef _DEBUG
 #define TRACK_MEMORY TRACK_MEMORY_VERBOSE
+#define AUDIO_DEBUG
 #define RENDER_DEBUG
 #define PROFILE_BUILD
 #elif defined(FINAL_BUILD)

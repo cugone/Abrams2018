@@ -16,7 +16,6 @@ public:
     Shader * GetShader() const;
     std::size_t GetTextureCount() const;
     Texture* GetTexture(std::size_t i) const;
-
 protected:
 private:
     bool LoadFromXml(const XMLElement& element);
@@ -29,5 +28,4 @@ private:
     Renderer* _renderer = nullptr;
     std::vector<Texture*> _textures = {};
     Shader* _shader = nullptr;
-
 };

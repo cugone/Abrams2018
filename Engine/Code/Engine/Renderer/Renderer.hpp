@@ -114,6 +114,8 @@ public:
 
     SpriteSheet* CreateSpriteSheet(const std::string& filepath, unsigned int width = 1, unsigned int height = 1);
     SpriteSheet* CreateSpriteSheet(const XMLElement& elem);
+    AnimatedSprite* CreateAnimatedSprite(const std::string& filepath);
+    AnimatedSprite* CreateAnimatedSprite(const XMLElement& elem);
 
     void SetRenderTarget(Texture* color_target = nullptr, Texture* depthstencil_target = nullptr);
     void SetViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
@@ -219,6 +221,9 @@ private:
 
     void Draw(const PrimitiveType& topology, VertexBuffer* vbo, std::size_t vertex_count);
     void DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, IndexBuffer* ibo, std::size_t index_count);
+
+    SpriteSheet* CreateSpriteSheetFromGif(const std::string& filepath);
+    AnimatedSprite* CreateAnimatedSpriteFromGif(const std::string& filepath);
 
     void CreateAndRegisterDefaultTextures();
     Texture* CreateDefaultTexture();

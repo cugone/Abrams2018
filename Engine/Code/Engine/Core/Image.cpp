@@ -1,6 +1,7 @@
 #include "Engine/Core/Image.hpp"
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/Win.hpp"
 
@@ -17,12 +18,28 @@ Image::Image(const std::string& filePath)
     : m_filepath(filePath)
     , m_memload(false) {
 
-    std::string fp = filePath;
-
-    m_texelBytes = stbi_load(fp.c_str(), &m_dimensions.x, &m_dimensions.y, &m_bytesPerTexel, 4);
-    std::ostringstream ss;
-    ss << "Failed to load image. " << fp << " is not a supported image type.";
-    ASSERT_OR_DIE(m_texelBytes != nullptr, ss.str());
+    namespace FS = std::experimental::filesystem;
+    FS::path fp(filePath);
+    std::vector<unsigned char> buf = {};
+    if(FileUtils::ReadBufferFromFile(buf, fp.string())) {
+        m_isGif = (buf[0] == 'G' && buf[1] == 'I' && buf[2] == 'F' && buf[3] == '8' && (buf[4] == '9' || buf[4] == '7') && buf[5] == 'a');
+        if(!m_isGif) {
+            m_texelBytes = stbi_load_from_memory(buf.data(), buf.size(), &m_dimensions.x, &m_dimensions.y, &m_bytesPerTexel, 4);
+        } else {
+            int depth = 0;
+            int* delays = nullptr;
+            m_texelBytes = stbi_load_gif_from_memory(buf.data(), buf.size(), &delays, &m_dimensions.x, &m_dimensions.y, &depth, &m_bytesPerTexel, 4);
+            m_gifDelays.resize(depth);
+            for(int i = 0; i < depth; ++i) {
+                m_gifDelays[i] = delays[i];
+            }
+            m_dimensions.y *= depth;
+        }
+    } else {
+        std::ostringstream ss;
+        ss << "Failed to load image. " << fp << " is not a supported image type.";
+        ASSERT_OR_DIE(m_texelBytes != nullptr, ss.str());
+    }
 }
 Image::Image(unsigned int width, unsigned int height)
     : m_dimensions(width, height)
@@ -150,8 +167,13 @@ const std::string& Image::GetFilepath() const {
 const IntVector2& Image::GetDimensions() const {
     return m_dimensions;
 }
+
 unsigned char* Image::GetData() const {
     return m_texelBytes;
+}
+
+const std::vector<int>& Image::GetDelaysIfGif() const {
+    return m_gifDelays;
 }
 
 bool Image::Export(const std::string& filepath, int bytes_per_pixel /*= 4*/, int jpg_quality /*= 100*/) {

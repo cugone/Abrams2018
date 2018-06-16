@@ -42,8 +42,7 @@ void Game::Initialize() {
     g_theRenderer->RegisterTexturesFromFolder(std::string{"Data/Images"});
     g_theRenderer->RegisterMaterialsFromFolder(std::string{"Data/Materials"});
     g_theRenderer->RegisterFontsFromFolder(std::string{"Data/Fonts"});
-    auto gif_sheet = g_theRenderer->CreateSpriteSheet("Data/Images/cute_sif.png", 4, 4);
-    _gif_test = new AnimatedSprite(*g_theRenderer, gif_sheet, 0.88f, 0, 12);
+    _gif_test = g_theRenderer->CreateAnimatedSprite("Data/Images/cute_sif.gif");
     _tex = g_theRenderer->CreateOrGetTexture("Data/Images/Test_StbiAndDirectX.png", IntVector3::XY_AXIS);
 }
 
@@ -126,7 +125,7 @@ void Game::Render() const {
     auto tex_coords = _gif_test->GetCurrentTexCoords();
     Vector2 lefttop = Vector2(tex_coords.mins.x, tex_coords.mins.y);
     Vector2 rightbottom = Vector2(tex_coords.maxs.x, tex_coords.maxs.y);
-    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("SifGif"));
+    g_theRenderer->SetMaterial(_gif_test->GetMaterial());
     g_theRenderer->DrawQuad2D(Vector4(lefttop, rightbottom));
 
 }

@@ -13,8 +13,6 @@ class Texture;
 class SpriteSheet {
 public:
     SpriteSheet(Renderer& renderer, const XMLElement& elem);
-    SpriteSheet(const Texture* texture, int tilesWide, int tilesHigh);
-    SpriteSheet(Renderer& renderer, const std::string& texturePath, int tilesWide, int tilesHigh);
     ~SpriteSheet();
 
     AABB2 GetTexCoordsFromSpriteCoords(int spriteX, int spriteY) const;
@@ -27,7 +25,12 @@ public:
     const Texture& GetTexture() const;
 protected:
 private:
+    SpriteSheet(const Texture* texture, int tilesWide, int tilesHigh);
+    SpriteSheet(Renderer& renderer, const std::string& texturePath, int tilesWide, int tilesHigh);
+
     void LoadFromXml(Renderer& renderer, const XMLElement& elem);
     const Texture* _spriteSheetTexture = nullptr;
     IntVector2 _spriteLayout{1, 1};
+
+    friend class Renderer;
 };

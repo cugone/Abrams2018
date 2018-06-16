@@ -29,7 +29,7 @@ public:
     const IntVector2& GetDimensions() const;
 
     unsigned char* GetData() const;
-
+    const std::vector<int>& GetDelaysIfGif() const;
     bool Export(const std::string& filepath, int bytes_per_pixel = 4, int jpg_quality = 100);
     static Image* CreateImageFromFileBuffer(const std::vector<unsigned char>& data);
 protected:
@@ -38,7 +38,9 @@ private:
     unsigned char* m_texelBytes = nullptr;
     IntVector2 m_dimensions{};
     int m_bytesPerTexel = 0;
+    std::vector<int> m_gifDelays{};
     std::string m_filepath{};
     bool m_memload = false;
+    bool m_isGif = false;
     std::mutex _cs{};
 };

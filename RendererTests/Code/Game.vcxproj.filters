@@ -56,13 +56,7 @@
     <Image Include="..\Run_Win32\Data\Images\Test_StbiAndDirectX.png">
       <Filter>Data\Images</Filter>
     </Image>
-    <Image Include="..\Run_Win32\Data\Images\cute_sif.png">
-      <Filter>Data\Images</Filter>
-    </Image>
     <Image Include="..\Run_Win32\Data\Images\cute_sif.gif">
-      <Filter>Data\Images</Filter>
-    </Image>
-    <Image Include="..\Run_Win32\Data\Images\cute_sif_a.png">
       <Filter>Data\Images</Filter>
     </Image>
   </ItemGroup>

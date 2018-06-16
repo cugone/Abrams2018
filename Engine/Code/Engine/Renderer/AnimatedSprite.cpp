@@ -207,6 +207,14 @@ void AnimatedSprite::SetFractionElapsed(float fractionElapsed) {
     _elapsed_seconds = _duration_seconds * fractionElapsed;
 }
 
+void AnimatedSprite::SetMaterial(Material* mat) {
+    _material = mat;
+}
+
+Material* AnimatedSprite::GetMaterial() const {
+    return _material;
+}
+
 AnimatedSprite::SpriteAnimMode AnimatedSprite::GetAnimModeFromOptions(bool looping, bool backwards, bool ping_pong /*= false*/) {
     if(ping_pong) {
         return SpriteAnimMode::PINGPONG;

@@ -230,6 +230,88 @@ void Renderer::DrawIndexed(const PrimitiveType& topology, const std::vector<Vert
     DrawIndexed(topology, _temp_vbo, _temp_ibo, vertex_count);
 }
 
+AnimatedSprite* Renderer::CreateAnimatedSprite(const std::string& filepath) {
+    namespace FS = std::experimental::filesystem;
+    FS::path p(filepath);
+    tinyxml2::XMLDocument doc;
+    auto xml_result = doc.LoadFile(p.string().c_str());
+    if(xml_result == tinyxml2::XML_SUCCESS) {
+        auto xml_root = doc.RootElement();
+        return new AnimatedSprite(*this, *xml_root);
+    }
+    if(p.has_extension() && StringUtils::ToLowerCase(p.extension().string()) == ".gif") {
+        return CreateAnimatedSpriteFromGif(filepath);
+    }
+    return nullptr;
+}
+
+AnimatedSprite* Renderer::CreateAnimatedSprite(const XMLElement& elem) {
+    return new AnimatedSprite(*this, elem);
+}
+
+SpriteSheet* Renderer::CreateSpriteSheet(const XMLElement& elem) {
+    return new SpriteSheet(*this, elem);
+}
+
+SpriteSheet* Renderer::CreateSpriteSheet(const std::string& filepath, unsigned int width /*= 1*/, unsigned int height /*= 1*/) {
+    namespace FS = std::experimental::filesystem;
+    FS::path p(filepath);
+    if(!FS::exists(p)) {
+        DebuggerPrintf((p.string() + " not found.\n").c_str());
+        return nullptr;
+    }
+    if(StringUtils::ToLowerCase(p.extension().string()) == ".gif") {
+        return CreateSpriteSheetFromGif(p.string());
+    }
+    tinyxml2::XMLDocument doc;
+    auto xml_load = doc.LoadFile(p.string().c_str());
+    if(xml_load == tinyxml2::XML_SUCCESS) {
+        auto xml_root = doc.RootElement();
+        return CreateSpriteSheet(*xml_root);
+    }
+    return new SpriteSheet(*this, filepath, width, height);
+}
+
+SpriteSheet* Renderer::CreateSpriteSheetFromGif(const std::string& filepath) {
+    namespace FS = std::experimental::filesystem;
+    FS::path p(filepath);
+    if(StringUtils::ToLowerCase(p.extension().string()) != ".gif") {
+        return nullptr;
+    }
+    Image img(p.string());
+    auto delays = img.GetDelaysIfGif();
+    auto tex = GetTexture(p.string());
+    auto spr = new SpriteSheet(tex, 1, delays.size());
+    tex = nullptr;
+    return spr;
+}
+
+AnimatedSprite* Renderer::CreateAnimatedSpriteFromGif(const std::string& filepath) {
+    namespace FS = std::experimental::filesystem;
+    FS::path p(filepath);
+    if(StringUtils::ToLowerCase(p.extension().string()) != ".gif") {
+        return nullptr;
+    }
+    Image img(p.string());
+    auto delays = img.GetDelaysIfGif();
+    auto tex = GetTexture(p.string());
+    auto spr = new SpriteSheet(tex, 1, delays.size());
+    float duration_sum = 0.0f;
+    for(auto i : delays) {
+        duration_sum += (i * 0.001f);
+    }
+    auto anim = new AnimatedSprite(*this, spr, duration_sum, 0, delays.size());
+    tinyxml2::XMLDocument doc;
+    std::ostringstream ss;
+    ss << R"("<material name="__Gif_)" << p.stem().string() << R"("><shader src="__2D" /><textures><diffuse src=")" << p.string() << R"(" /></textures></material>)";
+    doc.Parse(ss.str().c_str());
+    auto anim_mat = new Material(this, *doc.RootElement());
+    anim->SetMaterial(anim_mat);
+    RegisterMaterial(anim_mat);
+    tex = nullptr;
+    return anim;
+}
+
 void Renderer::Draw(const PrimitiveType& topology, VertexBuffer* vbo, std::size_t vertex_count) {
 
     D3D11_PRIMITIVE_TOPOLOGY d3d_prim = PrimitiveTypeToD3dTopology(topology);
@@ -1450,29 +1532,6 @@ Texture* Renderer::CreateTexture(const std::string& filepath,
     }
 }
 
-SpriteSheet* Renderer::CreateSpriteSheet(const XMLElement& elem) {
-    return new SpriteSheet(*this, elem);
-}
-SpriteSheet* Renderer::CreateSpriteSheet(const std::string& filepath, unsigned int width /*= 1*/, unsigned int height /*= 1*/) {
-    namespace FS = std::experimental::filesystem;
-    FS::path p(filepath);
-    if(!FS::exists(p)) {
-        DebuggerPrintf((p.string() + " not found.\n").c_str());
-        return nullptr;
-    }
-    if(StringUtils::ToLowerCase(p.extension().string()) == ".gif") {
-        DebuggerPrintf(".gif files not yet supported.\n");
-        return nullptr;
-    }
-    tinyxml2::XMLDocument doc;
-    auto xml_load = doc.LoadFile(p.string().c_str());
-    if(xml_load == tinyxml2::XML_SUCCESS) {
-        auto xml_root = doc.RootElement();
-        return CreateSpriteSheet(*xml_root);
-    }
-    return new SpriteSheet(*this, filepath, width, height);
-}
-
 void Renderer::SetTexture(Texture* texture, unsigned int registerIndex /*= 0*/) {
     if(_current_target == texture) {
         return;
@@ -1711,7 +1770,7 @@ Texture* Renderer::Create2DTexture(const std::string& filepath, const BufferUsag
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        auto* tex = new Texture2D(_rhi_device, dx_tex);
+        auto tex = new Texture2D(_rhi_device, dx_tex);
         tex->SetDebugName(p.string().c_str());
         tex->IsLoaded(true);
         if(RegisterTexture(p.string(), tex)) {

@@ -20,8 +20,6 @@ public:
         NUM_SPRITE_ANIM_MODES,
     };
 
-    AnimatedSprite(Renderer& renderer, SpriteSheet* spriteSheet, float durationSeconds,
-                   int startSpriteIndex, int frameLength, SpriteAnimMode playbackMode = SpriteAnimMode::LOOPING);
     AnimatedSprite(Renderer& renderer, const XMLElement& elem);
     ~AnimatedSprite();
 
@@ -43,14 +41,18 @@ public:
     float GetFractionRemaining() const;
     void SetSecondsElapsed(float secondsElapsed);	   // Jump to specific time
     void SetFractionElapsed(float fractionElapsed);    // e.g. 0.33f for one-third in
-
+    void SetMaterial(Material* mat);
+    Material* GetMaterial() const;
 protected:
 private:
+    AnimatedSprite(Renderer& renderer, SpriteSheet* spriteSheet, float durationSeconds,
+                   int startSpriteIndex, int frameLength, SpriteAnimMode playbackMode = SpriteAnimMode::LOOPING);
 
     void LoadFromXml(Renderer& renderer, const XMLElement& elem);
     SpriteAnimMode GetAnimModeFromOptions(bool looping, bool backwards, bool ping_pong /*= false*/);
 
     Renderer* _renderer = nullptr;
+    Material* _material = nullptr;
     SpriteSheet* _sheet = nullptr;
     float _duration_seconds = 0.016f;
     float _elapsed_seconds = 0.0f;
@@ -61,5 +63,7 @@ private:
     int _end_index = 1;
     bool _is_playing = true;
     bool _padding[3]{};
+
+    friend class Renderer;
 
 };

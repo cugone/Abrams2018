@@ -34,6 +34,9 @@ AudioSystem::~AudioSystem() {
     }
     _wave_files.clear();
 
+    _master_voice->DestroyVoice();
+    _master_voice = nullptr;
+
     _xaudio2->Release();
     _xaudio2 = nullptr;
 }

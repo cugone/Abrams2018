@@ -23,4 +23,8 @@ bool EndsWith(const std::string& string, const std::string& search);
 
 std::string TrimWhitespace(std::string string);
 
+constexpr const uint32_t FourCC(const char* id) {
+    return static_cast<uint32_t>((((id[0] << 24) & 0xFF000000) | ((id[1] << 16) & 0x00FF0000) | ((id[2] << 8) & 0x0000FF00) | ((id[3] << 0) & 0x000000FF)));
+}
+
 }

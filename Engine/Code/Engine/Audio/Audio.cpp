@@ -1,0 +1,23 @@
+#include "Engine/Audio/Audio.hpp"
+
+#include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Core/FileUtils.hpp"
+
+Audio::Audio(const std::string& filename) {
+    GUARANTEE_OR_DIE(FileUtils::ReadBufferFromFile(_buffer, filename), "Buffer failed to read from file.");
+
+}
+
+Audio::~Audio() {
+    _buffer.clear();
+    _buffer.shrink_to_fit();
+}
+
+Audio::BUFFER_TYPE Audio::GetType() const {
+    return _type;
+}
+
+const std::vector<unsigned char>& Audio::GetBuffer() const {
+    return _buffer;
+}
+

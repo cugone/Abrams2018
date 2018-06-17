@@ -1,8 +1,11 @@
 #include "Game/Game.hpp"
 
+#include "Engine/Audio/Wav.hpp"
+
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/Image.hpp"
 #include "Engine/Core/KerningFont.hpp"
+#include "Engine/Core/Riff.hpp"
 #include "Engine/Core/Rgba.hpp"
 
 #include "Engine/Math/MathUtils.hpp"
@@ -40,6 +43,9 @@ void Game::Initialize() {
     g_theRenderer->RegisterTexturesFromFolder(std::string{"Data/Images"});
     g_theRenderer->RegisterMaterialsFromFolder(std::string{"Data/Materials"});
     g_theRenderer->RegisterFontsFromFolder(std::string{"Data/Fonts"});
+
+    g_theAudio->LoadWavFile("Data/Audio/square.wav");
+
 }
 
 void Game::BeginFrame() {
@@ -55,6 +61,10 @@ void Game::Update(float deltaSeconds) {
 
     _camera3->Update(deltaSeconds);
     _camera2->Update(deltaSeconds);
+
+    if(g_theInput->WasKeyJustPressed(KeyCode::ENTER)) {
+        g_theAudio->PlaySound("Data/Audio/square.wav");
+    }
 
 }
 

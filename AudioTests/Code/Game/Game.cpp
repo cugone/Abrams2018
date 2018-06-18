@@ -40,12 +40,7 @@ Game::~Game() {
 }
 
 void Game::Initialize() {
-    g_theRenderer->RegisterTexturesFromFolder(std::string{"Data/Images"});
-    g_theRenderer->RegisterMaterialsFromFolder(std::string{"Data/Materials"});
-    g_theRenderer->RegisterFontsFromFolder(std::string{"Data/Fonts"});
-
-    g_theAudio->LoadWavFile("Data/Audio/square.wav");
-
+    g_theAudio->RegisterWavFilesFromFolder(std::string{"Data/Audio"});
 }
 
 void Game::BeginFrame() {
@@ -63,7 +58,7 @@ void Game::Update(float deltaSeconds) {
     _camera2->Update(deltaSeconds);
 
     if(g_theInput->WasKeyJustPressed(KeyCode::ENTER)) {
-        g_theAudio->PlaySound("Data/Audio/square.wav");
+        g_theAudio->Play(std::string{"Data/Audio/square.wav"});
     }
 
 }

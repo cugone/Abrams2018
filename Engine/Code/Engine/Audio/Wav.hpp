@@ -5,14 +5,17 @@
 
 #include <string>
 
+namespace FileUtils {
+
+namespace WavChunkID {
+    constexpr const uint32_t FMT = StringUtils::FourCC("fmt ");
+    constexpr const uint32_t FACT = StringUtils::FourCC("fact");
+    constexpr const uint32_t DATA = StringUtils::FourCC("data");
+    constexpr const bool IsValid(const char* id);
+} //End WavChunkID
+
 class Wav {
 public:
-    static struct ID {
-        static constexpr const uint32_t WAVE = StringUtils::FourCC("WAVE");
-        static constexpr const uint32_t FMT = StringUtils::FourCC("fmt ");
-        static constexpr const uint32_t FACT = StringUtils::FourCC("fact");
-        static constexpr const uint32_t DATA = StringUtils::FourCC("data");
-    }ID;
 
     Wav() = default;
     ~Wav();
@@ -54,14 +57,12 @@ public:
 
     unsigned int Load(const std::string& filepath);
     unsigned char* GetFormatAsBuffer();
-    unsigned char* GetDataBuffer();
+    unsigned char* GetDataBuffer() const;
     const WavFormatChunk& GetFormatChunk() const;
     const WavDataChunk& GetDataChunk() const;
     uint32_t GetDataBufferSize() const;
 protected:
 private:
-    bool IsRecognizableChunk(const char* id) const;
-
     WavFormatChunk _fmt{};
     WavFactChunk _fact{};
     WavDataChunk _data{};
@@ -69,3 +70,5 @@ private:
     Riff* _riff_data = nullptr;
 
 };
+
+} //End FileUtils

@@ -5,7 +5,7 @@
 class App : public EngineSubsystem {
 public:
     App();
-    ~App();
+    virtual ~App();
 
     bool IsQuitting() const;
     void SetIsQuitting(bool quit);

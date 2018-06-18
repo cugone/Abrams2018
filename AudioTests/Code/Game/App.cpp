@@ -31,7 +31,9 @@ bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     return false;
 }
 
-App::App() {
+App::App()
+    : EngineSubsystem()
+{
     g_theRenderer = new Renderer(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
     g_theAudio = new AudioSystem();
     g_theInput = new InputSystem();

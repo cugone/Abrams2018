@@ -1,20 +1,91 @@
 #pragma once
 
-#include "Engine/Core/EngineSubsystem.hpp"
+/************************************************/
+/* Audio System built based on HUGS system      */
+/* by Youtube User ChiliTomatoNoodle            */
+/* https://www.youtube.com/watch?v=T51Eqbbald4  */
+/************************************************/
 
+#include "Engine/Core/EngineSubsystem.hpp"
+#include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Audio/Wav.hpp"
+
+#include <iomanip>
+#include <filesystem>
+#include <functional>
 #include <map>
+#include <memory>
+#include <sstream>
 #include <vector>
 #include <Xaudio2.h>
 
 #pragma comment(lib, "Xaudio2.lib")
 
+namespace FileUtils {
 class Wav;
+}
 
 class AudioSystem : public EngineSubsystem {
+private:
+    class Channel;
 public:
-    AudioSystem();
+    class EngineCallback : public IXAudio2EngineCallback {
+    public:
+        virtual ~EngineCallback() {}
+        virtual void STDMETHODCALLTYPE OnProcessingPassStart() override {};
+        virtual void STDMETHODCALLTYPE OnProcessingPassEnd() override {};
+        virtual void STDMETHODCALLTYPE OnCriticalError(HRESULT error) override {
+            std::ostringstream ss;
+            ss << "The Audio System encountered a fatal error: ";
+            ss << "0x" << std::hex << std::setw(8) << std::setfill('0') << error;
+            DebuggerPrintf(ss.str().c_str());
+        };
+    };
+    class Sound {
+    public:
+        Sound(const std::string& filepath);
+        ~Sound();
+        void AddChannel(Channel* channel);
+        void RemoveChannel(Channel* channel);
+        const std::size_t GetId() const;
+        const std::size_t GetCount() const;
+        static const std::size_t nid = (std::size_t)(-1);
+        const FileUtils::Wav* const GetWav() const;
+    private:
+        static std::size_t _id;
+        std::size_t _my_id = 0;
+        FileUtils::Wav* _wave_file{};
+        std::vector<Channel*> _channels{};
+    };
+    void DeactivateChannel(Channel& channel);
+private:
+    class Channel {
+    public:
+        class VoiceCallback : public IXAudio2VoiceCallback {
+        public:
+            virtual ~VoiceCallback() {}
+            virtual void STDMETHODCALLTYPE OnVoiceProcessingPassStart(uint32_t /*bytesRequired*/) override {};
+            virtual void STDMETHODCALLTYPE OnVoiceProcessingPassEnd() override {};
+            virtual void STDMETHODCALLTYPE OnStreamEnd() override {};
+            virtual void STDMETHODCALLTYPE OnBufferStart(void* /*pBufferContext*/) override {};
+            virtual void STDMETHODCALLTYPE OnBufferEnd(void* pBufferContext) override;
+            virtual void STDMETHODCALLTYPE OnLoopEnd(void* /*pBufferContext*/) override {};
+            virtual void STDMETHODCALLTYPE OnVoiceError(void* /*pBufferContext*/, HRESULT /*Error*/) override {};
+        };
+        Channel(AudioSystem& audioSystem);
+        ~Channel();
+        void Play(Sound& snd);
+        void Stop();
+        void SetVolume(float newVolume);
+    private:
+        XAUDIO2_BUFFER _buffer{};
+        IXAudio2SourceVoice* _voice = nullptr;
+        Sound* _sound = nullptr;
+        AudioSystem* _audio_system = nullptr;
+    };
+public:
+    AudioSystem(std::size_t max_channels = 1024);
     virtual ~AudioSystem();
-
     virtual void Initialize() override;
     virtual void BeginFrame() override;
     virtual void Update(float deltaSeconds) override;
@@ -22,20 +93,28 @@ public:
     virtual void EndFrame() override;
     virtual bool ProcessSystemMessage(const EngineMessage& msg) override;
 
-    bool LoadWavFile(const std::string& filename);
-    void PlaySound(const std::string& nameOrFile);
+    void SetFormat(const WAVEFORMATEXTENSIBLE& format);
+    void SetFormat(const FileUtils::Wav::WavFormatChunk& format);
+    void RegisterWavFilesFromFolder(const std::string& folderpath, bool recursive = false);
+    void RegisterWavFile(const std::string& filepath);
+
+    void Play(Sound& snd);
+    void Play(const std::string& filepath);
+    void SetEngineCallback(EngineCallback* callback);
+    const WAVEFORMATEXTENSIBLE& GetFormat() const;
+    FileUtils::Wav::WavFormatChunk GetLoadedWavFileFormat() const;
 protected:
 private:
-    struct Sound {
-        WAVEFORMATEXTENSIBLE format_ex{};
-        XAUDIO2_BUFFER buffer{};
-    };
-    struct Voice {
-        IXAudio2SourceVoice* voice{};
-    };
-    std::map<std::string, Wav*> _wave_files{};
-    std::map<Wav*, Sound> _sounds{};
-    std::vector<Voice*> _voices{};
+    void RegisterWavFilesFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
+    void RegisterWavFile(const std::filesystem::path& filepath);
+    WAVEFORMATEXTENSIBLE _audio_format_ex{};
+    std::size_t _sound_count{};
+    std::size_t _max_channels{};
+    std::map<std::string, FileUtils::Wav*> _wave_files{};
+    std::map<std::string, Sound*> _sounds{};
+    std::vector<std::unique_ptr<Channel>> _active_channels{};
+    std::vector<std::unique_ptr<Channel>> _idle_channels{};
     IXAudio2* _xaudio2 = nullptr;
     IXAudio2MasteringVoice* _master_voice = nullptr;
+    EngineCallback _engine_callback{};
 };

@@ -4,6 +4,16 @@
 
 #include <sstream>
 
+namespace FileUtils {
+
+namespace WavChunkID {
+constexpr const bool IsValid(const char* id) {
+    return (StringUtils::FourCC(id) == WavChunkID::FMT
+            || StringUtils::FourCC(id) == WavChunkID::FACT
+            || StringUtils::FourCC(id) == WavChunkID::DATA);
+}
+} //End WavChunkID
+
 Wav::~Wav() {
     delete _riff_data;
     _riff_data = nullptr;
@@ -15,7 +25,7 @@ unsigned int Wav::Load(const std::string& filepath) {
         std::stringstream ss(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
         auto next_chunk = _riff_data->GetNextChunk();
         if(next_chunk->data != nullptr) {
-            bool is_wave = StringUtils::FourCC(next_chunk->data->fourcc) == Wav::ID::WAVE;
+            bool is_wave = StringUtils::FourCC(next_chunk->data->fourcc) == RiffChunkID::WAVE;
             if(!is_wave) {
                 delete _riff_data;
                 _riff_data = nullptr;
@@ -28,7 +38,7 @@ unsigned int Wav::Load(const std::string& filepath) {
             WavHeader cur_header{};
             while(ss.read(reinterpret_cast<char*>(&cur_header), sizeof(cur_header))) {
                 switch(StringUtils::FourCC(cur_header.fourcc)) {
-                    case Wav::ID::FMT:
+                    case WavChunkID::FMT:
                     {
                         if(!ss.read(reinterpret_cast<char*>(&_fmt), cur_header.length)) {
                             delete _riff_data;
@@ -37,7 +47,7 @@ unsigned int Wav::Load(const std::string& filepath) {
                         }
                         break;
                     }
-                    case Wav::ID::DATA:
+                    case WavChunkID::DATA:
                     {
                         _data.length = cur_header.length;
                         _data.data = new uint8_t[_data.length];
@@ -50,7 +60,7 @@ unsigned int Wav::Load(const std::string& filepath) {
                         }
                         break;
                     }
-                    case Wav::ID::FACT:
+                    case WavChunkID::FACT:
                     {
                         if(!ss.read(reinterpret_cast<char*>(&_fact), cur_header.length)) {
                             delete[] _data.data;
@@ -78,7 +88,7 @@ unsigned char* Wav::GetFormatAsBuffer() {
     return reinterpret_cast<unsigned char*>(&_fmt);
 }
 
-unsigned char* Wav::GetDataBuffer() {
+unsigned char* Wav::GetDataBuffer() const {
     return _data.data;
 }
 
@@ -94,9 +104,4 @@ const Wav::WavDataChunk& Wav::GetDataChunk() const {
     return _data;
 }
 
-bool Wav::IsRecognizableChunk(const char* id) const {
-    return (StringUtils::FourCC(id) == Wav::ID::WAVE
-            || StringUtils::FourCC(id) == Wav::ID::FMT
-            || StringUtils::FourCC(id) == Wav::ID::FACT
-            || StringUtils::FourCC(id) == Wav::ID::DATA);
-}
+} //End FileUtils

@@ -3,7 +3,6 @@
 #include "Engine/Core/StringUtils.hpp"
 
 #include <cstdio>
-#include <filesystem>
 #include <fstream>
 #include <ShlObj.h>
 
@@ -12,7 +11,7 @@ namespace FileUtils {
 
 bool WriteBufferToFile(void* buffer, std::size_t size, const std::string& filePath) {
 
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     FS::path p(filePath);
     bool not_valid_path = FS::is_directory(p);
     if(not_valid_path) {
@@ -31,7 +30,7 @@ bool WriteBufferToFile(void* buffer, std::size_t size, const std::string& filePa
 
 bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::string& filePath) {
 
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     FS::path p(filePath);
     bool not_valid_path = FS::is_directory(p) || !FS::exists(p);
     if(not_valid_path) {
@@ -54,14 +53,14 @@ bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::strin
 }
 
 bool CreateFolders(const std::string& filepath) {
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
 
     FS::path p(filepath);
     return FS::create_directories(p);
 }
 
 std::string GetAppDataPath() {
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     PWSTR ppszPath = nullptr;
     bool success = SUCCEEDED(::SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, nullptr, &ppszPath));
     if(success) {
@@ -70,6 +69,44 @@ std::string GetAppDataPath() {
         return p.string();
     }
     return std::string{};
+}
+
+void IterateFileInFolders(const std::filesystem::path& folderpath, const std::string& validExtension /*= std::string{}*/, const std::function<void(const std::filesystem::path&)>& callback /*= [](const std::filesystem::path& p) { (void*)p; }*/, bool recursive /*= false*/) {
+    namespace FS = std::filesystem;
+    bool exists = FS::exists(folderpath);
+    bool is_folder = exists && FS::is_directory(folderpath);
+    if(!is_folder) {
+        return;
+    }
+    if(!recursive) {
+        for(auto iter = FS::directory_iterator{ folderpath }; iter != FS::directory_iterator{}; ++iter) {
+            auto cur_path = iter->path();
+            auto my_extension = StringUtils::ToLowerCase(cur_path.extension().string());
+            auto valid_extension = StringUtils::ToLowerCase(validExtension);
+            bool valid_file_by_extension = my_extension == valid_extension;
+            if(valid_extension.empty() == false) {
+                if(valid_file_by_extension) {
+                    callback(cur_path);
+                }
+            } else {
+                callback(cur_path);
+            }
+        }
+    } else {
+        for(auto iter = FS::recursive_directory_iterator{ folderpath }; iter != FS::recursive_directory_iterator{}; ++iter) {
+            auto cur_path = iter->path();
+            auto my_extension = StringUtils::ToLowerCase(cur_path.extension().string());
+            auto valid_extension = StringUtils::ToLowerCase(validExtension);
+            bool valid_file_by_extension = my_extension == valid_extension;
+            if(valid_extension.empty() == false) {
+                if(valid_file_by_extension) {
+                    callback(cur_path);
+                }
+            } else {
+                callback(cur_path);
+            }
+        }
+    }
 }
 
 } //End FileUtils

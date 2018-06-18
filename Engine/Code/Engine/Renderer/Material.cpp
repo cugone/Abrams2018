@@ -47,7 +47,7 @@ Material::Material(Renderer* renderer, const XMLElement& element)
 
 
 bool Material::LoadFromXml(const XMLElement& element) {
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
 
     DataUtils::ValidateXmlElement(element, "material", "", "name", "shader,textures");
 

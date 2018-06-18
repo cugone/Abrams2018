@@ -18,7 +18,7 @@ Image::Image(const std::string& filePath)
     : m_filepath(filePath)
     , m_memload(false) {
 
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     FS::path fp(filePath);
     std::vector<unsigned char> buf = {};
     if(FileUtils::ReadBufferFromFile(buf, fp.string())) {
@@ -178,7 +178,7 @@ const std::vector<int>& Image::GetDelaysIfGif() const {
 
 bool Image::Export(const std::string& filepath, int bytes_per_pixel /*= 4*/, int jpg_quality /*= 100*/) {
 
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     FS::path p(filepath);
     std::string extension = StringUtils::ToLowerCase(p.extension().string());
 

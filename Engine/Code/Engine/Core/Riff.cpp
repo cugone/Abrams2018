@@ -7,6 +7,17 @@
 #include <iostream>
 #include <sstream>
 
+namespace FileUtils {
+
+namespace RiffChunkID {
+constexpr const bool IsValid(const char* id) {
+    return (StringUtils::FourCC(id) == RiffChunkID::RIFF
+            || StringUtils::FourCC(id) == RiffChunkID::LIST
+            || StringUtils::FourCC(id) == RiffChunkID::INFO
+            || StringUtils::FourCC(id) == RiffChunkID::WAVE);
+}
+} //End RiffChunkID
+
 Riff::~Riff() {
     _chunks.clear();
     _chunks.shrink_to_fit();
@@ -24,7 +35,7 @@ bool Riff::ParseDataIntoChunks(std::vector<unsigned char>& buffer) {
     RiffHeader cur_header{};
     while(stream.read(reinterpret_cast<char*>(&cur_header), sizeof(cur_header))) {
         RiffChunk* cur_chunk = new RiffChunk;
-        if(is_first_chunk && StringUtils::FourCC(cur_header.fourcc) != Riff::ID::RIFF) {
+        if(is_first_chunk && StringUtils::FourCC(cur_header.fourcc) != RiffChunkID::RIFF) {
             delete cur_chunk;
             cur_chunk = nullptr;
             return false;
@@ -32,7 +43,7 @@ bool Riff::ParseDataIntoChunks(std::vector<unsigned char>& buffer) {
         is_first_chunk = false;
         cur_chunk->header = cur_header;
         switch(StringUtils::FourCC(cur_header.fourcc)) {
-            case Riff::ID::RIFF:
+            case RiffChunkID::RIFF:
             {
                 RiffSubChunk* subdata = new RiffSubChunk;
                 if(!stream.read(reinterpret_cast<char*>(&subdata->fourcc), 4)) {
@@ -53,11 +64,11 @@ bool Riff::ParseDataIntoChunks(std::vector<unsigned char>& buffer) {
                 cur_chunk->data = subdata;
                 break;
             }
-            case Riff::ID::INFO:
+            case RiffChunkID::INFO:
             {
                 break;
             }
-            case Riff::ID::LIST:
+            case RiffChunkID::LIST:
             {
                 RiffSubChunk* subdata = new RiffSubChunk;
                 if(!stream.read(reinterpret_cast<char*>(&subdata->fourcc), 4)) {
@@ -91,12 +102,6 @@ bool Riff::ParseDataIntoChunks(std::vector<unsigned char>& buffer) {
     return true;
 }
 
-bool Riff::IsRecognizableChunk(const char* id) const {
-    return (StringUtils::FourCC(id) == Riff::ID::RIFF
-            || StringUtils::FourCC(id) == Riff::ID::LIST
-            || StringUtils::FourCC(id) == Riff::ID::INFO);
-}
-
 void Riff::ShowRiffChunkHeaders() {
 #ifdef AUDIO_DEBUG
     std::ostringstream ss;
@@ -104,10 +109,10 @@ void Riff::ShowRiffChunkHeaders() {
     for(auto& chunk : _chunks) {
         ss << "Chunk ID: ";
         ss << chunk->header.fourcc[0]
-           << chunk->header.fourcc[1]
-           << chunk->header.fourcc[2]
-           << chunk->header.fourcc[3]
-           << '\n';
+            << chunk->header.fourcc[1]
+            << chunk->header.fourcc[2]
+            << chunk->header.fourcc[3]
+            << '\n';
         ss << "Length: " << chunk->header.length << '\n';
         ss << "------------\n";
     }
@@ -145,3 +150,5 @@ unsigned int Riff::Load(const std::vector<unsigned char>& data) {
     ShowRiffChunkHeaders();
     return RIFF_SUCCESS;
 }
+
+} //End FileUtils

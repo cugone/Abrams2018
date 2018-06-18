@@ -177,7 +177,7 @@ void Renderer::EndFrame() {
 }
 
 bool Renderer::RegisterTexture(const std::string& name, Texture* texture) {
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     FS::path p(name);
     auto found_texture = _textures.find(p.string());
     if(found_texture == _textures.end()) {
@@ -189,7 +189,7 @@ bool Renderer::RegisterTexture(const std::string& name, Texture* texture) {
 }
 
 Texture* Renderer::GetTexture(const std::string& nameOrFile) {
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     FS::path p(nameOrFile);
     auto found_iter = _textures.find(p.string());
     if(found_iter == _textures.end()) {
@@ -231,7 +231,7 @@ void Renderer::DrawIndexed(const PrimitiveType& topology, const std::vector<Vert
 }
 
 AnimatedSprite* Renderer::CreateAnimatedSprite(const std::string& filepath) {
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     FS::path p(filepath);
     tinyxml2::XMLDocument doc;
     auto xml_result = doc.LoadFile(p.string().c_str());
@@ -254,7 +254,7 @@ SpriteSheet* Renderer::CreateSpriteSheet(const XMLElement& elem) {
 }
 
 SpriteSheet* Renderer::CreateSpriteSheet(const std::string& filepath, unsigned int width /*= 1*/, unsigned int height /*= 1*/) {
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     FS::path p(filepath);
     if(!FS::exists(p)) {
         DebuggerPrintf((p.string() + " not found.\n").c_str());
@@ -273,7 +273,7 @@ SpriteSheet* Renderer::CreateSpriteSheet(const std::string& filepath, unsigned i
 }
 
 SpriteSheet* Renderer::CreateSpriteSheetFromGif(const std::string& filepath) {
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     FS::path p(filepath);
     if(StringUtils::ToLowerCase(p.extension().string()) != ".gif") {
         return nullptr;
@@ -287,7 +287,7 @@ SpriteSheet* Renderer::CreateSpriteSheetFromGif(const std::string& filepath) {
 }
 
 AnimatedSprite* Renderer::CreateAnimatedSpriteFromGif(const std::string& filepath) {
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     FS::path p(filepath);
     if(StringUtils::ToLowerCase(p.extension().string()) != ".gif") {
         return nullptr;
@@ -722,7 +722,7 @@ Material* Renderer::CreateMaterialFromFont(KerningFont* font) {
     if(font == nullptr) {
         return nullptr;
     }
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     FS::path folderpath = font->GetFilePath();
     folderpath = folderpath.parent_path();
     std::string name = font->GetName();
@@ -918,15 +918,15 @@ void Renderer::RegisterFont(KerningFont* font) {
 }
 
 bool Renderer::RegisterFont(const std::string& filepath) {
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     return RegisterFont(FS::path{ filepath });
 }
 
-bool Renderer::RegisterFont(const std::experimental::filesystem::path& filepath) {
+bool Renderer::RegisterFont(const std::filesystem::path& filepath) {
     auto font = new KerningFont(this);
     if(font->LoadFromFile(filepath.string())) {
         for(auto& texture_filename : font->GetImagePaths()) {
-            namespace FS = std::experimental::filesystem;
+            namespace FS = std::filesystem;
             FS::path folderpath = font->GetFilePath();
             folderpath = folderpath.parent_path();
             std::string texture_path = folderpath.string() + "\\" + texture_filename;
@@ -946,31 +946,17 @@ bool Renderer::RegisterFont(const std::experimental::filesystem::path& filepath)
 }
 
 void Renderer::RegisterFontsFromFolder(const std::string& folderpath, bool recursive /*= false*/) {
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     return RegisterFontsFromFolder(FS::path{ folderpath }, recursive);
 }
 
-void Renderer::RegisterFontsFromFolder(const std::experimental::filesystem::path& folderpath, bool recursive /*= false*/) {
-    namespace FS = std::experimental::filesystem;
-    bool is_folder = FS::is_directory(folderpath);
-    if(!is_folder) {
-        return;
-    }
-    if(!recursive) {
-        for(auto iter = FS::directory_iterator{ folderpath }; iter != FS::directory_iterator{}; ++iter) {
-            auto cur_path = iter->path();
-            if(cur_path.has_extension() && StringUtils::ToLowerCase(cur_path.extension().string()) == ".fnt") {
-                RegisterFont(cur_path);
-            }
-        }
-    } else {
-        for(auto iter = FS::recursive_directory_iterator{ folderpath }; iter != FS::recursive_directory_iterator{}; ++iter) {
-            auto cur_path = iter->path();
-            if(cur_path.has_extension() && StringUtils::ToLowerCase(cur_path.extension().string()) == ".fnt") {
-                RegisterFont(cur_path);
-            }
-        }
-    }
+void Renderer::RegisterFontsFromFolder(const std::filesystem::path& folderpath, bool recursive /*= false*/) {
+    namespace FS = std::filesystem;
+    auto cb =
+    [this](const FS::path& p) {
+        this->RegisterFont(p);
+    };
+    FileUtils::IterateFileInFolders(folderpath, ".fnt", cb, recursive);
 }
 
 void Renderer::CreateAndRegisterDefaultTextures() {
@@ -1175,12 +1161,12 @@ void Renderer::RegisterMaterial(Material* mat) {
 }
 
 bool Renderer::RegisterMaterial(const std::string& filepath) {
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     return RegisterMaterial(FS::path{filepath});
 }
 
-bool Renderer::RegisterMaterial(const std::experimental::filesystem::path& filepath) {
-    namespace FS = std::experimental::filesystem;
+bool Renderer::RegisterMaterial(const std::filesystem::path& filepath) {
+    namespace FS = std::filesystem;
     tinyxml2::XMLDocument doc;
     if(filepath.has_extension() && filepath.extension() == ".material") {
         const auto p_str = filepath.string();
@@ -1194,27 +1180,17 @@ bool Renderer::RegisterMaterial(const std::experimental::filesystem::path& filep
 }
 
 void Renderer::RegisterMaterialsFromFolder(const std::string& folderpath, bool recursive /*= false*/) {
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     RegisterMaterialsFromFolder(FS::path{folderpath}, recursive);
 }
 
-void Renderer::RegisterMaterialsFromFolder(const std::experimental::filesystem::path& folderpath, bool recursive /*= false*/) {
-    namespace FS = std::experimental::filesystem;
-    bool is_folder = FS::is_directory(folderpath);
-    if(!is_folder) {
-        return;
-    }
-    if(!recursive) {
-        for(auto iter = FS::directory_iterator{folderpath}; iter != FS::directory_iterator{}; ++iter) {
-            auto cur_path = iter->path();
-            RegisterMaterial(cur_path);
-        }
-    } else {
-        for(auto iter = FS::recursive_directory_iterator{folderpath}; iter != FS::recursive_directory_iterator{}; ++iter) {
-            auto cur_path = iter->path();
-            RegisterMaterial(cur_path);
-        }
-    }
+void Renderer::RegisterMaterialsFromFolder(const std::filesystem::path& folderpath, bool recursive /*= false*/) {
+    namespace FS = std::filesystem;
+    auto cb =
+    [this](const FS::path& p) {
+        this->RegisterMaterial(p);
+    };
+    FileUtils::IterateFileInFolders(folderpath, "", cb, recursive);
 }
 
 void Renderer::RegisterShaderProgram(const std::string& name, ShaderProgram * sp) {
@@ -1474,7 +1450,7 @@ void Renderer::Present() {
 }
 
 Texture* Renderer::CreateOrGetTexture(const std::string& filepath, const IntVector3& dimensions) {
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     FS::path p(filepath);
     auto texture_iter = _textures.find(p.string());
     if(texture_iter == _textures.end()) {
@@ -1485,31 +1461,21 @@ Texture* Renderer::CreateOrGetTexture(const std::string& filepath, const IntVect
 }
 
 void Renderer::RegisterTexturesFromFolder(const std::string& folderpath, bool recursive /*= false*/) {
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     RegisterTexturesFromFolder(FS::path{ folderpath }, recursive);
 }
 
-void Renderer::RegisterTexturesFromFolder(const std::experimental::filesystem::path& folderpath, bool recursive /*= false*/) {
-    namespace FS = std::experimental::filesystem;
-    bool is_folder = FS::is_directory(folderpath);
-    if(!is_folder) {
-        return;
-    }
-    if(!recursive) {
-        for(auto iter = FS::directory_iterator{ folderpath }; iter != FS::directory_iterator{}; ++iter) {
-            auto cur_path = iter->path();
-            RegisterTexture(cur_path);
-        }
-    } else {
-        for(auto iter = FS::recursive_directory_iterator{ folderpath }; iter != FS::recursive_directory_iterator{}; ++iter) {
-            auto cur_path = iter->path();
-            RegisterTexture(cur_path);
-        }
-    }
+void Renderer::RegisterTexturesFromFolder(const std::filesystem::path& folderpath, bool recursive /*= false*/) {
+    namespace FS = std::filesystem;
+    auto cb =
+        [this](const FS::path& p) {
+        this->RegisterTexture(p);
+    };
+    FileUtils::IterateFileInFolders(folderpath, std::string{}, cb, recursive);
 }
 
-bool Renderer::RegisterTexture(const std::experimental::filesystem::path& filepath) {
-    namespace FS = std::experimental::filesystem;
+bool Renderer::RegisterTexture(const std::filesystem::path& filepath) {
+    namespace FS = std::filesystem;
     const auto p_str = filepath.string();
     Texture* tex = CreateTexture(p_str, IntVector3::XY_AXIS);
     if(tex) {
@@ -1578,7 +1544,7 @@ Texture* Renderer::CreateDepthStencil(RHIDevice* owner, const IntVector2& dimens
 }
 
 Texture* Renderer::Create1DTexture(const std::string& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) {
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     FS::path p(filepath);
     if(!FS::exists(p)) {
         return GetTexture("__invalid");
@@ -1718,7 +1684,7 @@ Texture* Renderer::Create1DTextureFromMemory(const std::vector<Rgba>& data, unsi
 }
 
 Texture* Renderer::Create2DTexture(const std::string& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) {
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     FS::path p(filepath);
     if(!FS::exists(p)) {
         return GetTexture("__invalid");
@@ -2016,7 +1982,7 @@ Texture* Renderer::Create2DTextureArrayFromGifBuffer(const unsigned char* data, 
 }
 
 Texture* Renderer::Create3DTexture(const std::string& filepath, const IntVector3& dimensions, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) {
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     FS::path p(filepath);
     if(!FS::exists(p)) {
         return GetTexture("__invalid");

@@ -5,14 +5,19 @@
 #include <string>
 #include <vector>
 
+namespace FileUtils {
+
+namespace RiffChunkID {
+    constexpr const uint32_t RIFF = StringUtils::FourCC("RIFF");
+    constexpr const uint32_t LIST = StringUtils::FourCC("LIST");
+    constexpr const uint32_t WAVE = StringUtils::FourCC("WAVE");
+    constexpr const uint32_t INFO = StringUtils::FourCC("INFO");
+    constexpr const bool IsValid(const char* id);
+}
+
+
 class Riff {
 public:
-    static struct ID {
-        static constexpr const uint32_t RIFF = StringUtils::FourCC("RIFF");
-        static constexpr const uint32_t LIST = StringUtils::FourCC("LIST");
-        static constexpr const uint32_t WAVE = StringUtils::FourCC("WAVE");
-        static constexpr const uint32_t INFO = StringUtils::FourCC("INFO");
-    }ID;
 
     static constexpr const unsigned int RIFF_SUCCESS = 0;
     static constexpr const unsigned int RIFF_ERROR_NOT_A_RIFF = 1;
@@ -48,7 +53,6 @@ public:
 protected:
 private:
 
-    bool IsRecognizableChunk(const char* id) const;
     bool ParseDataIntoChunks(std::vector<unsigned char>& buffer);
 
     void ShowRiffChunkHeaders();
@@ -57,3 +61,5 @@ private:
 
     friend class Wav;
 };
+
+}

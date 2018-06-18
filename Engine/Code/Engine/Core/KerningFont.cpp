@@ -93,7 +93,7 @@ const std::string& KerningFont::GetFilePath() const {
 
 bool KerningFont::LoadFromFile(const std::string& filepath) {
     {
-        namespace FS = std::experimental::filesystem;
+        namespace FS = std::filesystem;
         FS::path path{ filepath };
         bool path_exists = FS::exists(path);
         bool is_not_directory = !FS::is_directory(path);
@@ -598,7 +598,7 @@ bool KerningFont::LoadFromXml(std::vector<unsigned char>& buffer) {
 
     _image_paths.resize(_common.page_count);
     {//Scope constraint
-        namespace FS = std::experimental::filesystem;
+        namespace FS = std::filesystem;
         FS::path p{};
         for(auto xml_page = xml_pages->FirstChildElement("page");
             xml_page != nullptr;

@@ -104,7 +104,7 @@ bool Shader::LoadFromXml(Renderer* renderer, const XMLElement& element) {
         return false;
     }
 
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
 
     DataUtils::ValidateXmlElement(element, "shader", "shaderprogram", "name", "depth,stencil,blends,raster,sampler");
 

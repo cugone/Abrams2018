@@ -51,7 +51,7 @@ void FileLogger::Initialize(const std::string& log_name) {
         LogLine("FileLogger already running.");
         return;
     }
-    namespace FS = std::experimental::filesystem;
+    namespace FS = std::filesystem;
     std::string folder_str = "Data/Logs/";
     std::string log_str = folder_str + log_name + ".log";
     FS::path folder_p{ folder_str };

@@ -203,18 +203,18 @@ public:
 protected:
 private:
 
-    void RegisterTexturesFromFolder(const std::experimental::filesystem::path& folderpath, bool recursive = false);
-    bool RegisterTexture(const std::experimental::filesystem::path& filepath);
+    void RegisterTexturesFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
+    bool RegisterTexture(const std::filesystem::path& filepath);
     void RegisterShaderProgram(const std::string& name, ShaderProgram * sp);
     void RegisterShader(const std::string& name, Shader* shader);
     void RegisterMaterial(const std::string& name, Material* mat);
-    bool RegisterMaterial(const std::experimental::filesystem::path& filepath);
-    void RegisterMaterialsFromFolder(const std::experimental::filesystem::path& folderpath, bool recursive = false);
+    bool RegisterMaterial(const std::filesystem::path& filepath);
+    void RegisterMaterialsFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
     void RegisterRasterState(const std::string& name, RasterState* raster);
     void RegisterSampler(const std::string& name, Sampler* sampler);
     void RegisterFont(const std::string& name, KerningFont* font);
-    bool RegisterFont(const std::experimental::filesystem::path& filepath);
-    void RegisterFontsFromFolder(const std::experimental::filesystem::path& folderpath, bool recursive = false);
+    bool RegisterFont(const std::filesystem::path& filepath);
+    void RegisterFontsFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
 
     void UpdateVbo(const VertexBuffer::buffer_t& vbo);
     void UpdateIbo(const IndexBuffer::buffer_t& ibo);

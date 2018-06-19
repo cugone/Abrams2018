@@ -130,48 +130,8 @@ void AudioSystem::EndFrame() {
     _idle_channels.erase(std::remove_if(std::begin(_idle_channels), std::end(_idle_channels), [](const std::unique_ptr<Channel>& c) { return c == nullptr; }), std::end(_idle_channels));
 }
 
-bool AudioSystem::ProcessSystemMessage(const EngineMessage& msg) {
-    WPARAM wp = msg.wparam;
-    LPARAM lp = msg.lparam;
-    switch(msg.wmMessageCode) {
-        case WindowsSystemMessage::KEYBOARD_KEYDOWN:
-        {
-            unsigned char key = static_cast<unsigned char>(wp);
-            uint32_t lpBits = lp;
-            constexpr uint32_t extended_key_mask = 0b0000'0001'0000'0000'0000'0000'0000'0000; //0x01000000;
-            bool is_extended_key = (lpBits & extended_key_mask) != 0;
-            auto my_key = InputSystem::ConvertWinVKToKeyCode(key);
-            if(is_extended_key) {
-                switch(my_key) {
-                    case KeyCode::VOLUME_MUTE:
-                    {
-                        DebuggerPrintf("Audio System detected MUTE.\n");
-                        return false;
-                    }
-                    case KeyCode::VOLUME_UP:
-                    {
-                        DebuggerPrintf("Audio System detected VOLUME UP.\n");
-                        return false;
-                    }
-                    case KeyCode::VOLUME_DOWN:
-                    {
-                        DebuggerPrintf("Audio System detected VOLUME DOWN.\n");
-                        return false;
-                    }
-                    default:
-                    {
-                        return false;
-                    }
-                }
-            } else {
-                return false;
-            }
-        }
-        default:
-        {
-            return false;
-        }
-    }
+bool AudioSystem::ProcessSystemMessage(const EngineMessage& /*msg*/) {
+    return false;
 }
 
 void AudioSystem::SetFormat(const WAVEFORMATEXTENSIBLE& format) {

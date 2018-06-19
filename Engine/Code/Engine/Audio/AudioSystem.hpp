@@ -15,6 +15,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <sstream>
 #include <vector>
 #include <Xaudio2.h>
@@ -34,12 +35,7 @@ public:
         virtual ~EngineCallback() {}
         virtual void STDMETHODCALLTYPE OnProcessingPassStart() override {};
         virtual void STDMETHODCALLTYPE OnProcessingPassEnd() override {};
-        virtual void STDMETHODCALLTYPE OnCriticalError(HRESULT error) override {
-            std::ostringstream ss;
-            ss << "The Audio System encountered a fatal error: ";
-            ss << "0x" << std::hex << std::setw(8) << std::setfill('0') << error;
-            DebuggerPrintf(ss.str().c_str());
-        };
+        virtual void STDMETHODCALLTYPE OnCriticalError(HRESULT error) override;
     };
     class Sound {
     public:
@@ -56,8 +52,8 @@ public:
         std::size_t _my_id = 0;
         FileUtils::Wav* _wave_file{};
         std::vector<Channel*> _channels{};
+        std::mutex _cs{};
     };
-    void DeactivateChannel(Channel& channel);
 private:
     class Channel {
     public:
@@ -82,6 +78,7 @@ private:
         IXAudio2SourceVoice* _voice = nullptr;
         Sound* _sound = nullptr;
         AudioSystem* _audio_system = nullptr;
+        std::mutex _cs{};
     };
 public:
     AudioSystem(std::size_t max_channels = 1024);
@@ -105,6 +102,7 @@ public:
     FileUtils::Wav::WavFormatChunk GetLoadedWavFileFormat() const;
 protected:
 private:
+    void DeactivateChannel(Channel& channel);
     void RegisterWavFilesFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
     void RegisterWavFile(const std::filesystem::path& filepath);
     WAVEFORMATEXTENSIBLE _audio_format_ex{};
@@ -117,4 +115,5 @@ private:
     IXAudio2* _xaudio2 = nullptr;
     IXAudio2MasteringVoice* _master_voice = nullptr;
     EngineCallback _engine_callback{};
+    std::mutex _cs{};
 };

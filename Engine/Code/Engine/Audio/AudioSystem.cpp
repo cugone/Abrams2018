@@ -19,12 +19,23 @@ AudioSystem::AudioSystem(std::size_t max_channels /*= 1024*/)
 
 AudioSystem::~AudioSystem() {
 
+    {
+    std::scoped_lock<std::mutex> _lock(_cs);
+    for(auto& channel : _active_channels) {
+        channel->Stop();
+    }
+    }
+    bool done_cleanup = false;
+    do {
+        std::this_thread::yield();
+        std::scoped_lock<std::mutex> _lock(_cs);
+        done_cleanup = _active_channels.empty();
+    } while(!done_cleanup);
     for(auto& channel : _active_channels) {
         channel.reset();
     }
     _active_channels.clear();
     _active_channels.shrink_to_fit();
-
     for(auto& channel : _idle_channels) {
         channel.reset();
     }
@@ -115,6 +126,7 @@ void AudioSystem::Render() const {
 }
 
 void AudioSystem::EndFrame() {
+    std::scoped_lock<std::mutex> _lock(_cs);
     _idle_channels.erase(std::remove_if(std::begin(_idle_channels), std::end(_idle_channels), [](const std::unique_ptr<Channel>& c) { return c == nullptr; }), std::end(_idle_channels));
 }
 
@@ -190,6 +202,7 @@ void AudioSystem::RegisterWavFilesFromFolder(const std::filesystem::path& folder
 }
 
 void AudioSystem::DeactivateChannel(Channel& channel) {
+    std::scoped_lock<std::mutex> _lock(_cs);
     auto found_iter = std::find_if(std::begin(_active_channels), std::end(_active_channels),
                                    [&channel](const std::unique_ptr<Channel>& c) { return c.get() == &channel; });
     _idle_channels.push_back(std::move(*found_iter));
@@ -197,6 +210,7 @@ void AudioSystem::DeactivateChannel(Channel& channel) {
 }
 
 void AudioSystem::Play(Sound& snd) {
+    std::scoped_lock<std::mutex> _lock(_cs);
     if(_idle_channels.size() == _max_channels) {
         return;
     }
@@ -268,6 +282,7 @@ void AudioSystem::RegisterWavFile(const std::filesystem::path& filepath) {
 
 void STDMETHODCALLTYPE AudioSystem::Channel::VoiceCallback::OnBufferEnd(void* pBufferContext) {
     Channel& channel = *reinterpret_cast<Channel*>(pBufferContext);
+    channel.Stop();
     channel._sound->RemoveChannel(&channel);
     channel._sound = nullptr;
     channel._audio_system->DeactivateChannel(channel);
@@ -283,8 +298,11 @@ AudioSystem::Channel::Channel(AudioSystem& audioSystem) : _audio_system(&audioSy
 AudioSystem::Channel::~Channel() {
     if(_voice) {
         Stop();
-        _voice->DestroyVoice();
-        _voice = nullptr;
+        {
+            std::scoped_lock<std::mutex> _lock(_cs);
+            _voice->DestroyVoice();
+            _voice = nullptr;
+        }
     }
 }
 
@@ -293,19 +311,26 @@ void AudioSystem::Channel::Play(Sound& snd) {
     _sound = &snd;
     _buffer.pAudioData = snd.GetWav()->GetDataBuffer();
     _buffer.AudioBytes = snd.GetWav()->GetDataBufferSize();
-    _voice->SubmitSourceBuffer(&_buffer, nullptr);
-    _voice->Start();
+    {
+        std::scoped_lock<std::mutex> _lock(_cs);
+        _voice->SubmitSourceBuffer(&_buffer, nullptr);
+        _voice->Start();
+    }
 }
 
 void AudioSystem::Channel::Stop() {
     if(_voice && _sound) {
+        std::scoped_lock<std::mutex> _lock(_cs);
         _voice->Stop();
         _voice->FlushSourceBuffers();
     }
 }
 
 void AudioSystem::Channel::SetVolume(float newVolume) {
-    _voice->SetVolume(newVolume);
+    if(_voice) {
+        std::scoped_lock<std::mutex> _lock(_cs);
+        _voice->SetVolume(newVolume);
+    }
 }
 
 std::size_t AudioSystem::Sound::_id = 0;
@@ -331,10 +356,12 @@ AudioSystem::Sound::~Sound() {
 }
 
 void AudioSystem::Sound::AddChannel(Channel* channel) {
+    std::scoped_lock<std::mutex> _lock(_cs);
     _channels.push_back(channel);
 }
 
 void AudioSystem::Sound::RemoveChannel(Channel* channel) {
+    std::scoped_lock<std::mutex> _lock(_cs);
     _channels.erase(std::remove_if(std::begin(_channels), std::end(_channels),
                                    [channel](Channel* c)->bool { return c == channel; })
                     , std::end(_channels));
@@ -350,4 +377,11 @@ const std::size_t AudioSystem::Sound::GetCount() const {
 
 const FileUtils::Wav* const AudioSystem::Sound::GetWav() const {
     return _wave_file;
+}
+
+void STDMETHODCALLTYPE AudioSystem::EngineCallback::OnCriticalError(HRESULT error) {
+    std::ostringstream ss;
+    ss << "The Audio System encountered a fatal error: ";
+    ss << "0x" << std::hex << std::setw(8) << std::setfill('0') << error;
+    ERROR_AND_DIE(ss.str().c_str());
 }

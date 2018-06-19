@@ -31,6 +31,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpC
 
 void Initialize(HINSTANCE /*hInstance*/, LPWSTR /*lpCmdLine*/, int /*nShowCmd*/) {
     
+    g_theJobSystem = new JobSystem();
     g_theFileLogger = new FileLogger();
     g_theApp = new App();
 
@@ -40,6 +41,8 @@ void Initialize(HINSTANCE /*hInstance*/, LPWSTR /*lpCmdLine*/, int /*nShowCmd*/)
 
     g_theSubsystemHead = g_theConsole;
 
+    std::condition_variable* cv = new std::condition_variable;
+    g_theJobSystem->Initialize(-1, static_cast<std::size_t>(JobType::MAX), cv);
     g_theFileLogger->Initialize("game");
     g_theApp->Initialize();
 }
@@ -68,4 +71,6 @@ void Shutdown() {
     g_theSubsystemHead = nullptr;
     delete g_theFileLogger;
     g_theFileLogger = nullptr;
+    delete g_theJobSystem;
+    g_theJobSystem = nullptr;
 }

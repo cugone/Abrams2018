@@ -57,7 +57,7 @@ void Game::Update(float deltaSeconds) {
     _camera3->Update(deltaSeconds);
     _camera2->Update(deltaSeconds);
 
-    if(g_theInput->WasKeyJustPressed(KeyCode::ENTER)) {
+    if(g_theInput->IsKeyDown(KeyCode::ENTER)) {
         g_theAudio->Play(std::string{"Data/Audio/square.wav"});
     }
 

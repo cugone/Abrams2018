@@ -20,7 +20,6 @@ protected:
 private:
     std::mutex _cs{};
     std::queue<T> _queue{};
-    std::deque<T> _deque{};
 };
 
 template<typename T>

@@ -8,3 +8,4 @@ AudioSystem* g_theAudio = nullptr;
 Console* g_theConsole = nullptr;
 EngineSubsystem* g_theSubsystemHead = nullptr;
 FileLogger* g_theFileLogger = nullptr;
+JobSystem* g_theJobSystem = nullptr;

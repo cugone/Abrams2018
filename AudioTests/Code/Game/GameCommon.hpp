@@ -3,6 +3,7 @@
 #include "Engine/Audio/AudioSystem.hpp"
 #include "Engine/Core/Console.hpp"
 #include "Engine/Core/FileLogger.hpp"
+#include "Engine/Core/JobSystem.hpp"
 #include "Engine/Input/InputSystem.hpp"
 #include "Engine/Renderer/Renderer.hpp"
 
@@ -17,3 +18,4 @@ extern AudioSystem* g_theAudio;
 extern Console* g_theConsole;
 extern EngineSubsystem* g_theSubsystemHead;
 extern FileLogger* g_theFileLogger;
+extern JobSystem* g_theJobSystem;

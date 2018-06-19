@@ -65,17 +65,14 @@ private:
 };
 
 
-class JobSystem : public EngineSubsystem {
+class JobSystem {
 public:
-    JobSystem(int genericCount, std::size_t categoryCount, std::condition_variable* mainJobSignal);
-    virtual ~JobSystem();
+    JobSystem() = default;
+    ~JobSystem();
 
-    virtual void Initialize() override;
-    virtual void BeginFrame() override;
-    virtual void Update(float deltaSeconds) override;
-    virtual void Render() const override;
-    virtual void EndFrame() override;
-    virtual bool ProcessSystemMessage(const EngineMessage& msg) override;
+    void Initialize(int genericCount, std::size_t categoryCount, std::condition_variable* mainJobSignal);
+    void BeginFrame();
+    void Shutdown();
 
     void SetCategorySignal(const JobType& category_id, std::condition_variable* signal);
     Job* Create(const JobType& category, const std::function<void(void*)>& cb, void* user_data);
@@ -97,8 +94,6 @@ private:
     JobConsumer* _generic_consumer = nullptr;
     JobConsumer* _io_consumer = nullptr;
     JobConsumer* _main_consumer = nullptr;
-    int _requested_generic_count = 0;
-    std::size_t _requested_category_count = 0;
     bool _is_running = false;
     std::mutex _generic_mutex{};
     friend class JobConsumer;

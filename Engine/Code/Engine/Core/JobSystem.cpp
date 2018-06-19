@@ -13,8 +13,8 @@ void JobSystem::GenericJobWorker(std::condition_variable* signal) {
     this->SetCategorySignal(JobType::GENERIC, signal);
     while(_is_running) {
         std::unique_lock<std::mutex> _lock(_generic_mutex);
-        //wait while no jobs to consume
-        signal->wait(_lock, [&jc]()->bool { return jc.consume_all() == 0; });
+        //wait if no jobs were consumed
+        signal->wait(_lock, [&jc]()->bool { return jc.consume_all(); });
     }
     jc.consume_all();
 }
@@ -64,16 +64,47 @@ void JobConsumer::consume_for_ms(unsigned int ms) {
     }
 }
 
-JobSystem::JobSystem(int genericCount, std::size_t categoryCount, std::condition_variable* mainJobSignal)
-    : EngineSubsystem()
-    , _requested_generic_count(genericCount)
-    , _requested_category_count(categoryCount)
-    , _main_job_signal(mainJobSignal)
-{
-    /* DO NOTHING */
+JobSystem::~JobSystem() {
+    Shutdown();
 }
 
-JobSystem::~JobSystem() {
+void JobSystem::Initialize(int genericCount, std::size_t categoryCount, std::condition_variable* mainJobSignal) {
+    int core_count = static_cast<int>(std::thread::hardware_concurrency());
+    if(genericCount <= 0) {
+        core_count += genericCount;
+    }
+    --core_count;
+    _main_job_signal = mainJobSignal;
+    _queues.resize(categoryCount);
+    _signals.resize(categoryCount);
+    _is_running = true;
+
+    for(std::size_t i = 0; i < categoryCount; ++i) {
+        _queues[i] = new ThreadSafeQueue<Job*>{};
+    }
+
+    for(std::size_t i = 0; i < categoryCount; ++i) {
+        _signals[i] = nullptr;
+    }
+    _signals[static_cast<std::underlying_type_t<JobType>>(JobType::GENERIC)] = new std::condition_variable;
+
+    _generic_consumer = new JobConsumer;
+    _generic_consumer->add_category(JobType::GENERIC);
+
+    std::thread generic_thread(&JobSystem::GenericJobWorker, this, _signals[static_cast<std::underlying_type_t<JobType>>(JobType::GENERIC)]);
+    generic_thread.detach();
+    for(int i = 0; i < core_count; ++i) {
+        std::thread t(&JobSystem::GenericJobWorker, this, _signals[static_cast<std::underlying_type_t<JobType>>(JobType::GENERIC)]);
+        t.detach();
+    }
+
+}
+
+void JobSystem::BeginFrame() {
+    MainStep();
+}
+
+void JobSystem::Shutdown() {
     _is_running = false;
     _main_job_signal = nullptr;
     delete _generic_consumer;
@@ -96,57 +127,6 @@ JobSystem::~JobSystem() {
 
     _queues.clear();
     _signals.clear();
-}
-
-void JobSystem::Initialize() {
-    int core_count = static_cast<int>(std::thread::hardware_concurrency());
-    if(_requested_generic_count <= 0) {
-        core_count += _requested_generic_count;
-    }
-    --core_count;
-    _queues.resize(_requested_category_count);
-    _signals.resize(_requested_category_count);
-    _is_running = true;
-
-    for(std::size_t i = 0; i < _requested_category_count; ++i) {
-        _queues[i] = new ThreadSafeQueue<Job*>{};
-    }
-
-    for(std::size_t i = 0; i < _requested_category_count; ++i) {
-        _signals[i] = nullptr;
-    }
-    _signals[static_cast<std::underlying_type_t<JobType>>(JobType::GENERIC)] = new std::condition_variable;
-
-    _generic_consumer = new JobConsumer;
-    _generic_consumer->add_category(JobType::GENERIC);
-
-    std::thread generic_thread(&JobSystem::GenericJobWorker, this, _signals[static_cast<std::underlying_type_t<JobType>>(JobType::GENERIC)]);
-    generic_thread.detach();
-    for(int i = 0; i < core_count; ++i) {
-        std::thread t(&JobSystem::GenericJobWorker, this, _signals[static_cast<std::underlying_type_t<JobType>>(JobType::GENERIC)]);
-        t.detach();
-    }
-
-}
-
-void JobSystem::BeginFrame() {
-    MainStep();
-}
-
-void JobSystem::Update(float /*deltaSeconds*/) {
-    /* DO NOTHING */
-}
-
-void JobSystem::Render() const {
-    /* DO NOTHING */
-}
-
-void JobSystem::EndFrame() {
-    /* DO NOTHING */
-}
-
-bool JobSystem::ProcessSystemMessage(const EngineMessage& /*msg*/) {
-    return false;
 }
 
 void JobSystem::MainStep() {

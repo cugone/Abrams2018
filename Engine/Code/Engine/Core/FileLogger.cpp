@@ -2,8 +2,8 @@
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/FileUtils.hpp"
+#include "Engine/Core/JobSystem.hpp"
 #include "Engine/Core/TimeUtils.hpp"
-
 #include "Engine/Core/Win.hpp"
 
 #include <cstdio>
@@ -16,17 +16,25 @@ bool FileLogger::_is_running = false;
 
 FileLogger::~FileLogger() {
     Shutdown();
+    _job_system = nullptr;
 }
 
 void FileLogger::Log_worker() {
+    JobConsumer jc;
+    jc.AddCategory(JobType::LOGGING);
+    _job_system->SetCategorySignal(JobType::LOGGING, &_signal);
+
     while(IsRunning()) {
-        while(!_queue.empty()) {
-            std::scoped_lock<std::mutex> lock(_cs);
+        std::unique_lock<std::mutex> _lock(_cs);
+        //wait if empty queue but still running.
+        _signal.wait(_lock, [this]()->bool { return !(_queue.empty() && _is_running); });
+        if(!_queue.empty()) {
             auto str = _queue.front();
             _queue.pop();
             _stream << str;
+            RequestFlush();
+            jc.ConsumeAll();
         }
-        RequestFlush();
     }
 }
 
@@ -46,11 +54,12 @@ bool FileLogger::IsRunning() {
     return running;
 }
 
-void FileLogger::Initialize(const std::string& log_name) {
+void FileLogger::Initialize(JobSystem& jobSystem, const std::string& log_name) {
     if(IsRunning()) {
         LogLine("FileLogger already running.");
         return;
     }
+    _job_system = &jobSystem;
     namespace FS = std::filesystem;
     std::string folder_str = "Data/Logs/";
     std::string log_str = folder_str + log_name + ".log";
@@ -67,7 +76,7 @@ void FileLogger::Initialize(const std::string& log_name) {
         return;
     }
     _old_cout = std::cout.rdbuf(_stream.rdbuf());
-    _worker = std::thread([this]() { this->Log_worker(); });
+    _worker = std::thread(&FileLogger::Log_worker, this);
     ::SetThreadDescription(_worker.native_handle(), L"FileLogger");
     std::ostringstream ss;
     ss << "Initializing Logger: " << log_str << "...";
@@ -77,7 +86,15 @@ void FileLogger::Initialize(const std::string& log_name) {
 void FileLogger::Shutdown() {
     if(IsRunning()) {
         SetIsRunning(false);
+        if(!_queue.empty()) {
+            auto str = _queue.front();
+            _queue.pop();
+            _stream << str;
+            RequestFlush();
+        }
+        _signal.notify_all();
         _worker.join();
+        _job_system->SetCategorySignal(JobType::LOGGING, nullptr);
         _stream.flush();
         _stream.close();
         std::cout.rdbuf(_old_cout);
@@ -85,13 +102,15 @@ void FileLogger::Shutdown() {
 }
 
 void FileLogger::Log(const std::string& msg) {
-    std::scoped_lock<std::mutex> lock(_cs);
-    _queue.push(msg);
+    {
+        std::scoped_lock<std::mutex> _lock(_cs);
+        _queue.push(msg);
+    }
+    _signal.notify_all();
 }
 
 void FileLogger::LogLine(const std::string& msg) {
-    std::scoped_lock<std::mutex> lock(_cs);
-    _queue.push(msg + '\n');
+    Log(msg + '\n');
 }
 
 void FileLogger::LogAndFlush(const std::string& msg) {
@@ -123,8 +142,7 @@ void FileLogger::LogTag(const std::string& tag, const std::string& msg) {
     InsertTag(ss, tag);
     InsertMessage(ss, msg);
 
-    _queue.push(ss.str());
-
+    Log(ss.str());
 }
 
 void FileLogger::LogPrintLine(const std::string& msg) {
@@ -140,8 +158,7 @@ void FileLogger::LogErrorLine(const std::string& msg) {
 }
 
 void FileLogger::LogTagLine(const std::string& tag, const std::string& msg) {
-    std::string msgWithLine = msg + '\n';
-    LogTag(tag, msgWithLine);
+    LogTag(tag, msg + '\n');
 }
 
 void FileLogger::InsertTimeStamp(std::stringstream& msg) {

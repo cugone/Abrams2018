@@ -14,10 +14,10 @@ class JobSystem;
 
 enum class JobType : std::size_t {
     GENERIC,
-    MAIN,
+    LOGGING,
     IO,
     RENDER,
-    LOGGING,
+    MAIN,
     MAX,
 };
 
@@ -35,8 +35,8 @@ class Job {
 public:
     Job(JobSystem& jobSystem);
     ~Job();
-    JobType type = JobType::GENERIC;
-    JobState state = JobState::NONE;
+    JobType type{};
+    JobState state{};
     std::function<void(void*)> work_cb;
     void* user_data;
 
@@ -45,8 +45,8 @@ public:
     void OnDependancyFinished();
     void OnFinish();
 
-    std::vector<Job*> dependents;
-    std::atomic<unsigned int> num_dependencies;
+    std::vector<Job*> dependents{};
+    std::atomic<unsigned int> num_dependencies{ 0u };
 private:
     void AddDependent(Job* dependent);
     JobSystem* _job_system = nullptr;
@@ -54,11 +54,11 @@ private:
 
 class JobConsumer {
 public:
-    void add_category(const JobType& category);
-    bool consume_job();
-    unsigned int consume_all();
-    void consume_for_ms(unsigned int ms);
-
+    void AddCategory(const JobType& category);
+    bool ConsumeJob();
+    unsigned int ConsumeAll();
+    void ConsumeForMs(unsigned int ms);
+    bool HasJobs() const;
 private:
     std::vector<ThreadSafeQueue<Job*>*> _consumables{};
     friend class JobSystem;
@@ -82,7 +82,8 @@ public:
     void Wait(Job* job);
     void DispatchAndRelease(Job* job);
     void WaitAndRelease(Job* job);
-
+    bool IsRunning();
+    void SetIsRunning(bool value = true);
 protected:
 private:
     void MainStep();
@@ -91,10 +92,7 @@ private:
     static std::vector<ThreadSafeQueue<Job*>*> _queues;
     static std::vector<std::condition_variable*> _signals;
     std::condition_variable* _main_job_signal = nullptr;
-    JobConsumer* _generic_consumer = nullptr;
-    JobConsumer* _io_consumer = nullptr;
-    JobConsumer* _main_consumer = nullptr;
+    std::mutex _cs{};
     bool _is_running = false;
-    std::mutex _generic_mutex{};
     friend class JobConsumer;
 };

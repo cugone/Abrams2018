@@ -1,6 +1,7 @@
 #include "Engine/Core/JobSystem.hpp"
 
 #include "Engine/Core/TimeUtils.hpp"
+#include "Engine/Core/Win.hpp"
 
 #include <chrono>
 
@@ -9,33 +10,42 @@ std::vector<std::condition_variable*> JobSystem::_signals = std::vector<std::con
 
 void JobSystem::GenericJobWorker(std::condition_variable* signal) {
     JobConsumer jc;
-    jc.add_category(JobType::GENERIC);
+    jc.AddCategory(JobType::GENERIC);
     this->SetCategorySignal(JobType::GENERIC, signal);
-    while(_is_running) {
-        std::unique_lock<std::mutex> _lock(_generic_mutex);
-        //wait if no jobs were consumed
-        signal->wait(_lock, [&jc]()->bool { return jc.consume_all(); });
+    while(IsRunning()) {
+        std::unique_lock<std::mutex> _lock(_cs);
+        if(signal) {
+            signal->wait(_lock);
+            jc.ConsumeAll();
+        }
     }
-    jc.consume_all();
+    jc.ConsumeAll();
 }
 
-void JobConsumer::add_category(const JobType& category) {
-    auto q = JobSystem::_queues[static_cast<std::underlying_type_t<JobType>>(category)];
+void JobConsumer::AddCategory(const JobType& category) {
+    auto categoryAsSizeT = static_cast<std::underlying_type_t<JobType>>(category);
+    if(categoryAsSizeT >= JobSystem::_queues.size()) {
+        return;
+    }
+    auto q = JobSystem::_queues[categoryAsSizeT];
     if(q) {
         _consumables.push_back(q);
     }
 }
 
-bool JobConsumer::consume_job() {
+bool JobConsumer::ConsumeJob() {
     if(_consumables.empty()) {
         return false;
     }
     for(auto& consumable : _consumables) {
+        if(!consumable) {
+            continue;
+        }
         auto& queue = *consumable;
         if(queue.empty()) {
             return false;
         }
-        Job* job = queue.front();
+        auto job = queue.front();
         queue.pop();
         job->work_cb(job->user_data);
         job->OnFinish();
@@ -45,23 +55,39 @@ bool JobConsumer::consume_job() {
     return true;
 }
 
-unsigned int JobConsumer::consume_all() {
+unsigned int JobConsumer::ConsumeAll() {
     unsigned int processed_jobs = 0;
-    while(consume_job()) {
+    while(ConsumeJob()) {
         ++processed_jobs;
     }
     return processed_jobs;
 }
 
-void JobConsumer::consume_for_ms(unsigned int ms) {
+void JobConsumer::ConsumeForMs(unsigned int ms) {
     using milliseconds = std::chrono::duration<unsigned int, std::milli>;
     using clock = std::chrono::high_resolution_clock;
     milliseconds ms_t = milliseconds(ms);
     auto start_time = clock::now();
     auto end_time = clock::now();
-    while(std::chrono::duration_cast<milliseconds>(end_time - start_time).count() < ms_t.count() && consume_job()) {
+    while(std::chrono::duration_cast<milliseconds>(end_time - start_time).count() < ms_t.count())
+    {
+        ConsumeJob();
         end_time = clock::now();
     }
+}
+
+bool JobConsumer::HasJobs() const {
+    if(_consumables.empty()) {
+        return false;
+    }
+    bool has_job = false;
+    for(auto& consumable : _consumables) {
+        auto& queue = *consumable;
+        if(!queue.empty()) {
+            has_job |= true;
+        }
+    }
+    return has_job;
 }
 
 JobSystem::~JobSystem() {
@@ -88,16 +114,13 @@ void JobSystem::Initialize(int genericCount, std::size_t categoryCount, std::con
     }
     _signals[static_cast<std::underlying_type_t<JobType>>(JobType::GENERIC)] = new std::condition_variable;
 
-    _generic_consumer = new JobConsumer;
-    _generic_consumer->add_category(JobType::GENERIC);
-
-    std::thread generic_thread(&JobSystem::GenericJobWorker, this, _signals[static_cast<std::underlying_type_t<JobType>>(JobType::GENERIC)]);
-    generic_thread.detach();
     for(int i = 0; i < core_count; ++i) {
         std::thread t(&JobSystem::GenericJobWorker, this, _signals[static_cast<std::underlying_type_t<JobType>>(JobType::GENERIC)]);
+        std::wstring name = L"Generic Job Thread ";
+        name += std::to_wstring(i + 1);
+        ::SetThreadDescription(t.native_handle(), name.c_str());
         t.detach();
     }
-
 }
 
 void JobSystem::BeginFrame() {
@@ -105,35 +128,41 @@ void JobSystem::BeginFrame() {
 }
 
 void JobSystem::Shutdown() {
+    if(!IsRunning()) {
+        return;
+    }
     _is_running = false;
-    _main_job_signal = nullptr;
-    delete _generic_consumer;
-    _generic_consumer = nullptr;
-
-    for(std::size_t i = 0; i < static_cast<std::underlying_type_t<JobType>>(JobType::MAX); ++i) {
+    auto max_jobtype = static_cast<std::underlying_type_t<JobType>>(JobType::MAX);
+    for(std::size_t i = 0; i < max_jobtype; ++i) {
         if(_signals[i] == nullptr) {
             continue;
         }
         _signals[i]->notify_all();
         while(!_queues[i]->empty()) {
-            Job* job = _queues[i]->front();
-            _queues[i]->pop();
-            delete job;
-            job = nullptr;
+                Job* job = _queues[i]->front();
+                _queues[i]->pop();
+                delete job;
+                job = nullptr;
         }
+        delete _queues[i];
+        _queues[i] = nullptr;
         delete _signals[i];
         _signals[i] = nullptr;
     }
+    _main_job_signal = nullptr;
 
     _queues.clear();
+    _queues.shrink_to_fit();
+
     _signals.clear();
+    _signals.shrink_to_fit();
 }
 
 void JobSystem::MainStep() {
     JobConsumer jc;
-    jc.add_category(JobType::MAIN);
+    jc.AddCategory(JobType::MAIN);
     SetCategorySignal(JobType::MAIN, _main_job_signal);
-    jc.consume_all();
+    jc.ConsumeAll();
 }
 
 void JobSystem::SetCategorySignal(const JobType& category_id, std::condition_variable* signal) {
@@ -190,6 +219,20 @@ void JobSystem::DispatchAndRelease(Job* job) {
 void JobSystem::WaitAndRelease(Job* job) {
     Wait(job);
     Release(job);
+}
+
+bool JobSystem::IsRunning() {
+    bool running = false;
+    {
+        std::scoped_lock<std::mutex> lock(_cs);
+        running = _is_running;
+    }
+    return running;
+}
+
+void JobSystem::SetIsRunning(bool value /*= true*/) {
+    std::scoped_lock<std::mutex> lock(_cs);
+    _is_running = value;
 }
 
 Job::Job(JobSystem& jobSystem)

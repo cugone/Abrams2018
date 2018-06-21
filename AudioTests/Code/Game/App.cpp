@@ -31,8 +31,10 @@ bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     return false;
 }
 
-App::App()
+App::App(JobSystem& jobSystem, std::condition_variable* cv /*= nullptr*/)
     : EngineSubsystem()
+    , _job_system(&jobSystem)
+    , _cv(cv)
 {
     g_theRenderer = new Renderer(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
     g_theAudio = new AudioSystem();
@@ -128,6 +130,7 @@ bool App::ProcessSystemMessage(const EngineMessage& msg) {
 }
 
 void App::BeginFrame() {
+    _job_system->BeginFrame();
     g_theAudio->BeginFrame();
     g_theInput->BeginFrame();
     g_theConsole->BeginFrame();

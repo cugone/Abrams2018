@@ -33,7 +33,8 @@ void Initialize(HINSTANCE /*hInstance*/, LPWSTR /*lpCmdLine*/, int /*nShowCmd*/)
     
     g_theJobSystem = new JobSystem();
     g_theFileLogger = new FileLogger();
-    g_theApp = new App();
+    std::condition_variable* cv = new std::condition_variable;
+    g_theApp = new App(*g_theJobSystem, cv);
 
     g_theConsole->SetNextHandler(g_theInput);
     g_theInput->SetNextHandler(g_theApp);
@@ -41,9 +42,8 @@ void Initialize(HINSTANCE /*hInstance*/, LPWSTR /*lpCmdLine*/, int /*nShowCmd*/)
 
     g_theSubsystemHead = g_theConsole;
 
-    std::condition_variable* cv = new std::condition_variable;
     g_theJobSystem->Initialize(-1, static_cast<std::size_t>(JobType::MAX), cv);
-    g_theFileLogger->Initialize("game");
+    g_theFileLogger->Initialize(*g_theJobSystem, "game");
     g_theApp->Initialize();
 }
 
@@ -69,8 +69,10 @@ void Shutdown() {
     delete g_theApp;
     g_theApp = nullptr;
     g_theSubsystemHead = nullptr;
+
     delete g_theFileLogger;
     g_theFileLogger = nullptr;
+
     delete g_theJobSystem;
     g_theJobSystem = nullptr;
 }

@@ -2,9 +2,13 @@
 
 #include "Engine/Core/EngineSubsystem.hpp"
 
+#include <condition_variable>
+
+class JobSystem;
+
 class App : public EngineSubsystem {
 public:
-    App();
+    App(JobSystem& jobSystem, std::condition_variable* mainJobSignal);
     ~App();
 
     bool IsQuitting() const;
@@ -24,5 +28,6 @@ private:
     virtual void EndFrame() override;
 
     bool _isQuitting = false;
-
+    std::condition_variable* _main_job_signal = nullptr;
+    JobSystem* _job_system = nullptr;
 };

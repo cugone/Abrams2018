@@ -1,9 +1,8 @@
 #include "Game/App.hpp"
 
 #include "Engine/Core/EngineSubsystem.hpp"
-
-#include "Engine/Core/TimeUtils.hpp"
 #include "Engine/Core/FileUtils.hpp"
+#include "Engine/Core/TimeUtils.hpp"
 
 #include "Engine/Math/MathUtils.hpp"
 
@@ -29,7 +28,10 @@ bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     return false;
 }
 
-App::App() {
+App::App(JobSystem& jobSystem, std::condition_variable* mainJobSignal)
+    : _main_job_signal(mainJobSignal)
+    , _job_system(&jobSystem)
+{
     g_theRenderer = new Renderer(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
     g_theInput = new InputSystem();
     g_theConsole = new Console(g_theRenderer);
@@ -119,6 +121,7 @@ bool App::ProcessSystemMessage(const EngineMessage& msg) {
 }
 
 void App::BeginFrame() {
+    _job_system->BeginFrame();
     g_theInput->BeginFrame();
     g_theConsole->BeginFrame();
     g_theGame->BeginFrame();

@@ -179,6 +179,7 @@ void Renderer::EndFrame() {
 bool Renderer::RegisterTexture(const std::string& name, Texture* texture) {
     namespace FS = std::filesystem;
     FS::path p(name);
+    p.make_preferred();
     auto found_texture = _textures.find(p.string());
     if(found_texture == _textures.end()) {
         _textures.insert_or_assign(name, texture);
@@ -191,6 +192,7 @@ bool Renderer::RegisterTexture(const std::string& name, Texture* texture) {
 Texture* Renderer::GetTexture(const std::string& nameOrFile) {
     namespace FS = std::filesystem;
     FS::path p(nameOrFile);
+    p.make_preferred();
     auto found_iter = _textures.find(p.string());
     if(found_iter == _textures.end()) {
         return nullptr;
@@ -275,6 +277,7 @@ SpriteSheet* Renderer::CreateSpriteSheet(const std::string& filepath, unsigned i
 SpriteSheet* Renderer::CreateSpriteSheetFromGif(const std::string& filepath) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p.make_preferred();
     if(StringUtils::ToLowerCase(p.extension().string()) != ".gif") {
         return nullptr;
     }
@@ -289,6 +292,7 @@ SpriteSheet* Renderer::CreateSpriteSheetFromGif(const std::string& filepath) {
 AnimatedSprite* Renderer::CreateAnimatedSpriteFromGif(const std::string& filepath) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p.make_preferred();
     if(StringUtils::ToLowerCase(p.extension().string()) != ".gif") {
         return nullptr;
     }
@@ -924,13 +928,17 @@ bool Renderer::RegisterFont(const std::string& filepath) {
 
 bool Renderer::RegisterFont(const std::filesystem::path& filepath) {
     auto font = new KerningFont(this);
-    if(font->LoadFromFile(filepath.string())) {
+    std::filesystem::path filepath_copy = filepath;
+    filepath_copy.make_preferred();
+    if(font->LoadFromFile(filepath_copy.string())) {
         for(auto& texture_filename : font->GetImagePaths()) {
             namespace FS = std::filesystem;
             FS::path folderpath = font->GetFilePath();
+            folderpath.make_preferred();
             folderpath = folderpath.parent_path();
-            std::string texture_path = folderpath.string() + "\\" + texture_filename;
-            CreateTexture(texture_path, IntVector3::XY_AXIS);
+            FS::path texture_path = folderpath.string() + "\\" + texture_filename;
+            texture_path.make_preferred();
+            CreateTexture(texture_path.string(), IntVector3::XY_AXIS);
         }
         Material* mat = CreateMaterialFromFont(font);
         if(mat) {
@@ -1167,9 +1175,11 @@ bool Renderer::RegisterMaterial(const std::string& filepath) {
 
 bool Renderer::RegisterMaterial(const std::filesystem::path& filepath) {
     namespace FS = std::filesystem;
+    std::filesystem::path filepath_copy = filepath;
     tinyxml2::XMLDocument doc;
-    if(filepath.has_extension() && filepath.extension() == ".material") {
-        const auto p_str = filepath.string();
+    if(filepath_copy.has_extension() && filepath.extension() == ".material") {
+        filepath_copy.make_preferred();
+        const auto p_str = filepath_copy.string();
         if(doc.LoadFile(p_str.c_str()) == tinyxml2::XML_SUCCESS) {
             Material* mat = new Material(this, *doc.RootElement());
             RegisterMaterial(mat->GetName(), mat);
@@ -1452,11 +1462,12 @@ void Renderer::Present() {
 Texture* Renderer::CreateOrGetTexture(const std::string& filepath, const IntVector3& dimensions) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p.make_preferred();
     auto texture_iter = _textures.find(p.string());
     if(texture_iter == _textures.end()) {
-        return CreateTexture(filepath, dimensions);
+        return CreateTexture(p.string(), dimensions);
     } else {
-        return GetTexture(filepath);
+        return GetTexture(p.string());
     }
 }
 
@@ -1546,6 +1557,7 @@ Texture* Renderer::CreateDepthStencil(RHIDevice* owner, const IntVector2& dimens
 Texture* Renderer::Create1DTexture(const std::string& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p.make_preferred();
     if(!FS::exists(p)) {
         return GetTexture("__invalid");
     }
@@ -1686,6 +1698,7 @@ Texture* Renderer::Create1DTextureFromMemory(const std::vector<Rgba>& data, unsi
 Texture* Renderer::Create2DTexture(const std::string& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p.make_preferred();
     if(!FS::exists(p)) {
         return GetTexture("__invalid");
     }
@@ -1984,6 +1997,7 @@ Texture* Renderer::Create2DTextureArrayFromGifBuffer(const unsigned char* data, 
 Texture* Renderer::Create3DTexture(const std::string& filepath, const IntVector3& dimensions, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p.make_preferred();
     if(!FS::exists(p)) {
         return GetTexture("__invalid");
     }

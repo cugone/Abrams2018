@@ -77,6 +77,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
         if(xml_diffuse) {
             auto file = DataUtils::ParseXmlAttribute(*xml_diffuse, "src", "");
             FS::path p(file);
+            p.make_preferred();
             const auto& p_str = p.string();
             bool empty_path = p.empty();
             bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
@@ -89,6 +90,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
         if(xml_normal) {
             auto file = DataUtils::ParseXmlAttribute(*xml_normal, "src", "");
             FS::path p(file);
+            p.make_preferred();
             const auto& p_str = p.string();
             bool empty_path = p.empty();
             bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
@@ -101,6 +103,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
         if(xml_lighting) {
             auto file = DataUtils::ParseXmlAttribute(*xml_lighting, "src", "");
             FS::path p(file);
+            p.make_preferred();
             const auto& p_str = p.string();
             bool empty_path = p.empty();
             bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
@@ -113,6 +116,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
         if(xml_specular) {
             auto file = DataUtils::ParseXmlAttribute(*xml_specular, "src", "");
             FS::path p(file);
+            p.make_preferred();
             const auto& p_str = p.string();
             bool empty_path = p.empty();
             bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
@@ -125,6 +129,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
         if(xml_occlusion) {
             auto file = DataUtils::ParseXmlAttribute(*xml_occlusion, "src", "");
             FS::path p(file);
+            p.make_preferred();
             const auto& p_str = p.string();
             bool empty_path = p.empty();
             bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
@@ -137,6 +142,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
         if(xml_emissive) {
             auto file = DataUtils::ParseXmlAttribute(*xml_emissive, "src", "");
             FS::path p(file);
+            p.make_preferred();
             const auto& p_str = p.string();
             bool empty_path = p.empty();
             bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
@@ -160,6 +166,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
             }
             auto file = DataUtils::ParseXmlAttribute(*xml_texture, "src", "");
             FS::path p(file);
+            p.make_preferred();
             const auto& p_str = p.string();
             bool empty_path = p.empty();
             bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();

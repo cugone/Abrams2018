@@ -34,6 +34,7 @@
     <ClCompile Include="Audio\Wav.cpp" />
     <ClCompile Include="Core\ArgumentParser.cpp" />
     <ClCompile Include="Core\BuildConfig.cpp" />
+    <ClCompile Include="Core\Config.cpp" />
     <ClCompile Include="Core\Console.cpp" />
     <ClCompile Include="Core\DataUtils.cpp" />
     <ClCompile Include="Core\EngineBase.cpp" />
@@ -112,6 +113,7 @@
     <ClInclude Include="Audio\AudioSystem.hpp" />
     <ClInclude Include="Audio\Wav.hpp" />
     <ClInclude Include="Core\ArgumentParser.hpp" />
+    <ClInclude Include="Core\Config.hpp" />
     <ClInclude Include="Core\Console.hpp" />
     <ClInclude Include="Core\DataUtils.hpp" />
     <ClInclude Include="Core\EngineBase.hpp" />

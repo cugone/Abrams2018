@@ -1,6 +1,7 @@
 #include <memory>
 #include <sstream>
 
+#include "Engine/Core/Config.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/Win.hpp"
 
@@ -11,11 +12,11 @@
 #include "Game/GameCommon.hpp"
 
 
-void Initialize(HINSTANCE hInstance, LPWSTR lpCmdLine, int nShowCmd);
+void Initialize(HINSTANCE hInstance, LPSTR lpCmdLine, int nShowCmd);
 void Shutdown();
 void RunMessagePump();
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpCmdLine, int nShowCmd) {
+int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int nShowCmd) {
 
     Initialize(hInstance, lpCmdLine, nShowCmd);
 
@@ -29,9 +30,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpC
 }
 
 
-void Initialize(HINSTANCE /*hInstance*/, LPWSTR /*lpCmdLine*/, int /*nShowCmd*/) {
+void Initialize(HINSTANCE /*hInstance*/, LPSTR /*lpCmdLine*/, int /*nShowCmd*/) {
     g_theJobSystem = new JobSystem();
     g_theFileLogger = new FileLogger();
+
     std::condition_variable* cv = new std::condition_variable;
     g_theApp = new App(*g_theJobSystem, cv);
 
@@ -44,6 +46,7 @@ void Initialize(HINSTANCE /*hInstance*/, LPWSTR /*lpCmdLine*/, int /*nShowCmd*/)
     g_theJobSystem->Initialize(-1, static_cast<std::size_t>(JobType::MAX), cv);
     g_theFileLogger->Initialize(*g_theJobSystem, "game");
     g_theApp->Initialize();
+
 }
 
 void RunMessagePump() {

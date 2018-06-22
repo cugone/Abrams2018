@@ -16,6 +16,9 @@ void JobSystem::GenericJobWorker(std::condition_variable* signal) {
         std::unique_lock<std::mutex> _lock(_cs);
         if(signal) {
             signal->wait(_lock);
+            if(!_is_running) {
+                break;
+            }
             jc.ConsumeAll();
         }
     }
@@ -140,9 +143,11 @@ void JobSystem::Shutdown() {
         _signals[i]->notify_all();
         while(!_queues[i]->empty()) {
                 Job* job = _queues[i]->front();
-                _queues[i]->pop();
-                delete job;
-                job = nullptr;
+                if(job->state == JobState::FINISHED) {
+                    _queues[i]->pop();
+                    delete job;
+                    job = nullptr;
+                }
         }
         delete _queues[i];
         _queues[i] = nullptr;
@@ -250,7 +255,7 @@ void Job::DependsOn(Job* dependency) {
 }
 
 void Job::DependentOn(Job* parent) {
-    parent->AddDependent(parent);
+    parent->AddDependent(this);
 }
 
 void Job::OnDependancyFinished() {
@@ -265,5 +270,6 @@ void Job::OnFinish() {
 }
 
 void Job::AddDependent(Job* dependent) {
+    dependent->state = JobState::ENQUEUED;
     dependents.push_back(dependent);
 }

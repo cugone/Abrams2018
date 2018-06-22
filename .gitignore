@@ -28,7 +28,6 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
-Run_Win32/*.exe
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/

@@ -29,7 +29,8 @@ bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 }
 
 App::App(JobSystem& jobSystem, std::condition_variable* mainJobSignal)
-    : _main_job_signal(mainJobSignal)
+    : EngineSubsystem()
+    , _main_job_signal(mainJobSignal)
     , _job_system(&jobSystem)
 {
     g_theRenderer = new Renderer(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));

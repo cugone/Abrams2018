@@ -77,6 +77,10 @@ void Game::Update(float deltaSeconds) {
     _camera2->Update(deltaSeconds);
     _gif_test->Update(deltaSeconds);
 
+    if(g_theInput->WasKeyJustPressed(KeyCode::F1)) {
+        DoExport();
+    }
+
 }
 
 void Game::Render() const {
@@ -134,3 +138,35 @@ void Game::EndFrame() {
     /* DO NOTHING */
 }
 
+struct generate_image_job_t {
+    Image* img = nullptr;
+    unsigned int width = 0;
+    unsigned int height = 0;
+    std::string filepath{};
+};
+
+void Game::DoExport() {
+    auto job_data = new generate_image_job_t;
+    static int index = 0;
+    job_data->width = 1600;
+    job_data->height = 900;
+    std::filesystem::path p("Data/Images/Test_");
+    p += std::to_string(index++);
+    p += ".png";
+    p.make_preferred();
+    job_data->filepath = p.string();
+    g_theJobSystem->Run(JobType::GENERIC, [this](void* user_data) { this->GenerateImageData(user_data); }, job_data);
+}
+
+void Game::GenerateImageData(void* data) {
+    auto width = ((generate_image_job_t*)data)->width;
+    auto height = ((generate_image_job_t*)data)->height;
+    std::vector<Rgba> img_data;
+    img_data.resize(width * height);
+    std::generate(std::begin(img_data), std::end(img_data), Rgba::Random);
+    Image* img = new Image(img_data, width, height);
+    ((generate_image_job_t*)data)->img = img;
+    auto image = ((generate_image_job_t*)data)->img;
+    auto filepath = ((generate_image_job_t*)data)->filepath;
+    image->Export(filepath);
+}

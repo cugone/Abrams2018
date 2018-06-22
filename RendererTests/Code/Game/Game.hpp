@@ -20,6 +20,8 @@ public:
 
 protected:
 private:
+    void DoExport();
+    void GenerateImageData(void* data);
     float _cameraSpeed = 10.0f;
     Camera3D* _camera3 = nullptr;
     Camera2D* _camera2 = nullptr;

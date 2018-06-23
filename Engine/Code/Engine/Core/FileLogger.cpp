@@ -54,6 +54,42 @@ bool FileLogger::IsRunning() {
     return running;
 }
 
+struct copy_log_job_t {
+    std::filesystem::path from{};
+    std::filesystem::path to{};
+};
+
+void FileLogger::DoCopyLog() {
+    if(IsRunning()) {
+        auto job_data = new copy_log_job_t;
+        std::filesystem::path from_p = _current_log_path;
+        from_p.make_preferred();
+        std::filesystem::path to_p = from_p.parent_path();
+        to_p += "/";
+        to_p += TimeUtils::GetDateTimeStampFromNow();
+        to_p += ".log";
+        to_p.make_preferred();
+        job_data->to = to_p;
+        job_data->from = from_p;
+        _job_system->Run(JobType::GENERIC, [this](void* user_data) { this->CopyLog(user_data); }, job_data);
+    }
+}
+
+void FileLogger::CopyLog(void* user_data) {
+    if(IsRunning()) {
+        auto job_data = reinterpret_cast<copy_log_job_t*>(user_data);
+        auto from = job_data->from;
+        auto to = job_data->to;
+        std::scoped_lock<std::mutex> _lock(_cs);
+        _stream.flush();
+        _stream.close();
+        std::cout.rdbuf(_old_cout);
+        std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
+        _stream.open(from);
+        _old_cout = std::cout.rdbuf(_stream.rdbuf());
+    }
+}
+
 void FileLogger::Initialize(JobSystem& jobSystem, const std::string& log_name) {
     if(IsRunning()) {
         LogLine("FileLogger already running.");
@@ -64,11 +100,13 @@ void FileLogger::Initialize(JobSystem& jobSystem, const std::string& log_name) {
     std::string folder_str = "Data/Logs/";
     std::string log_str = folder_str + log_name + ".log";
     FS::path folder_p{ folder_str };
+    folder_p.make_preferred();
     FS::path p{ log_str };
+    p.make_preferred();
+    _current_log_path = p.string();
     FileUtils::CreateFolders(folder_p.string());
-    std::string pathAsString = p.string();
     _is_running = true;
-    _stream.open(pathAsString);
+    _stream.open(_current_log_path);
     if(_stream.fail()) {
         DebuggerPrintf("FileLogger failed to initialize.\n");
         _stream.clear();
@@ -94,9 +132,10 @@ void FileLogger::Shutdown() {
         }
         _signal.notify_all();
         _worker.join();
-        _job_system->SetCategorySignal(JobType::LOGGING, nullptr);
         _stream.flush();
         _stream.close();
+        DoCopyLog();
+        _job_system->SetCategorySignal(JobType::LOGGING, nullptr);
         std::cout.rdbuf(_old_cout);
     }
 }
@@ -183,4 +222,8 @@ void FileLogger::Flush() {
 void FileLogger::SetIsRunning(bool value /*= true*/) {
     std::scoped_lock<std::mutex> lock(_cs);
     _is_running = value;
+}
+
+void FileLogger::SaveLog() {
+    DoCopyLog();
 }

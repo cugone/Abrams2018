@@ -33,6 +33,9 @@ public:
     void LogTagLine(const std::string& tag, const std::string& msg);
     void Flush();
     void SetIsRunning(bool value = true);
+
+    void SaveLog();
+
 protected:
 private:
     void InsertTimeStamp(std::stringstream& msg);
@@ -43,8 +46,11 @@ private:
     void RequestFlush();
     bool IsRunning();
 
+    void DoCopyLog();
+    void CopyLog(void* user_data);
     std::mutex _cs{};
     std::ofstream _stream{};
+    std::string _current_log_path{};
     decltype(std::cout.rdbuf()) _old_cout{};
     std::thread _worker{};
     std::condition_variable _signal{};

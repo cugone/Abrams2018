@@ -13,8 +13,8 @@ void JobSystem::GenericJobWorker(std::condition_variable* signal) {
     jc.AddCategory(JobType::GENERIC);
     this->SetCategorySignal(JobType::GENERIC, signal);
     while(IsRunning()) {
-        std::unique_lock<std::mutex> _lock(_cs);
         if(signal) {
+            std::unique_lock<std::mutex> _lock(_cs);
             signal->wait(_lock);
             if(!_is_running) {
                 break;

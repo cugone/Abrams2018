@@ -81,6 +81,10 @@ void Game::Update(float deltaSeconds) {
         DoExport();
     }
 
+    if(g_theInput->WasKeyJustPressed(KeyCode::F2)) {
+        g_theFileLogger->SaveLog();
+    }
+
 }
 
 void Game::Render() const {

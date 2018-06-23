@@ -119,6 +119,7 @@
     <ClInclude Include="Core\EngineBase.hpp" />
     <ClInclude Include="Core\EngineSubsystem.hpp" />
     <ClInclude Include="Core\ErrorWarningAssert.hpp" />
+    <ClInclude Include="Core\Event.hpp" />
     <ClInclude Include="Core\FileLogger.hpp" />
     <ClInclude Include="Core\FileUtils.hpp" />
     <ClInclude Include="Core\Image.hpp" />

@@ -501,5 +501,8 @@
     <ClInclude Include="Core\Config.hpp">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="Core\Event.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

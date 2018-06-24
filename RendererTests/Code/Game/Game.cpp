@@ -22,7 +22,17 @@
 #include "Game/GameCommon.hpp"
 #include "Game/GameConfig.hpp"
 
+#include <functional>
 #include <sstream>
+
+
+void BeganFrameWithArgFree(const std::string& str);
+
+void BeganFrameWithArgFree(const std::string& str) {
+    std::ostringstream ss;
+    ss << "BeganFrame was called through Event system with argument: " << str;
+    g_theFileLogger->LogLine(ss.str());
+}
 
 Game::Game() {
     _camera3 = new Camera3D;
@@ -30,6 +40,7 @@ Game::Game() {
 }
 
 Game::~Game() {
+    OnBeginFrameArg.Unsubscribe(BeganFrameWithArgFree);
     delete _camera3;
     _camera3 = nullptr;
     delete _camera2;
@@ -44,14 +55,14 @@ void Game::Initialize() {
     g_theRenderer->RegisterFontsFromFolder(std::string{"Data/Fonts"});
     _gif_test = g_theRenderer->CreateAnimatedSprite("Data/Images/cute_sif.gif");
     _tex = g_theRenderer->CreateOrGetTexture("Data/Images/Test_StbiAndDirectX.png", IntVector3::XY_AXIS);
+    OnBeginFrameArg.Subscribe(BeganFrameWithArgFree, std::string("Hello world"));
 }
 
 void Game::BeginFrame() {
-    /* DO NOTHING */
+    OnBeginFrameArg.Trigger();
 }
 
 void Game::Update(float deltaSeconds) {
-
     if(g_theInput->WasKeyJustPressed(KeyCode::ESC)) {
         g_theApp->SetIsQuitting(true);
         return;
@@ -88,7 +99,6 @@ void Game::Update(float deltaSeconds) {
 }
 
 void Game::Render() const {
-
     g_theRenderer->SetRenderTarget(nullptr);
     g_theRenderer->ClearColor(Rgba::OLIVE);
     g_theRenderer->ClearDepthStencilBuffer();

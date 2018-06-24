@@ -29,7 +29,11 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpC
     return 0;
 }
 
-
+void ExternalOnBeginFrame(const std::string& str) {
+    std::ostringstream ss;
+    ss << "Called External OnBeginFrame " << str << "!";
+    g_theFileLogger->LogLine(ss.str());
+}
 void Initialize(HINSTANCE /*hInstance*/, LPSTR /*lpCmdLine*/, int /*nShowCmd*/) {
     g_theJobSystem = new JobSystem();
     g_theFileLogger = new FileLogger();
@@ -45,8 +49,8 @@ void Initialize(HINSTANCE /*hInstance*/, LPSTR /*lpCmdLine*/, int /*nShowCmd*/) 
 
     g_theJobSystem->Initialize(-1, static_cast<std::size_t>(JobType::MAX), cv);
     g_theFileLogger->Initialize(*g_theJobSystem, "game");
+    g_theGame->OnBeginFrameArg.Subscribe(ExternalOnBeginFrame, "Goodbye World!");
     g_theApp->Initialize();
-
 }
 
 void RunMessagePump() {

@@ -17,7 +17,7 @@ public:
         bool operator==(const event_t& rhs) {
             //Test pointer then signature
             return (this->cb.target_type().hash_code() == rhs.cb.target_type().hash_code())
-                || (this->cb.args == rhs.cb.args);
+                || (this->args == rhs.args);
         }
     };
     Event() = default;

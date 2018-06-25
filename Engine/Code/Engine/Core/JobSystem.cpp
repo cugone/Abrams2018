@@ -15,14 +15,10 @@ void JobSystem::GenericJobWorker(std::condition_variable* signal) {
     while(IsRunning()) {
         if(signal) {
             std::unique_lock<std::mutex> _lock(_cs);
-            signal->wait(_lock);
-            if(!_is_running) {
-                break;
-            }
+            signal->wait(_lock, [&jc]()->bool { return !jc.HasJobs(); });
             jc.ConsumeAll();
         }
     }
-    jc.ConsumeAll();
 }
 
 void JobConsumer::AddCategory(const JobType& category) {
@@ -117,13 +113,10 @@ void JobSystem::Initialize(int genericCount, std::size_t categoryCount, std::con
     }
     _signals[static_cast<std::underlying_type_t<JobType>>(JobType::Generic)] = new std::condition_variable;
 
-    for(int i = 0; i < core_count; ++i) {
-        std::thread t(&JobSystem::GenericJobWorker, this, _signals[static_cast<std::underlying_type_t<JobType>>(JobType::Generic)]);
-        std::wstring name = L"Generic Job Thread ";
-        name += std::to_wstring(i + 1);
-        ::SetThreadDescription(t.native_handle(), name.c_str());
-        t.detach();
-    }
+    std::thread t(&JobSystem::GenericJobWorker, this, _signals[static_cast<std::underlying_type_t<JobType>>(JobType::Generic)]);
+    std::wstring name = L"Generic Job Thread";
+    ::SetThreadDescription(t.native_handle(), name.c_str());
+    t.detach();
 }
 
 void JobSystem::BeginFrame() {
@@ -136,23 +129,25 @@ void JobSystem::Shutdown() {
     }
     _is_running = false;
     auto max_jobtype = static_cast<std::underlying_type_t<JobType>>(JobType::Max);
+    auto main_jobtype = static_cast<std::underlying_type_t<JobType>>(JobType::Main);
     for(std::size_t i = 0; i < max_jobtype; ++i) {
-        if(_signals[i] == nullptr) {
+        if(_signals[i] == nullptr || i == main_jobtype) {
             continue;
         }
+        bool queue_is_empty = _queues[i]->empty();
         _signals[i]->notify_all();
-        while(!_queues[i]->empty()) {
-                Job* job = _queues[i]->front();
-                if(job->state == JobState::Finished) {
-                    _queues[i]->pop();
-                    delete job;
-                    job = nullptr;
-                }
+        while(!queue_is_empty) {
+            std::unique_lock<std::mutex> _lock(_cs);
+            _signals[i]->wait(_lock);
+            queue_is_empty = _queues[i]->empty();
         }
-        delete _queues[i];
-        _queues[i] = nullptr;
-        delete _signals[i];
-        _signals[i] = nullptr;
+        {
+            std::scoped_lock<std::mutex> _lock(_cs);
+            delete _queues[i];
+            _queues[i] = nullptr;
+            delete _signals[i];
+            _signals[i] = nullptr;
+        }
     }
     _main_job_signal = nullptr;
 

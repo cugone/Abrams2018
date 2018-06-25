@@ -52,6 +52,7 @@ App::~App() {
     delete g_theRenderer;
     g_theRenderer = nullptr;
 
+    _main_job_signal = nullptr;
 }
 
 bool App::IsQuitting() const {

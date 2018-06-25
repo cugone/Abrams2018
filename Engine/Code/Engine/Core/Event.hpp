@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <functional>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -11,37 +12,32 @@ class Event {
 public:
     using cb_t = std::function<void(Args...)>;
     struct event_t {
-        cb_t cb{};
-        std::tuple<Args...> args;
-        event_t(const cb_t& cb, Args... args) : cb(cb), args(std::forward_as_tuple<Args...>(std::decay_t<Args>(args)...)) { }
+        explicit event_t(const cb_t& cb, void* user_data) : cb(cb), user_data(user_data) {}
+        ~event_t() = default;
+        event_t(const event_t& other) = default;
+        event_t& operator=(const event_t& rhs) = default;
+        event_t(event_t&& other) = default;
+        event_t& operator=(event_t&& rhs) = default;
         bool operator==(const event_t& rhs) {
-            //Test pointer then signature
-            return (this->cb.target_type().hash_code() == rhs.cb.target_type().hash_code())
-                || (this->args == rhs.args);
+            return (this->user_data == rhs.user_data);
         }
+        cb_t cb{};
+        void* user_data = nullptr;
     };
     Event() = default;
     ~Event() = default;
 
-    void Subscribe(const cb_t& cb, Args... args) {
-        event_t sub(cb, args...);
-        Subscribe(sub);
+    void Subscribe(const cb_t& cb, void* user_data = nullptr) {
+        Subscribe(std::move(event_t( cb, user_data )));
     }
 
-    void Unsubscribe(const cb_t& cb) {
-        _subscribers.erase(
-            std::remove_if(
-                std::begin(_subscribers),
-                std::end(_subscribers),
-                [&cb](const event_t& e) {
-                    return (cb.target_type().hash_code() == e.cb.target_type().hash_code());
-                }),
-            std::end(_subscribers));
+    void Unsubscribe(const cb_t& cb, void* user_data = nullptr) {
+        Unsubscribe(std::move(event_t(cb, user_data)));
     }
 
-    void Trigger() const {
+    void Trigger(Args&&... args) const {
         for(auto& s : _subscribers) {
-            std::apply(s.cb, s.args);
+            std::invoke(s.cb, args...);
         }
     }
 
@@ -49,14 +45,11 @@ protected:
 private:
     std::vector<event_t> _subscribers{};
 
-    void Subscribe(const event_t& cb) {
-        auto found = std::find(std::begin(_subscribers), std::end(_subscribers), cb);
-        if(found == std::end(_subscribers)) {
-            _subscribers.push_back(cb);
-        }
+    void Subscribe(event_t&& cb) {
+        _subscribers.push_back(cb);
     }
 
-    void Unsubscribe(const event_t& cb) {
+    void Unsubscribe(event_t&& cb) {
         auto found = std::find(std::begin(_subscribers), std::end(_subscribers), cb);
         if(found != std::end(_subscribers)) {
             std::iter_swap(found, _subscribers.end() - 1);

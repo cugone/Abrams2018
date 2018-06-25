@@ -65,3 +65,6 @@ private:
     }
 
 };
+
+template<>
+class Event<void> : public Event<> {};

@@ -10,8 +10,8 @@ std::vector<std::condition_variable*> JobSystem::_signals = std::vector<std::con
 
 void JobSystem::GenericJobWorker(std::condition_variable* signal) {
     JobConsumer jc;
-    jc.AddCategory(JobType::GENERIC);
-    this->SetCategorySignal(JobType::GENERIC, signal);
+    jc.AddCategory(JobType::Generic);
+    this->SetCategorySignal(JobType::Generic, signal);
     while(IsRunning()) {
         if(signal) {
             std::unique_lock<std::mutex> _lock(_cs);
@@ -52,7 +52,7 @@ bool JobConsumer::ConsumeJob() {
         queue.pop();
         job->work_cb(job->user_data);
         job->OnFinish();
-        job->state = JobState::FINISHED;
+        job->state = JobState::Finished;
         delete job;
     }
     return true;
@@ -115,10 +115,10 @@ void JobSystem::Initialize(int genericCount, std::size_t categoryCount, std::con
     for(std::size_t i = 0; i < categoryCount; ++i) {
         _signals[i] = nullptr;
     }
-    _signals[static_cast<std::underlying_type_t<JobType>>(JobType::GENERIC)] = new std::condition_variable;
+    _signals[static_cast<std::underlying_type_t<JobType>>(JobType::Generic)] = new std::condition_variable;
 
     for(int i = 0; i < core_count; ++i) {
-        std::thread t(&JobSystem::GenericJobWorker, this, _signals[static_cast<std::underlying_type_t<JobType>>(JobType::GENERIC)]);
+        std::thread t(&JobSystem::GenericJobWorker, this, _signals[static_cast<std::underlying_type_t<JobType>>(JobType::Generic)]);
         std::wstring name = L"Generic Job Thread ";
         name += std::to_wstring(i + 1);
         ::SetThreadDescription(t.native_handle(), name.c_str());
@@ -135,7 +135,7 @@ void JobSystem::Shutdown() {
         return;
     }
     _is_running = false;
-    auto max_jobtype = static_cast<std::underlying_type_t<JobType>>(JobType::MAX);
+    auto max_jobtype = static_cast<std::underlying_type_t<JobType>>(JobType::Max);
     for(std::size_t i = 0; i < max_jobtype; ++i) {
         if(_signals[i] == nullptr) {
             continue;
@@ -143,7 +143,7 @@ void JobSystem::Shutdown() {
         _signals[i]->notify_all();
         while(!_queues[i]->empty()) {
                 Job* job = _queues[i]->front();
-                if(job->state == JobState::FINISHED) {
+                if(job->state == JobState::Finished) {
                     _queues[i]->pop();
                     delete job;
                     job = nullptr;
@@ -165,8 +165,8 @@ void JobSystem::Shutdown() {
 
 void JobSystem::MainStep() {
     JobConsumer jc;
-    jc.AddCategory(JobType::MAIN);
-    SetCategorySignal(JobType::MAIN, _main_job_signal);
+    jc.AddCategory(JobType::Main);
+    SetCategorySignal(JobType::Main, _main_job_signal);
     jc.ConsumeAll();
 }
 
@@ -177,7 +177,7 @@ void JobSystem::SetCategorySignal(const JobType& category_id, std::condition_var
 Job* JobSystem::Create(const JobType& category, const std::function<void(void*)>& cb, void* user_data) {
     auto j = new Job(*this);
     j->type = category;
-    j->state = JobState::CREATED;
+    j->state = JobState::Created;
     j->work_cb = cb;
     j->user_data = user_data;
     j->num_dependencies = 1;
@@ -186,12 +186,12 @@ Job* JobSystem::Create(const JobType& category, const std::function<void(void*)>
 
 void JobSystem::Run(const JobType& category, const std::function<void(void*)>& cb, void* user_data) {
     Job* job = Create(category, cb, user_data);
-    job->state = JobState::RUNNING;
+    job->state = JobState::Running;
     DispatchAndRelease(job);
 }
 
 void JobSystem::Dispatch(Job* job) {
-    job->state = JobState::DISPATCHED;
+    job->state = JobState::Dispatched;
     ++job->num_dependencies;
     auto jobtype = static_cast<std::underlying_type_t<JobType>>(job->type);
     _queues[jobtype]->push(job);
@@ -211,7 +211,7 @@ bool JobSystem::Release(Job* job) {
 }
 
 void JobSystem::Wait(Job* job) {
-    while(job->state != JobState::FINISHED) {
+    while(job->state != JobState::Finished) {
         std::this_thread::yield();
     }
 }
@@ -270,6 +270,6 @@ void Job::OnFinish() {
 }
 
 void Job::AddDependent(Job* dependent) {
-    dependent->state = JobState::ENQUEUED;
+    dependent->state = JobState::Enqueued;
     dependents.push_back(dependent);
 }

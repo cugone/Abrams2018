@@ -155,7 +155,7 @@ void Window::SetDisplayMode(const RHIOutputMode& display_mode) {
     r.bottom = r.top + _height;
     r.right = r.left + _width;
     switch(_currentDisplayMode) {
-        case RHIOutputMode::BORDERLESS:
+        case RHIOutputMode::Borderless:
         {
             _styleFlags = WS_POPUP;
             _hasMenu = false;
@@ -169,11 +169,11 @@ void Window::SetDisplayMode(const RHIOutputMode& display_mode) {
             SetDimensionsAndPosition(IntVector2::ZERO, IntVector2(width, height));
             ::AdjustWindowRectEx(&r, _styleFlags, _hasMenu, _styleFlagsEx);
             return;
-        } case RHIOutputMode::WINDOWED:
+        } case RHIOutputMode::Windowed:
         {
             _styleFlags = WS_CAPTION | WS_BORDER | WS_SYSMENU | WS_OVERLAPPED;
             break;
-        } case RHIOutputMode::FULLSCREEN_WINDOW:
+        } case RHIOutputMode::Fullscreen_Window:
         {
 
             _styleFlags = WS_POPUP;

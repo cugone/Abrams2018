@@ -46,8 +46,8 @@ ID3D11RasterizerState* RasterState::GetDxRasterState() {
 bool RasterState::LoadFromXML(RHIDevice* device, const XMLElement& element) {
 
     RasterDesc desc;
-    desc.fillmode = FillMode::SOLID;
-    desc.cullmode = CullMode::BACK;
+    desc.fillmode = FillMode::Solid;
+    desc.cullmode = CullMode::Back;
     desc.antialiasedLineEnable = false;
     desc.depthClipEnable = true;
     desc.scissorEnable = false;

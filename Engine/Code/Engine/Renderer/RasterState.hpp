@@ -18,8 +18,8 @@ struct RasterDesc {
     bool multisampleEnable;
     bool antialiasedLineEnable;
     RasterDesc()
-        : fillmode(FillMode::SOLID)
-        , cullmode(CullMode::BACK)
+        : fillmode(FillMode::Solid)
+        , cullmode(CullMode::Back)
         , depthBiasClamp(0.0f)
         , slopeScaledDepthBias(0.0f)
         , depthBias(0)
@@ -35,14 +35,14 @@ struct RasterDesc {
 class RasterState {
 public:
     RasterState(RHIDevice* device, const RasterDesc& desc);
-    RasterState(RHIDevice* device, const FillMode& fillmode = FillMode::SOLID, const CullMode& cullmode = CullMode::BACK, bool antiAliasing = false);
+    RasterState(RHIDevice* device, const FillMode& fillmode = FillMode::Solid, const CullMode& cullmode = CullMode::Back, bool antiAliasing = false);
     RasterState(RHIDevice* device, const XMLElement& element);
     ~RasterState();
 
     ID3D11RasterizerState* GetDxRasterState();
 protected:
     bool LoadFromXML(RHIDevice* device, const XMLElement& element);
-    bool CreateRasterState(RHIDevice* device, const FillMode& fillmode = FillMode::SOLID, const CullMode& cullmode = CullMode::BACK, bool antiAliasing = false);
+    bool CreateRasterState(RHIDevice* device, const FillMode& fillmode = FillMode::Solid, const CullMode& cullmode = CullMode::Back, bool antiAliasing = false);
     bool CreateRasterState(RHIDevice* device, const RasterDesc& raster_desc = RasterDesc());
 private:
     ID3D11RasterizerState* _dx_state;

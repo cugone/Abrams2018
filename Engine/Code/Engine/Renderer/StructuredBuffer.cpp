@@ -18,7 +18,7 @@ StructuredBuffer::StructuredBuffer(RHIDevice* owner, const buffer_t& buffer, std
     buffer_desc.CPUAccessFlags = CPUAccessFlagFromUsage(usage);
     buffer_desc.StructureByteStride = 0;
     buffer_desc.ByteWidth = static_cast<unsigned int>(_buffer_size);
-    buffer_desc.MiscFlags = ResourceMiscFlagToD3DMiscFlag(ResourceMiscFlag::STRUCTURED_BUFFER);
+    buffer_desc.MiscFlags = ResourceMiscFlagToD3DMiscFlag(ResourceMiscFlag::Structured_Buffer);
 
     D3D11_SUBRESOURCE_DATA init_data = {};
     init_data.pSysMem = buffer;

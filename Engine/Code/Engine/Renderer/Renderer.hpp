@@ -95,22 +95,22 @@ public:
     Texture* CreateDepthStencil(RHIDevice* owner, const IntVector2& dimensions);
 
     Texture* Create1DTexture(const std::string& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
-    Texture* Create1DTextureFromMemory(const unsigned char* data, unsigned int width = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
-    Texture* Create1DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
+    Texture* Create1DTextureFromMemory(const unsigned char* data, unsigned int width = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
+    Texture* Create1DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
     Texture* Create2DTexture(const std::string& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
-    Texture* Create2DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
-    Texture* Create2DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
-    Texture* Create2DTextureArrayFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
-    Texture* Create2DTextureFromGifBuffer(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
-    Texture* Create2DTextureArrayFromGifBuffer(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
+    Texture* Create2DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
+    Texture* Create2DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
+    Texture* Create2DTextureArrayFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
+    Texture* Create2DTextureFromGifBuffer(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
+    Texture* Create2DTextureArrayFromGifBuffer(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
     Texture* Create3DTexture(const std::string& filepath, const IntVector3& dimensions, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
-    Texture* Create3DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
-    Texture* Create3DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::STATIC, const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
+    Texture* Create3DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
+    Texture* Create3DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
     Texture* CreateTexture(const std::string& filepath
                            , const IntVector3& dimensions
-                           , const BufferUsage& bufferUsage = BufferUsage::STATIC
-                           , const BufferBindUsage& bindUsage = BufferBindUsage::SHADER_RESOURCE
-                           , const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNORM);
+                           , const BufferUsage& bufferUsage = BufferUsage::Static
+                           , const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource
+                           , const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
 
     SpriteSheet* CreateSpriteSheet(const std::string& filepath, unsigned int width = 1, unsigned int height = 1);
     SpriteSheet* CreateSpriteSheet(const XMLElement& elem);
@@ -278,7 +278,7 @@ private:
     Sampler* _current_sampler = nullptr;
     Material* _current_material = nullptr;
     IntVector2 _window_dimensions = IntVector2::ZERO;
-    RHIOutputMode _current_outputMode = RHIOutputMode::WINDOWED;
+    RHIOutputMode _current_outputMode = RHIOutputMode::Windowed;
     VertexBuffer* _temp_vbo = nullptr;
     IndexBuffer* _temp_ibo = nullptr;
     ConstantBuffer* _matrix_cb = nullptr;

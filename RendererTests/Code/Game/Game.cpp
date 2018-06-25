@@ -63,23 +63,23 @@ void Game::BeginFrame() {
 }
 
 void Game::Update(float deltaSeconds) {
-    if(g_theInput->WasKeyJustPressed(KeyCode::ESC)) {
+    if(g_theInput->WasKeyJustPressed(KeyCode::Esc)) {
         g_theApp->SetIsQuitting(true);
         return;
     }
 
-    if(g_theInput->IsKeyDown(KeyCode::UP)) {
+    if(g_theInput->IsKeyDown(KeyCode::Up)) {
         _camera3->Translate(0.0f, -_cameraSpeed);
         _camera2->Translate(0.0f, -_cameraSpeed);
-    } else if(g_theInput->IsKeyDown(KeyCode::DOWN)) {
+    } else if(g_theInput->IsKeyDown(KeyCode::Down)) {
         _camera3->Translate(0.0f, _cameraSpeed);
         _camera2->Translate(0.0f, _cameraSpeed);
     }
 
-    if(g_theInput->IsKeyDown(KeyCode::LEFT)) {
+    if(g_theInput->IsKeyDown(KeyCode::Left)) {
         _camera3->Translate(-_cameraSpeed, 0.0f);
         _camera2->Translate(-_cameraSpeed, 0.0f);
-    } else if(g_theInput->IsKeyDown(KeyCode::RIGHT)) {
+    } else if(g_theInput->IsKeyDown(KeyCode::Right)) {
         _camera3->Translate(_cameraSpeed, 0.0f);
         _camera2->Translate(_cameraSpeed, 0.0f);
     }
@@ -169,7 +169,7 @@ void Game::DoExport() {
     p += ".png";
     p.make_preferred();
     job_data->filepath = p.string();
-    g_theJobSystem->Run(JobType::GENERIC, [this](void* user_data) { this->GenerateImageData(user_data); }, job_data);
+    g_theJobSystem->Run(JobType::Generic, [this](void* user_data) { this->GenerateImageData(user_data); }, job_data);
 }
 
 void Game::GenerateImageData(void* data) {

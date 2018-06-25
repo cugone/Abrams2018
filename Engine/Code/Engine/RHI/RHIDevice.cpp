@@ -196,17 +196,17 @@ DXGI_MODE_DESC1 RHIDevice::GetDisplayModeMatchingDimensions(const std::vector<DX
 }
 
 ShaderProgram* RHIDevice::CreateShaderProgramFromHlslString(const std::string& name, const std::string& hlslString, const std::string& entryPoint, InputLayout* inputLayout, const PipelineStage& target) {
-    bool uses_vs_stage = static_cast<unsigned char>(target & PipelineStage::VS) != 0;
-    bool uses_hs_stage = static_cast<unsigned char>(target & PipelineStage::HS) != 0;
-    bool uses_ds_stage = static_cast<unsigned char>(target & PipelineStage::DS) != 0;
-    bool uses_gs_stage = static_cast<unsigned char>(target & PipelineStage::GS) != 0;
-    bool uses_ps_stage = static_cast<unsigned char>(target & PipelineStage::PS) != 0;
-    bool uses_cs_stage = static_cast<unsigned char>(target & PipelineStage::CS) != 0;
+    bool uses_vs_stage = static_cast<unsigned char>(target & PipelineStage::Vs) != 0;
+    bool uses_hs_stage = static_cast<unsigned char>(target & PipelineStage::Hs) != 0;
+    bool uses_ds_stage = static_cast<unsigned char>(target & PipelineStage::Ds) != 0;
+    bool uses_gs_stage = static_cast<unsigned char>(target & PipelineStage::Gs) != 0;
+    bool uses_ps_stage = static_cast<unsigned char>(target & PipelineStage::Ps) != 0;
+    bool uses_cs_stage = static_cast<unsigned char>(target & PipelineStage::Cs) != 0;
 
     ID3DBlob * vs_bytecode = nullptr;
     ID3D11VertexShader* vs = nullptr;
     if(uses_vs_stage) {
-        vs_bytecode = CompileShader(name, hlslString.data(), hlslString.size(), entryPoint, PipelineStage::VS);
+        vs_bytecode = CompileShader(name, hlslString.data(), hlslString.size(), entryPoint, PipelineStage::Vs);
         _dx_device->CreateVertexShader(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize(), nullptr, &vs);
         inputLayout->CreateInputLayout(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize());
     }
@@ -214,35 +214,35 @@ ShaderProgram* RHIDevice::CreateShaderProgramFromHlslString(const std::string& n
     ID3DBlob* ps_bytecode = nullptr;
     ID3D11PixelShader* ps = nullptr;
     if(uses_ps_stage) {
-        ps_bytecode = CompileShader(name, hlslString.data(), hlslString.size(), entryPoint, PipelineStage::PS);
+        ps_bytecode = CompileShader(name, hlslString.data(), hlslString.size(), entryPoint, PipelineStage::Ps);
         _dx_device->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBufferSize(), nullptr, &ps);
     }
 
     ID3DBlob* hs_bytecode = nullptr;
     ID3D11HullShader* hs = nullptr;
     if(uses_hs_stage) {
-        hs_bytecode = CompileShader(name, hlslString.data(), hlslString.size(), entryPoint, PipelineStage::HS);
+        hs_bytecode = CompileShader(name, hlslString.data(), hlslString.size(), entryPoint, PipelineStage::Hs);
         _dx_device->CreateHullShader(hs_bytecode->GetBufferPointer(), hs_bytecode->GetBufferSize(), nullptr, &hs);
     }
 
     ID3DBlob* ds_bytecode = nullptr;
     ID3D11DomainShader* ds = nullptr;
     if(uses_ds_stage) {
-        ds_bytecode = CompileShader(name, hlslString.data(), hlslString.size(), entryPoint, PipelineStage::DS);
+        ds_bytecode = CompileShader(name, hlslString.data(), hlslString.size(), entryPoint, PipelineStage::Ds);
         _dx_device->CreateDomainShader(ds_bytecode->GetBufferPointer(), ds_bytecode->GetBufferSize(), nullptr, &ds);
     }
 
     ID3DBlob* gs_bytecode = nullptr;
     ID3D11GeometryShader* gs = nullptr;
     if(uses_gs_stage) {
-        gs_bytecode = CompileShader(name, hlslString.data(), hlslString.size(), entryPoint, PipelineStage::GS);
+        gs_bytecode = CompileShader(name, hlslString.data(), hlslString.size(), entryPoint, PipelineStage::Gs);
         _dx_device->CreateGeometryShader(gs_bytecode->GetBufferPointer(), gs_bytecode->GetBufferSize(), nullptr, &gs);
     }
 
     ID3DBlob* cs_bytecode = nullptr;
     ID3D11ComputeShader* cs = nullptr;
     if(uses_cs_stage) {
-        cs_bytecode = CompileShader(name, hlslString.data(), hlslString.size(), entryPoint, PipelineStage::CS);
+        cs_bytecode = CompileShader(name, hlslString.data(), hlslString.size(), entryPoint, PipelineStage::Cs);
         _dx_device->CreateComputeShader(cs_bytecode->GetBufferPointer(), cs_bytecode->GetBufferSize(), nullptr, &cs);
     }
     ShaderProgram* new_sp = new ShaderProgram(name, this, vs, ps, vs_bytecode, ps_bytecode, inputLayout, hs, hs_bytecode, ds, ds_bytecode, gs, gs_bytecode, cs, cs_bytecode);
@@ -266,26 +266,26 @@ ID3DBlob* RHIDevice::CompileShader(const std::string& name, const void*  sourceC
     ID3DBlob* errors = nullptr;
     std::string target_string = {};
     switch(target) {
-        case PipelineStage::VS:
+        case PipelineStage::Vs:
             target_string = "vs_5_0";
             break;
-        case PipelineStage::HS:
+        case PipelineStage::Hs:
             target_string = "hs_5_0";
             break;
-        case PipelineStage::DS:
+        case PipelineStage::Ds:
             target_string = "ds_5_0";
             break;
-        case PipelineStage::GS:
+        case PipelineStage::Gs:
             target_string = "gs_5_0";
             break;
-        case PipelineStage::PS:
+        case PipelineStage::Ps:
             target_string = "ps_5_0";
             break;
-        case PipelineStage::CS:
+        case PipelineStage::Cs:
             target_string = "cs_5_0";
             break;
-        case PipelineStage::NONE:
-        case PipelineStage::ALL:
+        case PipelineStage::None:
+        case PipelineStage::All:
         default:
             DebuggerPrintf("Failed to compile [%s]. Invalid PipelineStage parameter.\n", name.c_str());
             return nullptr;

@@ -13,22 +13,22 @@ class Job;
 class JobSystem;
 
 enum class JobType : std::size_t {
-    GENERIC,
-    LOGGING,
-    IO,
-    RENDER,
-    MAIN,
-    MAX,
+    Generic,
+    Logging,
+    Io,
+    Render,
+    Main,
+    Max,
 };
 
 enum class JobState : unsigned int {
-    NONE,
-    CREATED,
-    DISPATCHED,
-    ENQUEUED,
-    RUNNING,
-    FINISHED,
-    MAX,
+    None,
+    Created,
+    Dispatched,
+    Enqueued,
+    Running,
+    Finished,
+    Max,
 };
 
 class Job {

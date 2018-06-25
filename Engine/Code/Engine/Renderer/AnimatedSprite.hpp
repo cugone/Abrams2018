@@ -12,12 +12,12 @@ class Texture;
 class AnimatedSprite {
 public:
     enum class SpriteAnimMode : int {
-        PLAY_TO_END,	   // Play from time=0 to durationSeconds, then finish
-        PLAY_TO_BEGINNING, // Play from time=durationSeconds to 0, then finish
-        LOOPING,		   // Play from time=0 to end then repeat (never finish)
-        LOOPING_REVERSE,   // Play from time=durationSeconds then repeat (never finish)
-        PINGPONG, 	       // Play forwards, backwards, forwards, backwards...
-        NUM_SPRITE_ANIM_MODES,
+        Play_To_End,	   // Play from time=0 to durationSeconds, then finish
+        Play_To_Beginning, // Play from time=durationSeconds to 0, then finish
+        Looping,		   // Play from time=0 to end then repeat (never finish)
+        Looping_Reverse,   // Play from time=durationSeconds then repeat (never finish)
+        Ping_Pong, 	       // Play forwards, backwards, forwards, backwards...
+        Max,
     };
 
     AnimatedSprite(Renderer& renderer, const XMLElement& elem);
@@ -46,7 +46,7 @@ public:
 protected:
 private:
     AnimatedSprite(Renderer& renderer, SpriteSheet* spriteSheet, float durationSeconds,
-                   int startSpriteIndex, int frameLength, SpriteAnimMode playbackMode = SpriteAnimMode::LOOPING);
+                   int startSpriteIndex, int frameLength, SpriteAnimMode playbackMode = SpriteAnimMode::Looping);
 
     void LoadFromXml(Renderer& renderer, const XMLElement& elem);
     SpriteAnimMode GetAnimModeFromOptions(bool looping, bool backwards, bool ping_pong /*= false*/);
@@ -58,7 +58,7 @@ private:
     float _elapsed_seconds = 0.0f;
     float _elapsed_frame_delta_seconds = 0.0f;
     float _max_frame_delta_seconds = 0.0f;
-    SpriteAnimMode _playback_mode = SpriteAnimMode::LOOPING;
+    SpriteAnimMode _playback_mode = SpriteAnimMode::Looping;
     int _start_index = 0;
     int _end_index = 1;
     bool _is_playing = true;

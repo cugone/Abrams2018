@@ -82,8 +82,8 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
     LPARAM lp = msg.lparam;
     WPARAM wp = msg.wparam;
     switch(msg.wmMessageCode) {
-        case WindowsSystemMessage::MENU_SYSCOMMAND:
-        case WindowsSystemMessage::MENU_COMMAND:
+        case WindowsSystemMessage::Menu_SysCommand:
+        case WindowsSystemMessage::Menu_Command:
         {
             bool is_lp_not_valid = lp ? true : false;
             bool is_closed = IsClosed();
@@ -109,8 +109,8 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
             }
             return true;
         }
-        case WindowsSystemMessage::KEYBOARD_SYSKEYDOWN:
-        case WindowsSystemMessage::KEYBOARD_KEYDOWN:
+        case WindowsSystemMessage::Keyboard_SysKeyDown:
+        case WindowsSystemMessage::Keyboard_KeyDown:
         {
             _non_rendering_char = false;
             unsigned char key = static_cast<unsigned char>(wp);
@@ -131,7 +131,7 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
             constexpr uint32_t previous_state_mask   = 0b0100'0000'0000'0000'0000'0000'0000'0000; //0x40000000;
             constexpr uint32_t transition_state_mask = 0b1000'0000'0000'0000'0000'0000'0000'0000; //0x80000000;
             bool is_extended_key = (lpBits & extended_key_mask) != 0;
-            if(key < 32 || key == 127) { //Control and DEL chars
+            if(key < 32 || key == 127) { //Control and Del chars
                 _non_rendering_char = true;
             }
             auto my_key = InputSystem::ConvertWinVKToKeyCode(key);
@@ -140,51 +140,51 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
                     return false;
                 }
                 switch(my_key) {
-                    case KeyCode::ALT: return true;
-                    case KeyCode::CTRL: SetSkipNonWhitespaceMode(true); return true;
+                    case KeyCode::Alt: return true;
+                    case KeyCode::Ctrl: SetSkipNonWhitespaceMode(true); return true;
                     //On Num Pad
-                    case KeyCode::RETURN: return HandleReturnKey();
-                    case KeyCode::LWIN: return true;
-                    case KeyCode::RWIN: return true;
-                    case KeyCode::SHIFT: SetHighlightMode(true); return true;
+                    case KeyCode::Return: return HandleReturnKey();
+                    case KeyCode::LWin: return true;
+                    case KeyCode::RWin: return true;
+                    case KeyCode::Shift: SetHighlightMode(true); return true;
                     //Left Arrow in cluster on 108-key keyboards
-                    case KeyCode::LEFT: return HandleLeftKey();
+                    case KeyCode::Left: return HandleLeftKey();
                     //Right Arrow in cluster on 108-key keyboards
-                    case KeyCode::RIGHT: return HandleRightKey();
+                    case KeyCode::Right: return HandleRightKey();
                     //Up Arrow in cluster on 108-key keyboards
-                    case KeyCode::UP: return HandleUpKey();
+                    case KeyCode::Up: return HandleUpKey();
                     //Down Arrow in cluster on 108-key keyboards
-                    case KeyCode::DOWN: return HandleDownKey();
+                    case KeyCode::Down: return HandleDownKey();
                     //Delete key in cluster on 108-key keyboards
-                    case KeyCode::DEL: return HandleDelKey();
+                    case KeyCode::Del: return HandleDelKey();
                     //Nav cluster on 108-key keyboards
-                    case KeyCode::HOME: return HandleHomeKey();
+                    case KeyCode::Home: return HandleHomeKey();
                     //Nav cluster in 108-key keyboards
-                    case KeyCode::END: return HandleEndKey();
+                    case KeyCode::End: return HandleEndKey();
                     default: return false;
                 }
             }
-            if(my_key == KeyCode::TILDE) return HandleTildeKey();
+            if(my_key == KeyCode::Tilde) return HandleTildeKey();
             if(IsClosed()) return false;
             switch(my_key) {
-                case KeyCode::RETURN: return HandleReturnKey();
-                case KeyCode::BACKSPACE: return HandleBackspaceKey();
-                case KeyCode::DEL: return HandleDelKey();
-                case KeyCode::ESCAPE: return HandleEscapeKey();
+                case KeyCode::Return: return HandleReturnKey();
+                case KeyCode::Backspace: return HandleBackspaceKey();
+                case KeyCode::Del: return HandleDelKey();
+                case KeyCode::Escape: return HandleEscapeKey();
                 //On Num Pad
-                case KeyCode::UP: return HandleUpKey();
+                case KeyCode::Up: return HandleUpKey();
                 //On Num Pad
-                case KeyCode::DOWN: return HandleDownKey();
+                case KeyCode::Down: return HandleDownKey();
                 //On Num Pad
-                case KeyCode::LEFT: return HandleLeftKey();
-                case KeyCode::RIGHT: return HandleRightKey();
+                case KeyCode::Left: return HandleLeftKey();
+                case KeyCode::Right: return HandleRightKey();
                 //on Num Pad
-                case KeyCode::HOME: return HandleHomeKey();
+                case KeyCode::Home: return HandleHomeKey();
                 //on Num Pad
-                case KeyCode::END: return HandleEndKey();
-                case KeyCode::CTRL: SetSkipNonWhitespaceMode(true); return true;
-                case KeyCode::SHIFT: SetHighlightMode(true); return true;
-                case KeyCode::TAB: return HandleTabKey();
+                case KeyCode::End: return HandleEndKey();
+                case KeyCode::Ctrl: SetSkipNonWhitespaceMode(true); return true;
+                case KeyCode::Shift: SetHighlightMode(true); return true;
+                case KeyCode::Tab: return HandleTabKey();
                 case KeyCode::F1: RunCommand(std::string("help ") + _entryline); return true;
                 default:
                 {
@@ -195,7 +195,7 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
                 }
             }
         }
-        case WindowsSystemMessage::KEYBOARD_CHAR:
+        case WindowsSystemMessage::Keyboard_Char:
         {
             if(IsClosed() || _non_rendering_char) {
                 return false;
@@ -208,7 +208,7 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
             //S: scan code
             //E: extended key flag
             //R: reserved
-            //X: context code: 1 if ALT is already down, 0 otherwise
+            //X: context code: 1 if Alt is already down, 0 otherwise
             //P: previous state: 1 for already down
             //T: transition state: 1 if being released, 0 if being pressed
             //constexpr uint32_t repeat_count_mask     = 0b0000'0000'0000'0000'1111'1111'1111'1111; //0x0000FFFF;
@@ -224,8 +224,8 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
             InsertCharInEntryLine(char_code);
             return true;
         }
-        case WindowsSystemMessage::KEYBOARD_SYSKEYUP:
-        case WindowsSystemMessage::KEYBOARD_KEYUP:
+        case WindowsSystemMessage::Keyboard_SysKeyUp:
+        case WindowsSystemMessage::Keyboard_KeyUp:
         {
             if(IsClosed()) {
                 return false;
@@ -253,17 +253,17 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
             auto my_key = InputSystem::ConvertWinVKToKeyCode(char_code);
             if(is_extended_key) {
                 switch(my_key) {
-                    case KeyCode::CTRL: SetSkipNonWhitespaceMode(false); return true;
-                    case KeyCode::SHIFT: SetHighlightMode(false); return true;
+                    case KeyCode::Ctrl: SetSkipNonWhitespaceMode(false); return true;
+                    case KeyCode::Shift: SetHighlightMode(false); return true;
                     //Numpad Enter
-                    case KeyCode::RETURN: SetOutputChanged(true); return true;
+                    case KeyCode::Return: SetOutputChanged(true); return true;
                     default: return false;
                 }
             }
             switch(my_key) {
-                case KeyCode::SHIFT: SetHighlightMode(false); return true;
-                case KeyCode::CTRL: SetSkipNonWhitespaceMode(false); return true;
-                case KeyCode::RETURN: SetOutputChanged(true); return true;
+                case KeyCode::Shift: SetHighlightMode(false); return true;
+                case KeyCode::Ctrl: SetSkipNonWhitespaceMode(false); return true;
+                case KeyCode::Return: SetOutputChanged(true); return true;
                 default: return false;
             }
         }
@@ -786,7 +786,7 @@ void Console::DrawOutput(const Vector2& view_half_extents) const {
         }
         BuildOutputBuffer(font, iter->str, draw_loc, iter->color, vbo, ibo);
     }
-    _renderer->DrawIndexed(PrimitiveType::TRIANGLES, vbo, ibo);
+    _renderer->DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
 }
 
 void Console::BuildOutputBuffer(KerningFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo) const {

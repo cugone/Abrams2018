@@ -13,7 +13,7 @@ Audio::~Audio() {
     _buffer.shrink_to_fit();
 }
 
-Audio::BUFFER_TYPE Audio::GetType() const {
+Audio::BufferType Audio::GetType() const {
     return _type;
 }
 

@@ -73,7 +73,7 @@ void App::Initialize() {
             window->SetTitle("Test Title");
             bool is_fullscreen = false;
             if(is_fullscreen) {
-                window->SetDisplayMode(RHIOutputMode::FULLSCREEN_WINDOW);
+                window->SetDisplayMode(RHIOutputMode::Fullscreen_Window);
             }
         }
     }
@@ -109,9 +109,9 @@ void App::RunFrame() {
 
 bool App::ProcessSystemMessage(const EngineMessage& msg) {
     switch(msg.wmMessageCode) {
-        case WindowsSystemMessage::WINDOW_CLOSE:
-        case WindowsSystemMessage::WINDOW_QUIT:
-        case WindowsSystemMessage::WINDOW_DESTROY:
+        case WindowsSystemMessage::Window_Close:
+        case WindowsSystemMessage::Window_Quit:
+        case WindowsSystemMessage::Window_Destroy:
         {
             SetIsQuitting(true);
             return true;

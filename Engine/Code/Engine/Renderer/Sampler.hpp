@@ -22,15 +22,15 @@ struct SamplerDesc {
     float minLOD;
     float maxLOD;
     SamplerDesc()
-        :min_filter(FilterMode::POINT)
-        , mag_filter(FilterMode::POINT)
-        , mip_filter(FilterMode::POINT)
-        , compare_mode(FilterComparisonMode::NONE)
-        , UaddressMode(TextureAddressMode::WRAP)
-        , VaddressMode(TextureAddressMode::WRAP)
-        , WaddressMode(TextureAddressMode::WRAP)
+        :min_filter(FilterMode::Point)
+        , mag_filter(FilterMode::Point)
+        , mip_filter(FilterMode::Point)
+        , compare_mode(FilterComparisonMode::None)
+        , UaddressMode(TextureAddressMode::Wrap)
+        , VaddressMode(TextureAddressMode::Wrap)
+        , WaddressMode(TextureAddressMode::Wrap)
         , borderColor(Rgba::WHITE)
-        , compareFunc(ComparisonFunction::NEVER)
+        , compareFunc(ComparisonFunction::Never)
         , maxAnisotropicLevel(1)
         , mipmapLODBias(0.0f)
         , minLOD(0.0f)
@@ -42,15 +42,15 @@ struct SamplerDesc {
 class Sampler {
 public:
     explicit Sampler(RHIDevice* device
-            , const FilterMode& min_filter = FilterMode::POINT
-            , const FilterMode& mag_filter = FilterMode::POINT
-            , const FilterMode& mip_filter = FilterMode::POINT
-            , const FilterComparisonMode& compare_mode = FilterComparisonMode::NONE
-            , const TextureAddressMode& UaddressMode = TextureAddressMode::WRAP
-            , const TextureAddressMode& VaddressMode = TextureAddressMode::WRAP
-            , const TextureAddressMode& WaddressMode = TextureAddressMode::WRAP
+            , const FilterMode& min_filter = FilterMode::Point
+            , const FilterMode& mag_filter = FilterMode::Point
+            , const FilterMode& mip_filter = FilterMode::Point
+            , const FilterComparisonMode& compare_mode = FilterComparisonMode::None
+            , const TextureAddressMode& UaddressMode = TextureAddressMode::Wrap
+            , const TextureAddressMode& VaddressMode = TextureAddressMode::Wrap
+            , const TextureAddressMode& WaddressMode = TextureAddressMode::Wrap
             , const Rgba& borderColor = Rgba::WHITE
-            , const ComparisonFunction& compareFunc = ComparisonFunction::NEVER
+            , const ComparisonFunction& compareFunc = ComparisonFunction::Never
             , unsigned int maxAnisotropicLevel = 1
             , float mipmapLODBias = 0.0f
             , float minLOD = 0.0f
@@ -64,15 +64,15 @@ protected:
     bool LoadFromXml(RHIDevice* device, const XMLElement& element);
     bool CreateSamplerState(RHIDevice* device, const SamplerDesc& desc = SamplerDesc());
     bool CreateSamplerState(RHIDevice* device
-                            , const FilterMode& min_filter = FilterMode::POINT
-                            , const FilterMode& mag_filter = FilterMode::POINT
-                            , const FilterMode& mip_filter = FilterMode::POINT
-                            , const FilterComparisonMode& compare_mode = FilterComparisonMode::NONE
-                            , const TextureAddressMode& UaddressMode = TextureAddressMode::WRAP
-                            , const TextureAddressMode& VaddressMode = TextureAddressMode::WRAP
-                            , const TextureAddressMode& WaddressMode = TextureAddressMode::WRAP
+                            , const FilterMode& min_filter = FilterMode::Point
+                            , const FilterMode& mag_filter = FilterMode::Point
+                            , const FilterMode& mip_filter = FilterMode::Point
+                            , const FilterComparisonMode& compare_mode = FilterComparisonMode::None
+                            , const TextureAddressMode& UaddressMode = TextureAddressMode::Wrap
+                            , const TextureAddressMode& VaddressMode = TextureAddressMode::Wrap
+                            , const TextureAddressMode& WaddressMode = TextureAddressMode::Wrap
                             , const Rgba& borderColor = Rgba::WHITE
-                            , const ComparisonFunction& compareFunc = ComparisonFunction::NEVER
+                            , const ComparisonFunction& compareFunc = ComparisonFunction::Never
                             , unsigned int maxAnisotropicLevel = 1
                             , float mipmapLODBias = 0.0f
                             , float minLOD = 0.0f

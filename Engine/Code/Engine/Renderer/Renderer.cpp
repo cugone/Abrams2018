@@ -142,13 +142,13 @@ void Renderer::Initialize() {
     {
     VertexBuffer::buffer_t default_vbo(1024);
     IndexBuffer::buffer_t default_ibo(1024);
-    _temp_vbo = _rhi_device->CreateVertexBuffer(default_vbo, BufferUsage::DYNAMIC, BufferBindUsage::VERTEX_BUFFER);
-    _temp_ibo = _rhi_device->CreateIndexBuffer(default_ibo, BufferUsage::DYNAMIC, BufferBindUsage::INDEX_BUFFER);
+    _temp_vbo = _rhi_device->CreateVertexBuffer(default_vbo, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer);
+    _temp_ibo = _rhi_device->CreateIndexBuffer(default_ibo, BufferUsage::Dynamic, BufferBindUsage::Index_Buffer);
     _current_vbo_size = default_vbo.size();
     _current_ibo_size = default_ibo.size();
     }
 
-    _matrix_cb = _rhi_device->CreateConstantBuffer(&_matrix_data, sizeof(_matrix_data), BufferUsage::DYNAMIC, BufferBindUsage::CONSTANT_BUFFER);
+    _matrix_cb = _rhi_device->CreateConstantBuffer(&_matrix_data, sizeof(_matrix_data), BufferUsage::Dynamic, BufferBindUsage::Constant_Buffer);
     //_time_cb = _rhi_device->CreateConstantBuffer(&_time_data, sizeof(_time_data), BufferUsage::DYNAMIC, BufferBindUsage::CONSTANT_BUFFER);
 
     CreateAndRegisterDefaultSamplers();
@@ -203,7 +203,7 @@ Texture* Renderer::GetTexture(const std::string& nameOrFile) {
 void Renderer::DrawPoint(const Vertex3D& point) {
     std::vector<Vertex3D> vbo = { point };
     std::vector<unsigned int> ibo = { 0 };
-    DrawIndexed(PrimitiveType::POINTS, vbo, ibo);
+    DrawIndexed(PrimitiveType::Points, vbo, ibo);
 }
 
 void Renderer::DrawPoint(const Vector3& point, const Rgba& color /*= Rgba::WHITE*/, const Vector2& tex_coords /*= Vector2::ZERO*/) {
@@ -348,7 +348,7 @@ void Renderer::DrawPoint2D(float pointX, float pointY, const Rgba& color /*= Rgb
     ibo.clear();
     ibo.reserve(1);
     ibo.push_back(0);
-    DrawIndexed(PrimitiveType::POINTS, vbo, ibo);
+    DrawIndexed(PrimitiveType::Points, vbo, ibo);
 }
 void Renderer::DrawPoint2D(const Vector2& point, const Rgba& color /*= Rgba::WHITE*/) {
     DrawPoint2D(point.x, point.y, color);
@@ -366,7 +366,7 @@ void Renderer::DrawLine2D(float startX, float startY, float endX, float endY, co
         std::vector<unsigned int> ibo = {
             0, 1
         };
-        DrawIndexed(PrimitiveType::LINES, vbo, ibo);
+        DrawIndexed(PrimitiveType::Lines, vbo, ibo);
         return;
     }
     Vector3 start = Vector3(Vector2(startX, startY), 0.0f);
@@ -408,7 +408,7 @@ void Renderer::DrawQuad2D(float left, float bottom, float right, float top, cons
         0, 1, 2
         , 0, 2, 3
     };
-    DrawIndexed(PrimitiveType::TRIANGLES, vbo, ibo);
+    DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
 
 }
 
@@ -463,7 +463,7 @@ void Renderer::DrawPolygon2D(float centerX, float centerY, float radius, std::si
     for(std::size_t i = 0; i < ibo.size(); ++i) {
         ibo[i] = i % numSides;
     }
-    DrawIndexed(PrimitiveType::LINESSTRIP, vbo, ibo);
+    DrawIndexed(PrimitiveType::LinesStrip, vbo, ibo);
 }
 
 void Renderer::DrawPolygon2D(const Vector2& center, float radius, std::size_t numSides /*= 3*/, const Rgba& color /*= Rgba::WHITE*/) {
@@ -522,7 +522,7 @@ void Renderer::DrawTextLine(KerningFont* font, const std::string& text, const Rg
             cursor_x += (current_def.xadvance + kern_value);
         }
     }
-    DrawIndexed(PrimitiveType::TRIANGLES, vbo, ibo);
+    DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
 }
 
 void Renderer::CreateAndRegisterDefaultShaderPrograms() {
@@ -591,14 +591,14 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     auto pos_offset = offsetof(Vertex3D, position);
     auto color_offset = offsetof(Vertex3D, color);
     auto uv_offset = offsetof(Vertex3D, texcoords);
-    il->AddElement(pos_offset, ImageFormat::R32G32B32_FLOAT, "POSITION");
-    il->AddElement(color_offset, ImageFormat::R8G8B8A8_UNORM, "COLOR");
-    il->AddElement(uv_offset, ImageFormat::R32G32_FLOAT, "UV");
-    auto vs_bytecode = _rhi_device->CompileShader("__defaultVS", program.data(), program.size(), "VertexFunction", PipelineStage::VS);
+    il->AddElement(pos_offset, ImageFormat::R32G32B32_Float, "POSITION");
+    il->AddElement(color_offset, ImageFormat::R8G8B8A8_UNorm, "COLOR");
+    il->AddElement(uv_offset, ImageFormat::R32G32_Float, "UV");
+    auto vs_bytecode = _rhi_device->CompileShader("__defaultVS", program.data(), program.size(), "VertexFunction", PipelineStage::Vs);
     ID3D11VertexShader* vs = nullptr;
     _rhi_device->GetDxDevice()->CreateVertexShader(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize(), nullptr, &vs);
     il->CreateInputLayout(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize());
-    auto ps_bytecode = _rhi_device->CompileShader("__defaultPS", program.data(), program.size(), "PixelFunction", PipelineStage::PS);
+    auto ps_bytecode = _rhi_device->CompileShader("__defaultPS", program.data(), program.size(), "PixelFunction", PipelineStage::Ps);
     ID3D11PixelShader* ps = nullptr;
     _rhi_device->GetDxDevice()->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBufferSize(), nullptr, &ps);
     ShaderProgram* shader = new ShaderProgram("__default", _rhi_device, vs, ps, vs_bytecode, ps_bytecode, il);
@@ -664,14 +664,14 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     auto pos_offset = offsetof(Vertex3D, position);
     auto color_offset = offsetof(Vertex3D, color);
     auto uv_offset = offsetof(Vertex3D, texcoords);
-    il->AddElement(pos_offset, ImageFormat::R32G32B32_FLOAT, "POSITION");
-    il->AddElement(color_offset, ImageFormat::R8G8B8A8_UNORM, "COLOR");
-    il->AddElement(uv_offset, ImageFormat::R32G32_FLOAT, "UV");
-    auto vs_bytecode = _rhi_device->CompileShader("__unlitVS", program.data(), program.size(), "VertexFunction", PipelineStage::VS);
+    il->AddElement(pos_offset, ImageFormat::R32G32B32_Float, "POSITION");
+    il->AddElement(color_offset, ImageFormat::R8G8B8A8_UNorm, "COLOR");
+    il->AddElement(uv_offset, ImageFormat::R32G32_Float, "UV");
+    auto vs_bytecode = _rhi_device->CompileShader("__unlitVS", program.data(), program.size(), "VertexFunction", PipelineStage::Vs);
     ID3D11VertexShader* vs = nullptr;
     _rhi_device->GetDxDevice()->CreateVertexShader(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize(), nullptr, &vs);
     il->CreateInputLayout(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize());
-    auto ps_bytecode = _rhi_device->CompileShader("__unlitPS", program.data(), program.size(), "PixelFunction", PipelineStage::PS);
+    auto ps_bytecode = _rhi_device->CompileShader("__unlitPS", program.data(), program.size(), "PixelFunction", PipelineStage::Ps);
     ID3D11PixelShader* ps = nullptr;
     _rhi_device->GetDxDevice()->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBufferSize(), nullptr, &ps);
     ShaderProgram* shader = new ShaderProgram("__unlit", _rhi_device, vs, ps, vs_bytecode, ps_bytecode, il);
@@ -798,32 +798,32 @@ void Renderer::CreateAndRegisterDefaultRasterStates() {
 }
 
 RasterState* Renderer::CreateWireframeRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::WIREFRAME, CullMode::BACK, true);
+    RasterState* state = new RasterState(_rhi_device, FillMode::Wireframe, CullMode::Back, true);
     return state;
 }
 
 RasterState* Renderer::CreateSolidRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::SOLID, CullMode::BACK, true);
+    RasterState* state = new RasterState(_rhi_device, FillMode::Solid, CullMode::Back, true);
     return state;
 }
 
 RasterState* Renderer::CreateWireframeNoCullingRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::WIREFRAME, CullMode::NONE, true);
+    RasterState* state = new RasterState(_rhi_device, FillMode::Wireframe, CullMode::None, true);
     return state;
 }
 
 RasterState* Renderer::CreateSolidNoCullingRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::SOLID, CullMode::NONE, true);
+    RasterState* state = new RasterState(_rhi_device, FillMode::Solid, CullMode::None, true);
     return state;
 }
 
 RasterState* Renderer::CreateWireframeFrontCullingRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::WIREFRAME, CullMode::FRONT, true);
+    RasterState* state = new RasterState(_rhi_device, FillMode::Wireframe, CullMode::Front, true);
     return state;
 }
 
 RasterState* Renderer::CreateSolidFrontCullingRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::SOLID, CullMode::FRONT, true);
+    RasterState* state = new RasterState(_rhi_device, FillMode::Solid, CullMode::Front, true);
     return state;
 }
 
@@ -1218,7 +1218,7 @@ void Renderer::RegisterShaderProgram(const std::string& name, ShaderProgram * sp
 void Renderer::UpdateVbo(const VertexBuffer::buffer_t& vbo) {
     if(_current_vbo_size < vbo.size()) {
         delete _temp_vbo;
-        _temp_vbo = _rhi_device->CreateVertexBuffer(vbo, BufferUsage::DYNAMIC, BufferBindUsage::VERTEX_BUFFER);
+        _temp_vbo = _rhi_device->CreateVertexBuffer(vbo, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer);
         _current_vbo_size = vbo.size();
     }
     _temp_vbo->Update(_rhi_context, vbo);
@@ -1227,7 +1227,7 @@ void Renderer::UpdateVbo(const VertexBuffer::buffer_t& vbo) {
 void Renderer::UpdateIbo(const IndexBuffer::buffer_t& ibo) {
     if(_current_ibo_size < ibo.size()) {
         delete _temp_ibo;
-        _temp_ibo = _rhi_device->CreateIndexBuffer(ibo, BufferUsage::DYNAMIC, BufferBindUsage::INDEX_BUFFER);
+        _temp_ibo = _rhi_device->CreateIndexBuffer(ibo, BufferUsage::Dynamic, BufferBindUsage::Index_Buffer);
         _current_ibo_size = ibo.size();
     }
     _temp_ibo->Update(_rhi_context, ibo);
@@ -1585,13 +1585,13 @@ Texture* Renderer::Create1DTexture(const std::string& filepath, const BufferUsag
     subresource_data.SysMemPitch = width * sizeof(unsigned int); // pitch is byte size of a single row)
     subresource_data.SysMemSlicePitch = width * height * sizeof(unsigned int);
     //Force specific usages for unordered access
-    if((bindUsage & BufferBindUsage::UNORDERED_ACCESS) == BufferBindUsage::UNORDERED_ACCESS) {
-        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::GPU);
-        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::STAGING);
+    if((bindUsage & BufferBindUsage::Unordered_Access) == BufferBindUsage::Unordered_Access) {
+        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
+        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     ID3D11Texture1D* dx_tex = nullptr;
 
-    bool isImmutable = bufferUsage == BufferUsage::STATIC;
+    bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable;
 
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
@@ -1621,12 +1621,12 @@ Texture* Renderer::Create1DTextureFromMemory(const unsigned char* data, unsigned
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
     //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::SHADER_RESOURCE);
+    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
-    if(bindUsage == BufferBindUsage::UNORDERED_ACCESS) {
-        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::GPU);
-        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::STAGING);
+    if(bindUsage == BufferBindUsage::Unordered_Access) {
+        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
+        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     tex_desc.MiscFlags = 0;
 
@@ -1641,7 +1641,7 @@ Texture* Renderer::Create1DTextureFromMemory(const unsigned char* data, unsigned
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = false;
-    bool isImmutable = bufferUsage == BufferUsage::STATIC;
+    bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
@@ -1663,12 +1663,12 @@ Texture* Renderer::Create1DTextureFromMemory(const std::vector<Rgba>& data, unsi
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
     //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::SHADER_RESOURCE);
+    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
-    if((bindUsage & BufferBindUsage::UNORDERED_ACCESS) == BufferBindUsage::UNORDERED_ACCESS) {
-        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::GPU);
-        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::STAGING);
+    if((bindUsage & BufferBindUsage::Unordered_Access) == BufferBindUsage::Unordered_Access) {
+        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
+        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     tex_desc.MiscFlags = 0;
 
@@ -1683,7 +1683,7 @@ Texture* Renderer::Create1DTextureFromMemory(const std::vector<Rgba>& data, unsi
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = false;
-    bool isImmutable = bufferUsage == BufferUsage::STATIC;
+    bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || isMultiSampled;
 
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
@@ -1715,7 +1715,7 @@ Texture* Renderer::Create2DTexture(const std::string& filepath, const BufferUsag
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);      // R8G8B8A8 texture
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);   // we're going to be using this texture as a shader resource
                                                                      //Make every texture a shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::SHADER_RESOURCE);
+    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);                      // Determines how I can access this resource CPU side (IMMUTABLE, So none)
     tex_desc.MiscFlags = 0;                            // Extra Flags, of note is;
                                                        // D3D11_RESOURCE_MISC_GENERATE_MIPS - if we want to use this to be able to generate mips (not compatible with IMMUTABLE)
@@ -1735,15 +1735,15 @@ Texture* Renderer::Create2DTexture(const std::string& filepath, const BufferUsag
     subresource_data.SysMemPitch = width * sizeof(unsigned int); // pitch is byte size of a single row)
     subresource_data.SysMemSlicePitch = width * height * sizeof(unsigned int);
     //Force specific usages for unordered access
-    if((bindUsage & BufferBindUsage::UNORDERED_ACCESS) == BufferBindUsage::UNORDERED_ACCESS) {
-        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::GPU);
-        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::STAGING);
+    if((bindUsage & BufferBindUsage::Unordered_Access) == BufferBindUsage::Unordered_Access) {
+        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
+        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     ID3D11Texture2D* dx_tex = nullptr;
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = tex_desc.SampleDesc.Count != 1 || tex_desc.SampleDesc.Quality != 0;
-    bool isImmutable = bufferUsage == BufferUsage::STATIC;
+    bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
@@ -1774,12 +1774,12 @@ Texture* Renderer::Create2DTextureFromMemory(const unsigned char* data, unsigned
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
     //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::SHADER_RESOURCE);
+    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
-    if(bindUsage == BufferBindUsage::UNORDERED_ACCESS) {
-        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::GPU);
-        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::STAGING);
+    if(bindUsage == BufferBindUsage::Unordered_Access) {
+        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
+        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     tex_desc.MiscFlags = 0;
     tex_desc.SampleDesc.Count = 1;
@@ -1796,7 +1796,7 @@ Texture* Renderer::Create2DTextureFromMemory(const unsigned char* data, unsigned
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = tex_desc.SampleDesc.Count != 1 || tex_desc.SampleDesc.Quality != 0;
-    bool isImmutable = bufferUsage == BufferUsage::STATIC;
+    bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
@@ -1819,12 +1819,12 @@ Texture* Renderer::Create2DTextureFromMemory(const std::vector<Rgba>& data, unsi
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
     //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::SHADER_RESOURCE);
+    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
-    if((bindUsage & BufferBindUsage::UNORDERED_ACCESS) == BufferBindUsage::UNORDERED_ACCESS) {
-        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::GPU);
-        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::STAGING);
+    if((bindUsage & BufferBindUsage::Unordered_Access) == BufferBindUsage::Unordered_Access) {
+        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
+        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     tex_desc.MiscFlags = 0;
     tex_desc.SampleDesc.Count = 1;
@@ -1841,7 +1841,7 @@ Texture* Renderer::Create2DTextureFromMemory(const std::vector<Rgba>& data, unsi
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = tex_desc.SampleDesc.Count != 1 || tex_desc.SampleDesc.Quality != 0;
-    bool isImmutable = bufferUsage == BufferUsage::STATIC;
+    bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || isMultiSampled;
 
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
@@ -1864,12 +1864,12 @@ Texture* Renderer::Create2DTextureArrayFromMemory(const unsigned char* data, uns
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
     //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::SHADER_RESOURCE);
+    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
-    if(bindUsage == BufferBindUsage::UNORDERED_ACCESS) {
-        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::GPU);
-        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::STAGING);
+    if(bindUsage == BufferBindUsage::Unordered_Access) {
+        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
+        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     tex_desc.MiscFlags = 0;
     tex_desc.SampleDesc.Count = 1;
@@ -1886,7 +1886,7 @@ Texture* Renderer::Create2DTextureArrayFromMemory(const unsigned char* data, uns
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = tex_desc.SampleDesc.Count != 1 || tex_desc.SampleDesc.Quality != 0;
-    bool isImmutable = bufferUsage == BufferUsage::STATIC;
+    bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? subresource_data : nullptr), &dx_tex);
@@ -1911,12 +1911,12 @@ Texture* Renderer::Create2DTextureFromGifBuffer(const unsigned char* data, unsig
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
     //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::SHADER_RESOURCE);
+    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
-    if(bindUsage == BufferBindUsage::UNORDERED_ACCESS) {
-        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::GPU);
-        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::STAGING);
+    if(bindUsage == BufferBindUsage::Unordered_Access) {
+        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
+        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     tex_desc.MiscFlags = 0;
     tex_desc.SampleDesc.Count = 1;
@@ -1933,7 +1933,7 @@ Texture* Renderer::Create2DTextureFromGifBuffer(const unsigned char* data, unsig
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = tex_desc.SampleDesc.Count != 1 || tex_desc.SampleDesc.Quality != 0;
-    bool isImmutable = bufferUsage == BufferUsage::STATIC;
+    bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? subresource_data : nullptr), &dx_tex);
@@ -1958,12 +1958,12 @@ Texture* Renderer::Create2DTextureArrayFromGifBuffer(const unsigned char* data, 
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
     //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::SHADER_RESOURCE);
+    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
-    if(bindUsage == BufferBindUsage::UNORDERED_ACCESS) {
-        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::GPU);
-        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::STAGING);
+    if(bindUsage == BufferBindUsage::Unordered_Access) {
+        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
+        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     tex_desc.MiscFlags = 0;
     tex_desc.SampleDesc.Count = 1;
@@ -1980,7 +1980,7 @@ Texture* Renderer::Create2DTextureArrayFromGifBuffer(const unsigned char* data, 
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = tex_desc.SampleDesc.Count != 1 || tex_desc.SampleDesc.Quality != 0;
-    bool isImmutable = bufferUsage == BufferUsage::STATIC;
+    bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? subresource_data : nullptr), &dx_tex);
@@ -2013,7 +2013,7 @@ Texture* Renderer::Create3DTexture(const std::string& filepath, const IntVector3
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);      // R8G8B8A8 texture
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);   // we're going to be using this texture as a shader resource
                                                                      //Make every texture a shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::SHADER_RESOURCE);
+    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);                      // Determines how I can access this resource CPU side (IMMUTABLE, So none)
     tex_desc.MiscFlags = 0;                            // Extra Flags, of note is;
                                                        // D3D11_RESOURCE_MISC_GENERATE_MIPS - if we want to use this to be able to generate mips (not compatible with IMMUTABLE)
@@ -2033,15 +2033,15 @@ Texture* Renderer::Create3DTexture(const std::string& filepath, const IntVector3
     subresource_data.SysMemPitch = width * sizeof(unsigned int); // pitch is byte size of a single row)
     subresource_data.SysMemSlicePitch = width * height * sizeof(unsigned int);
     //Force specific usages for unordered access
-    if((bindUsage & BufferBindUsage::UNORDERED_ACCESS) == BufferBindUsage::UNORDERED_ACCESS) {
-        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::GPU);
-        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::STAGING);
+    if((bindUsage & BufferBindUsage::Unordered_Access) == BufferBindUsage::Unordered_Access) {
+        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
+        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     ID3D11Texture3D* dx_tex = nullptr;
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = false;
-    bool isImmutable = bufferUsage == BufferUsage::STATIC;
+    bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
@@ -2072,12 +2072,12 @@ Texture* Renderer::Create3DTextureFromMemory(const unsigned char* data, unsigned
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
     //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::SHADER_RESOURCE);
+    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
-    if(bindUsage == BufferBindUsage::UNORDERED_ACCESS) {
-        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::GPU);
-        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::STAGING);
+    if(bindUsage == BufferBindUsage::Unordered_Access) {
+        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
+        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     tex_desc.MiscFlags = 0;
 
@@ -2092,7 +2092,7 @@ Texture* Renderer::Create3DTextureFromMemory(const unsigned char* data, unsigned
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = false;
-    bool isImmutable = bufferUsage == BufferUsage::STATIC;
+    bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
@@ -2115,12 +2115,12 @@ Texture* Renderer::Create3DTextureFromMemory(const std::vector<Rgba>& data, unsi
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
     //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::SHADER_RESOURCE);
+    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
-    if(bindUsage == BufferBindUsage::UNORDERED_ACCESS) {
-        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::GPU);
-        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::STAGING);
+    if(bindUsage == BufferBindUsage::Unordered_Access) {
+        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
+        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     tex_desc.MiscFlags = 0;
 
@@ -2135,7 +2135,7 @@ Texture* Renderer::Create3DTextureFromMemory(const std::vector<Rgba>& data, unsi
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = false;
-    bool isImmutable = bufferUsage == BufferUsage::STATIC;
+    bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);

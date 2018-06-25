@@ -11,71 +11,71 @@
 #include "Engine/Math/Vector3.hpp"
 
 enum class KeyCode : unsigned char {
-    LBUTTON
-    ,RBUTTON
-    ,CANCEL
-    ,MBUTTON
-    ,BACK  /* Also BACKSPACE */
-    ,FIRST_ = BACK
-    ,BACKSPACE = BACK
-    ,TAB
-    ,CLEAR
-    ,RETURN  /* Also ENTER */
-    ,ENTER = RETURN
-    ,SHIFT
-    ,CTRL  /* Also CTRL */
-    ,MENU  /* Also ALT */
-    ,ALT = MENU /* Also LMENU */
-    ,LMENU = MENU  /* Also LALT*/
-    ,LALT = LMENU
-    ,PAUSE
-    ,CAPITAL  /* Also CAPSLOCK */
-    ,CAPSLOCK = CAPITAL
-    ,KANA
-    ,HANGUL  /* Also HANGEUL */
-    ,HANGEUL = HANGUL
-    ,JUNJA
-    ,FINAL
-    ,HANJA
-    ,KANJI
-    ,ESCAPE  /* Also ESC */
-    ,ESC = ESCAPE
-    ,CONVERT
-    ,NONCONVERT
-    ,ACCEPT
-    ,MODECHANGE
-    ,SPACE  /* Also SPACEBAR */
-    ,SPACEBAR = SPACE
-    ,PRIOR  /* Also PAGEUP */
-    ,PAGEUP = PRIOR
-    ,NEXT  /* Also PAGEDOWN  PAGEDN */
-    ,PAGEDOWN = NEXT
-    ,PAGEDN = NEXT
-    ,END
-    ,HOME
-    ,LEFT
-    ,UP
-    ,RIGHT
-    ,DOWN
-    ,SELECT
-    ,PRINT
-    ,EXECUTE
-    ,SNAPSHOT  /* Also PRINTSCREEN */
-    ,PRINTSCREEN = SNAPSHOT
-    ,INSERT
-    ,DELETE_KEYCODE  /* Also DEL */
-    ,DEL = DELETE_KEYCODE
-    ,HELP
-    ,NUMERIC0
-    ,NUMERIC1
-    ,NUMERIC2
-    ,NUMERIC3
-    ,NUMERIC4
-    ,NUMERIC5
-    ,NUMERIC6
-    ,NUMERIC7
-    ,NUMERIC8
-    ,NUMERIC9
+    LButton
+    ,RButton
+    ,Cancel
+    ,MButton
+    ,Back  /* Also BackSpace */
+    ,First_ = Back
+    ,Backspace = Back
+    ,Tab
+    ,Clear
+    ,Return  /* Also Enter */
+    ,Enter = Return
+    ,Shift
+    ,Ctrl  /* Also Ctrl */
+    ,Menu  /* Also Alt */
+    ,Alt = Menu /* Also LMenu */
+    ,LMenu = Menu  /* Also LAlt*/
+    ,LAlt = LMenu
+    ,Pause
+    ,Capital  /* Also CapsLock */
+    ,CAPSLOCK = Capital
+    ,Kana
+    ,Hangul  /* Also Hangeul */
+    ,Hangeul = Hangul
+    ,Junja
+    ,Final
+    ,Hanja
+    ,Kanji
+    ,Escape  /* Also Esc */
+    ,Esc = Escape
+    ,Convert
+    ,NonConvert
+    ,Accept
+    ,ModeChange
+    ,Space  /* Also Spacebar */
+    ,Spacebar = Space
+    ,Prior  /* Also PageUp */
+    ,PageUp = Prior
+    ,Next  /* Also PageDown  PageDn */
+    ,PageDown = Next
+    ,PageDn = Next
+    ,End
+    ,Home
+    ,Left
+    ,Up
+    ,Right
+    ,Down
+    ,Select
+    ,Print
+    ,Execute
+    ,Snapshot  /* Also PrintScreen */
+    ,PrintScreen = Snapshot
+    ,Insert
+    ,Delete  /* Also Del */
+    ,Del = Delete
+    ,Help
+    ,Numeric0
+    ,Numeric1
+    ,Numeric2
+    ,Numeric3
+    ,Numeric4
+    ,Numeric5
+    ,Numeric6
+    ,Numeric7
+    ,Numeric8
+    ,Numeric9
     ,A
     ,B
     ,C
@@ -102,27 +102,27 @@ enum class KeyCode : unsigned char {
     ,X
     ,Y
     ,Z
-    ,LWIN
-    ,RWIN
-    ,APPS
-    ,SLEEP
-    ,NUMPAD0
-    ,NUMPAD1
-    ,NUMPAD2
-    ,NUMPAD3
-    ,NUMPAD4
-    ,NUMPAD5
-    ,NUMPAD6
-    ,NUMPAD7
-    ,NUMPAD8
-    ,NUMPAD9
-    ,MULTIPLY
-    ,ADD
-    ,SEPARATOR  /* Also NUMPADENTER */
-    ,NUMPADENTER = SEPARATOR
-    ,SUBTRACT
-    ,DECIMAL
-    ,DIVIDE
+    ,LWin
+    ,RWin
+    ,Apps
+    ,Sleep
+    ,NumPad0
+    ,NumPad1
+    ,NumPad2
+    ,NumPad3
+    ,NumPad4
+    ,NumPad5
+    ,NumPad6
+    ,NumPad7
+    ,NumPad8
+    ,NumPad9
+    ,Multiply
+    ,Add
+    ,Separator  /* Also NumPadEnter */
+    ,NumPadEnter = Separator
+    ,Subtract
+    ,Decimal
+    ,Divide
     ,F1
     ,F2
     ,F3
@@ -147,124 +147,124 @@ enum class KeyCode : unsigned char {
     ,F22
     ,F23
     ,F24
-    ,NUMLOCK
-    ,SCROLL  /* Also SCROLLLOCK */
-    ,SCROLLLOCK = SCROLL
-    ,OEM_NEC_EQUAL
-    ,OEM_FJ_JISHO
-    ,OEM_FJ_MASSHOU
-    ,OEM_FJ_TOUROKU
-    ,OEM_FJ_LOYA
-    ,OEM_FJ_ROYA
-    ,LSHIFT
-    ,RSHIFT
-    ,LCONTROL  /* Also LCTRL */
-    ,LCTRL = LCONTROL
-    ,RCONTROL  /* Also RCTRL */
-    ,RCTRL = RCONTROL
-    ,RMENU  /* Also RALT */
-    ,RALT = RMENU
-    ,BROWSER_BACK
-    ,BROWSER_FORWARD
-    ,BROWSER_REFRESH
-    ,BROWSER_STOP
-    ,BROWSER_SEARCH
-    ,BROWSER_FAVORITES
-    ,BROWSER_HOME
-    ,VOLUME_MUTE
-    ,VOLUME_DOWN
-    ,VOLUME_UP
-    ,MEDIA_NEXT_TRACK
-    ,MEDIA_PREV_TRACK
-    ,MEDIA_STOP
-    ,MEDIA_PLAY_PAUSE
-    ,LAUNCH_MAIL
-    ,LAUNCH_MEDIA_SELECT
-    ,LAUNCH_APP1
+    ,NumLock
+    ,Scroll  /* Also ScrollLock */
+    ,ScrollLock = Scroll
+    ,Oem_Nec_Equal
+    ,Oem_Fj_Jisho
+    ,Oem_Fj_Masshou
+    ,Oem_Fj_Touroku
+    ,Oem_Fj_Loya
+    ,Oem_Fj_Roya
+    ,LShift
+    ,RShift
+    ,LControl  /* Also LCtrl */
+    ,LCtrl = LControl
+    ,RControl  /* Also RCtrl */
+    ,RCtrl = RControl
+    ,RMenu  /* Also RAlt */
+    ,RAlt = RMenu
+    ,Browser_Back
+    ,Browser_Forward
+    ,Browser_Refresh
+    ,Browser_Stop
+    ,Browser_Search
+    ,Browser_Favorites
+    ,Browser_Home
+    ,Volume_Mute
+    ,Volume_Down
+    ,Volume_Up
+    ,Media_Next_Track
+    ,Media_Prev_Track
+    ,Media_Stop
+    ,Media_Play_Pause
+    ,Launch_Mail
+    ,Launch_Media_Select
+    ,Launch_App1
     ,LAUNCH_APP2
-    ,OEM_1  /* ;: */
-    ,SEMICOLON = OEM_1
-    ,OEM_PLUS  /* =+ */
-    ,EQUALS = OEM_PLUS
-    ,OEM_COMMA  /* ,< */
-    ,COMMA = OEM_COMMA
-    ,OEM_MINUS  /* -_ */
-    ,MINUS = OEM_MINUS
-    ,OEM_PERIOD /* .> */
-    ,PERIOD = OEM_PERIOD
-    ,OEM_2 /* /? */
-    ,FORWARDSLASH = OEM_2
-    ,FSLASH = OEM_2
-    ,OEM_3 /* `~ */
-    ,BACKQUOTE = OEM_3
-    ,TILDE = OEM_3
-    ,GAMEPAD_A
-    ,GAMEPAD_B
-    ,GAMEPAD_X
-    ,GAMEPAD_Y
-    ,GAMEPAD_RIGHT_SHOULDER
-    ,GAMEPAD_LEFT_SHOULDER
-    ,GAMEPAD_LEFT_TRIGGER
-    ,GAMEPAD_RIGHT_TRIGGER
-    ,GAMEPAD_DPAD_UP
-    ,GAMEPAD_DPAD_DOWN
-    ,GAMEPAD_DPAD_LEFT
-    ,GAMEPAD_DPAD_RIGHT
-    ,GAMEPAD_MENU
-    ,GAMEPAD_VIEW
-    ,GAMEPAD_LEFT_THUMBSTICK_BUTTON
-    ,GAMEPAD_RIGHT_THUMBSTICK_BUTTON
-    ,GAMEPAD_LEFT_THUMBSTICK_UP
-    ,GAMEPAD_LEFT_THUMBSTICK_DOWN
-    ,GAMEPAD_LEFT_THUMBSTICK_RIGHT
-    ,GAMEPAD_LEFT_THUMBSTICK_LEFT
-    ,GAMEPAD_RIGHT_THUMBSTICK_UP
-    ,GAMEPAD_RIGHT_THUMBSTICK_DOWN
-    ,GAMEPAD_RIGHT_THUMBSTICK_RIGHT
-    ,GAMEPAD_RIGHT_THUMBSTICK_LEFT
-    ,OEM_4  /* [{ */
-    ,LEFTBRACKET = OEM_4
-    ,LBRACKET = OEM_4
-    ,OEM_5  /* \| */
-    ,BACKSLASH = OEM_5
-    ,OEM_6  /* ]} */
-    ,RIGHTBRACKET = OEM_6
-    ,RBRACKET = OEM_6
-    ,OEM_7  /* '" */
-    ,APOSTROPHE = OEM_7
-    ,SINGLEQUOTE = OEM_7
-    ,OEM_8  /* misc. unknown */
-    ,OEM_AX
-    ,OEM_102  /* RT 102's "<>" or "\|" */
-    ,ICO_HELP  /* Help key on ICO keyboard */
-    ,ICO_00  /* 00 key on ICO keyboard */
-    ,PROCESSKEY
-    ,ICO_CLEAR  /* Clear key on ICO keyboard */
-    ,PACKET  /* Key is packet of data */
-    ,OEM_RESET
-    ,OEM_JUMP
-    ,OEM_PA1
-    ,OEM_PA2
-    ,OEM_PA3
-    ,OEM_WSCTRL
-    ,OEM_CUSEL
-    ,OEM_ATTN
-    ,OEM_FINISH
-    ,OEM_COPY
-    ,OEM_AUTO
-    ,OEM_ENLW
-    ,OEM_BACKTAB
-    ,ATTN
-    ,CRSEL
-    ,EXSEL
-    ,EREOF
-    ,PLAY
-    ,ZOOM
-    ,NONAME
-    ,PA1
-    ,OEM_CLEAR
-    ,LAST_
-    ,UNKNOWN = 0xFF
+    ,Oem_1  /* ;: */
+    ,SEMICOLON = Oem_1
+    ,Oem_Plus  /* =+ */
+    ,Equals = Oem_Plus
+    ,Oem_Comma  /* ,< */
+    ,Comma = Oem_Comma
+    ,Oem_Minus  /* -_ */
+    ,Minus = Oem_Minus
+    ,Oem_Period /* .> */
+    ,Period = Oem_Period
+    ,Oem_2 /* /? */
+    ,ForwardSlash = Oem_2
+    ,FSlash = Oem_2
+    ,Oem_3 /* `~ */
+    ,Backquote = Oem_3
+    ,Tilde = Oem_3
+    ,Gamepad_A
+    ,Gamepad_B
+    ,Gamepad_X
+    ,Gamepad_Y
+    ,Gamepad_Right_Shoulder
+    ,Gamepad_Left_Shoulder
+    ,Gamepad_Left_Trigger
+    ,Gamepad_Right_Trigger
+    ,Gamepad_DPad_Up
+    ,Gamepad_DPad_Down
+    ,Gamepad_DPad_Left
+    ,Gamepad_DPad_Right
+    ,Gamepad_Menu
+    ,Gamepad_View
+    ,Gamepad_Left_Thumbstick_Button
+    ,Gamepad_Right_Thumbstick_Button
+    ,Gamepad_Left_Thumbstick_Up
+    ,Gamepad_Left_Thumbstick_Down
+    ,Gamepad_Left_Thumbstick_Right
+    ,Gamepad_Left_Thumbstick_Left
+    ,Gamepad_Right_Thumbstick_Up
+    ,Gamepad_Right_Thumbstick_Down
+    ,Gamepad_Right_Thumbstick_Right
+    ,Gamepad_Right_Thumbstick_Left
+    ,Oem_4  /* [{ */
+    ,LeftBracket = Oem_4
+    ,LBracket = Oem_4
+    ,Oem_5  /* \| */
+    ,Backslash = Oem_5
+    ,Oem_6  /* ]} */
+    ,RightBracket = Oem_6
+    ,RBracket = Oem_6
+    ,Oem_7  /* '" */
+    ,Apostrophe = Oem_7
+    ,SingleQuote = Oem_7
+    ,Oem_8  /* misc. unknown */
+    ,Oem_Ax
+    ,Oem_102  /* RT 102's "<>" or "\|" */
+    ,Ico_Help  /* Help key on ICO keyboard */
+    ,Ico_00  /* 00 key on ICO keyboard */
+    ,ProcessKey
+    ,Ico_Clear  /* Clear key on ICO keyboard */
+    ,Packet  /* Key is packet of data */
+    ,Oem_Reset
+    ,Oem_Jump
+    ,Oem_Pa1
+    ,Oem_Pa2
+    ,Oem_Pa3
+    ,Oem_WsCtrl
+    ,Oem_CuSel
+    ,Oem_Attn
+    ,Oem_Finish
+    ,Oem_Copy
+    ,Oem_Auto
+    ,Oem_EnlW
+    ,Oem_BackTab
+    ,Attn
+    ,CrSel
+    ,ExSel
+    ,ErEof
+    ,Play
+    ,Zoom
+    ,NoName
+    ,Pa1
+    ,Oem_Clear
+    ,Last_
+    ,Unknown = 0xFF
 };
 
 KeyCode& operator++(KeyCode& keycode);
@@ -303,6 +303,6 @@ protected:
 private:
 
     std::array<XboxController, 4> _xboxControllers{};
-    std::bitset<(std::size_t)KeyCode::UNKNOWN> _previousKeys{};
-    std::bitset<(std::size_t)KeyCode::UNKNOWN> _currentKeys{};
+    std::bitset<(std::size_t)KeyCode::Unknown> _previousKeys{};
+    std::bitset<(std::size_t)KeyCode::Unknown> _currentKeys{};
 };

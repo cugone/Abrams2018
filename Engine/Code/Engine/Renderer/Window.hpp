@@ -50,7 +50,7 @@ protected:
     bool Unregister();
     bool Create();
 private:
-    RHIOutputMode _currentDisplayMode = RHIOutputMode::WINDOWED;
+    RHIOutputMode _currentDisplayMode = RHIOutputMode::Windowed;
     HWND _hWnd = {};
     HINSTANCE _hInstance = {};
     std::string _title = "DEFAULT WINDOW";

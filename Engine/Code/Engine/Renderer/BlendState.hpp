@@ -23,13 +23,13 @@ struct BlendDesc {
 
     BlendDesc()
         :enable(false)
-        , source_factor(BlendFactor::ONE)
-        , dest_factor(BlendFactor::ZERO)
-        , blend_op(BlendOperation::ADD)
-        , source_factor_alpha(BlendFactor::ONE)
-        , dest_factor_alpha(BlendFactor::ZERO)
-        , blend_op_alpha(BlendOperation::ADD)
-        , blend_color_write_enable(BlendColorWriteEnable::ALL) { /* DO NOTHING */
+        , source_factor(BlendFactor::One)
+        , dest_factor(BlendFactor::Zero)
+        , blend_op(BlendOperation::Add)
+        , source_factor_alpha(BlendFactor::One)
+        , dest_factor_alpha(BlendFactor::Zero)
+        , blend_op_alpha(BlendOperation::Add)
+        , blend_color_write_enable(BlendColorWriteEnable::All) { /* DO NOTHING */
     }
 
 };
@@ -42,13 +42,13 @@ public:
     explicit BlendState(RHIDevice* device,
                         bool enable = false,
                         bool alphaToCoverageEnable = false,
-                        const BlendFactor& source_factor = BlendFactor::ONE,
-                        const BlendFactor& dest_factor = BlendFactor::ZERO,
-                        const BlendOperation& blend_op = BlendOperation::ADD,
-                        const BlendFactor& source_factor_alpha = BlendFactor::ONE,
-                        const BlendFactor& dest_factor_alpha = BlendFactor::ZERO,
-                        const BlendOperation& blend_op_alpha = BlendOperation::ADD,
-                        const BlendColorWriteEnable& blend_color_write_enable = BlendColorWriteEnable::ALL);
+                        const BlendFactor& source_factor = BlendFactor::One,
+                        const BlendFactor& dest_factor = BlendFactor::Zero,
+                        const BlendOperation& blend_op = BlendOperation::Add,
+                        const BlendFactor& source_factor_alpha = BlendFactor::One,
+                        const BlendFactor& dest_factor_alpha = BlendFactor::Zero,
+                        const BlendOperation& blend_op_alpha = BlendOperation::Add,
+                        const BlendColorWriteEnable& blend_color_write_enable = BlendColorWriteEnable::All);
 
     explicit BlendState(RHIDevice* device, bool alphaToCoverageEnable = false, BlendDesc desc = BlendDesc());
     ~BlendState();
@@ -59,13 +59,13 @@ protected:
     bool CreateBlendState(RHIDevice* device
                           , bool enable = false
                           , bool alphaToCoverageEnable = false
-                          , const BlendFactor& source_factor = BlendFactor::ONE
-                          , const BlendFactor& dest_factor = BlendFactor::ZERO
-                          , const BlendOperation& blend_op = BlendOperation::ADD
-                          , const BlendFactor& source_factor_alpha = BlendFactor::ONE
-                          , const BlendFactor& dest_factor_alpha = BlendFactor::ONE
-                          , const BlendOperation& blend_op_alpha = BlendOperation::ADD
-                          , const BlendColorWriteEnable& blend_color_write_enable = BlendColorWriteEnable::ALL);
+                          , const BlendFactor& source_factor = BlendFactor::One
+                          , const BlendFactor& dest_factor = BlendFactor::Zero
+                          , const BlendOperation& blend_op = BlendOperation::Add
+                          , const BlendFactor& source_factor_alpha = BlendFactor::One
+                          , const BlendFactor& dest_factor_alpha = BlendFactor::One
+                          , const BlendOperation& blend_op_alpha = BlendOperation::Add
+                          , const BlendColorWriteEnable& blend_color_write_enable = BlendColorWriteEnable::All);
     bool CreateBlendState(RHIDevice* device, bool alphaToCoverageEnable = false, BlendDesc render_target = BlendDesc());
     bool CreateBlendState(RHIDevice* device, bool alphaToCoverageEnable = false, const std::vector<BlendDesc>& render_targets = { BlendDesc() });
 private:

@@ -106,7 +106,7 @@ bool DepthStencilState::LoadFromXml(RHIDevice* device, const XMLElement& element
     //Default values if no depth stencil element exists.
     bool enableDepthTest = true;
     bool depthWritable = true;
-    ComparisonFunction depthComparison = ComparisonFunction::LESS;
+    ComparisonFunction depthComparison = ComparisonFunction::Less;
 
     auto xml_depth = element.FirstChildElement("depth");
     if(xml_depth) {
@@ -122,10 +122,10 @@ bool DepthStencilState::LoadFromXml(RHIDevice* device, const XMLElement& element
     bool enableStencilTest = false;
     bool enableStencilRead = true;
     bool enableStencilWrite = true;
-    std::pair<StencilOperation, StencilOperation> failFBOp = std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP);
-    std::pair<StencilOperation, StencilOperation> failDepthFBOp = std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP);
-    std::pair<StencilOperation, StencilOperation> passFBOp = std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP);
-    std::pair<ComparisonFunction, ComparisonFunction> stencilComparisonFB = std::make_pair(ComparisonFunction::ALWAYS, ComparisonFunction::ALWAYS);
+    std::pair<StencilOperation, StencilOperation> failFBOp = std::make_pair(StencilOperation::Keep, StencilOperation::Keep);
+    std::pair<StencilOperation, StencilOperation> failDepthFBOp = std::make_pair(StencilOperation::Keep, StencilOperation::Keep);
+    std::pair<StencilOperation, StencilOperation> passFBOp = std::make_pair(StencilOperation::Keep, StencilOperation::Keep);
+    std::pair<ComparisonFunction, ComparisonFunction> stencilComparisonFB = std::make_pair(ComparisonFunction::Always, ComparisonFunction::Always);
 
     auto xml_stencil = element.FirstChildElement("stencil");
     if(xml_stencil) {

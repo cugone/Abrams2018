@@ -12,29 +12,29 @@
 class XboxController {
 public:
     enum class Button : unsigned char {
-        FIRST_
-        , A = FIRST_
+        First_
+        , A = First_
         , B
         , X
         , Y
-        , START
-        , BACK
-        , UP
-        , DOWN
-        , LEFT
-        , RIGHT
-        , LEFTTHUMB
-        , RIGHTTHUMB
-        , RIGHTBUMPER
-        , LEFTBUMPER
-        , LAST_
-        , MAX = LAST_
+        , Start
+        , Back
+        , Up
+        , Down
+        , Left
+        , Right
+        , LeftThumb
+        , RightThumb
+        , RightBumper
+        , LeftBumper
+        , Last_
+        , Max = Last_
     };
 
     enum class Motor {
-        LEFT
-        ,RIGHT
-        ,BOTH
+        Left
+        ,Right
+        ,Both
     };
     XboxController() = default;
     ~XboxController() = default;
@@ -79,9 +79,9 @@ private:
     bool DidMotorStateChange() const;
 
     enum class ActiveState {
-        CONNECTED
-        , MOTOR
-        , MAX
+        Connected
+        , Motor
+        , Max
     };
 
     Vector2 _leftThumbDistance = Vector2::ZERO;
@@ -93,8 +93,8 @@ private:
     unsigned short _currentRawInput = 0;
     unsigned long _previousPacketNumber = 0;
     unsigned long _currentPacketNumber = 0;
-    std::bitset<(std::size_t)ActiveState::MAX> _previousActiveState{};
-    std::bitset<(std::size_t)ActiveState::MAX> _currentActiveState{};
-    std::bitset<(std::size_t)Button::MAX> _previousButtonState{};
-    std::bitset<(std::size_t)Button::MAX> _currentButtonState{};
+    std::bitset<(std::size_t)ActiveState::Max> _previousActiveState{};
+    std::bitset<(std::size_t)ActiveState::Max> _currentActiveState{};
+    std::bitset<(std::size_t)Button::Max> _previousButtonState{};
+    std::bitset<(std::size_t)Button::Max> _currentButtonState{};
 };

@@ -3,304 +3,304 @@
 #include <type_traits>
 
 enum class RHIOutputMode : unsigned int {
-    FIRST_
-    , WINDOWED = FIRST_
-    , BORDERLESS
-    , FULLSCREEN_WINDOW
-    , LAST_
+    First_
+    , Windowed = First_
+    , Borderless
+    , Fullscreen_Window
+    , Last_
 };
 
 RHIOutputMode& operator++(RHIOutputMode& mode);
 RHIOutputMode operator++(RHIOutputMode& mode, int);
 
 enum class BufferType : unsigned int {
-    NONE
-    , VERTEX
-    , INDEX
-    , STRUCTURED
-    , CONSTANT
-    , READWRITE
+    None
+    , Vertex
+    , Index
+    , Structured
+    , Constant
+    , ReadWrite
 };
 
 enum class PipelineStage : unsigned char {
-    NONE  = 0b00000000
-    , VS  = 0b00000001
-    , HS  = 0b00000010
-    , DS  = 0b00000100
-    , GS  = 0b00001000
-    , PS  = 0b00010000
-    , CS  = 0b00100000
-    , ALL = VS | HS | DS | GS | PS | CS
+    None  = 0b00000000
+    , Vs  = 0b00000001
+    , Hs  = 0b00000010
+    , Ds  = 0b00000100
+    , Gs  = 0b00001000
+    , Ps  = 0b00010000
+    , Cs  = 0b00100000
+    , All = Vs | Hs | Ds | Gs | Ps | Cs
 };
 
 PipelineStage operator|(const PipelineStage& a, const PipelineStage& b);
 PipelineStage operator&(const PipelineStage& a, const PipelineStage& b);
 
 enum class ComparisonFunction {
-    NEVER
-    , LESS
-    , EQUAL
-    , LESS_EQUAL
-    , GREATER
-    , NOT_EQUAL
-    , GREATER_EQUAL
-    , ALWAYS
+    Never
+    , Less
+    , Equal
+    , Less_Equal
+    , Greater
+    , Not_Equal
+    , Greater_Equal
+    , Always
 };
 
 enum class StencilOperation {
-    KEEP
-    , ZERO
-    , REPLACE
-    , INCREMENT_CLAMP
-    , DECREMENT_CLAMP
-    , INVERT
-    , INCREMENT_WRAP
-    , DECREMENT_WRAP
+    Keep
+    , Zero
+    , Replace
+    , Increment_Clamp
+    , Decrement_Clamp
+    , Invert
+    , Increment_Wrap
+    , Decrement_Wrap
 };
 
 enum class ImageFormat : unsigned int {
-    UNKNOWN
-    , R32G32B32A32_TYPELESS
-    , R32G32B32A32_FLOAT
-    , R32G32B32A32_UINT
-    , R32G32B32A32_SINT
-    , R32G32B32_TYPELESS
-    , R32G32B32_FLOAT
-    , R32G32B32_UINT
-    , R32G32B32_SINT
-    , R16G16B16A16_TYPELESS
-    , R16G16B16A16_FLOAT
-    , R16G16B16A16_UNORM
-    , R16G16B16A16_UINT
-    , R16G16B16A16_SNORM
-    , R16G16B16A16_SINT
-    , R32G32_TYPELESS
-    , R32G32_FLOAT
-    , R32G32_UINT
-    , R32G32_SINT
-    , R32G8X24_TYPELESS
-    , D32_FLOAT_S8X24_UINT
-    , R32_FLOAT_X8X24_TYPELESS
-    , X32_TYPELESS_G8X24_UINT
-    , R10G10B10A2_TYPELESS
-    , R10G10B10A2_UNORM
-    , R10G10B10A2_UINT
-    , R11G11B10_FLOAT
-    , R8G8B8A8_TYPELESS
-    , R8G8B8A8_UNORM
-    , R8G8B8A8_UNORM_SRGB
-    , R8G8B8A8_UINT
-    , R8G8B8A8_SNORM
-    , R8G8B8A8_SINT
-    , R16G16_TYPELESS
-    , R16G16_FLOAT
-    , R16G16_UNORM
-    , R16G16_UINT
-    , R16G16_SNORM
-    , R16G16_SINT
-    , R32_TYPELESS
-    , D32_FLOAT
-    , R32_FLOAT
-    , R32_UINT
-    , R32_SINT
-    , R24G8_TYPELESS
-    , D24_UNORM_S8_UINT
-    , R24_UNORM_X8_TYPELESS
-    , X24_TYPELESS_G8_UINT
-    , R8G8_TYPELESS
-    , R8G8_UNORM
-    , R8G8_UINT
-    , R8G8_SNORM
-    , R8G8_SINT
-    , R16_TYPELESS
-    , R16_FLOAT
-    , D16_UNORM
-    , R16_UNORM
-    , R16_UINT
-    , R16_SNORM
-    , R16_SINT
-    , R8_TYPELESS
-    , R8_UNORM
-    , R8_UINT
-    , R8_SNORM
-    , R8_SINT
-    , A8_UNORM
-    , R1_UNORM
-    , R9G9B9E5_SHAREDEXP
-    , R8G8_B8G8_UNORM
-    , G8R8_G8B8_UNORM
-    , BC1_TYPELESS
-    , BC1_UNORM
-    , BC1_UNORM_SRGB
-    , BC2_TYPELESS
-    , BC2_UNORM
-    , BC2_UNORM_SRGB
-    , BC3_TYPELESS
-    , BC3_UNORM
-    , BC3_UNORM_SRGB
-    , BC4_TYPELESS
-    , BC4_UNORM
-    , BC4_SNORM
-    , BC5_TYPELESS
-    , BC5_UNORM
-    , BC5_SNORM
-    , B5G6R5_UNORM
-    , B5G5R5A1_UNORM
-    , B8G8R8A8_UNORM
-    , B8G8R8X8_UNORM
-    , R10G10B10_XR_BIAS_A2_UNORM
-    , B8G8R8A8_TYPELESS
-    , B8G8R8A8_UNORM_SRGB
-    , B8G8R8X8_TYPELESS
-    , B8G8R8X8_UNORM_SRGB
-    , BC6H_TYPELESS
+    Unknown
+    , R32G32B32A32_Typeless
+    , R32G32B32A32_Float
+    , R32G32B32A32_UInt
+    , R32G32B32A32_SInt
+    , R32G32B32_Typeless
+    , R32G32B32_Float
+    , R32G32B32_UInt
+    , R32G32B32_SInt
+    , R16G16B16A16_Typeless
+    , R16G16B16A16_Float
+    , R16G16B16A16_UNorm
+    , R16G16B16A16_UInt
+    , R16G16B16A16_SNorm
+    , R16G16B16A16_SInt
+    , R32G32_Typeless
+    , R32G32_Float
+    , R32G32_UInt
+    , R32G32_SInt
+    , R32G8X24_Typeless
+    , D32_Float_S8X24_UInt
+    , R32_Float_X8X24_Typeless
+    , X32_Typeless_G8X24_UInt
+    , R10G10B10A2_Typeless
+    , R10G10B10A2_UNorm
+    , R10G10B10A2_UInt
+    , R11G11B10_Float
+    , R8G8B8A8_Typeless
+    , R8G8B8A8_UNorm
+    , R8G8B8A8_UNorm_Srgb
+    , R8G8B8A8_UInt
+    , R8G8B8A8_SNorm
+    , R8G8B8A8_SInt
+    , R16G16_Typeless
+    , R16G16_Float
+    , R16G16_UNorm
+    , R16G16_UInt
+    , R16G16_SNorm
+    , R16G16_SInt
+    , R32_Typeless
+    , D32_Float
+    , R32_Float
+    , R32_UInt
+    , R32_SInt
+    , R24G8_Typeless
+    , D24_UNorm_S8_UInt
+    , R24_UNorm_X8_Typeless
+    , X24_Typeless_G8_UInt
+    , R8G8_Typeless
+    , R8G8_UNorm
+    , R8G8_UInt
+    , R8G8_SNorm
+    , R8G8_SInt
+    , R16_Typeless
+    , R16_Float
+    , D16_UNorm
+    , R16_UNorm
+    , R16_UInt
+    , R16_SNorm
+    , R16_SInt
+    , R8_Typeless
+    , R8_UNorm
+    , R8_UInt
+    , R8_SNorm
+    , R8_SInt
+    , A8_UNorm
+    , R1_UNorm
+    , R9G9B9E5_SharedExp
+    , R8G8_B8G8_UNorm
+    , G8R8_G8B8_UNorm
+    , BC1_Typeless
+    , BC1_UNorm
+    , BC1_UNorm_Srgb
+    , BC2_Typeless
+    , BC2_UNorm
+    , BC2_UNorm_Srgb
+    , BC3_Typeless
+    , BC3_UNorm
+    , BC3_UNorm_Srgb
+    , BC4_Typeless
+    , BC4_UNorm
+    , BC4_SNorm
+    , BC5_Typeless
+    , BC5_UNorm
+    , BC5_SNorm
+    , B5G6R5_UNorm
+    , B5G5R5A1_UNorm
+    , B8G8R8A8_UNorm
+    , B8G8R8X8_UNorm
+    , R10G10B10_XR_Bias_A2_UNorm
+    , B8G8R8A8_Typeless
+    , B8G8R8A8_UNorm_Srgb
+    , B8G8R8X8_Typeless
+    , B8G8R8X8_UNorm_Srgb
+    , BC6H_Typeless
     , BC6H_UF16
     , BC6H_SF16
-    , BC7_TYPELESS
-    , BC7_UNORM
-    , BC7_UNORM_SRGB
-    , AYUV
+    , BC7_Typeless
+    , BC7_UNorm
+    , BC7_UNorm_Srgb
+    , Ayuv
     , Y410
     , Y416
-    , NV12
+    , Nv12
     , P010
     , P016
-    , OPAQUE_420
-    , YUY2
+    , Opaque_420
+    , Yuy2
     , Y210
     , Y216
-    , NV11
-    , AI44
-    , IA44
+    , Nv11
+    , Ai44
+    , Ia44
     , P8
     , A8P8
-    , B4G4R4A4_UNORM
+    , B4G4R4A4_UNorm
 };
 
 enum class PrimitiveType : unsigned int {
-    NONE
-    , POINTS
-    , LINES
-    , TRIANGLES
-    , LINES_ADJ
-    , LINESSTRIP
-    , LINESSTRIP_ADJ
-    , TRIANGLESTRIP
-    , TRIANGLES_ADJ
-    , TRIANGLESTRIP_ADJ
-    , CONTROL_POINT_PATCHLIST_1
-    , CONTROL_POINT_PATCHLIST_2
-    , CONTROL_POINT_PATCHLIST_3
-    , CONTROL_POINT_PATCHLIST_4
-    , CONTROL_POINT_PATCHLIST_5
-    , CONTROL_POINT_PATCHLIST_6
-    , CONTROL_POINT_PATCHLIST_7
-    , CONTROL_POINT_PATCHLIST_8
-    , CONTROL_POINT_PATCHLIST_9
-    , CONTROL_POINT_PATCHLIST_10
-    , CONTROL_POINT_PATCHLIST_11
-    , CONTROL_POINT_PATCHLIST_12
-    , CONTROL_POINT_PATCHLIST_13
-    , CONTROL_POINT_PATCHLIST_14
-    , CONTROL_POINT_PATCHLIST_15
-    , CONTROL_POINT_PATCHLIST_16
-    , CONTROL_POINT_PATCHLIST_17
-    , CONTROL_POINT_PATCHLIST_18
-    , CONTROL_POINT_PATCHLIST_19
-    , CONTROL_POINT_PATCHLIST_20
-    , CONTROL_POINT_PATCHLIST_21
-    , CONTROL_POINT_PATCHLIST_22
-    , CONTROL_POINT_PATCHLIST_23
-    , CONTROL_POINT_PATCHLIST_24
-    , CONTROL_POINT_PATCHLIST_25
-    , CONTROL_POINT_PATCHLIST_26
-    , CONTROL_POINT_PATCHLIST_27
-    , CONTROL_POINT_PATCHLIST_28
-    , CONTROL_POINT_PATCHLIST_29
-    , CONTROL_POINT_PATCHLIST_30
-    , CONTROL_POINT_PATCHLIST_31
-    , CONTROL_POINT_PATCHLIST_32
+    None
+    , Points
+    , Lines
+    , Triangles
+    , Lines_Adj
+    , LinesStrip
+    , LinesStrip_Adj
+    , TriangleStrip
+    , Triangles_Adj
+    , TriangleStrip_Adj
+    , Control_Point_PatchList_1
+    , Control_Point_PatchList_2
+    , Control_Point_PatchList_3
+    , Control_Point_PatchList_4
+    , Control_Point_PatchList_5
+    , Control_Point_PatchList_6
+    , Control_Point_PatchList_7
+    , Control_Point_PatchList_8
+    , Control_Point_PatchList_9
+    , Control_Point_PatchList_10
+    , Control_Point_PatchList_11
+    , Control_Point_PatchList_12
+    , Control_Point_PatchList_13
+    , Control_Point_PatchList_14
+    , Control_Point_PatchList_15
+    , Control_Point_PatchList_16
+    , Control_Point_PatchList_17
+    , Control_Point_PatchList_18
+    , Control_Point_PatchList_19
+    , Control_Point_PatchList_20
+    , Control_Point_PatchList_21
+    , Control_Point_PatchList_22
+    , Control_Point_PatchList_23
+    , Control_Point_PatchList_24
+    , Control_Point_PatchList_25
+    , Control_Point_PatchList_26
+    , Control_Point_PatchList_27
+    , Control_Point_PatchList_28
+    , Control_Point_PatchList_29
+    , Control_Point_PatchList_30
+    , Control_Point_PatchList_31
+    , Control_Point_PatchList_32
 };
 
 enum class BufferUsage : unsigned int {
-    GPU
-    , STATIC
-    , DYNAMIC
-    , STAGING
+    Gpu
+    , Static
+    , Dynamic
+    , Staging
 };
 
 enum class BufferBindUsage : unsigned int {
-    VERTEX_BUFFER = 0x001
-    , INDEX_BUFFER = 0x002
-    , CONSTANT_BUFFER = 0x004
-    , SHADER_RESOURCE = 0x008
-    , STREAM_OUTPUT = 0x010
-    , RENDER_TARGET = 0x020
-    , DEPTH_STENCIL = 0x040
-    , UNORDERED_ACCESS = 0x080
-    , DECODER = 0x100
-    , VIDEO_ENCODER = 0x200
+    Vertex_Buffer = 0x001
+    , Index_Buffer = 0x002
+    , Constant_Buffer = 0x004
+    , Shader_Resource = 0x008
+    , Stream_Output = 0x010
+    , Render_Target = 0x020
+    , Depth_Stencil = 0x040
+    , Unordered_Access = 0x080
+    , Decoder = 0x100
+    , Video_Encoder = 0x200
 };
 
 BufferBindUsage operator|(const BufferBindUsage& a, const BufferBindUsage& b);
 BufferBindUsage operator&(const BufferBindUsage& a, const BufferBindUsage& b);
 
 enum class FilterMode {
-    POINT
-    , LINEAR
-    , ANISOTROPIC
+    Point
+    , Linear
+    , Anisotropic
 };
 
 enum class FilterComparisonMode {
-    NONE
-    , MINIMUM
-    , MAXIMUM
-    , COMPARISON
+    None
+    , Minimum
+    , Maximum
+    , Comparison
 };
 
 enum class TextureAddressMode {
-    WRAP
-    , MIRROR
-    , CLAMP
-    , BORDER
-    , MIRROR_ONCE
+    Wrap
+    , Mirror
+    , Clamp
+    , Border
+    , Mirror_Once
 };
 
 enum class BlendFactor {
-    ZERO,
-    ONE,
-    SRC_COLOR,
-    INV_SRC_COLOR,
-    SRC_ALPHA,
-    INV_SRC_ALPHA,
-    DEST_ALPHA,
-    INV_DEST_ALPHA,
-    DEST_COLOR,
-    INV_DEST_COLOR,
-    SRC_ALPHA_SAT,
-    BLEND_FACTOR,
-    INV_BLEND_FACTOR,
-    SRC1_COLOR,
-    INV_SRC1_COLOR,
-    SRC1_ALPHA,
-    INV_SRC1_ALPHA,
+    Zero,
+    One,
+    Src_Color,
+    Inv_Src_Color,
+    Src_Alpha,
+    Inv_Src_Alpha,
+    Dest_Alpha,
+    Inv_Dest_Alpha,
+    Dest_Color,
+    Inv_Dest_Color,
+    Src_Alpha_Sat,
+    Blend_Factor,
+    Inv_Blend_Factor,
+    Src1_Color,
+    Inv_Src1_Color,
+    Src1_Alpha,
+    Inv_Src1_Alpha,
 };
 
 enum class BlendOperation {
-    ADD,
-    SUBTRACT,
-    REVERSE_SUBTRACT,
-    MIN,
-    MAX,
+    Add,
+    Subtract,
+    Reverse_Subtract,
+    Min,
+    Max,
 };
 
 enum class BlendColorWriteEnable : unsigned char {
-    NONE = 0x00
-    , RED = 0x01
-    , GREEN = 0x02
-    , BLUE = 0x04
-    , ALPHA = 0x08
-    , ALL = 0x0F
+    None = 0x00
+    , Red = 0x01
+    , Green = 0x02
+    , Blue = 0x04
+    , Alpha = 0x08
+    , All = 0x0F
 };
 
 BlendColorWriteEnable operator~(const BlendColorWriteEnable& a);
@@ -312,35 +312,35 @@ BlendColorWriteEnable& operator|=(BlendColorWriteEnable& a, const BlendColorWrit
 BlendColorWriteEnable& operator^=(BlendColorWriteEnable& a, const BlendColorWriteEnable& b);
 
 enum class FillMode {
-    SOLID,
-    WIREFRAME,
+    Solid,
+    Wireframe,
 };
 
 enum class CullMode {
-    NONE,
-    FRONT,
-    BACK,
-    BOTH,
+    None,
+    Front,
+    Back,
+    Both,
 };
 
 enum class ResourceMiscFlag : long {
-     GENERATE_MIPS                   = 0x1L
-    ,SHARED                          = 0x2L
-    ,TEXTURECUBE                     = 0x4L
-    ,DRAWINDIRECT_ARGS               = 0x10L
-    ,ALLOW_RAW_VIEWS                 = 0x20L
-    ,STRUCTURED_BUFFER               = 0x40L
-    ,RESOURCE_CLAMP                  = 0x80L
-    ,SHARED_KEYEDMUTEX               = 0x100L
-    ,GDI_COMPATIBLE                  = 0x200L
-    ,SHARED_NTHANDLE                 = 0x800L
-    ,RESTRICTED_CONTENT              = 0x1000L
-    ,RESTRICT_SHARED_RESOURCE        = 0x2000L
-    ,RESTRICT_SHARED_RESOURCE_DRIVER = 0x4000L
-    ,GUARDED                         = 0x8000L
-    ,TILE_POOL                       = 0x20000L
-    ,TILED                           = 0x40000L
-    ,HW_PROTECTED                    = 0x80000L
+     Generate_Mips                   = 0x1L
+    ,Shared                          = 0x2L
+    ,TextureCube                     = 0x4L
+    ,DrawIndirect_Args               = 0x10L
+    ,Allow_Raw_Views                 = 0x20L
+    ,Structured_Buffer               = 0x40L
+    ,Resource_Clamp                  = 0x80L
+    ,Shared_KeyedMutex               = 0x100L
+    ,Gdi_Compatible                  = 0x200L
+    ,Shared_NthHandle                 = 0x800L
+    ,Restricted_Content              = 0x1000L
+    ,Restrict_Shared_Resource        = 0x2000L
+    ,Restrict_Shared_Resource_Driver = 0x4000L
+    ,Guarded                         = 0x8000L
+    ,Tile_Pool                       = 0x20000L
+    ,Tiled                           = 0x40000L
+    ,Hw_Protected                    = 0x80000L
 };
 
 ResourceMiscFlag operator|(const ResourceMiscFlag& a, const ResourceMiscFlag& b);

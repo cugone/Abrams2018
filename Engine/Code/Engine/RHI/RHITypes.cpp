@@ -5,8 +5,8 @@
 RHIOutputMode& operator++(RHIOutputMode& mode) {
     using underlying = std::underlying_type_t<RHIOutputMode>;
     mode = static_cast<RHIOutputMode>(static_cast<underlying>(mode) + 1);
-    if(mode == RHIOutputMode::LAST_) {
-        mode = RHIOutputMode::FIRST_;
+    if(mode == RHIOutputMode::Last_) {
+        mode = RHIOutputMode::First_;
     }
     return mode;
 }

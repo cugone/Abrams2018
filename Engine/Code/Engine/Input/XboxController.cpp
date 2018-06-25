@@ -33,19 +33,19 @@ bool XboxController::WasButtonJustReleased(const Button& button) const {
 }
 
 bool XboxController::WasJustConnected() const {
-    return !_previousActiveState[(std::size_t)ActiveState::CONNECTED] && _currentActiveState[(std::size_t)ActiveState::CONNECTED];
+    return !_previousActiveState[(std::size_t)ActiveState::Connected] && _currentActiveState[(std::size_t)ActiveState::Connected];
 }
 
 bool XboxController::IsConnected() const {
-    return _previousActiveState[(std::size_t)ActiveState::CONNECTED] && _currentActiveState[(std::size_t)ActiveState::CONNECTED];
+    return _previousActiveState[(std::size_t)ActiveState::Connected] && _currentActiveState[(std::size_t)ActiveState::Connected];
 }
 
 bool XboxController::WasJustDisconnected() const {
-    return _previousActiveState[(std::size_t)ActiveState::CONNECTED] && !_currentActiveState[(std::size_t)ActiveState::CONNECTED];
+    return _previousActiveState[(std::size_t)ActiveState::Connected] && !_currentActiveState[(std::size_t)ActiveState::Connected];
 }
 
 bool XboxController::IsDisconnected() const {
-    return !_previousActiveState[(std::size_t)ActiveState::CONNECTED] && !_currentActiveState[(std::size_t)ActiveState::CONNECTED];
+    return !_previousActiveState[(std::size_t)ActiveState::Connected] && !_currentActiveState[(std::size_t)ActiveState::Connected];
 }
 
 void XboxController::Update(int controller_number) {
@@ -61,14 +61,14 @@ void XboxController::Update(int controller_number) {
 
     if(error_status == ERROR_DEVICE_NOT_CONNECTED) {
         _previousActiveState = _currentActiveState;
-        _currentActiveState[(std::size_t)ActiveState::CONNECTED] = false;
+        _currentActiveState[(std::size_t)ActiveState::Connected] = false;
         return;
     }
 
     if(error_status == ERROR_SUCCESS) {
         _previousActiveState = _currentActiveState;
-        if(!_currentActiveState[(std::size_t)ActiveState::CONNECTED]) {
-            _currentActiveState[(std::size_t)ActiveState::CONNECTED] = true;
+        if(!_currentActiveState[(std::size_t)ActiveState::Connected]) {
+            _currentActiveState[(std::size_t)ActiveState::Connected] = true;
         }
 
         _previousRawInput = _currentRawInput;
@@ -98,8 +98,8 @@ void XboxController::Update(int controller_number) {
         _triggerDistances.y = MathUtils::RangeMap<float>(_triggerDistances.y, static_cast<float>(XINPUT_GAMEPAD_TRIGGER_THRESHOLD), 255.0f, 0.0f, 1.0f);
 
         if(DidMotorStateChange()) {
-            SetMotorSpeed(controller_number, Motor::LEFT, _leftMotorState);
-            SetMotorSpeed(controller_number, Motor::RIGHT, _rightMotorState);
+            SetMotorSpeed(controller_number, Motor::Left, _leftMotorState);
+            SetMotorSpeed(controller_number, Motor::Right, _rightMotorState);
         }
 
     }
@@ -123,7 +123,7 @@ void XboxController::SetLeftMotorSpeed(unsigned short speed) {
         return;
     }
     _leftMotorState = speed;
-    _currentActiveState[(std::size_t)ActiveState::MOTOR] = true;
+    _currentActiveState[(std::size_t)ActiveState::Motor] = true;
 }
 
 void XboxController::SetRightMotorSpeed(unsigned short speed) {
@@ -131,7 +131,7 @@ void XboxController::SetRightMotorSpeed(unsigned short speed) {
         return;
     }
     _rightMotorState = speed;
-    _currentActiveState[(std::size_t)ActiveState::MOTOR] = true;
+    _currentActiveState[(std::size_t)ActiveState::Motor] = true;
 }
 
 void XboxController::SetBothMotorSpeed(unsigned short speed) {
@@ -169,18 +169,18 @@ void XboxController::UpdateState() {
 
     _previousButtonState = _currentButtonState;
 
-    _currentButtonState[(std::size_t)Button::UP]    = (_currentRawInput & XINPUT_GAMEPAD_DPAD_UP) != 0;
-    _currentButtonState[(std::size_t)Button::DOWN]  = (_currentRawInput & XINPUT_GAMEPAD_DPAD_DOWN) != 0;
-    _currentButtonState[(std::size_t)Button::LEFT]  = (_currentRawInput & XINPUT_GAMEPAD_DPAD_LEFT) != 0;
-    _currentButtonState[(std::size_t)Button::RIGHT] = (_currentRawInput & XINPUT_GAMEPAD_DPAD_RIGHT) != 0;
+    _currentButtonState[(std::size_t)Button::Up]    = (_currentRawInput & XINPUT_GAMEPAD_DPAD_UP) != 0;
+    _currentButtonState[(std::size_t)Button::Down]  = (_currentRawInput & XINPUT_GAMEPAD_DPAD_DOWN) != 0;
+    _currentButtonState[(std::size_t)Button::Left]  = (_currentRawInput & XINPUT_GAMEPAD_DPAD_LEFT) != 0;
+    _currentButtonState[(std::size_t)Button::Right] = (_currentRawInput & XINPUT_GAMEPAD_DPAD_RIGHT) != 0;
 
-    _currentButtonState[(std::size_t)Button::START]      = (_currentRawInput & XINPUT_GAMEPAD_START) != 0;
-    _currentButtonState[(std::size_t)Button::BACK]       = (_currentRawInput & XINPUT_GAMEPAD_BACK) != 0;
-    _currentButtonState[(std::size_t)Button::LEFTTHUMB]  = (_currentRawInput & XINPUT_GAMEPAD_LEFT_THUMB) != 0;
-    _currentButtonState[(std::size_t)Button::RIGHTTHUMB] = (_currentRawInput & XINPUT_GAMEPAD_RIGHT_THUMB) != 0;
+    _currentButtonState[(std::size_t)Button::Start]      = (_currentRawInput & XINPUT_GAMEPAD_START) != 0;
+    _currentButtonState[(std::size_t)Button::Back]       = (_currentRawInput & XINPUT_GAMEPAD_BACK) != 0;
+    _currentButtonState[(std::size_t)Button::LeftThumb]  = (_currentRawInput & XINPUT_GAMEPAD_LEFT_THUMB) != 0;
+    _currentButtonState[(std::size_t)Button::RightThumb] = (_currentRawInput & XINPUT_GAMEPAD_RIGHT_THUMB) != 0;
 
-    _currentButtonState[(std::size_t)Button::LEFTBUMPER]  = (_currentRawInput & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0;
-    _currentButtonState[(std::size_t)Button::RIGHTBUMPER] = (_currentRawInput & XINPUT_GAMEPAD_RIGHT_SHOULDER) != 0;
+    _currentButtonState[(std::size_t)Button::LeftBumper]  = (_currentRawInput & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0;
+    _currentButtonState[(std::size_t)Button::RightBumper] = (_currentRawInput & XINPUT_GAMEPAD_RIGHT_SHOULDER) != 0;
 
     _currentButtonState[(std::size_t)Button::A] = (_currentRawInput & XINPUT_GAMEPAD_A) != 0;
     _currentButtonState[(std::size_t)Button::B] = (_currentRawInput & XINPUT_GAMEPAD_B) != 0;
@@ -193,13 +193,13 @@ void XboxController::SetMotorSpeed(int controller_number, const Motor& motor, un
     XINPUT_VIBRATION vibration;
     std::memset(&vibration, 0, sizeof(vibration));
     switch(motor) {
-        case Motor::LEFT:
+        case Motor::Left:
             vibration.wLeftMotorSpeed = value;
             break;
-        case Motor::RIGHT:
+        case Motor::Right:
             vibration.wRightMotorSpeed = value;
             break;
-        case Motor::BOTH:
+        case Motor::Both:
             vibration.wLeftMotorSpeed = value;
             vibration.wRightMotorSpeed = value;
         default:
@@ -210,7 +210,7 @@ void XboxController::SetMotorSpeed(int controller_number, const Motor& motor, un
         return;
     } else if(errorStatus == ERROR_DEVICE_NOT_CONNECTED) {
         _previousActiveState = _currentActiveState;
-        _currentActiveState[(std::size_t)ActiveState::CONNECTED] = false;
+        _currentActiveState[(std::size_t)ActiveState::Connected] = false;
         return;
     } else {
         return;
@@ -218,5 +218,5 @@ void XboxController::SetMotorSpeed(int controller_number, const Motor& motor, un
 }
 
 bool XboxController::DidMotorStateChange() const {
-    return _previousActiveState[(std::size_t)ActiveState::MOTOR] ^ _currentActiveState[(std::size_t)ActiveState::MOTOR];
+    return _previousActiveState[(std::size_t)ActiveState::Motor] ^ _currentActiveState[(std::size_t)ActiveState::Motor];
 }

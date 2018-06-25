@@ -45,32 +45,32 @@ void AnimatedSprite::Update(float deltaSeconds) {
         _elapsed_frame_delta_seconds -= _max_frame_delta_seconds;
     }
     switch(_playback_mode) {
-        case SpriteAnimMode::LOOPING:
+        case SpriteAnimMode::Looping:
             if(IsFinished()) {
                 while(_elapsed_seconds >= _duration_seconds) {
                     _elapsed_seconds -= _duration_seconds;
                 }
             }
             break;
-        case SpriteAnimMode::LOOPING_REVERSE:
+        case SpriteAnimMode::Looping_Reverse:
             if(IsFinished()) {
                 _elapsed_seconds = _duration_seconds;
                 deltaSeconds *= -1.0f;
             }
             break;
-        case SpriteAnimMode::PLAY_TO_BEGINNING:
+        case SpriteAnimMode::Play_To_Beginning:
             if(IsFinished()) {
                 _is_playing = false;
                 _elapsed_seconds = 0.0f;
             }
             break;
-        case SpriteAnimMode::PLAY_TO_END:
+        case SpriteAnimMode::Play_To_End:
             if(IsFinished()) {
                 _is_playing = false;
                 _elapsed_seconds = _duration_seconds;
             }
             break;
-        case SpriteAnimMode::PINGPONG:
+        case SpriteAnimMode::Ping_Pong:
             if(_elapsed_seconds < 0.0) {
                 deltaSeconds *= -1.0f;
                 while(_elapsed_seconds < 0.0f) {
@@ -95,18 +95,18 @@ AABB2 AnimatedSprite::GetCurrentTexCoords() const {
     auto frameIndex = static_cast<int>(framesPerSecond * _elapsed_seconds);
     auto length = _end_index - _start_index;
     switch(_playback_mode) {
-        case SpriteAnimMode::PLAY_TO_END:
+        case SpriteAnimMode::Play_To_End:
             if(frameIndex >= length) {
                 frameIndex = _end_index - 1;
             }
             break;
-        case SpriteAnimMode::PLAY_TO_BEGINNING:
+        case SpriteAnimMode::Play_To_Beginning:
             if(frameIndex < 0) {
                 frameIndex = 0;
             }
             break;
-        case SpriteAnimMode::LOOPING: /* FALLTHROUGH */
-        case SpriteAnimMode::LOOPING_REVERSE:
+        case SpriteAnimMode::Looping: /* FALLTHROUGH */
+        case SpriteAnimMode::Looping_Reverse:
             if(frameIndex >= length) {
                 frameIndex = 0;
             }
@@ -114,7 +114,7 @@ AABB2 AnimatedSprite::GetCurrentTexCoords() const {
                 frameIndex = _end_index - 1;
             }
             break;
-        case SpriteAnimMode::PINGPONG:
+        case SpriteAnimMode::Ping_Pong:
             if(frameIndex >= length) {
                 frameIndex = _end_index - 1;
             }
@@ -162,13 +162,13 @@ bool AnimatedSprite::IsFinished() const {
         return false;
     }
     switch(_playback_mode) {
-        case SpriteAnimMode::LOOPING: /* FALL THROUGH */
-        case SpriteAnimMode::PLAY_TO_END:
+        case SpriteAnimMode::Looping: /* FALL THROUGH */
+        case SpriteAnimMode::Play_To_End:
             return !(_elapsed_seconds < _duration_seconds);
-        case SpriteAnimMode::LOOPING_REVERSE: /* FALL THROUGH */
-        case SpriteAnimMode::PLAY_TO_BEGINNING:
+        case SpriteAnimMode::Looping_Reverse: /* FALL THROUGH */
+        case SpriteAnimMode::Play_To_Beginning:
             return _elapsed_seconds < 0.0f;
-        case SpriteAnimMode::PINGPONG:
+        case SpriteAnimMode::Ping_Pong:
             return false;
         default:
             return !(_elapsed_seconds < _duration_seconds);
@@ -217,19 +217,19 @@ Material* AnimatedSprite::GetMaterial() const {
 
 AnimatedSprite::SpriteAnimMode AnimatedSprite::GetAnimModeFromOptions(bool looping, bool backwards, bool ping_pong /*= false*/) {
     if(ping_pong) {
-        return SpriteAnimMode::PINGPONG;
+        return SpriteAnimMode::Ping_Pong;
     }
 
     if(looping) {
         if(backwards) {
-            return SpriteAnimMode::LOOPING_REVERSE;
+            return SpriteAnimMode::Looping_Reverse;
         }
-        return SpriteAnimMode::LOOPING;
+        return SpriteAnimMode::Looping;
     }
     if(backwards) {
-        return SpriteAnimMode::PLAY_TO_BEGINNING;
+        return SpriteAnimMode::Play_To_Beginning;
     }
-    return SpriteAnimMode::PLAY_TO_END;
+    return SpriteAnimMode::Play_To_End;
 }
 
 void AnimatedSprite::LoadFromXml(Renderer& renderer, const XMLElement& elem) {

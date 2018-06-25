@@ -47,7 +47,7 @@ void Initialize(HINSTANCE /*hInstance*/, LPSTR /*lpCmdLine*/, int /*nShowCmd*/) 
 
     g_theSubsystemHead = g_theConsole;
 
-    g_theJobSystem->Initialize(-1, static_cast<std::size_t>(JobType::MAX), cv);
+    g_theJobSystem->Initialize(-1, static_cast<std::size_t>(JobType::Max), cv);
     g_theFileLogger->Initialize(*g_theJobSystem, "game");
     g_theGame->OnBeginFrameArg.Subscribe(ExternalOnBeginFrame, "Goodbye World!");
     g_theApp->Initialize();

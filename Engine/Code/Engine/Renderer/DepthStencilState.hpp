@@ -17,11 +17,11 @@ public:
                                , bool enableDepthWrite = true
                                , bool enableStencilRead = true
                                , bool enableStencilWrite = true
-                               , const ComparisonFunction& depthComparison = ComparisonFunction::LESS
-                               , std::pair<const StencilOperation&, const StencilOperation&> failFrontBackOp = std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP)
-                               , std::pair<const StencilOperation&, const StencilOperation&> failDepthFrontBackOp = std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP)
-                               , std::pair<const StencilOperation&, const StencilOperation&> passFrontBackOp = std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP)
-                               , std::pair<const ComparisonFunction&, const ComparisonFunction&> stencilComparisonFrontBack = std::make_pair(ComparisonFunction::ALWAYS, ComparisonFunction::ALWAYS)
+                               , const ComparisonFunction& depthComparison = ComparisonFunction::Less
+                               , std::pair<const StencilOperation&, const StencilOperation&> failFrontBackOp = std::make_pair(StencilOperation::Keep, StencilOperation::Keep)
+                               , std::pair<const StencilOperation&, const StencilOperation&> failDepthFrontBackOp = std::make_pair(StencilOperation::Keep, StencilOperation::Keep)
+                               , std::pair<const StencilOperation&, const StencilOperation&> passFrontBackOp = std::make_pair(StencilOperation::Keep, StencilOperation::Keep)
+                               , std::pair<const ComparisonFunction&, const ComparisonFunction&> stencilComparisonFrontBack = std::make_pair(ComparisonFunction::Always, ComparisonFunction::Always)
     );
     ~DepthStencilState();
     explicit DepthStencilState(RHIDevice* device, const XMLElement& element);
@@ -35,20 +35,20 @@ private:
                                  , bool enableDepthWrite = true
                                  , bool enableStencilRead = true
                                  , bool enableStencilWrite = true
-                                 , const ComparisonFunction& depthComparison = ComparisonFunction::LESS
-                                 , std::pair<const StencilOperation&, const StencilOperation&> failFrontBackOp = std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP)
-                                 , std::pair<const StencilOperation&, const StencilOperation&> failDepthFrontBackOp = std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP)
-                                 , std::pair<const StencilOperation&, const StencilOperation&> passFrontBackOp = std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP)
-                                 , std::pair<const ComparisonFunction&, const ComparisonFunction&> stencilComparisonFrontBack = std::make_pair(ComparisonFunction::ALWAYS, ComparisonFunction::ALWAYS));
+                                 , const ComparisonFunction& depthComparison = ComparisonFunction::Less
+                                 , std::pair<const StencilOperation&, const StencilOperation&> failFrontBackOp = std::make_pair(StencilOperation::Keep, StencilOperation::Keep)
+                                 , std::pair<const StencilOperation&, const StencilOperation&> failDepthFrontBackOp = std::make_pair(StencilOperation::Keep, StencilOperation::Keep)
+                                 , std::pair<const StencilOperation&, const StencilOperation&> passFrontBackOp = std::make_pair(StencilOperation::Keep, StencilOperation::Keep)
+                                 , std::pair<const ComparisonFunction&, const ComparisonFunction&> stencilComparisonFrontBack = std::make_pair(ComparisonFunction::Always, ComparisonFunction::Always));
     bool _enableDepthTest = true;
     bool _enableStencilTest = false;
     bool _enableDepthWrite = true;
     bool _enableStencilRead = true;
     bool _enableStencilWrite = true;
-    const ComparisonFunction& _depthComparison = ComparisonFunction::LESS;
-    std::pair<const StencilOperation&, const StencilOperation&> _failFrontBackOp = std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP);
-    std::pair<const StencilOperation&, const StencilOperation&> _failDepthFrontBackOp = std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP);
-    std::pair<const StencilOperation&, const StencilOperation&> _passFrontBackOp = std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP);
-    std::pair<const ComparisonFunction&, const ComparisonFunction&> _stencilComparisonFrontBack = std::make_pair(ComparisonFunction::ALWAYS, ComparisonFunction::ALWAYS);
+    const ComparisonFunction& _depthComparison = ComparisonFunction::Less;
+    std::pair<const StencilOperation&, const StencilOperation&> _failFrontBackOp = std::make_pair(StencilOperation::Keep, StencilOperation::Keep);
+    std::pair<const StencilOperation&, const StencilOperation&> _failDepthFrontBackOp = std::make_pair(StencilOperation::Keep, StencilOperation::Keep);
+    std::pair<const StencilOperation&, const StencilOperation&> _passFrontBackOp = std::make_pair(StencilOperation::Keep, StencilOperation::Keep);
+    std::pair<const ComparisonFunction&, const ComparisonFunction&> _stencilComparisonFrontBack = std::make_pair(ComparisonFunction::Always, ComparisonFunction::Always);
     ID3D11DepthStencilState* _dx_state = nullptr;
 };

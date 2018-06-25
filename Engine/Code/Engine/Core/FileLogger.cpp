@@ -21,8 +21,8 @@ FileLogger::~FileLogger() {
 
 void FileLogger::Log_worker() {
     JobConsumer jc;
-    jc.AddCategory(JobType::LOGGING);
-    _job_system->SetCategorySignal(JobType::LOGGING, &_signal);
+    jc.AddCategory(JobType::Logging);
+    _job_system->SetCategorySignal(JobType::Logging, &_signal);
 
     while(IsRunning()) {
         std::unique_lock<std::mutex> _lock(_cs);
@@ -71,7 +71,7 @@ void FileLogger::DoCopyLog() {
         to_p.make_preferred();
         job_data->to = to_p;
         job_data->from = from_p;
-        _job_system->Run(JobType::GENERIC, [this](void* user_data) { this->CopyLog(user_data); }, job_data);
+        _job_system->Run(JobType::Generic, [this](void* user_data) { this->CopyLog(user_data); }, job_data);
     }
 }
 
@@ -135,7 +135,7 @@ void FileLogger::Shutdown() {
         _stream.flush();
         _stream.close();
         DoCopyLog();
-        _job_system->SetCategorySignal(JobType::LOGGING, nullptr);
+        _job_system->SetCategorySignal(JobType::Logging, nullptr);
         std::cout.rdbuf(_old_cout);
     }
 }

@@ -26,11 +26,23 @@
 #include <sstream>
 
 
-void BeganFrameWithArgFree(const std::string& str);
+void BeganFrameWithArgFree();
 
-void BeganFrameWithArgFree(const std::string& str) {
+void BeganFrameWithArgFree() {
     std::ostringstream ss;
-    ss << "BeganFrame was called through Event system with argument: " << str;
+    ss << __FUNCTION__ << " called.";
+    g_theFileLogger->LogLine(ss.str());
+}
+
+void Game::OnBeganFrame() {
+    std::ostringstream ss;
+    ss << __FUNCTION__ << " called.";
+    g_theFileLogger->LogLine(ss.str());
+}
+
+void Game::OnBeganFrameWithArg() {
+    std::ostringstream ss;
+    ss << __FUNCTION__ << " called.";
     g_theFileLogger->LogLine(ss.str());
 }
 
@@ -40,7 +52,9 @@ Game::Game() {
 }
 
 Game::~Game() {
-    OnBeginFrameArg.Unsubscribe(BeganFrameWithArgFree);
+    OnBeginFrame.Unsubscribe(&BeganFrameWithArgFree);
+    OnBeginFrame.Unsubscribe([this]() { this->OnBeganFrame(); }, this);
+    OnBeginFrame.Unsubscribe([this]() { this->OnBeganFrameWithArg(); }, this);
     delete _camera3;
     _camera3 = nullptr;
     delete _camera2;
@@ -55,11 +69,13 @@ void Game::Initialize() {
     g_theRenderer->RegisterFontsFromFolder(std::string{"Data/Fonts"});
     _gif_test = g_theRenderer->CreateAnimatedSprite("Data/Images/cute_sif.gif");
     _tex = g_theRenderer->CreateOrGetTexture("Data/Images/Test_StbiAndDirectX.png", IntVector3::XY_AXIS);
-    OnBeginFrameArg.Subscribe(BeganFrameWithArgFree, std::string("Hello world"));
+    OnBeginFrame.Subscribe(&BeganFrameWithArgFree);
+    OnBeginFrame.Subscribe([this]() { this->OnBeganFrame(); }, this);
+    OnBeginFrame.Subscribe([this]() { this->OnBeganFrameWithArg(); }, this);
 }
 
 void Game::BeginFrame() {
-    OnBeginFrameArg.Trigger();
+    OnBeginFrame.Trigger();
 }
 
 void Game::Update(float deltaSeconds) {

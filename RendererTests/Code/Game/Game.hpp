@@ -2,6 +2,7 @@
 
 #include "Engine/Core/Event.hpp"
 
+#include <functional>
 #include <string>
 
 class AnimatedSprite;
@@ -22,8 +23,9 @@ public:
     void Render() const;
     void EndFrame();
 
-    Event<std::string> OnBeginFrameArg;
-
+    Event<> OnBeginFrame;
+    void OnBeganFrame();
+    void OnBeganFrameWithArg();
 protected:
 private:
     void DoExport();

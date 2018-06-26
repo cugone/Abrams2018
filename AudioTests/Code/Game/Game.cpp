@@ -49,7 +49,7 @@ void Game::BeginFrame() {
 
 void Game::Update(float deltaSeconds) {
 
-    if(g_theInput->WasKeyJustPressed(KeyCode::ESC)) {
+    if(g_theInput->WasKeyJustPressed(KeyCode::Esc)) {
         g_theApp->SetIsQuitting(true);
         return;
     }
@@ -57,7 +57,7 @@ void Game::Update(float deltaSeconds) {
     _camera3->Update(deltaSeconds);
     _camera2->Update(deltaSeconds);
 
-    if(g_theInput->IsKeyDown(KeyCode::ENTER)) {
+    if(g_theInput->IsKeyDown(KeyCode::Enter)) {
         g_theAudio->Play(std::string{"Data/Audio/square.wav"});
     }
 

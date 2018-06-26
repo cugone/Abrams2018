@@ -42,7 +42,7 @@ void Initialize(HINSTANCE /*hInstance*/, LPWSTR /*lpCmdLine*/, int /*nShowCmd*/)
 
     g_theSubsystemHead = g_theConsole;
 
-    g_theJobSystem->Initialize(-1, static_cast<std::size_t>(JobType::MAX), cv);
+    g_theJobSystem->Initialize(-1, static_cast<std::size_t>(JobType::Max), cv);
     g_theFileLogger->Initialize(*g_theJobSystem, "game");
     g_theApp->Initialize();
 }

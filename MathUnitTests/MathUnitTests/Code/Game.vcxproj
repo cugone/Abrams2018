@@ -152,6 +152,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <ShowIncludes>false</ShowIncludes>
       <AdditionalIncludeDirectories>$(SolutionDir)../Engine/Code/;$(SolutionDir)Code/</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <PostBuildEvent>
       <Message>Copying $(TargetFileName) to $(SolutionDir)Run_$(Platform)</Message>
@@ -172,6 +173,7 @@
       <ShowIncludes>false</ShowIncludes>
       <AdditionalIncludeDirectories>$(SolutionDir)../Engine/Code/;$(SolutionDir)Code/</AdditionalIncludeDirectories>
       <StructMemberAlignment>Default</StructMemberAlignment>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -196,6 +198,7 @@
       <ShowIncludes>false</ShowIncludes>
       <AdditionalIncludeDirectories>$(SolutionDir)../Engine/Code/;$(SolutionDir)Code/</AdditionalIncludeDirectories>
       <StructMemberAlignment>Default</StructMemberAlignment>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -220,6 +223,7 @@
       <ShowIncludes>false</ShowIncludes>
       <AdditionalIncludeDirectories>$(SolutionDir)../Engine/Code/;$(SolutionDir)Code/</AdditionalIncludeDirectories>
       <StructMemberAlignment>Default</StructMemberAlignment>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -244,6 +248,7 @@
       <ShowIncludes>false</ShowIncludes>
       <AdditionalIncludeDirectories>$(SolutionDir)../Engine/Code/;$(SolutionDir)Code/</AdditionalIncludeDirectories>
       <StructMemberAlignment>Default</StructMemberAlignment>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

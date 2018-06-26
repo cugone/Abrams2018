@@ -25,36 +25,12 @@
 #include <functional>
 #include <sstream>
 
-
-void BeganFrameWithArgFree();
-
-void BeganFrameWithArgFree() {
-    std::ostringstream ss;
-    ss << __FUNCTION__ << " called.";
-    g_theFileLogger->LogLine(ss.str());
-}
-
-void Game::OnBeganFrame() {
-    std::ostringstream ss;
-    ss << __FUNCTION__ << " called.";
-    g_theFileLogger->LogLine(ss.str());
-}
-
-void Game::OnBeganFrameWithArg() {
-    std::ostringstream ss;
-    ss << __FUNCTION__ << " called.";
-    g_theFileLogger->LogLine(ss.str());
-}
-
 Game::Game() {
     _camera3 = new Camera3D;
     _camera2 = new Camera2D;
 }
 
 Game::~Game() {
-    OnBeginFrame.Unsubscribe(&BeganFrameWithArgFree);
-    OnBeginFrame.Unsubscribe([this]() { this->OnBeganFrame(); }, this);
-    OnBeginFrame.Unsubscribe([this]() { this->OnBeganFrameWithArg(); }, this);
     delete _camera3;
     _camera3 = nullptr;
     delete _camera2;
@@ -69,13 +45,10 @@ void Game::Initialize() {
     g_theRenderer->RegisterFontsFromFolder(std::string{"Data/Fonts"});
     _gif_test = g_theRenderer->CreateAnimatedSprite("Data/Images/cute_sif.gif");
     _tex = g_theRenderer->CreateOrGetTexture("Data/Images/Test_StbiAndDirectX.png", IntVector3::XY_AXIS);
-    OnBeginFrame.Subscribe(&BeganFrameWithArgFree);
-    OnBeginFrame.Subscribe([this]() { this->OnBeganFrame(); }, this);
-    OnBeginFrame.Subscribe([this]() { this->OnBeganFrameWithArg(); }, this);
 }
 
 void Game::BeginFrame() {
-    OnBeginFrame.Trigger();
+    /* DO NOTHING */
 }
 
 void Game::Update(float deltaSeconds) {

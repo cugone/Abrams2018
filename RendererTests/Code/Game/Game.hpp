@@ -23,9 +23,6 @@ public:
     void Render() const;
     void EndFrame();
 
-    Event<> OnBeginFrame;
-    void OnBeganFrame();
-    void OnBeganFrameWithArg();
 protected:
 private:
     void DoExport();

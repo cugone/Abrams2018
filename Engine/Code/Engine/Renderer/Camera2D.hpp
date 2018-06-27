@@ -7,11 +7,9 @@
 
 class Camera2D {
 public:
-    Camera2D() = default;
-    ~Camera2D() = default;
 
-    void SetupView(float left, float right, float top, float bottom, float nearDistance = 0.0f, float farDistance = 1.0f, float aspectRatio = MathUtils::M_16_BY_9_RATIO);
     void SetupView(const Vector2& leftBottom, const Vector2& rightTop, const Vector2& nearFar = Vector2(0.0f, 1.0f), float aspectRatio = MathUtils::M_16_BY_9_RATIO);
+
     void Update(float deltaSeconds);
 
     const Vector2& GetPosition() const;
@@ -44,17 +42,14 @@ private:
     void CalcViewProjectionMatrix();
     void CalcProjectionMatrix();
 
-    float left_view = -1.0f;
-    float right_view = 1.0f;
-    float top_view = -1.0f;
-    float bottom_view = 1.0f;
-    float aspect_ratio = MathUtils::M_16_BY_9_RATIO;
-    float near_distance = 0.01f;
-    float far_distance = 1.0f;
-    float orientation_degrees = 0.0f;
-    Vector2 position = Vector2::ZERO;
     Matrix4 view_matrix = Matrix4::GetIdentity();
     Matrix4 projection_matrix = Matrix4::GetIdentity();
     Matrix4 view_projection_matrix = Matrix4::GetIdentity();
+    Vector2 leftBottom_view = Vector2{ -1.0f, 1.0f };
+    Vector2 rightTop_view = Vector2{ 1.0f, -1.0f };
+    Vector2 nearFar_distance = Vector2{ 0.0f, 1.0f };
+    Vector2 position = Vector2::ZERO;
+    float aspect_ratio = MathUtils::M_16_BY_9_RATIO;
+    float orientation_degrees = 0.0f;
 
 };

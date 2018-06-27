@@ -1,17 +1,10 @@
 #include "Engine/Renderer/Camera2D.hpp"
 
-void Camera2D::SetupView(float left, float right, float top, float bottom, float nearDistance /*= 0.0f*/, float farDistance /*= 1.0f*/, float aspectRatio /*= MathUtils::M_16_BY_9_RATIO*/) {
-    SetupView(Vector2(left, bottom), Vector2(right, top), Vector2(nearDistance, farDistance), aspectRatio);
-}
-
 void Camera2D::SetupView(const Vector2& leftBottom, const Vector2& rightTop, const Vector2& nearFar /*= Vector2(0.0f, 1.0f)*/, float aspectRatio /*= MathUtils::M_16_BY_9_RATIO*/) {
-    left_view = leftBottom.x;
-    right_view = rightTop.x;
-    bottom_view = leftBottom.y;
-    top_view = rightTop.y;
+    leftBottom_view = leftBottom;
+    rightTop_view = rightTop;
     aspect_ratio = aspectRatio;
-    near_distance = nearFar.x;
-    far_distance = nearFar.y;
+    nearFar_distance = nearFar;
     CalcViewMatrix();
     CalcProjectionMatrix();
     CalcViewProjectionMatrix();
@@ -22,7 +15,7 @@ void Camera2D::CalcViewProjectionMatrix() {
 }
 
 void Camera2D::CalcProjectionMatrix() {
-    projection_matrix = Matrix4::CreateDXOrthographicProjection(left_view, right_view, bottom_view, top_view, near_distance, far_distance);
+    projection_matrix = Matrix4::CreateDXOrthographicProjection(leftBottom_view.x, rightTop_view.x, leftBottom_view.y, rightTop_view.y, nearFar_distance.x, nearFar_distance.y);
 }
 
 void Camera2D::CalcViewMatrix() {
@@ -96,11 +89,11 @@ float Camera2D::GetInverseAspectRatio() const {
 }
 
 float Camera2D::GetNearDistance() const {
-    return near_distance;
+    return nearFar_distance.x;
 }
 
 float Camera2D::GetFarDistance() const {
-    return far_distance;
+    return nearFar_distance.y;
 }
 
 const Matrix4& Camera2D::GetViewMatrix() const {

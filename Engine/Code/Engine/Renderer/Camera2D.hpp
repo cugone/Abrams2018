@@ -14,13 +14,9 @@ public:
 
     const Vector2& GetPosition() const;
     void SetPosition(const Vector3& newPosition);
-    void SetPosition(float x, float y, float z);
     void SetPosition(const Vector2& newPosition);
-    void SetPosition(float x, float y);
     void Translate(const Vector3& displacement);
-    void Translate(float x, float y, float z);
     void Translate(const Vector2& displacement);
-    void Translate(float x, float y);
     void SetRotationDegrees(float newAngleDegrees);
     void ApplyRotationDegrees(float addAngleDegrees);
     void SetRotation(float newAngleRadians);

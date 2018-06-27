@@ -36,32 +36,16 @@ void Camera2D::SetPosition(const Vector3& newPosition) {
     SetPosition(Vector2(newPosition));
 }
 
-void Camera2D::SetPosition(float x, float y, float z) {
-    SetPosition(Vector3{x, y, z});
-}
-
 void Camera2D::SetPosition(const Vector2& newPosition) {
     position = newPosition;
 }
 
-void Camera2D::SetPosition(float x, float y) {
-    SetPosition(Vector2{x, y});
-}
-
 void Camera2D::Translate(const Vector3& displacement) {
-    Translate(displacement.x, displacement.y);
-}
-
-void Camera2D::Translate(float x, float y, float z) {
-    Translate(Vector3{ x, y, z });
+    Translate(Vector2{ displacement.x, displacement.y });
 }
 
 void Camera2D::Translate(const Vector2& displacement) {
     position += displacement;
-}
-
-void Camera2D::Translate(float x, float y) {
-    Translate(Vector2{ x, y });
 }
 
 void Camera2D::SetRotationDegrees(float newAngleDegrees) {

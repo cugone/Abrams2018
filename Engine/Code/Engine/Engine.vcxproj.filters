@@ -29,6 +29,9 @@
     <Filter Include="Audio">
       <UniqueIdentifier>{83b97a72-9a62-4db3-aea0-9b583284ce91}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{31c49598-4777-42bf-b190-1015b5ca2e33}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">
@@ -261,6 +264,12 @@
     </ClCompile>
     <ClCompile Include="Core\Config.cpp">
       <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Canvas.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Element.cpp">
+      <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -503,6 +512,12 @@
     </ClInclude>
     <ClInclude Include="Core\Event.hpp">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Canvas.hpp">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Element.hpp">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

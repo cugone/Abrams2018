@@ -104,6 +104,8 @@
     <ClCompile Include="RHI\RHIInstance.cpp" />
     <ClCompile Include="RHI\RHIOutput.cpp" />
     <ClCompile Include="RHI\RHITypes.cpp" />
+    <ClCompile Include="UI\Canvas.cpp" />
+    <ClCompile Include="UI\Element.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Thirdparty\stb\stb_image.h" />
@@ -186,6 +188,8 @@
     <ClInclude Include="RHI\RHIInstance.hpp" />
     <ClInclude Include="RHI\RHIOutput.hpp" />
     <ClInclude Include="RHI\RHITypes.hpp" />
+    <ClInclude Include="UI\Canvas.hpp" />
+    <ClInclude Include="UI\Element.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

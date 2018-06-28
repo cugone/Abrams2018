@@ -106,6 +106,7 @@
     <ClCompile Include="RHI\RHITypes.cpp" />
     <ClCompile Include="UI\Canvas.cpp" />
     <ClCompile Include="UI\Element.cpp" />
+    <ClCompile Include="UI\Types.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Thirdparty\stb\stb_image.h" />
@@ -190,6 +191,7 @@
     <ClInclude Include="RHI\RHITypes.hpp" />
     <ClInclude Include="UI\Canvas.hpp" />
     <ClInclude Include="UI\Element.hpp" />
+    <ClInclude Include="UI\Types.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

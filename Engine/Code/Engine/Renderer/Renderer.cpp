@@ -9,6 +9,7 @@
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/Vertex3D.hpp"
 
+#include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Vector2.hpp"
 
@@ -438,6 +439,81 @@ void Renderer::DrawCircle2D(float centerX, float centerY, float radius, const Rg
 
 void Renderer::DrawCircle2D(const Vector2& center, float radius, const Rgba& color /*= Rgba::WHITE*/) {
     DrawCircle2D(center.x, center.y, radius, color);
+}
+
+void Renderer::DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor) {
+    Vector2 lt_inner(bounds.mins.x, bounds.mins.y);
+    Vector2 lb_inner(bounds.mins.x, bounds.maxs.y);
+    Vector2 rt_inner(bounds.maxs.x, bounds.mins.y);
+    Vector2 rb_inner(bounds.maxs.x, bounds.maxs.y);
+    Vector2 lt_outer(bounds.mins.x, bounds.mins.y);
+    Vector2 lb_outer(bounds.mins.x, bounds.maxs.y);
+    Vector2 rt_outer(bounds.maxs.x, bounds.mins.y);
+    Vector2 rb_outer(bounds.maxs.x, bounds.maxs.y);
+    std::vector<Vertex3D> vbo = {
+        Vertex3D(Vector3(lt_inner, 0.0f), edgeColor),
+        Vertex3D(Vector3(lt_outer, 0.0f), edgeColor),
+        Vertex3D(Vector3(rt_outer, 0.0f), edgeColor),
+        Vertex3D(Vector3(rt_inner, 0.0f), edgeColor),
+        Vertex3D(Vector3(rb_inner, 0.0f), edgeColor),
+        Vertex3D(Vector3(rb_outer, 0.0f), edgeColor),
+        Vertex3D(Vector3(lb_outer, 0.0f), edgeColor),
+        Vertex3D(Vector3(lb_inner, 0.0f), edgeColor),
+        Vertex3D(Vector3(lb_inner, 0.0f), fillColor),
+        Vertex3D(Vector3(lt_inner, 0.0f), fillColor),
+        Vertex3D(Vector3(rt_inner, 0.0f), fillColor),
+        Vertex3D(Vector3(rb_inner, 0.0f), fillColor),
+    };
+
+    std::vector<unsigned int> ibo = {
+        8, 9, 10,
+        8, 10, 11,
+        0, 1, 2,
+        0, 2, 3,
+        3, 2, 4,
+        3, 4, 5,
+        5, 4, 6,
+        5, 6, 7,
+        7, 6, 8,
+        8, 7, 1,
+        8, 1, 0
+    };
+
+    DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
+}
+
+void Renderer::DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor) {
+    AABB2 bounds;
+    bounds.mins = Vector2(-0.5f, -0.5f);
+    bounds.maxs = Vector2(0.5f, 0.5f);
+    DrawAABB2(bounds, edgeColor, fillColor);
+}
+
+void Renderer::DrawX2D(const Vector2& position /*= Vector2::ZERO*/, const Vector2& half_extents /*= Vector2(0.5f, 0.5f)*/, const Rgba& color /*= Rgba::WHITE*/) {
+    float left = position.x - half_extents.x;
+    float top = position.x - half_extents.y;
+    float right = position.x + half_extents.x;
+    float bottom = position.y + half_extents.y;
+    Vector3 lt = Vector3(left, top, 0.0f);
+    Vector3 rt = Vector3(right, top, 0.0f);
+    Vector3 lb = Vector3(left, bottom, 0.0f);
+    Vector3 rb = Vector3(right, bottom, 0.0f);
+    std::vector<Vertex3D> vbo = {
+        Vertex3D(lt, color),
+        Vertex3D(rb, color),
+        Vertex3D(lb, color),
+        Vertex3D(rt, color),
+    };
+
+    std::vector<unsigned int> ibo = {
+        0, 1, 2, 3
+    };
+
+    DrawIndexed(PrimitiveType::Lines, vbo, ibo);
+}
+
+void Renderer::DrawX2D(const Rgba& color) {
+    DrawX2D(Vector2::ZERO, Vector2(0.5f, 0.5f), color);
 }
 
 void Renderer::DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides /*= 3*/, const Rgba& color /*= Rgba::WHITE*/) {

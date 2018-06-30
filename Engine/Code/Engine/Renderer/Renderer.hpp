@@ -16,6 +16,7 @@
 #include <map>
 #include <string>
 
+class AABB2;
 class AnimatedSprite;
 class BlendState;
 class Camera3D;
@@ -61,9 +62,9 @@ struct depthstencil_state_t {
 };
 
 struct matrix_buffer_t {
-    Matrix4 model = {};
-    Matrix4 view = {};
-    Matrix4 projection = {};
+    Matrix4 model{};
+    Matrix4 view{};
+    Matrix4 projection{};
 };
 
 struct time_buffer_t {
@@ -194,10 +195,12 @@ public:
     void DrawQuad2D(const Rgba& color, const Vector4& texCoords);
     void DrawCircle2D(float centerX, float centerY, float radius, const Rgba& color = Rgba::WHITE);
     void DrawCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::WHITE);
-
+    void DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor);
+    void DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor);
     void DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::WHITE);
     void DrawPolygon2D(const Vector2& center, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::WHITE);
-
+    void DrawX2D(const Vector2& position = Vector2::ZERO, const Vector2& half_extents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::WHITE);
+    void DrawX2D(const Rgba& color);
     void DrawTextLine(KerningFont* font, const std::string& text, const Rgba& color = Rgba::WHITE, float scale = 1.0f);
 
 protected:

@@ -77,11 +77,11 @@ void AABB2::Translate(const Vector2& translation) {
     maxs += translation;
 }
 
-const Vector2 AABB2::CalcDimensions() const {
+Vector2 AABB2::CalcDimensions() const {
     return Vector2(maxs.x - mins.x, maxs.y - mins.y);
 }
 
-const Vector2 AABB2::CalcCenter() const {
+Vector2 AABB2::CalcCenter() const {
     return Vector2(mins.x + (maxs.x - mins.x) * 0.5f, mins.y + (maxs.y - mins.y) * 0.5f);
 }
 

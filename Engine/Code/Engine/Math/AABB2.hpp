@@ -27,8 +27,8 @@ public:
     void AddPaddingToSidesClamped(float paddingX, float paddingY);
     void Translate(const Vector2& translation);
 
-    const Vector2 CalcDimensions() const;
-    const Vector2 CalcCenter() const;
+    Vector2 CalcDimensions() const;
+    Vector2 CalcCenter() const;
 
     AABB2 operator+(const Vector2& translation) const;
     AABB2 operator-(const Vector2& antiTranslation) const;

@@ -58,19 +58,19 @@ void Game::Update(float deltaSeconds) {
     }
 
     if(g_theInput->IsKeyDown(KeyCode::Up)) {
-        _camera3->Translate(0.0f, -_cameraSpeed);
-        _camera2->Translate(0.0f, -_cameraSpeed);
+        _camera3->Translate(Vector2(0.0f, -_cameraSpeed));
+        _camera2->Translate(Vector2(0.0f, -_cameraSpeed));
     } else if(g_theInput->IsKeyDown(KeyCode::Down)) {
-        _camera3->Translate(0.0f, _cameraSpeed);
-        _camera2->Translate(0.0f, _cameraSpeed);
+        _camera3->Translate(Vector2(0.0f, _cameraSpeed));
+        _camera2->Translate(Vector2(0.0f, _cameraSpeed));
     }
 
     if(g_theInput->IsKeyDown(KeyCode::Left)) {
-        _camera3->Translate(-_cameraSpeed, 0.0f);
-        _camera2->Translate(-_cameraSpeed, 0.0f);
+        _camera3->Translate(Vector2(-_cameraSpeed, 0.0f));
+        _camera2->Translate(Vector2(-_cameraSpeed, 0.0f));
     } else if(g_theInput->IsKeyDown(KeyCode::Right)) {
-        _camera3->Translate(_cameraSpeed, 0.0f);
-        _camera2->Translate(_cameraSpeed, 0.0f);
+        _camera3->Translate(Vector2(_cameraSpeed, 0.0f));
+        _camera2->Translate(Vector2(_cameraSpeed, 0.0f));
     }
 
     _camera3->Update(deltaSeconds);

@@ -531,6 +531,18 @@ Vector3 CalcClosestPoint(const Vector3& p, const Capsule3& capsule) {
     return closestP + (dir_to_p * capsule.radius);
 }
 
+Vector2 CalcNormalizedPointFromPoint(const Vector2& pos, const AABB2& bounds) {
+    float x_norm = RangeMap(pos.x, bounds.mins.x, bounds.maxs.x, 0.0f, 1.0f);
+    float y_norm = RangeMap(pos.y, bounds.mins.y, bounds.maxs.y, 0.0f, 1.0f);
+    return Vector2(x_norm, y_norm);
+}
+
+Vector2 CalcPointFromNormalizedPoint(const Vector2& uv, const AABB2& bounds) {
+    float x = RangeMap(uv.x, 0.0f, 1.0f, bounds.mins.x, bounds.maxs.x);
+    float y = RangeMap(uv.y, 0.0f, 1.0f, bounds.mins.y, bounds.maxs.y);
+    return Vector2(x, y);
+}
+
 bool DoDiscsOverlap(const Disc2& a, const Disc2& b) {
     return DoDiscsOverlap(a.center, a.radius, b.center, b.radius);
 }

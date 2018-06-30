@@ -102,12 +102,14 @@ void Element::SetPosition(const Metric& position) {
     _position = position;
 }
 
-void Element::Update(float /*deltaSeconds*/) {
-    /* DO NOTHING */
+void Element::Update(float deltaSeconds) {
+    UpdateChildren(deltaSeconds);
+    Update(deltaSeconds);
 }
 
-void Element::Render(Renderer* /*renderer*/) const {
-    
+void Element::Render(Renderer* renderer) const {
+    Render(renderer);
+    RenderChildren(renderer);
 }
 
 void Element::DebugRender(Renderer* renderer) const {

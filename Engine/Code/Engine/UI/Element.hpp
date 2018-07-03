@@ -37,10 +37,23 @@ public:
 
     void DestroyChild(UI::Element*& child);
     void DestroyAllChildren();
-protected:
+
+    void SetBorderColor(const Rgba& color);
+    void SetBackgroundColor(const Rgba& color);
+    void SetPivotColor(const Rgba& color);
+    void SetDebugColors(const Rgba& edge, const Rgba& fill, const Rgba& pivot = Rgba::RED);
+
+
+    void SetSize(const Metric& size);
+    Vector2 GetSize() const;
 
     const UI::Metric& GetPosition() const;
     void SetPosition(const Metric& position);
+
+    void SetPivot(const Vector2& pivotPosition);
+    void SetPivot(const PivotPosition& pivotPosition);
+
+protected:
 
     Vector2 CalcLocalPosition() const;
 
@@ -88,9 +101,6 @@ protected:
     float GetAspectRatio() const noexcept;
     float GetInvAspectRatio() const noexcept;
 
-    void SetSize(const Metric& size);
-    Vector2 GetSize() const;
-
     Vector2 GetTopLeft() const noexcept;
     Vector2 GetTopRight() const noexcept;
     Vector2 GetBottomLeft() const noexcept;
@@ -103,6 +113,7 @@ private:
     PositionMode _mode{};
     Rgba _fill_color = Rgba::NOALPHA;
     Rgba _edge_color = Rgba::WHITE;
+    Rgba _pivot_color = Rgba::RED;
     Element* _parent = nullptr;
     std::vector<Element*> _children{};
     UI::Canvas* _parent_canvas = nullptr;

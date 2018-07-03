@@ -78,6 +78,24 @@ void Element::DestroyAllChildren() {
     }
 }
 
+void Element::SetBorderColor(const Rgba& color) {
+    SetDebugColors(color, _fill_color, _pivot_color);
+}
+
+void Element::SetBackgroundColor(const Rgba& color) {
+    SetDebugColors(_edge_color, color, _pivot_color);
+}
+
+void Element::SetPivotColor(const Rgba& color) {
+    SetDebugColors(_edge_color, _fill_color, color);
+}
+
+void Element::SetDebugColors(const Rgba& edge, const Rgba& fill, const Rgba& pivot /*= Rgba::RED*/) {
+    _edge_color = edge;
+    _fill_color = fill;
+    _pivot_color = pivot;
+}
+
 Vector2 Element::CalcLocalPosition() const {
     AABB2 local_bounds = GetParentBounds();
     return MathUtils::CalcPointFromNormalizedPoint(_position.ratio.GetValue(), local_bounds) + _position.unit;
@@ -102,18 +120,58 @@ void Element::SetPosition(const Metric& position) {
     _position = position;
 }
 
-void Element::Update(float deltaSeconds) {
-    UpdateChildren(deltaSeconds);
-    Update(deltaSeconds);
+void Element::SetPivot(const Vector2& pivotPosition) {
+    _dirty_bounds = true;
+    _pivot.SetValue(pivotPosition);
+    CalcBoundsForMeThenMyChildren();
 }
 
-void Element::Render(Renderer* renderer) const {
-    Render(renderer);
-    RenderChildren(renderer);
+void Element::SetPivot(const PivotPosition& pivotPosition) {
+    switch(pivotPosition) {
+        case PivotPosition::Center:
+            SetPivot(Vector2(0.0f, 0.0f));
+            break;
+        case PivotPosition::TopLeft:
+            SetPivot(Vector2(-0.5f, -0.5f));
+            break;
+        case PivotPosition::Top:
+            SetPivot(Vector2(0.0f, -0.5f));
+            break;
+        case PivotPosition::TopRight:
+            SetPivot(Vector2(0.5f, -0.5f));
+            break;
+        case PivotPosition::Right:
+            SetPivot(Vector2(0.5f, 0.0f));
+            break;
+        case PivotPosition::BottomRight:
+            SetPivot(Vector2(0.5f, 0.5f));
+            break;
+        case PivotPosition::Bottom:
+            SetPivot(Vector2(0.0f, 0.5f));
+            break;
+        case PivotPosition::BottomLeft:
+            SetPivot(Vector2(-0.5f, 0.5f));
+            break;
+        case PivotPosition::Left:
+            SetPivot(Vector2(-0.5f, 0.0f));
+            break;
+        default:
+            std::ostringstream ss;
+            ss << __FUNCTION__ << ": Unhandled pivot mode.";
+            ERROR_AND_DIE(ss.str().c_str());
+            break;
+    }
+}
+
+void Element::Update(float /*deltaSeconds*/) {
+    /* DO NOTHING */
+}
+
+void Element::Render(Renderer* /*renderer*/) const {
+    /* DO NOTHING */
 }
 
 void Element::DebugRender(Renderer* renderer) const {
-    DebugRenderChildren(renderer);
     DebugRenderBoundsAndPivot(renderer);
 }
 
@@ -130,11 +188,30 @@ Matrix4 Element::GetParentWorldTransform() const {
 }
 
 void Element::DebugRenderBoundsAndPivot(Renderer* renderer) const {
-    auto world_transform = GetWorldTransform();
-    renderer->SetModelMatrix(world_transform);
+    Vector2 topLeft     = Vector2(-0.50f, -0.50f);
+    Vector2 topRight    = Vector2(0.50f, -0.50f);
+    Vector2 bottomRight = Vector2(0.50f, 0.50f);
+    Vector2 bottomLeft  = Vector2(-0.50f, 0.50f);
+    std::vector<Vertex3D> vbo = {
+      Vertex3D(Vector3(topLeft, 0.0f), _edge_color, Vector2::ZERO)
+    , Vertex3D(Vector3(topRight, 0.0f), _edge_color, Vector2::ZERO)
+    , Vertex3D(Vector3(bottomRight, 0.0f), _edge_color, Vector2::ZERO)
+    , Vertex3D(Vector3(bottomLeft, 0.0f), _edge_color, Vector2::ZERO)
+    };
+    std::vector<unsigned int> ibo = {
+        0, 1, 2, 3
+    };
     renderer->SetMaterial(renderer->GetMaterial("__2D"));
-    renderer->DrawAABB2(_edge_color, _fill_color);
-    renderer->DrawX2D(Rgba::RED);
+    renderer->DrawIndexed(PrimitiveType::LinesStrip, vbo, ibo);
+    auto world_transform = GetWorldTransform();
+    auto scale = world_transform.GetScale() * 0.01f;
+    auto translate = MathUtils::CalcNormalizedPointFromPoint(Vector2(world_transform.GetTranslation()), _bounds);
+    Matrix4 s = Matrix4::CreateScaleMatrix(scale);
+    Matrix4 r = Matrix4::Create2DRotationMatrix(0.0f);
+    Matrix4 t = Matrix4::CreateTranslationMatrix(translate);
+    Matrix4 pivot_mat = t * r * s;
+    renderer->SetModelMatrix(pivot_mat);
+    renderer->DrawX2D(_pivot_color);
 }
 
 AABB2 Element::GetParentBounds() const {

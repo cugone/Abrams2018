@@ -41,4 +41,24 @@ enum class FillMode {
     Crop = Fill,
 };
 
+enum class PivotPosition {
+    First_,
+    Center = First_,
+    TopLeft,
+    Top,
+    TopRight,
+    Right,
+    BottomRight,
+    Bottom,
+    BottomLeft,
+    Left,
+    Last_,
+};
+
+PivotPosition& operator++(PivotPosition& mode);
+PivotPosition operator++(PivotPosition& mode, int);
+
+PivotPosition& operator--(PivotPosition& mode);
+PivotPosition operator--(PivotPosition& mode, int);
+
 } //End UI

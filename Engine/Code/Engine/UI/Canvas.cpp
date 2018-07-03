@@ -28,33 +28,45 @@ Canvas::Canvas(Renderer& renderer, Texture* target_texture, float reference_reso
     GUARANTEE_OR_DIE(!MathUtils::IsEquivalent(_reference_resolution, 0.0f), ss.str().c_str());
     }
 
-    _camera = std::make_unique<Camera2D>();
-
     Vector2 dimensions{};
-    CalcDimensionsAndAspectRatioFromTargetTextureAndReferenceResolution(dimensions, _aspect_ratio);
+    CalcDimensionsAndAspectRatio(dimensions, _aspect_ratio);
     Metric m;
     m.ratio = Ratio(Vector2::ZERO);
     m.unit = dimensions;
     SetSize(m);
 
     SetParentCanvas(*this);
-
+    _camera = new Camera2D;
 }
 
 Canvas::~Canvas() {
     _target_texture = nullptr;
 }
 
+void Canvas::Update(float deltaSeconds) {
+    UpdateChildren(deltaSeconds);
+}
+
 void Canvas::Render(Renderer* renderer) const {
     renderer->SetRenderTarget(_target_texture);
-    auto target_dims = Vector2((float)_target_texture->GetDimensions().x, (float)_target_texture->GetDimensions().y);
-    _camera->SetupView(Vector2(0.0f, target_dims.y), Vector2(target_dims.x, 0.0f), Vector2(0.0f, 1.0f), _aspect_ratio);
+    auto texture_dims = _target_texture->GetDimensions();
+    auto target_dims = Vector2((float)texture_dims.x, (float)texture_dims.y);
+    Vector2 leftBottom = Vector2(-0.5f, 0.5f);//{ -target_dims.x, target_dims.y };
+    Vector2 rightTop = Vector2(0.5f, -0.5f);//{  target_dims.x, -target_dims.y };
+    Vector2 nearFar{ 0.0f, 1.0f };
+    _camera->SetupView(leftBottom, rightTop, nearFar, _aspect_ratio);
+    renderer->SetModelMatrix(Matrix4::GetIdentity());
     renderer->SetViewMatrix(_camera->GetViewMatrix());
     renderer->SetProjectionMatrix(_camera->GetProjectionMatrix());
     RenderChildren(renderer);
 }
 
-void Canvas::CalcDimensionsAndAspectRatioFromTargetTextureAndReferenceResolution(Vector2& dimensions, float& aspectRatio) {
+void Canvas::DebugRender(Renderer* renderer) const {
+    DebugRenderChildren(renderer);
+    DebugRenderBoundsAndPivot(renderer);
+}
+
+void Canvas::CalcDimensionsAndAspectRatio(Vector2& dimensions, float& aspectRatio) {
     if(!_target_texture) {
         _target_texture = _renderer->GetOutput()->GetBackBuffer();
     }
@@ -76,7 +88,6 @@ void Canvas::CalcDimensionsAndAspectRatioFromTargetTextureAndReferenceResolution
 
 
 void Canvas::SetTargetTexture(Renderer& renderer, Texture* target) {
-
     _renderer = &renderer;
     if(!target) {
         target = _renderer->GetOutput()->GetBackBuffer();
@@ -84,12 +95,11 @@ void Canvas::SetTargetTexture(Renderer& renderer, Texture* target) {
     _target_texture = target;
 
     Vector2 dimensions{};
-    CalcDimensionsAndAspectRatioFromTargetTextureAndReferenceResolution(dimensions, _aspect_ratio);
+    CalcDimensionsAndAspectRatio(dimensions, _aspect_ratio);
     Metric m;
     m.ratio = Ratio(Vector2::ZERO);
     m.unit = dimensions;
     SetSize(m);
-
 }
 
 } //End UI

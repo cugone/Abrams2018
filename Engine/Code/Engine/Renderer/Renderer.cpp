@@ -318,7 +318,7 @@ AnimatedSprite* Renderer::CreateAnimatedSpriteFromGif(const std::string& filepat
 }
 
 void Renderer::Draw(const PrimitiveType& topology, VertexBuffer* vbo, std::size_t vertex_count) {
-
+    GUARANTEE_OR_DIE(_current_material, "Attempting to call Draw function without a material set!\n");
     D3D11_PRIMITIVE_TOPOLOGY d3d_prim = PrimitiveTypeToD3dTopology(topology);
     _rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
     unsigned int stride = sizeof(VertexBuffer::arraybuffer_t);
@@ -329,6 +329,7 @@ void Renderer::Draw(const PrimitiveType& topology, VertexBuffer* vbo, std::size_
 }
 
 void Renderer::DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, IndexBuffer* ibo, std::size_t index_count) {
+    GUARANTEE_OR_DIE(_current_material, "Attempting to call Draw function without a material set!\n");
     D3D11_PRIMITIVE_TOPOLOGY d3d_prim = PrimitiveTypeToD3dTopology(topology);
     _rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
     unsigned int stride = sizeof(VertexBuffer::arraybuffer_t);
@@ -441,27 +442,27 @@ void Renderer::DrawCircle2D(const Vector2& center, float radius, const Rgba& col
     DrawCircle2D(center.x, center.y, radius, color);
 }
 
-void Renderer::DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor) {
+void Renderer::DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents /*= Vector2(0.5f, 0.5f)*/) {
     Vector2 lt_inner(bounds.mins.x, bounds.mins.y);
     Vector2 lb_inner(bounds.mins.x, bounds.maxs.y);
     Vector2 rt_inner(bounds.maxs.x, bounds.mins.y);
     Vector2 rb_inner(bounds.maxs.x, bounds.maxs.y);
-    Vector2 lt_outer(bounds.mins.x, bounds.mins.y);
-    Vector2 lb_outer(bounds.mins.x, bounds.maxs.y);
-    Vector2 rt_outer(bounds.maxs.x, bounds.mins.y);
-    Vector2 rb_outer(bounds.maxs.x, bounds.maxs.y);
+    Vector2 lt_outer(bounds.mins.x - edgeHalfExtents.x, bounds.mins.y - edgeHalfExtents.y);
+    Vector2 lb_outer(bounds.mins.x - edgeHalfExtents.x, bounds.maxs.y + edgeHalfExtents.y);
+    Vector2 rt_outer(bounds.maxs.x + edgeHalfExtents.x, bounds.mins.y - edgeHalfExtents.y);
+    Vector2 rb_outer(bounds.maxs.x + edgeHalfExtents.x, bounds.maxs.y + edgeHalfExtents.y);
     std::vector<Vertex3D> vbo = {
-        Vertex3D(Vector3(lt_inner, 0.0f), edgeColor),
-        Vertex3D(Vector3(lt_outer, 0.0f), edgeColor),
         Vertex3D(Vector3(rt_outer, 0.0f), edgeColor),
+        Vertex3D(Vector3(lt_outer, 0.0f), edgeColor),
+        Vertex3D(Vector3(lt_inner, 0.0f), edgeColor),
         Vertex3D(Vector3(rt_inner, 0.0f), edgeColor),
-        Vertex3D(Vector3(rb_inner, 0.0f), edgeColor),
         Vertex3D(Vector3(rb_outer, 0.0f), edgeColor),
+        Vertex3D(Vector3(rb_inner, 0.0f), edgeColor),
         Vertex3D(Vector3(lb_outer, 0.0f), edgeColor),
         Vertex3D(Vector3(lb_inner, 0.0f), edgeColor),
-        Vertex3D(Vector3(lb_inner, 0.0f), fillColor),
-        Vertex3D(Vector3(lt_inner, 0.0f), fillColor),
         Vertex3D(Vector3(rt_inner, 0.0f), fillColor),
+        Vertex3D(Vector3(lt_inner, 0.0f), fillColor),
+        Vertex3D(Vector3(lb_inner, 0.0f), fillColor),
         Vertex3D(Vector3(rb_inner, 0.0f), fillColor),
     };
 
@@ -470,13 +471,12 @@ void Renderer::DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba&
         8, 10, 11,
         0, 1, 2,
         0, 2, 3,
-        3, 2, 4,
-        3, 4, 5,
-        5, 4, 6,
-        5, 6, 7,
-        7, 6, 8,
-        8, 7, 1,
-        8, 1, 0
+        4, 0, 3,
+        4, 3, 5,
+        6, 4, 5,
+        6, 5, 7,
+        1, 6, 7,
+        1, 7, 2,
     };
 
     DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
@@ -486,12 +486,13 @@ void Renderer::DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor) {
     AABB2 bounds;
     bounds.mins = Vector2(-0.5f, -0.5f);
     bounds.maxs = Vector2(0.5f, 0.5f);
-    DrawAABB2(bounds, edgeColor, fillColor);
+    Vector2 edge_half_extents = Vector2(0.5f, 0.5f);
+    DrawAABB2(bounds, edgeColor, fillColor, edge_half_extents);
 }
 
 void Renderer::DrawX2D(const Vector2& position /*= Vector2::ZERO*/, const Vector2& half_extents /*= Vector2(0.5f, 0.5f)*/, const Rgba& color /*= Rgba::WHITE*/) {
     float left = position.x - half_extents.x;
-    float top = position.x - half_extents.y;
+    float top = position.y - half_extents.y;
     float right = position.x + half_extents.x;
     float bottom = position.y + half_extents.y;
     Vector3 lt = Vector3(left, top, 0.0f);
@@ -762,6 +763,9 @@ void Renderer::CreateAndRegisterDefaultMaterials() {
     auto unlit_mat = CreateDefaultUnlitMaterial();
     RegisterMaterial(unlit_mat->GetName(), unlit_mat);
 
+    auto mat_2d = CreateDefault2DMaterial();
+    RegisterMaterial(mat_2d->GetName(), mat_2d);
+
 }
 
 Material* Renderer::CreateDefaultMaterial() {
@@ -786,6 +790,23 @@ Material* Renderer::CreateDefaultUnlitMaterial() {
         R"(
 <material name="__unlit">
     <shader src="__unlit" />
+</material>
+)";
+
+    tinyxml2::XMLDocument doc;
+    auto parse_result = doc.Parse(material.c_str(), material.size());
+    if(parse_result != tinyxml2::XML_SUCCESS) {
+        return nullptr;
+    }
+    return new Material(this, *doc.RootElement());
+
+}
+
+Material* Renderer::CreateDefault2DMaterial() {
+    std::string material =
+        R"(
+<material name="__2D">
+    <shader src="__2D" />
 </material>
 )";
 

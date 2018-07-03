@@ -1010,7 +1010,7 @@ Vector2 Console::SetupViewFromCamera() const {
     Vector2 rightTop = Vector2(view_half_width, -view_half_height);
     Vector2 nearFar = Vector2(0.0f, 1.0f);
     Vector2 cam_pos2 = Vector2(_camera->GetPosition());
-    _camera->SetupView(leftBottom, rightTop, nearFar, MathUtils::M_16_BY_9_RATIO);
+    _camera->SetupView(leftBottom, rightTop, nearFar, _renderer->GetOutput()->GetAspectRatio());
 
     _renderer->SetViewMatrix(_camera->GetViewMatrix());
     _renderer->SetProjectionMatrix(_camera->GetProjectionMatrix());

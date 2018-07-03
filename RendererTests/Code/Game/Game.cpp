@@ -19,32 +19,36 @@
 
 #include "Engine/RHI/RHIOutput.hpp"
 
+#include "Engine/UI/Canvas.hpp"
+
 #include "Game/GameCommon.hpp"
 #include "Game/GameConfig.hpp"
 
+#include <algorithm>
 #include <functional>
 #include <sstream>
 
 Game::Game() {
-    _camera3 = new Camera3D;
     _camera2 = new Camera2D;
 }
 
 Game::~Game() {
-    delete _camera3;
-    _camera3 = nullptr;
     delete _camera2;
     _camera2 = nullptr;
-    delete _gif_test;
-    _gif_test = nullptr;
+
+    delete _canvas;
+    _canvas = nullptr;
+
 }
 
 void Game::Initialize() {
     g_theRenderer->RegisterTexturesFromFolder(std::string{"Data/Images"});
     g_theRenderer->RegisterMaterialsFromFolder(std::string{"Data/Materials"});
     g_theRenderer->RegisterFontsFromFolder(std::string{"Data/Fonts"});
-    _gif_test = g_theRenderer->CreateAnimatedSprite("Data/Images/cute_sif.gif");
-    _tex = g_theRenderer->CreateOrGetTexture("Data/Images/Test_StbiAndDirectX.png", IntVector3::XY_AXIS);
+
+    _canvas = new UI::Canvas(*g_theRenderer, nullptr, (std::min)(GRAPHICS_OPTION_WINDOW_WIDTH, GRAPHICS_OPTION_WINDOW_HEIGHT));
+    _canvas->SetDebugColors(Rgba::CYAN, Rgba::GREEN, Rgba::RED);
+    _canvas->SetPivot(_pivot_position);
 }
 
 void Game::BeginFrame() {
@@ -57,34 +61,30 @@ void Game::Update(float deltaSeconds) {
         return;
     }
 
+    if(g_theInput->WasKeyJustPressed(KeyCode::Q)) {
+        _canvas->SetPivot(--_pivot_position);
+    } else if(g_theInput->WasKeyJustPressed(KeyCode::E)) {
+        _canvas->SetPivot(++_pivot_position);
+    }
+
     if(g_theInput->IsKeyDown(KeyCode::Up)) {
-        _camera3->Translate(Vector2(0.0f, -_cameraSpeed));
         _camera2->Translate(Vector2(0.0f, -_cameraSpeed));
     } else if(g_theInput->IsKeyDown(KeyCode::Down)) {
-        _camera3->Translate(Vector2(0.0f, _cameraSpeed));
         _camera2->Translate(Vector2(0.0f, _cameraSpeed));
     }
 
     if(g_theInput->IsKeyDown(KeyCode::Left)) {
-        _camera3->Translate(Vector2(-_cameraSpeed, 0.0f));
         _camera2->Translate(Vector2(-_cameraSpeed, 0.0f));
     } else if(g_theInput->IsKeyDown(KeyCode::Right)) {
-        _camera3->Translate(Vector2(_cameraSpeed, 0.0f));
         _camera2->Translate(Vector2(_cameraSpeed, 0.0f));
     }
 
-    _camera3->Update(deltaSeconds);
-    _camera2->Update(deltaSeconds);
-    _gif_test->Update(deltaSeconds);
-
     if(g_theInput->WasKeyJustPressed(KeyCode::F1)) {
-        DoExport();
+        _debug = !_debug;
     }
 
-    if(g_theInput->WasKeyJustPressed(KeyCode::F2)) {
-        g_theFileLogger->SaveLog();
-    }
-
+    _camera2->Update(deltaSeconds);
+    _canvas->Update(deltaSeconds);
 }
 
 void Game::Render() const {
@@ -108,33 +108,50 @@ void Game::Render() const {
     Vector2 view_rightTop   = Vector2(view_half_width, -view_half_height);
     Vector2 view_nearFar = Vector2(0.0f, 1.0f);
     Vector2 cam_pos2 = Vector2(_camera2->GetPosition());
+    auto f = g_theRenderer->GetFont("System32");
+    Vector2 leftTop = Vector2(view_leftBottom.x + 1, view_rightTop.y + f->GetLineHeight());
     _camera2->SetupView(view_leftBottom, view_rightTop, view_nearFar, MathUtils::M_16_BY_9_RATIO);
-
     g_theRenderer->SetViewMatrix(_camera2->GetViewMatrix());
     g_theRenderer->SetProjectionMatrix(_camera2->GetProjectionMatrix());
 
-    auto tex_dims = _tex->GetDimensions();
-    Matrix4 s = Matrix4::CreateScaleMatrix(Vector2(static_cast<float>(tex_dims.x), static_cast<float>(tex_dims.y)) * 0.50f);
-    Matrix4 t = Matrix4::GetIdentity();
-    Matrix4 r = Matrix4::GetIdentity();
-    Matrix4 mat = t * r * s;
-    g_theRenderer->SetModelMatrix(mat);
-    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
-    g_theRenderer->DrawQuad2D();
-
-    auto gif_dims = _gif_test->GetFrameDimensions();
-    Matrix4 gif_s = Matrix4::CreateScaleMatrix(Vector2(static_cast<float>(gif_dims.x), static_cast<float>(gif_dims.y)) * 0.50f);
-    Matrix4 gif_t = Matrix4::CreateTranslationMatrix(Vector2(-view_half_width, view_half_height) * 0.50f);
-    Matrix4 gif_r = Matrix4::GetIdentity();
-    Matrix4 gif_mat = gif_t * gif_r * gif_s;
-    g_theRenderer->SetModelMatrix(gif_mat);
-
-    auto tex_coords = _gif_test->GetCurrentTexCoords();
-    Vector2 lefttop = Vector2(tex_coords.mins.x, tex_coords.mins.y);
-    Vector2 rightbottom = Vector2(tex_coords.maxs.x, tex_coords.maxs.y);
-    g_theRenderer->SetMaterial(_gif_test->GetMaterial());
-    g_theRenderer->DrawQuad2D(Vector4(lefttop, rightbottom));
-
+    g_theRenderer->SetModelMatrix(Matrix4::CreateTranslationMatrix(leftTop));
+    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Font_System32"));
+    switch(_pivot_position) {
+        case UI::PivotPosition::Center:
+            g_theRenderer->DrawTextLine(f, "Pivot Position: CENTER");
+            break;
+        case UI::PivotPosition::TopLeft:
+            g_theRenderer->DrawTextLine(f, "Pivot Position: TOP LEFT");
+            break;
+        case UI::PivotPosition::Top:
+            g_theRenderer->DrawTextLine(f, "Pivot Position: TOP");
+            break;
+        case UI::PivotPosition::TopRight:
+            g_theRenderer->DrawTextLine(f, "Pivot Position: TOP RIGHT");
+            break;
+        case UI::PivotPosition::Right:
+            g_theRenderer->DrawTextLine(f, "Pivot Position: RIGHT");
+            break;
+        case UI::PivotPosition::BottomRight:
+            g_theRenderer->DrawTextLine(f, "Pivot Position: BOTTOM RIGHT");
+            break;
+        case UI::PivotPosition::Bottom:
+            g_theRenderer->DrawTextLine(f, "Pivot Position: BOTTOM");
+            break;
+        case UI::PivotPosition::BottomLeft:
+            g_theRenderer->DrawTextLine(f, "Pivot Position: BOTTOM LEFT");
+            break;
+        case UI::PivotPosition::Left:
+            g_theRenderer->DrawTextLine(f, "Pivot Position: LEFT");
+            break;
+        default:
+            g_theRenderer->DrawTextLine(f, "Pivot Position: NONE");
+            break;
+    }
+    _canvas->Render(g_theRenderer);
+    if(_debug) {
+        _canvas->DebugRender(g_theRenderer);
+    }
 }
 
 void Game::EndFrame() {

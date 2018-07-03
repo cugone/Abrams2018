@@ -1,16 +1,16 @@
 #pragma once
 
 #include "Engine/Core/Event.hpp"
+#include "Engine/UI/Types.hpp"
 
 #include <functional>
 #include <string>
 
-class AnimatedSprite;
-class Camera3D;
 class Camera2D;
-class Image;
-class SpriteSheet;
-class Texture;
+
+namespace UI {
+    class Canvas;
+}
 
 class Game {
 public:
@@ -28,11 +28,10 @@ private:
     void DoExport();
     void GenerateImageData(void* data);
 
-
     float _cameraSpeed = 10.0f;
-    Camera3D* _camera3 = nullptr;
     Camera2D* _camera2 = nullptr;
-    Texture* _tex = nullptr;
-    AnimatedSprite* _gif_test = nullptr;
+    UI::Canvas* _canvas = nullptr;
+    UI::PivotPosition _pivot_position = UI::PivotPosition::First_;
+    bool _debug = true;
 
 };

@@ -531,5 +531,8 @@
     <ClInclude Include="UI\Panel.hpp">
       <Filter>UI</Filter>
     </ClInclude>
+    <ClInclude Include="UI\UI.hpp">
+      <Filter>UI</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

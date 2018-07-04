@@ -194,6 +194,7 @@
     <ClInclude Include="UI\Element.hpp" />
     <ClInclude Include="UI\Panel.hpp" />
     <ClInclude Include="UI\Types.hpp" />
+    <ClInclude Include="UI\UI.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

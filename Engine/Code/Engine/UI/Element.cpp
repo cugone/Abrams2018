@@ -76,6 +76,8 @@ void Element::DestroyAllChildren() {
         delete iter;
         iter = nullptr;
     }
+    _children.clear();
+    _children.shrink_to_fit();
 }
 
 void Element::SetBorderColor(const Rgba& color) {
@@ -118,6 +120,7 @@ const UI::Metric& Element::GetPosition() const {
 void Element::SetPosition(const Metric& position) {
     _dirty_bounds = true;
     _position = position;
+    CalcBoundsForMeThenMyChildren();
 }
 
 void Element::SetPivot(const Vector2& pivotPosition) {
@@ -163,6 +166,10 @@ void Element::SetPivot(const PivotPosition& pivotPosition) {
     }
 }
 
+const Vector2& Element::GetPivot() const {
+    return _pivot.GetValue();
+}
+
 void Element::Update(float /*deltaSeconds*/) {
     /* DO NOTHING */
 }
@@ -176,7 +183,11 @@ void Element::DebugRender(Renderer* renderer) const {
 }
 
 Matrix4 Element::GetLocalTransform() const {
-    return Matrix4::CreateTranslationMatrix(CalcLocalPosition());
+    auto t = Matrix4::CreateTranslationMatrix(CalcLocalPosition());
+    auto r = Matrix4::GetIdentity();
+    auto s = Matrix4::GetIdentity();
+    auto model = t * r * s;
+    return model;
 }
 
 Matrix4 Element::GetWorldTransform() const {
@@ -188,10 +199,28 @@ Matrix4 Element::GetParentWorldTransform() const {
 }
 
 void Element::DebugRenderBoundsAndPivot(Renderer* renderer) const {
-    Vector2 topLeft     = Vector2(-0.50f, -0.50f);
-    Vector2 topRight    = Vector2(0.50f, -0.50f);
+    DebugRenderBounds(renderer);
+    DebugRenderPivot(renderer);
+}
+
+void Element::DebugRenderPivot(Renderer* renderer) const {
+    auto world_transform = GetWorldTransform();
+    auto scale = Vector2(world_transform.GetScale() * 0.01f);
+    auto translate = GetPivot();
+    auto rotation = world_transform.CalcEulerAngles().z;
+    Matrix4 s = Matrix4::CreateScaleMatrix(scale);
+    Matrix4 r = Matrix4::Create2DRotationMatrix(rotation);
+    Matrix4 t = Matrix4::CreateTranslationMatrix(translate);
+    Matrix4 pivot_mat = t * r * s;
+    renderer->SetModelMatrix(pivot_mat);
+    renderer->DrawX2D(_pivot_color);
+}
+
+void Element::DebugRenderBounds(Renderer* renderer) const {
+    Vector2 topLeft = Vector2(-0.50f, -0.50f);
+    Vector2 topRight = Vector2(0.50f, -0.50f);
     Vector2 bottomRight = Vector2(0.50f, 0.50f);
-    Vector2 bottomLeft  = Vector2(-0.50f, 0.50f);
+    Vector2 bottomLeft = Vector2(-0.50f, 0.50f);
     std::vector<Vertex3D> vbo = {
       Vertex3D(Vector3(topLeft, 0.0f), _edge_color, Vector2::ZERO)
     , Vertex3D(Vector3(topRight, 0.0f), _edge_color, Vector2::ZERO)
@@ -202,16 +231,9 @@ void Element::DebugRenderBoundsAndPivot(Renderer* renderer) const {
         0, 1, 2, 3
     };
     renderer->SetMaterial(renderer->GetMaterial("__2D"));
-    renderer->DrawIndexed(PrimitiveType::LinesStrip, vbo, ibo);
     auto world_transform = GetWorldTransform();
-    auto scale = world_transform.GetScale() * 0.01f;
-    auto translate = MathUtils::CalcNormalizedPointFromPoint(Vector2(world_transform.GetTranslation()), _bounds);
-    Matrix4 s = Matrix4::CreateScaleMatrix(scale);
-    Matrix4 r = Matrix4::Create2DRotationMatrix(0.0f);
-    Matrix4 t = Matrix4::CreateTranslationMatrix(translate);
-    Matrix4 pivot_mat = t * r * s;
-    renderer->SetModelMatrix(pivot_mat);
-    renderer->DrawX2D(_pivot_color);
+    renderer->SetModelMatrix(world_transform);
+    renderer->DrawIndexed(PrimitiveType::LinesStrip, vbo, ibo);
 }
 
 AABB2 Element::GetParentBounds() const {
@@ -416,6 +438,14 @@ Vector2 Element::GetBottomLeft() const noexcept {
 
 Vector2 Element::GetBottomRight() const noexcept {
     return _bounds.maxs;
+}
+
+void Element::SetOrientationDegrees(float value) {
+    _orientationRadians = MathUtils::ConvertDegreesToRadians(value);
+}
+
+void Element::SetOrientationRadians(float value) {
+    _orientationRadians = value;
 }
 
 Vector2 Element::GetSize() const {

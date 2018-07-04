@@ -18,7 +18,7 @@ class Element {
 public:
     Element();
     explicit Element(UI::Canvas& parent_canvas);
-    virtual ~Element();
+    virtual ~Element() = 0;
 
     virtual void Update(float deltaSeconds);
     virtual void Render(Renderer* renderer) const;
@@ -51,6 +51,7 @@ public:
     void SetPosition(const Metric& position);
 
     void SetPivot(const Vector2& pivotPosition);
+    const Vector2& GetPivot() const;
     void SetPivot(const PivotPosition& pivotPosition);
 
 protected:
@@ -88,7 +89,8 @@ protected:
     void DebugRenderTopDown(Renderer* renderer) const;
     void DebugRenderChildren(Renderer* renderer) const;
     void DebugRenderBoundsAndPivot(Renderer* renderer) const;
-
+    void DebugRenderPivot(Renderer* renderer) const;
+    void DebugRenderBounds(Renderer* renderer) const;
     AABB2 GetParentLocalBounds() const;
     AABB2 GetParentRelativeBounds() const;
     void UpdateChildren(float deltaSeconds);
@@ -106,6 +108,9 @@ protected:
     Vector2 GetBottomLeft() const noexcept;
     Vector2 GetBottomRight() const noexcept;
 
+    void SetOrientationDegrees(float value);
+    void SetOrientationRadians(float value);
+
 private:
     Metric _position{};
     Metric _size{};
@@ -118,6 +123,7 @@ private:
     std::vector<Element*> _children{};
     UI::Canvas* _parent_canvas = nullptr;
     AABB2 _bounds{};
+    float _orientationRadians = 0.0f;
     bool _dirty_bounds = false;
 };
 

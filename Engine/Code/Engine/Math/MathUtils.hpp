@@ -185,6 +185,8 @@ Vector3 CalcClosestPoint(const Vector3& p, const Capsule3& capsule);
 
 Vector2 CalcNormalizedPointFromPoint(const Vector2& pos, const AABB2& bounds);
 Vector2 CalcPointFromNormalizedPoint(const Vector2& uv, const AABB2& bounds);
+Vector2 CalcNormalizedHalfExtentsFromPoint(const Vector2& pos, const AABB2& bounds);
+Vector2 CalcPointFromNormalizedHalfExtents(const Vector2& uv, const AABB2& bounds);
 
 bool DoDiscsOverlap(const Disc2& a, const Disc2& b);
 bool DoDiscsOverlap(const Vector2& centerA, float radiusA, const Vector2& centerB, float radiusB);

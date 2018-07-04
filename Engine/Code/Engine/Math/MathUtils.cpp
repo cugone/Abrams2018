@@ -543,6 +543,18 @@ Vector2 CalcPointFromNormalizedPoint(const Vector2& uv, const AABB2& bounds) {
     return Vector2(x, y);
 }
 
+Vector2 CalcNormalizedHalfExtentsFromPoint(const Vector2& pos, const AABB2& bounds) {
+    float x_norm = RangeMap(pos.x, bounds.mins.x, bounds.maxs.x, -0.5f, 0.5f);
+    float y_norm = RangeMap(pos.y, bounds.mins.y, bounds.maxs.y, -0.5f, 0.5f);
+    return Vector2(x_norm, y_norm);
+}
+
+Vector2 CalcPointFromNormalizedHalfExtents(const Vector2& uv, const AABB2& bounds) {
+    float x = RangeMap(uv.x, -0.5f, 0.5f, bounds.mins.x, bounds.maxs.x);
+    float y = RangeMap(uv.y, -0.5f, 0.5f, bounds.mins.y, bounds.maxs.y);
+    return Vector2(x, y);
+}
+
 bool DoDiscsOverlap(const Disc2& a, const Disc2& b) {
     return DoDiscsOverlap(a.center, a.radius, b.center, b.radius);
 }

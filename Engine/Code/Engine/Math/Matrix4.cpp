@@ -820,11 +820,9 @@ Vector3 Matrix4::CalcEulerAngles() const {
         
         auto y_comps = GetYComponents();
         auto y_i = y_comps.x;
-        auto y_j = y_comps.y;
         
         auto x_comps = GetXComponents();
         auto x_i = x_comps.x;
-        auto x_j = x_comps.y;
         
         auto phi_1 = std::atan2(y_i / c_theta_1, x_i / c_theta_1);
         auto phi_2 = std::atan2(y_i / c_theta_2, x_i / c_theta_2);
@@ -850,7 +848,6 @@ Vector3 Matrix4::CalcEulerAngles() const {
         }
         return Vector3(psi, theta, phi);
     }
-    return Vector3::ZERO;
 }
 
 Matrix4 Matrix4::operator*(const Matrix4& rhs) const {

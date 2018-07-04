@@ -61,7 +61,7 @@ const Vector2& Ratio::GetValue() const {
 }
 
 void Ratio::SetValue(const Vector2& newValue) {
-    value = MathUtils::Clamp(newValue, Vector2::ZERO, Vector2::ONE);
+    value = MathUtils::Clamp(newValue, -Vector2::ONE * 0.5f, Vector2::ONE * 0.5f);
 }
 
 } //End UI

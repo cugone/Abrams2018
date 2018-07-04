@@ -61,6 +61,38 @@ const Vector2& Ratio::GetValue() const {
 }
 
 void Ratio::SetValue(const Vector2& newValue) {
+    value = MathUtils::Clamp(newValue, Vector2::ZERO, Vector2::ONE);
+}
+
+HalfExtent::HalfExtent(const Vector2& newValue /*= Vector2::ZERO*/) {
+    SetValue(newValue);
+}
+
+HalfExtent& HalfExtent::operator=(const HalfExtent& rhs) {
+    SetValue(rhs.value);
+    return *this;
+}
+
+HalfExtent& HalfExtent::operator=(HalfExtent&& rhs) {
+    SetValue(std::move(rhs.value));
+    rhs.value = Vector2::ZERO;
+    return *this;
+}
+
+HalfExtent::HalfExtent(HalfExtent&& rhs) {
+    SetValue(std::move(rhs.value));
+    rhs.value = Vector2::ZERO;
+}
+
+HalfExtent::HalfExtent(const HalfExtent& rhs) {
+    SetValue(rhs.value);
+}
+
+const Vector2& HalfExtent::GetValue() const {
+    return value;
+}
+
+void HalfExtent::SetValue(const Vector2& newValue) {
     value = MathUtils::Clamp(newValue, -Vector2::ONE * 0.5f, Vector2::ONE * 0.5f);
 }
 

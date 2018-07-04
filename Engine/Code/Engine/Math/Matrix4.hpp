@@ -74,6 +74,7 @@ public:
     void Scale(float scale);
     void Scale(const Vector2& scale);
     void Scale(const Vector3& scale);
+    void Scale(const Vector4& scale);
 
     void Rotate3DXDegrees(float degrees);
     void Rotate3DYDegrees(float degrees);

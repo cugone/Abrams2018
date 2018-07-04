@@ -171,7 +171,7 @@ Matrix4 Matrix4::CreateScaleMatrix(const Vector3& scale) {
 }
 
 Matrix4 Matrix4::CreateScaleMatrix(const Vector2& scale) {
-    return CreateScaleMatrix(scale.x, scale.y, 1.0f);
+    return CreateScaleMatrix(Vector3(scale, 1.0f));
 }
 Matrix4 Matrix4::CreateScaleMatrix(float scale) {
     return CreateScaleMatrix(Vector3(scale, scale, scale));
@@ -435,17 +435,17 @@ Matrix4 Matrix4::CreateLookAtMatrix(const Vector3& eye, const Vector3& lookAt, c
     Vector3 cam_up = MathUtils::CrossProduct(cam_forward, cam_right);
 
     Matrix4 R(cam_right.x, cam_up.x, cam_forward.x, 0.0f,
-              cam_right.z, cam_up.z, cam_forward.x, 0.0f,
-              cam_right.y, cam_up.y, cam_forward.x, 0.0f,
+              cam_right.y, cam_up.y, cam_forward.y, 0.0f,
+              cam_right.z, cam_up.z, cam_forward.z, 0.0f,
                      0.0f,     0.0f,          0.0f, 1.0f);
 
-    R.Transpose();
+    //R.Transpose();
 
     Matrix4 T(1.0f, 0.0f, 0.0f, -eye.x,
               0.0f, 1.0f, 0.0f, -eye.y,
               0.0f, 0.0f, 1.0f, -eye.z,
               0.0f, 0.0f, 0.0f, 1.0f);
-    T.Transpose();
+    //T.Transpose();
 
     Matrix4 L = T * R;
 
@@ -580,36 +580,17 @@ void Matrix4::Translate(const Vector3& translation3D) {
     m_indicies[11] += translation3D.z;
 }
 void Matrix4::Scale(float scale) {
-
-    m_indicies[0] *= scale;
-    m_indicies[1] *= scale;
-    m_indicies[2] *= scale;
-
-    m_indicies[4] *= scale;
-    m_indicies[5] *= scale;
-    m_indicies[6] *= scale;
-
-    m_indicies[8] *= scale;
-    m_indicies[9] *= scale;
-    m_indicies[10] *= scale;
-
-    m_indicies[12] *= scale;
-    m_indicies[13] *= scale;
-    m_indicies[14] *= scale;
-
+    Scale(Vector4(scale, scale, scale, scale));
 }
 void Matrix4::Scale(const Vector2& scale) {
-
-    m_indicies[0] *= scale.x;
-    m_indicies[1] *= scale.x;
-    m_indicies[2] *= scale.x;
-
-    m_indicies[4] *= scale.y;
-    m_indicies[5] *= scale.y;
-    m_indicies[6] *= scale.y;
-
+    Scale(Vector4(scale, 1.0f, 1.0f));
 }
+
 void Matrix4::Scale(const Vector3& scale) {
+    Scale(Vector4(scale, 1.0f));
+}
+
+void Matrix4::Scale(const Vector4& scale) {
 
     m_indicies[0] *= scale.x;
     m_indicies[1] *= scale.x;
@@ -623,42 +604,20 @@ void Matrix4::Scale(const Vector3& scale) {
     m_indicies[9] *= scale.z;
     m_indicies[10] *= scale.z;
 
+    m_indicies[12] *= scale.w;
+    m_indicies[13] *= scale.w;
+    m_indicies[14] *= scale.w;
+
 }
+
 void Matrix4::Rotate3DXDegrees(float degrees) {
-
-    float r = MathUtils::ConvertDegreesToRadians(degrees);
-    float c = std::cos(r);
-    float s = std::sin(r);
-
-    m_indicies[5] = c;
-    m_indicies[6] = -s;
-    m_indicies[9] = s;
-    m_indicies[10] = c;
-
+    Rotate3DXRadians(MathUtils::ConvertDegreesToRadians(degrees));
 }
 void Matrix4::Rotate3DYDegrees(float degrees) {
-
-    float r = MathUtils::ConvertDegreesToRadians(degrees);
-    float c = std::cos(r);
-    float s = std::sin(r);
-
-    m_indicies[0] = c;
-    m_indicies[2] = s;
-    m_indicies[8] = -s;
-    m_indicies[10] = c;
-
+    Rotate3DYRadians(MathUtils::ConvertDegreesToRadians(degrees));
 }
 void Matrix4::Rotate3DZDegrees(float degrees) {
-
-    float r = MathUtils::ConvertDegreesToRadians(degrees);
-    float c = std::cos(r);
-    float s = std::sin(r);
-
-    m_indicies[0] = c;
-    m_indicies[1] = -s;
-    m_indicies[4] = s;
-    m_indicies[5] = c;
-
+    Rotate3DZRadians(MathUtils::ConvertDegreesToRadians(degrees));
 }
 void Matrix4::Rotate2DDegrees(float degrees) {
     Rotate3DZDegrees(degrees);

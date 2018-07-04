@@ -21,6 +21,7 @@ public:
     void BeginFrame();
     void Update(float deltaSeconds);
     void Render() const;
+    void DrawPivotPositionText(const Vector2& position) const;
     void EndFrame();
 
 protected:

@@ -79,6 +79,11 @@ void Game::Update(float deltaSeconds) {
         _camera2->Translate(Vector2(_cameraSpeed, 0.0f));
     }
 
+    if(g_theInput->WasKeyJustPressed(KeyCode::R)) {
+        _camera2->SetPosition(Vector2::ZERO);
+        _canvas->SetPivot(UI::PivotPosition::Center);
+    }
+
     if(g_theInput->WasKeyJustPressed(KeyCode::F1)) {
         _debug = !_debug;
     }
@@ -108,12 +113,24 @@ void Game::Render() const {
     Vector2 view_rightTop   = Vector2(view_half_width, -view_half_height);
     Vector2 view_nearFar = Vector2(0.0f, 1.0f);
     Vector2 cam_pos2 = Vector2(_camera2->GetPosition());
-    auto f = g_theRenderer->GetFont("System32");
-    Vector2 leftTop = Vector2(view_leftBottom.x + 1, view_rightTop.y + f->GetLineHeight());
+
     _camera2->SetupView(view_leftBottom, view_rightTop, view_nearFar, MathUtils::M_16_BY_9_RATIO);
-    g_theRenderer->SetViewMatrix(_camera2->GetViewMatrix());
+
     g_theRenderer->SetProjectionMatrix(_camera2->GetProjectionMatrix());
 
+    DrawPivotPositionText(Vector2(view_leftBottom.x, view_rightTop.y));
+
+    g_theRenderer->SetViewMatrix(_camera2->GetViewMatrix());
+
+    _canvas->Render(g_theRenderer);
+    if(_debug) {
+        _canvas->DebugRender(g_theRenderer);
+    }
+}
+
+void Game::DrawPivotPositionText(const Vector2 &position) const {
+    auto f = g_theRenderer->GetFont("System32");
+    Vector2 leftTop = Vector2(position.x + 1, position.y + f->GetLineHeight());
     g_theRenderer->SetModelMatrix(Matrix4::CreateTranslationMatrix(leftTop));
     g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Font_System32"));
     switch(_pivot_position) {
@@ -148,9 +165,11 @@ void Game::Render() const {
             g_theRenderer->DrawTextLine(f, "Pivot Position: NONE");
             break;
     }
-    _canvas->Render(g_theRenderer);
-    if(_debug) {
-        _canvas->DebugRender(g_theRenderer);
+    {
+        g_theRenderer->SetModelMatrix(Matrix4::CreateTranslationMatrix(Vector2(leftTop.x, leftTop.y + f->GetLineHeight())));
+        std::ostringstream ss;
+        ss << _canvas->GetPivot();
+        g_theRenderer->DrawTextLine(f, ss.str());
     }
 }
 

@@ -30,12 +30,8 @@ Canvas::Canvas(Renderer& renderer, Texture* target_texture, float reference_reso
 
     Vector2 dimensions{};
     CalcDimensionsAndAspectRatio(dimensions, _aspect_ratio);
-    Metric m;
-    m.ratio = Ratio(Vector2::ZERO);
-    m.unit = dimensions;
-    SetSize(m);
+    SetSize(Metric{ Ratio{}, dimensions });
 
-    SetParentCanvas(*this);
     _camera = new Camera2D;
 }
 
@@ -64,8 +60,7 @@ void Canvas::Render(Renderer* renderer) const {
 }
 
 void Canvas::DebugRender(Renderer* renderer) const {
-    DebugRenderChildren(renderer);
-    DebugRenderBoundsAndPivot(renderer);
+    DebugRenderBottomUp(renderer);
 }
 
 void Canvas::CalcDimensionsAndAspectRatio(Vector2& dimensions, float& aspectRatio) {

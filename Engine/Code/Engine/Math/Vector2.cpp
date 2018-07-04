@@ -125,7 +125,7 @@ bool Vector2::operator!=(const Vector2& rhs) const {
 
 
 std::ostream& operator<<(std::ostream& out_stream, const Vector2& v) {
-    out_stream << '[' << v.x << ',' << v.y << ',' << ']';
+    out_stream << '[' << v.x << ',' << v.y << ']';
     return out_stream;
 }
 

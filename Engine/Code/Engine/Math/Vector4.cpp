@@ -116,7 +116,7 @@ Vector4 Vector4::operator-() const {
 }
 
 std::ostream& operator<<(std::ostream& out_stream, const Vector4& v) {
-    out_stream << '[' << v.x << ',' << v.y << ',' << v.z << v.w << ']';
+    out_stream << '[' << v.x << ',' << v.y << ',' << v.z << ',' << v.w << ']';
     return out_stream;
 }
 

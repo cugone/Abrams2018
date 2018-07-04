@@ -51,11 +51,13 @@ void Canvas::Render(Renderer* renderer) const {
     renderer->SetRenderTarget(_target_texture);
     auto texture_dims = _target_texture->GetDimensions();
     auto target_dims = Vector2((float)texture_dims.x, (float)texture_dims.y);
-    Vector2 leftBottom = Vector2(-0.5f, 0.5f);//{ -target_dims.x, target_dims.y };
-    Vector2 rightTop = Vector2(0.5f, -0.5f);//{  target_dims.x, -target_dims.y };
+    Vector2 leftBottom = Vector2(-0.5f, 0.5f);
+    Vector2 rightTop = Vector2(0.5f, -0.5f);
     Vector2 nearFar{ 0.0f, 1.0f };
     _camera->SetupView(leftBottom, rightTop, nearFar, _aspect_ratio);
-    renderer->SetModelMatrix(Matrix4::GetIdentity());
+    auto scale = target_dims * 0.5f;
+    Matrix4 s = Matrix4::CreateScaleMatrix(scale);
+    renderer->SetModelMatrix(s);
     renderer->SetViewMatrix(_camera->GetViewMatrix());
     renderer->SetProjectionMatrix(_camera->GetProjectionMatrix());
     RenderChildren(renderer);

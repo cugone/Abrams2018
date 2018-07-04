@@ -21,7 +21,10 @@ void Camera2D::CalcProjectionMatrix() {
 void Camera2D::CalcViewMatrix() {
     Matrix4 vT = Matrix4::CreateTranslationMatrix(-position);
     Matrix4 vR = Matrix4::Create2DRotationDegreesMatrix(orientation_degrees);
-    view_matrix = vT * vR;
+    Matrix4 vS = Matrix4::CreateScaleMatrix(Vector3((rightTop_view.x - leftBottom_view.x),
+                                                    (leftBottom_view.y - rightTop_view.y),
+                                                    nearFar_distance.y - nearFar_distance.x));
+    view_matrix = vT * vR * vS;
 }
 
 void Camera2D::Update(float deltaSeconds) {

@@ -18,8 +18,8 @@ Element::Element()
     /* DO NOTHING */
 }
 
-Element::Element(UI::Canvas& parent_canvas)
-    : _parent_canvas(&parent_canvas)
+Element::Element(UI::Canvas* parent_canvas)
+    : _parent_canvas(parent_canvas)
 {
     /* DO NOTHING */
 }
@@ -299,7 +299,7 @@ AABB2 Element::CalcRelativeBounds() {
 AABB2 Element::CalcAbsoluteBounds() {
     Vector2 size = GetSize();
 
-    auto pivot = _pivot.GetValue();
+    Vector2 pivot = _pivot.GetValue();
     float pivot_x = pivot.x;
     float pivot_y = pivot.y;
     Vector2 mins{ { -(size.x * pivot_x) },{ -(size.y * pivot_y) } };
@@ -353,18 +353,18 @@ UI::Canvas* Element::GetParentCanvas() const {
     return _parent_canvas;
 }
 
-void Element::SetParentCanvas(UI::Canvas& canvas) {
-    _parent_canvas = &canvas;
+void Element::SetParentCanvas(UI::Canvas* canvas) {
+    _parent_canvas = canvas;
 }
 
 void Element::DebugRenderBottomUp(Renderer* renderer) const {
-    DebugRenderChildren(renderer);
     DebugRenderBoundsAndPivot(renderer);
+    DebugRenderChildren(renderer);
 }
 
 void Element::DebugRenderTopDown(Renderer* renderer) const {
-    DebugRenderBoundsAndPivot(renderer);
     DebugRenderChildren(renderer);
+    DebugRenderBoundsAndPivot(renderer);
 }
 
 void Element::DebugRenderChildren(Renderer* renderer) const {

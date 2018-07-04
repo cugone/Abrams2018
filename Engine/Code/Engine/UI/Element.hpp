@@ -17,7 +17,7 @@ class Canvas;
 class Element {
 public:
     Element();
-    explicit Element(UI::Canvas& parent_canvas);
+    explicit Element(UI::Canvas* parent_canvas);
     virtual ~Element() = 0;
 
     virtual void Update(float deltaSeconds);
@@ -83,7 +83,7 @@ protected:
     bool IsChild() const;
 
     UI::Canvas* GetParentCanvas() const;
-    void SetParentCanvas(UI::Canvas& canvas);
+    void SetParentCanvas(UI::Canvas* canvas);
 
     void DebugRenderBottomUp(Renderer* renderer) const;
     void DebugRenderTopDown(Renderer* renderer) const;
@@ -114,7 +114,7 @@ protected:
 private:
     Metric _position{};
     Metric _size{};
-    Ratio _pivot{};
+    HalfExtent _pivot{};
     PositionMode _mode{};
     Rgba _fill_color = Rgba::NOALPHA;
     Rgba _edge_color = Rgba::WHITE;

@@ -4,7 +4,7 @@
 
 namespace UI {
 
-Panel::Panel(UI::Canvas& parent_canvas)
+Panel::Panel(UI::Canvas* parent_canvas)
     : Element(parent_canvas)
 {
     /* DO NOTHING */
@@ -19,8 +19,7 @@ void Panel::Render(Renderer* renderer) const {
 }
 
 void Panel::DebugRender(Renderer* renderer) const {
-    DebugRenderChildren(renderer);
-    DebugRenderBoundsAndPivot(renderer);
+    DebugRenderBottomUp(renderer);
 }
 
 } //End UI

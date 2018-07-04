@@ -105,6 +105,11 @@ public:
     Vector3 GetScale() const;
     Vector3 GetScale();
 
+    Matrix4 GetRotation() const;
+    Matrix4 GetRotation();
+
+    Vector3 CalcEulerAngles() const;
+
     Matrix4 operator*(const Matrix4& rhs) const;
     Vector4 operator*(const Vector4& rhs) const;
     Matrix4& operator*=(const Matrix4& rhs);

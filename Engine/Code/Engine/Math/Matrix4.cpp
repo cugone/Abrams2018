@@ -790,6 +790,69 @@ Vector3 Matrix4::GetScale() const {
 Vector3 Matrix4::GetScale() {
     return static_cast<const Matrix4&>(*this).GetScale();
 }
+
+Matrix4 Matrix4::GetRotation() const {
+    return Matrix4(GetIBasis(), GetJBasis(), GetKBasis());
+}
+
+Matrix4 Matrix4::GetRotation() {
+    return static_cast<const Matrix4&>(*this).GetRotation();
+}
+
+Vector3 Matrix4::CalcEulerAngles() const {
+    //Reference: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.371.6578&rep=rep1&type=pdf
+
+    auto z_comps = GetZComponents();
+    auto z_i = z_comps.x;
+    bool is_z_i_near_one = MathUtils::IsEquivalent(z_i, -1.0f) || MathUtils::IsEquivalent(z_i, 1.0f);
+    if(is_z_i_near_one) {
+        auto theta_1 = -std::asin(z_i);
+        auto theta_2 = MathUtils::M_PI - theta_1;
+        
+        auto c_theta_1 = std::cos(theta_1);
+        auto c_theta_2 = std::cos(theta_2);
+        
+        auto z_j = z_comps.y;
+        auto z_k = z_comps.z;
+        
+        auto psi_1 = std::atan2(z_j / c_theta_1, z_k / c_theta_1);
+        auto psi_2 = std::atan2(z_j / c_theta_2, z_k / c_theta_2);
+        
+        auto y_comps = GetYComponents();
+        auto y_i = y_comps.x;
+        auto y_j = y_comps.y;
+        
+        auto x_comps = GetXComponents();
+        auto x_i = x_comps.x;
+        auto x_j = x_comps.y;
+        
+        auto phi_1 = std::atan2(y_i / c_theta_1, x_i / c_theta_1);
+        auto phi_2 = std::atan2(y_i / c_theta_2, x_i / c_theta_2);
+
+        auto theta = (std::min)(theta_1, theta_2);
+        auto psi = (std::min)(psi_1, psi_2);
+        auto phi = (std::min)(phi_1, phi_2);
+        return Vector3(psi, theta, phi);
+    } else {
+        auto x_comps = GetXComponents();
+        auto x_j = x_comps.y;
+        auto x_k = x_comps.z;
+        auto phi = 0.0f;
+        auto theta = 0.0f;
+        auto psi = 0.0f;
+        bool is_z_i_near_neg_one = MathUtils::IsEquivalent(z_i, -1.0f);
+        if(is_z_i_near_neg_one) {
+            theta = MathUtils::M_PI_2;
+            psi = phi + std::atan2(x_j, x_k);
+        } else {
+            theta = -MathUtils::M_PI_2;
+            psi = -phi + std::atan2(-x_j, -x_k);
+        }
+        return Vector3(psi, theta, phi);
+    }
+    return Vector3::ZERO;
+}
+
 Matrix4 Matrix4::operator*(const Matrix4& rhs) const {
 
     using namespace MathUtils;

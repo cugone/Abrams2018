@@ -10,6 +10,7 @@ class Camera2D;
 
 namespace UI {
     class Canvas;
+    class Panel;
 }
 
 class Game {
@@ -32,6 +33,7 @@ private:
     float _cameraSpeed = 10.0f;
     Camera2D* _camera2 = nullptr;
     UI::Canvas* _canvas = nullptr;
+    UI::Panel* _panel = nullptr;
     UI::PivotPosition _pivot_position = UI::PivotPosition::First_;
     bool _debug = true;
 

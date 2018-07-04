@@ -19,7 +19,7 @@
 
 #include "Engine/RHI/RHIOutput.hpp"
 
-#include "Engine/UI/Canvas.hpp"
+#include "Engine/UI/UI.hpp"
 
 #include "Game/GameCommon.hpp"
 #include "Game/GameConfig.hpp"
@@ -47,8 +47,13 @@ void Game::Initialize() {
     g_theRenderer->RegisterFontsFromFolder(std::string{"Data/Fonts"});
 
     _canvas = new UI::Canvas(*g_theRenderer, nullptr, (std::min)(GRAPHICS_OPTION_WINDOW_WIDTH, GRAPHICS_OPTION_WINDOW_HEIGHT));
-    _canvas->SetDebugColors(Rgba::CYAN, Rgba::GREEN, Rgba::RED);
+    _canvas->SetDebugColors(Rgba::CYAN, Rgba::NOALPHA);
     _canvas->SetPivot(_pivot_position);
+
+    _panel = new UI::Panel(_canvas);
+    _canvas->AddChild(_panel);
+    _panel->SetDebugColors(Rgba::ORANGE, Rgba::NOALPHA, Rgba::ORANGE);
+    _panel->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * 0.5f}, Vector2::ZERO });
 }
 
 void Game::BeginFrame() {

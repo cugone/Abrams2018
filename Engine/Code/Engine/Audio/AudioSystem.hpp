@@ -97,12 +97,14 @@ public:
 
     void Play(Sound& snd);
     void Play(const std::string& filepath);
+
     void SetEngineCallback(EngineCallback* callback);
     const WAVEFORMATEXTENSIBLE& GetFormat() const;
     FileUtils::Wav::WavFormatChunk GetLoadedWavFileFormat() const;
 protected:
 private:
     void DeactivateChannel(Channel& channel);
+    void Play(const std::filesystem::path& filepath);
     void RegisterWavFilesFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
     void RegisterWavFile(const std::filesystem::path& filepath);
     WAVEFORMATEXTENSIBLE _audio_format_ex{};

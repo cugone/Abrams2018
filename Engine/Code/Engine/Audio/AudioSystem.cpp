@@ -145,7 +145,9 @@ void AudioSystem::SetFormat(const FileUtils::Wav::WavFormatChunk& format) {
 
 void AudioSystem::RegisterWavFilesFromFolder(const std::string& folderpath, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
-    RegisterWavFilesFromFolder(FS::path{ folderpath.begin(), folderpath.end() }, recursive);
+    FS::path p{ folderpath };
+    p.make_preferred();
+    RegisterWavFilesFromFolder(p, recursive);
 }
 
 void AudioSystem::RegisterWavFilesFromFolder(const std::filesystem::path& folderpath, bool recursive /*= false*/) {
@@ -187,11 +189,17 @@ void AudioSystem::Play(Sound& snd) {
 void AudioSystem::Play(const std::string& filepath) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
-    auto found_iter = _sounds.find(filepath);
+    p.make_preferred();
+    Play(p);
+}
+
+void AudioSystem::Play(const std::filesystem::path& filepath) {
+    auto filepathAsString = filepath.string();
+    auto found_iter = _sounds.find(filepathAsString);
     Sound* snd = nullptr;
     if(found_iter == _sounds.end()) {
-        snd = new Sound(p.string());
-        _sounds.insert_or_assign(p.string(), snd);
+        snd = new Sound(filepathAsString);
+        _sounds.insert_or_assign(filepathAsString, snd);
     } else {
         snd = (*found_iter).second;
     }
@@ -200,7 +208,9 @@ void AudioSystem::Play(const std::string& filepath) {
 
 void AudioSystem::RegisterWavFile(const std::string& filepath) {
     namespace FS = std::filesystem;
-    return RegisterWavFile(FS::path{ filepath });
+    FS::path p{ filepath };
+    p.make_preferred();
+    return RegisterWavFile(p);
 }
 
 void AudioSystem::RegisterWavFile(const std::filesystem::path& filepath) {

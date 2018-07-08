@@ -93,6 +93,10 @@ void Game::Update(float deltaSeconds) {
         _debug = !_debug;
     }
 
+    if(g_theInput->WasKeyJustPressed(KeyCode::F2)) {
+        DoExport();
+    }
+
     _camera2->Update(deltaSeconds);
     _canvas->Update(deltaSeconds);
 }

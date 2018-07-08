@@ -25,9 +25,9 @@ void FileLogger::Log_worker() {
     _job_system->SetCategorySignal(JobType::Logging, &_signal);
 
     while(IsRunning()) {
-        std::unique_lock<std::mutex> _lock(_cs);
-        //wait if empty queue but still running.
-        _signal.wait(_lock, [this]()->bool { return !(_queue.empty() && _is_running); });
+        std::unique_lock<std::mutex> lock(_cs);
+        //Condition to wake up: not running or queue has jobs.
+        _signal.wait(lock, [this]()->bool { return !_is_running || !_queue.empty(); });
         if(!_queue.empty()) {
             auto str = _queue.front();
             _queue.pop();

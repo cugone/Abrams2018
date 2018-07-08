@@ -132,7 +132,6 @@ void JobSystem::Shutdown() {
     _is_running = false;
     auto max_jobtype = static_cast<std::underlying_type_t<JobType>>(JobType::Max);
     auto main_jobtype = static_cast<std::underlying_type_t<JobType>>(JobType::Main);
-    auto generic_jobtype = static_cast<std::underlying_type_t<JobType>>(JobType::Generic);
     for(std::size_t i = 0; i < max_jobtype; ++i) {
         if(_signals[i] == nullptr || i == main_jobtype) {
             continue;

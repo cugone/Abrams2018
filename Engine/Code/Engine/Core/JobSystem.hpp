@@ -91,6 +91,7 @@ private:
 
     static std::vector<ThreadSafeQueue<Job*>*> _queues;
     static std::vector<std::condition_variable*> _signals;
+    std::thread _generic_worker{};
     std::condition_variable* _main_job_signal = nullptr;
     std::mutex _cs{};
     bool _is_running = false;

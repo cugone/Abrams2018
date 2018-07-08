@@ -14,9 +14,12 @@ void JobSystem::GenericJobWorker(std::condition_variable* signal) {
     this->SetCategorySignal(JobType::Generic, signal);
     while(IsRunning()) {
         if(signal) {
-            std::unique_lock<std::mutex> _lock(_cs);
-            signal->wait(_lock, [&jc]()->bool { return !jc.HasJobs(); });
-            jc.ConsumeAll();
+            std::unique_lock<std::mutex> lock(_cs);
+            //Condition to wake up: Not running or has jobs available
+            signal->wait(lock, [&jc, this]()->bool { return !_is_running || jc.HasJobs(); });
+            if(jc.HasJobs()) {
+                jc.ConsumeAll();
+            }
         }
     }
 }
@@ -79,14 +82,13 @@ bool JobConsumer::HasJobs() const {
     if(_consumables.empty()) {
         return false;
     }
-    bool has_job = false;
     for(auto& consumable : _consumables) {
         auto& queue = *consumable;
         if(!queue.empty()) {
-            has_job |= true;
+            return true;
         }
     }
-    return has_job;
+    return false;
 }
 
 JobSystem::~JobSystem() {
@@ -113,10 +115,10 @@ void JobSystem::Initialize(int genericCount, std::size_t categoryCount, std::con
     }
     _signals[static_cast<std::underlying_type_t<JobType>>(JobType::Generic)] = new std::condition_variable;
 
-    std::thread t(&JobSystem::GenericJobWorker, this, _signals[static_cast<std::underlying_type_t<JobType>>(JobType::Generic)]);
+    _generic_worker = std::thread(&JobSystem::GenericJobWorker, this, _signals[static_cast<std::underlying_type_t<JobType>>(JobType::Generic)]);
     std::wstring name = L"Generic Job Thread";
-    ::SetThreadDescription(t.native_handle(), name.c_str());
-    t.detach();
+    ::SetThreadDescription(_generic_worker.native_handle(), name.c_str());
+    _generic_worker.detach();
 }
 
 void JobSystem::BeginFrame() {
@@ -130,24 +132,21 @@ void JobSystem::Shutdown() {
     _is_running = false;
     auto max_jobtype = static_cast<std::underlying_type_t<JobType>>(JobType::Max);
     auto main_jobtype = static_cast<std::underlying_type_t<JobType>>(JobType::Main);
+    auto generic_jobtype = static_cast<std::underlying_type_t<JobType>>(JobType::Generic);
     for(std::size_t i = 0; i < max_jobtype; ++i) {
         if(_signals[i] == nullptr || i == main_jobtype) {
             continue;
         }
-        bool queue_is_empty = _queues[i]->empty();
         _signals[i]->notify_all();
-        while(!queue_is_empty) {
-            std::unique_lock<std::mutex> _lock(_cs);
-            _signals[i]->wait(_lock);
-            queue_is_empty = _queues[i]->empty();
-        }
-        {
-            std::scoped_lock<std::mutex> _lock(_cs);
-            delete _queues[i];
-            _queues[i] = nullptr;
-            delete _signals[i];
-            _signals[i] = nullptr;
-        }
+        //TODO: Race Condition here!
+        //TODO: Sleep the main (this) thread for a little bit?
+        //TODO: Change implementation to use join?
+        //TODO: Try to use atomics?
+        //TODO: Use double-notify?
+        delete _queues[i];
+        _queues[i] = nullptr;
+        delete _signals[i];
+        _signals[i] = nullptr;
     }
     _main_job_signal = nullptr;
 

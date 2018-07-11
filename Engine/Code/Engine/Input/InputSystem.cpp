@@ -637,6 +637,15 @@ bool InputSystem::IsKeyDown(const KeyCode& key) const {
     return _previousKeys[(std::size_t)key] && _currentKeys[(std::size_t)key];
 }
 
+bool InputSystem::IsAnyKeyDown() const {
+    for(KeyCode k = KeyCode::First_; k < KeyCode::Last_; ++k) {
+        if(IsKeyDown(k)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool InputSystem::WasKeyJustReleased(const KeyCode& key) const {
     return _previousKeys[(std::size_t)key] && !_currentKeys[(std::size_t)key];
 }

@@ -289,6 +289,7 @@ public:
     bool IsKeyUp(const KeyCode& key) const;
     bool WasKeyJustPressed(const KeyCode& key) const;
     bool IsKeyDown(const KeyCode& key) const;
+    bool IsAnyKeyDown() const;
     bool WasKeyJustReleased(const KeyCode& key) const;
 
     std::size_t GetConnectedControllerCount() const;

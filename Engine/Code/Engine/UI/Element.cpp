@@ -210,6 +210,10 @@ Matrix4 Element::GetParentWorldTransform() const {
     return _parent ? _parent->GetWorldTransform() : Matrix4::GetIdentity();
 }
 
+void Element::DirtyElement() {
+    _dirty_bounds = true;
+}
+
 void Element::DebugRenderBoundsAndPivot(Renderer* renderer) const {
     DebugRenderBounds(renderer);
     DebugRenderPivot(renderer);

@@ -89,6 +89,7 @@ protected:
     Matrix4 GetWorldTransform() const;
     Matrix4 GetParentWorldTransform() const;
 
+    void DirtyElement();
     bool IsDirty() const;
     bool IsParent() const;
     bool IsChild() const;

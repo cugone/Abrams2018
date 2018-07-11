@@ -7,6 +7,7 @@
 
 std::vector<ThreadSafeQueue<Job*>*> JobSystem::_queues = std::vector<ThreadSafeQueue<Job*>*>{};
 std::vector<std::condition_variable*> JobSystem::_signals = std::vector<std::condition_variable*>{};
+std::vector<std::thread> JobSystem::_threads = std::vector<std::thread>{};
 
 void JobSystem::GenericJobWorker(std::condition_variable* signal) {
     JobConsumer jc;
@@ -104,6 +105,7 @@ void JobSystem::Initialize(int genericCount, std::size_t categoryCount, std::con
     _main_job_signal = mainJobSignal;
     _queues.resize(categoryCount);
     _signals.resize(categoryCount);
+    _threads.resize(categoryCount);
     _is_running = true;
 
     for(std::size_t i = 0; i < categoryCount; ++i) {
@@ -114,11 +116,12 @@ void JobSystem::Initialize(int genericCount, std::size_t categoryCount, std::con
         _signals[i] = nullptr;
     }
     _signals[static_cast<std::underlying_type_t<JobType>>(JobType::Generic)] = new std::condition_variable;
-
-    _generic_worker = std::thread(&JobSystem::GenericJobWorker, this, _signals[static_cast<std::underlying_type_t<JobType>>(JobType::Generic)]);
+    
+    auto t = std::thread(&JobSystem::GenericJobWorker, this, _signals[static_cast<std::underlying_type_t<JobType>>(JobType::Generic)]);
     std::wstring name = L"Generic Job Thread";
-    ::SetThreadDescription(_generic_worker.native_handle(), name.c_str());
-    _generic_worker.detach();
+    ::SetThreadDescription(t.native_handle(), name.c_str());
+    SetCategoryThread(JobType::Generic, std::move(t));
+
 }
 
 void JobSystem::BeginFrame() {
@@ -131,17 +134,13 @@ void JobSystem::Shutdown() {
     }
     _is_running = false;
     auto max_jobtype = static_cast<std::underlying_type_t<JobType>>(JobType::Max);
-    auto main_jobtype = static_cast<std::underlying_type_t<JobType>>(JobType::Main);
     for(std::size_t i = 0; i < max_jobtype; ++i) {
-        if(_signals[i] == nullptr || i == main_jobtype) {
-            continue;
+        if(_signals[i]) {
+            _signals[i]->notify_all();
         }
-        _signals[i]->notify_all();
-        //TODO: Race Condition here!
-        //TODO: Sleep the main (this) thread for a little bit?
-        //TODO: Change implementation to use join?
-        //TODO: Try to use atomics?
-        //TODO: Use double-notify?
+        if(_threads[i].joinable()) {
+            _threads[i].join();
+        }
         delete _queues[i];
         _queues[i] = nullptr;
         delete _signals[i];
@@ -154,6 +153,10 @@ void JobSystem::Shutdown() {
 
     _signals.clear();
     _signals.shrink_to_fit();
+
+    _threads.clear();
+    _threads.shrink_to_fit();
+
 }
 
 void JobSystem::MainStep() {
@@ -165,6 +168,10 @@ void JobSystem::MainStep() {
 
 void JobSystem::SetCategorySignal(const JobType& category_id, std::condition_variable* signal) {
     _signals[static_cast<std::underlying_type_t<JobType>>(category_id)] = signal;
+}
+
+void JobSystem::SetCategoryThread(const JobType& category_id, std::thread&& thread) {
+    _threads[static_cast<std::underlying_type_t<JobType>>(category_id)] = std::move(thread);
 }
 
 Job* JobSystem::Create(const JobType& category, const std::function<void(void*)>& cb, void* user_data) {
@@ -220,16 +227,11 @@ void JobSystem::WaitAndRelease(Job* job) {
 }
 
 bool JobSystem::IsRunning() {
-    bool running = false;
-    {
-        std::scoped_lock<std::mutex> lock(_cs);
-        running = _is_running;
-    }
+    bool running = _is_running;
     return running;
 }
 
 void JobSystem::SetIsRunning(bool value /*= true*/) {
-    std::scoped_lock<std::mutex> lock(_cs);
     _is_running = value;
 }
 

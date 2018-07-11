@@ -75,6 +75,7 @@ public:
     void Shutdown();
 
     void SetCategorySignal(const JobType& category_id, std::condition_variable* signal);
+    void SetCategoryThread(const JobType& category_id, std::thread&& thread);
     Job* Create(const JobType& category, const std::function<void(void*)>& cb, void* user_data);
     void Run(const JobType& category, const std::function<void(void*)>& cb, void* user_data);
     void Dispatch(Job* job);
@@ -91,9 +92,9 @@ private:
 
     static std::vector<ThreadSafeQueue<Job*>*> _queues;
     static std::vector<std::condition_variable*> _signals;
-    std::thread _generic_worker{};
+    static std::vector<std::thread> _threads;
     std::condition_variable* _main_job_signal = nullptr;
     std::mutex _cs{};
-    bool _is_running = false;
+    std::atomic_bool _is_running = false;
     friend class JobConsumer;
 };

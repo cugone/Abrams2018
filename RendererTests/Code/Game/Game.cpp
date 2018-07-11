@@ -85,8 +85,27 @@ void Game::Update(float deltaSeconds) {
     }
 
     if(g_theInput->WasKeyJustPressed(KeyCode::R)) {
+        _canvas->SetOrientationDegrees(0.0f);
+        _panel->SetOrientationDegrees(0.0f);
         _camera2->SetPosition(Vector2::ZERO);
         _canvas->SetPivot(UI::PivotPosition::Center);
+        _panel->SetPivot(UI::PivotPosition::Center);
+    }
+
+    if(g_theInput->IsKeyDown(KeyCode::F)) {
+        _canvas->SetOrientationDegrees(_canvas->GetOrientationDegrees() + 1.0f);
+    }
+
+    if(g_theInput->IsKeyDown(KeyCode::G)) {
+        _canvas->SetOrientationDegrees(_canvas->GetOrientationDegrees() - 1.0f);
+    }
+
+    if(g_theInput->IsKeyDown(KeyCode::V)) {
+        _panel->SetOrientationDegrees(_panel->GetOrientationDegrees() + 1.0f);
+    }
+
+    if(g_theInput->IsKeyDown(KeyCode::B)) {
+        _panel->SetOrientationDegrees(_panel->GetOrientationDegrees() - 1.0f);
     }
 
     if(g_theInput->WasKeyJustPressed(KeyCode::F1)) {

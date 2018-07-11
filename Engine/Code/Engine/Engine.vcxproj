@@ -107,6 +107,7 @@
     <ClCompile Include="UI\Canvas.cpp" />
     <ClCompile Include="UI\Element.cpp" />
     <ClCompile Include="UI\Panel.cpp" />
+    <ClCompile Include="UI\Text.cpp" />
     <ClCompile Include="UI\Types.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -193,6 +194,7 @@
     <ClInclude Include="UI\Canvas.hpp" />
     <ClInclude Include="UI\Element.hpp" />
     <ClInclude Include="UI\Panel.hpp" />
+    <ClInclude Include="UI\Text.hpp" />
     <ClInclude Include="UI\Types.hpp" />
     <ClInclude Include="UI\UI.hpp" />
   </ItemGroup>

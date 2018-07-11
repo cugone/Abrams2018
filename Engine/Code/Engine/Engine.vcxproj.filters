@@ -277,6 +277,9 @@
     <ClCompile Include="UI\Panel.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="UI\Text.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -532,6 +535,9 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="UI\UI.hpp">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Text.hpp">
       <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>

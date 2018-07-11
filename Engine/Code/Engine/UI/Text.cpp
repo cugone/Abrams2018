@@ -2,6 +2,8 @@
 
 #include "Engine/Core/KerningFont.hpp"
 
+#include "Engine/Renderer/Renderer.hpp"
+
 #include "Engine/UI/Types.hpp"
 
 namespace UI {
@@ -17,10 +19,8 @@ void Text::Update(float /*deltaSeconds*/) {
 }
 
 void Text::Render(Renderer* renderer) const {
-    auto my_bounds = CalcLocalBounds();
-    auto text_width = _font->CalculateTextWidth(_text);
-    auto text_height = _font->CalculateTextHeight(_text);
-    
+    renderer->SetModelMatrix(GetWorldTransform());
+    renderer->DrawTextLine(_font, _text, _color, _scale);
 }
 
 void Text::DebugRender(Renderer* renderer) const {

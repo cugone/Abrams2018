@@ -251,6 +251,7 @@ AABB2 Element::GetParentBounds() const {
 }
 
 void Element::CalcBounds() {
+    _dirty_bounds = false;
     switch(_mode) {
         case UI::PositionMode::Absolute:
             _bounds = CalcAbsoluteBounds();

@@ -12,8 +12,6 @@
 #include <filesystem>
 #include <iostream>
 
-bool FileLogger::_is_running = false;
-
 FileLogger::~FileLogger() {
     Shutdown();
     _job_system = nullptr;
@@ -131,7 +129,7 @@ void FileLogger::Initialize(JobSystem& jobSystem, const std::string& log_name) {
     _worker = std::thread(&FileLogger::Log_worker, this);
     ::SetThreadDescription(_worker.native_handle(), L"FileLogger");
     std::ostringstream ss;
-    ss << "Initializing Logger: " << log_str << "...";
+    ss << "Initializing Logger: " << folder_p << "...";
     LogLine(ss.str().c_str());
 }
 

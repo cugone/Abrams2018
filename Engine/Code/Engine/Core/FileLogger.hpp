@@ -2,6 +2,7 @@
 
 #include "Engine/Core/ThreadSafeQueue.hpp"
 
+#include <atomic>
 #include <condition_variable>
 #include <fstream>
 #include <iostream>
@@ -57,6 +58,6 @@ private:
     std::condition_variable _signal{};
     ThreadSafeQueue<std::string> _queue;
     JobSystem* _job_system = nullptr;
-    static bool _is_running;
-    bool _requesting_flush = false;
+    std::atomic_bool _is_running = false;
+    std::atomic_bool _requesting_flush = false;
 };

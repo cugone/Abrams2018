@@ -184,10 +184,22 @@ void Element::DebugRender(Renderer* renderer) const {
 
 Matrix4 Element::GetLocalTransform() const {
     auto t = Matrix4::CreateTranslationMatrix(CalcLocalPosition());
-    auto r = Matrix4::GetIdentity();
-    auto s = Matrix4::GetIdentity();
+    auto r = Matrix4::Create2DRotationMatrix(CalcLocalRotationRadians());
+    auto s = Matrix4::CreateScaleMatrix(CalcLocalScale());
     auto model = t * r * s;
     return model;
+}
+
+Vector2 Element::CalcLocalScale() const {
+    auto my_bounds = CalcLocalBounds();
+    auto parent_bounds = GetParentBounds();
+    auto parent_width = parent_bounds.maxs.x - parent_bounds.mins.x;
+    auto my_width = my_bounds.maxs.x - my_bounds.mins.x;
+    auto width_scale = my_width / parent_width;
+    auto parent_height = parent_bounds.maxs.y - parent_bounds.mins.y;
+    auto my_height = my_bounds.maxs.y - my_bounds.mins.y;
+    auto height_scale = my_height / parent_height;
+    return Vector2(width_scale, height_scale);
 }
 
 Matrix4 Element::GetWorldTransform() const {
@@ -205,13 +217,7 @@ void Element::DebugRenderBoundsAndPivot(Renderer* renderer) const {
 
 void Element::DebugRenderPivot(Renderer* renderer) const {
     auto world_transform = GetWorldTransform();
-    auto scale = Vector2(world_transform.GetScale() * 0.01f);
-    auto translate = GetPivot();
-    auto rotation = world_transform.CalcEulerAngles().z;
-    Matrix4 s = Matrix4::CreateScaleMatrix(scale);
-    Matrix4 r = Matrix4::Create2DRotationMatrix(rotation);
-    Matrix4 t = Matrix4::CreateTranslationMatrix(translate);
-    Matrix4 pivot_mat = t * r * s;
+    Matrix4 pivot_mat = world_transform * Matrix4::CreateScaleMatrix(0.01f);
     renderer->SetModelMatrix(pivot_mat);
     renderer->DrawX2D(_pivot_color);
 }
@@ -228,7 +234,7 @@ void Element::DebugRenderBounds(Renderer* renderer) const {
     , Vertex3D(Vector3(bottomLeft, 0.0f), _edge_color, Vector2::ZERO)
     };
     std::vector<unsigned int> ibo = {
-        0, 1, 2, 3
+        0, 1, 2, 3, 0
     };
     renderer->SetMaterial(renderer->GetMaterial("__2D"));
     auto world_transform = GetWorldTransform();
@@ -440,12 +446,44 @@ Vector2 Element::GetBottomRight() const noexcept {
     return _bounds.maxs;
 }
 
+float Element::GetParentOrientationRadians() const {
+    return _parent ? _parent->GetOrientationRadians() : 0.0f;
+}
+
+float Element::GetParentOrientationDegrees() const {
+    return _parent ? _parent->GetOrientationDegrees() : 0.0f;
+}
+
 void Element::SetOrientationDegrees(float value) {
     _orientationRadians = MathUtils::ConvertDegreesToRadians(value);
 }
 
 void Element::SetOrientationRadians(float value) {
     _orientationRadians = value;
+}
+
+float Element::GetOrientationDegrees() const {
+    return MathUtils::ConvertRadiansToDegrees(GetOrientationRadians());
+}
+
+float Element::GetOrientationRadians() const {
+    return _orientationRadians;
+}
+
+float Element::CalcLocalRotationDegrees() const {
+    return MathUtils::ConvertRadiansToDegrees(GetOrientationDegrees());
+}
+
+float Element::CalcLocalRotationRadians() const {
+    return GetOrientationRadians();
+}
+
+float Element::CalcWorldRotationRadians() const {
+    return GetParentOrientationRadians() + GetOrientationRadians();
+}
+
+float Element::CalcWorldRotationDegrees() const {
+    return GetParentOrientationDegrees() + GetOrientationDegrees();
 }
 
 Vector2 Element::GetSize() const {

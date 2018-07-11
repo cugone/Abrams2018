@@ -54,12 +54,23 @@ public:
     const Vector2& GetPivot() const;
     void SetPivot(const PivotPosition& pivotPosition);
 
+    void SetOrientationDegrees(float value);
+    void SetOrientationRadians(float value);
+    float GetOrientationDegrees() const;
+    float GetOrientationRadians() const;
+
 protected:
 
     Vector2 CalcLocalPosition() const;
+    Vector2 CalcLocalScale() const;
+    float CalcLocalRotationRadians() const;
+    float CalcLocalRotationDegrees() const;
+    float CalcWorldRotationRadians() const;
+    float CalcWorldRotationDegrees() const;
 
     Vector2 CalcRelativePosition() const;
     Vector2 CalcRelativePosition(const Vector2& position) const;
+
 
     AABB2 GetParentBounds() const;
 
@@ -108,9 +119,6 @@ protected:
     Vector2 GetBottomLeft() const noexcept;
     Vector2 GetBottomRight() const noexcept;
 
-    void SetOrientationDegrees(float value);
-    void SetOrientationRadians(float value);
-
 private:
     Metric _position{};
     Metric _size{};
@@ -125,6 +133,9 @@ private:
     AABB2 _bounds{};
     float _orientationRadians = 0.0f;
     bool _dirty_bounds = false;
+
+    float GetParentOrientationRadians() const;
+    float GetParentOrientationDegrees() const;
 };
 
 template<typename T>

@@ -48,6 +48,7 @@ private:
 
     void DoCopyLog();
     void CopyLog(void* user_data);
+    void FinalizeLog();
     std::mutex _cs{};
     std::ofstream _stream{};
     std::string _current_log_path{};

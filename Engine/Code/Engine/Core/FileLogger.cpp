@@ -85,9 +85,23 @@ void FileLogger::CopyLog(void* user_data) {
         _stream.close();
         std::cout.rdbuf(_old_cout);
         std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
-        _stream.open(from);
+        _stream.open(from, std::ios_base::app);
         _old_cout = std::cout.rdbuf(_stream.rdbuf());
     }
+}
+
+void FileLogger::FinalizeLog() {
+    std::filesystem::path from_p = _current_log_path;
+    from_p.make_preferred();
+    std::filesystem::path to_p = from_p.parent_path();
+    to_p += "/";
+    to_p += TimeUtils::GetDateTimeStampFromNow();
+    to_p += ".log";
+    to_p.make_preferred();
+    _stream.flush();
+    _stream.close();
+    std::cout.rdbuf(_old_cout);
+    std::filesystem::copy_file(from_p, to_p, std::filesystem::copy_options::overwrite_existing);
 }
 
 void FileLogger::Initialize(JobSystem& jobSystem, const std::string& log_name) {
@@ -123,20 +137,18 @@ void FileLogger::Initialize(JobSystem& jobSystem, const std::string& log_name) {
 
 void FileLogger::Shutdown() {
     if(IsRunning()) {
-        SetIsRunning(false);
-        if(!_queue.empty()) {
-            auto str = _queue.front();
-            _queue.pop();
-            _stream << str;
-            RequestFlush();
+        {
+            std::ostringstream ss;
+            ss << "Shutting down Logger: " << _current_log_path << "...";
+            LogLine(ss.str().c_str());
         }
+        SetIsRunning(false);
         _signal.notify_all();
-        _worker.join();
-        _stream.flush();
-        _stream.close();
-        DoCopyLog();
+        if(_worker.joinable()) {
+            _worker.join();
+        }
+        FinalizeLog();
         _job_system->SetCategorySignal(JobType::Logging, nullptr);
-        std::cout.rdbuf(_old_cout);
     }
 }
 

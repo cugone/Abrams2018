@@ -30,17 +30,26 @@ public:
     const Matrix4& GetProjectionMatrix() const;
     const Matrix4& GetViewProjectionMatrix() const;
 
+    const Matrix4& GetInverseViewMatrix() const;
+    const Matrix4& GetInverseProjectionMatrix() const;
+    const Matrix4& GetInverseViewProjectionMatrix() const;
+
     float trauma = 0.0f;
     float trauma_recovery_rate = 1.0f;
 protected:
 private:
     void CalcViewMatrix();
-    void CalcViewProjectionMatrix();
     void CalcProjectionMatrix();
+    void CalcViewProjectionMatrix();
 
     Matrix4 view_matrix = Matrix4::GetIdentity();
     Matrix4 projection_matrix = Matrix4::GetIdentity();
     Matrix4 view_projection_matrix = Matrix4::GetIdentity();
+    
+    Matrix4 inv_view_matrix = Matrix4::GetIdentity();
+    Matrix4 inv_projection_matrix = Matrix4::GetIdentity();
+    Matrix4 inv_view_projection_matrix = Matrix4::GetIdentity();
+
     Vector2 leftBottom_view = Vector2{ -1.0f, 1.0f };
     Vector2 rightTop_view = Vector2{ 1.0f, -1.0f };
     Vector2 nearFar_distance = Vector2{ 0.0f, 1.0f };

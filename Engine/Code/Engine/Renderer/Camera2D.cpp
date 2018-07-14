@@ -12,10 +12,12 @@ void Camera2D::SetupView(const Vector2& leftBottom, const Vector2& rightTop, con
 
 void Camera2D::CalcViewProjectionMatrix() {
     view_projection_matrix = projection_matrix * view_matrix;
+    inv_view_projection_matrix = Matrix4::CalculateInverse(view_projection_matrix);
 }
 
 void Camera2D::CalcProjectionMatrix() {
     projection_matrix = Matrix4::CreateDXOrthographicProjection(leftBottom_view.x, rightTop_view.x, leftBottom_view.y, rightTop_view.y, nearFar_distance.x, nearFar_distance.y);
+    inv_projection_matrix = Matrix4::CalculateInverse(projection_matrix);
 }
 
 void Camera2D::CalcViewMatrix() {
@@ -25,6 +27,7 @@ void Camera2D::CalcViewMatrix() {
                                                     (leftBottom_view.y - rightTop_view.y),
                                                     nearFar_distance.y - nearFar_distance.x));
     view_matrix = vT * vR * vS;
+    inv_view_matrix = Matrix4::CalculateInverse(view_matrix);
 }
 
 void Camera2D::Update(float deltaSeconds) {
@@ -93,4 +96,16 @@ const Matrix4& Camera2D::GetProjectionMatrix() const {
 
 const Matrix4& Camera2D::GetViewProjectionMatrix() const {
     return view_projection_matrix;
+}
+
+const Matrix4& Camera2D::GetInverseViewMatrix() const {
+    return inv_view_matrix;
+}
+
+const Matrix4& Camera2D::GetInverseProjectionMatrix() const {
+    return inv_projection_matrix;
+}
+
+const Matrix4& Camera2D::GetInverseViewProjectionMatrix() const {
+    return inv_view_projection_matrix;
 }

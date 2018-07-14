@@ -10,10 +10,10 @@ namespace UI {
 
 class Canvas;
 
-class Text : public UI::Element {
+class Label : public UI::Element {
 public:
-    Text(UI::Canvas* parent_canvas);
-    virtual ~Text() = default;
+    Label(UI::Canvas* parent_canvas);
+    virtual ~Label() = default;
 
     virtual void Update(float deltaSeconds) override;
     virtual void Render(Renderer* renderer) const override;

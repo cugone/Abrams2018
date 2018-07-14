@@ -11,7 +11,7 @@ class Camera2D;
 namespace UI {
     class Canvas;
     class Panel;
-    class Text;
+    class Label;
 }
 
 class Game {
@@ -38,7 +38,7 @@ private:
     Camera2D* _camera2 = nullptr;
     UI::Canvas* _canvas = nullptr;
     UI::Panel* _panel = nullptr;
-    UI::Text* _text = nullptr;
+    UI::Label* _text = nullptr;
     UI::PivotPosition _pivot_position = UI::PivotPosition::First_;
     bool _debug = true;
 

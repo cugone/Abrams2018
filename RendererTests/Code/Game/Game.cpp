@@ -62,7 +62,7 @@ void Game::InitializeUI() {
     _panel->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * 0.5f}, Vector2::ZERO });
     _canvas->AddChild(_panel);
 
-    _text = new UI::Text(_canvas);
+    _text = new UI::Label(_canvas);
     _text->SetDebugColors(Rgba::BLACK, Rgba::NOALPHA, Rgba::CYAN);
     _text->SetPivot(UI::PivotPosition::BottomLeft);
     _text->SetText("Hello World");

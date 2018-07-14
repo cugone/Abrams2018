@@ -1,4 +1,4 @@
-#include "Engine/UI/Text.hpp"
+#include "Engine/UI/Label.hpp"
 
 #include "Engine/Core/KerningFont.hpp"
 
@@ -10,17 +10,17 @@
 
 namespace UI {
 
-Text::Text(UI::Canvas* parent_canvas)
+Label::Label(UI::Canvas* parent_canvas)
     : UI::Element(parent_canvas)
 {
     /* DO NOTHING */
 }
 
-void Text::Update(float /*deltaSeconds*/) {
+void Label::Update(float /*deltaSeconds*/) {
     /* DO NOTHING */
 }
 
-void Text::Render(Renderer* renderer) const {
+void Label::Render(Renderer* renderer) const {
     auto world_transform = GetWorldTransform();
     auto world_transform_scale = world_transform.GetScale();
     auto inv_scale_x = 1.0f / world_transform_scale.x;
@@ -37,57 +37,57 @@ void Text::Render(Renderer* renderer) const {
     renderer->DrawTextLine(_font, _text, _color);
 }
 
-void Text::DebugRender(Renderer* renderer) const {
+void Label::DebugRender(Renderer* renderer) const {
     DebugRenderBoundsAndPivot(renderer);
 }
 
-void Text::SetFont(KerningFont* font) {
+void Label::SetFont(KerningFont* font) {
     _font = font;
     DirtyElement();
     CalcBoundsFromFont(_font);
 }
 
-void Text::SetText(const std::string& text) {
+void Label::SetText(const std::string& text) {
     _text = text;
     DirtyElement();
     CalcBoundsFromFont(_font);
 }
 
-const std::string& Text::GetText() const {
+const std::string& Label::GetText() const {
     return _text;
 }
 
-std::string& Text::GetText() {
-    return const_cast<std::string&>(static_cast<const UI::Text&>(*this).GetText());
+std::string& Label::GetText() {
+    return const_cast<std::string&>(static_cast<const UI::Label&>(*this).GetText());
 }
 
-void Text::SetColor(const Rgba& color) {
+void Label::SetColor(const Rgba& color) {
     _color = color;
 }
 
-const Rgba& Text::GetColor() const {
+const Rgba& Label::GetColor() const {
     return _color;
 }
 
-Rgba& Text::GetColor() {
-    return const_cast<Rgba&>(static_cast<const UI::Text&>(*this).GetColor());
+Rgba& Label::GetColor() {
+    return const_cast<Rgba&>(static_cast<const UI::Label&>(*this).GetColor());
 }
 
-void Text::SetScale(float value) {
+void Label::SetScale(float value) {
     _scale = value;
     DirtyElement();
     CalcBoundsFromFont(_font);
 }
 
-float Text::GetScale() const {
+float Label::GetScale() const {
     return _scale;
 }
 
-float Text::GetScale() {
-    return static_cast<const UI::Text&>(*this).GetScale();
+float Label::GetScale() {
+    return static_cast<const UI::Label&>(*this).GetScale();
 }
 
-void Text::CalcBoundsFromFont(KerningFont* font) {
+void Label::CalcBoundsFromFont(KerningFont* font) {
     if(font == nullptr) {
         return;
     }

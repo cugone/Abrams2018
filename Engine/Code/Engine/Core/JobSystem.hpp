@@ -75,7 +75,6 @@ public:
     void Shutdown();
 
     void SetCategorySignal(const JobType& category_id, std::condition_variable* signal);
-    void SetCategoryThread(const JobType& category_id, std::thread&& thread);
     Job* Create(const JobType& category, const std::function<void(void*)>& cb, void* user_data);
     void Run(const JobType& category, const std::function<void(void*)>& cb, void* user_data);
     void Dispatch(Job* job);

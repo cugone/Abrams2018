@@ -4,6 +4,7 @@
 #include "Engine/Core/Win.hpp"
 
 #include <chrono>
+#include <sstream>
 
 std::vector<ThreadSafeQueue<Job*>*> JobSystem::_queues = std::vector<ThreadSafeQueue<Job*>*>{};
 std::vector<std::condition_variable*> JobSystem::_signals = std::vector<std::condition_variable*>{};
@@ -105,7 +106,7 @@ void JobSystem::Initialize(int genericCount, std::size_t categoryCount, std::con
     _main_job_signal = mainJobSignal;
     _queues.resize(categoryCount);
     _signals.resize(categoryCount);
-    _threads.resize(categoryCount);
+    _threads.resize(core_count);
     _is_running = true;
 
     for(std::size_t i = 0; i < categoryCount; ++i) {
@@ -117,10 +118,13 @@ void JobSystem::Initialize(int genericCount, std::size_t categoryCount, std::con
     }
     _signals[static_cast<std::underlying_type_t<JobType>>(JobType::Generic)] = new std::condition_variable;
     
-    auto t = std::thread(&JobSystem::GenericJobWorker, this, _signals[static_cast<std::underlying_type_t<JobType>>(JobType::Generic)]);
-    std::wstring name = L"Generic Job Thread";
-    ::SetThreadDescription(t.native_handle(), name.c_str());
-    SetCategoryThread(JobType::Generic, std::move(t));
+    for(std::size_t i = 0; i < static_cast<std::size_t>(core_count); ++i) {
+        auto t = std::thread(&JobSystem::GenericJobWorker, this, _signals[static_cast<std::underlying_type_t<JobType>>(JobType::Generic)]);
+        std::wostringstream wss;
+        wss << "Generic Job Thread " << i;
+        ::SetThreadDescription(t.native_handle(), wss.str().c_str());
+        _threads[i] = std::move(t);
+    }
 
 }
 
@@ -133,18 +137,25 @@ void JobSystem::Shutdown() {
         return;
     }
     _is_running = false;
-    auto max_jobtype = static_cast<std::underlying_type_t<JobType>>(JobType::Max);
-    for(std::size_t i = 0; i < max_jobtype; ++i) {
-        if(_signals[i]) {
-            _signals[i]->notify_all();
+    for(auto& signal : _signals) {
+        if(signal) {
+            signal->notify_all();
         }
-        if(_threads[i].joinable()) {
-            _threads[i].join();
+    }
+
+    for(auto& thread : _threads) {
+        if(thread.joinable()) {
+            thread.join();
         }
-        delete _queues[i];
-        _queues[i] = nullptr;
-        delete _signals[i];
-        _signals[i] = nullptr;
+    }
+
+    for(auto& queue : _queues) {
+        delete queue;
+        queue = nullptr;
+    }
+    for(auto& signal : _signals) {
+        delete signal;
+        signal = nullptr;
     }
     _main_job_signal = nullptr;
 
@@ -168,10 +179,6 @@ void JobSystem::MainStep() {
 
 void JobSystem::SetCategorySignal(const JobType& category_id, std::condition_variable* signal) {
     _signals[static_cast<std::underlying_type_t<JobType>>(category_id)] = signal;
-}
-
-void JobSystem::SetCategoryThread(const JobType& category_id, std::thread&& thread) {
-    _threads[static_cast<std::underlying_type_t<JobType>>(category_id)] = std::move(thread);
 }
 
 Job* JobSystem::Create(const JobType& category, const std::function<void(void*)>& cb, void* user_data) {

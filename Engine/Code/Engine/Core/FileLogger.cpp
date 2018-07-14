@@ -128,7 +128,6 @@ void FileLogger::Initialize(JobSystem& jobSystem, const std::string& log_name) {
     _old_cout = std::cout.rdbuf(_stream.rdbuf());
     _worker = std::thread(&FileLogger::Log_worker, this);
     ::SetThreadDescription(_worker.native_handle(), L"FileLogger");
-    _job_system->SetCategoryThread(JobType::Logging, std::move(_worker));
     std::ostringstream ss;
     ss << "Initializing Logger: " << _current_log_path << "...";
     LogLine(ss.str().c_str());

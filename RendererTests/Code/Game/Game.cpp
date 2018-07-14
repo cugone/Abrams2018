@@ -42,18 +42,32 @@ Game::~Game() {
 }
 
 void Game::Initialize() {
-    g_theRenderer->RegisterTexturesFromFolder(std::string{"Data/Images"});
-    g_theRenderer->RegisterMaterialsFromFolder(std::string{"Data/Materials"});
-    g_theRenderer->RegisterFontsFromFolder(std::string{"Data/Fonts"});
+    InitializeData();
+    InitializeUI();
+}
 
+void Game::InitializeData() {
+    g_theRenderer->RegisterTexturesFromFolder(std::string{ "Data/Images" });
+    g_theRenderer->RegisterMaterialsFromFolder(std::string{ "Data/Materials" });
+    g_theRenderer->RegisterFontsFromFolder(std::string{ "Data/Fonts" });
+}
+
+void Game::InitializeUI() {
     _canvas = new UI::Canvas(*g_theRenderer, nullptr, (std::min)(GRAPHICS_OPTION_WINDOW_WIDTH, GRAPHICS_OPTION_WINDOW_HEIGHT));
     _canvas->SetDebugColors(Rgba::CYAN, Rgba::NOALPHA);
     _canvas->SetPivot(_pivot_position);
 
     _panel = new UI::Panel(_canvas);
-    _canvas->AddChild(_panel);
     _panel->SetDebugColors(Rgba::ORANGE, Rgba::NOALPHA, Rgba::ORANGE);
     _panel->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * 0.5f}, Vector2::ZERO });
+    _canvas->AddChild(_panel);
+
+    _text = new UI::Text(_canvas);
+    _text->SetDebugColors(Rgba::BLACK, Rgba::NOALPHA, Rgba::CYAN);
+    _text->SetPivot(UI::PivotPosition::BottomLeft);
+    _text->SetText("Hello World");
+    _text->SetFont(g_theRenderer->GetFont("System32"));
+    _panel->AddChild(_text);
 }
 
 void Game::BeginFrame() {
@@ -67,9 +81,9 @@ void Game::Update(float deltaSeconds) {
     }
 
     if(g_theInput->WasKeyJustPressed(KeyCode::Q)) {
-        _canvas->SetPivot(--_pivot_position);
+        _text->SetPivot(--_pivot_position);
     } else if(g_theInput->WasKeyJustPressed(KeyCode::E)) {
-        _canvas->SetPivot(++_pivot_position);
+        _text->SetPivot(++_pivot_position);
     }
 
     if(g_theInput->IsKeyDown(KeyCode::Up)) {
@@ -85,11 +99,13 @@ void Game::Update(float deltaSeconds) {
     }
 
     if(g_theInput->WasKeyJustPressed(KeyCode::R)) {
+        _camera2->SetPosition(Vector2::ZERO);
         _canvas->SetOrientationDegrees(0.0f);
         _panel->SetOrientationDegrees(0.0f);
-        _camera2->SetPosition(Vector2::ZERO);
+        _text->SetOrientationDegrees(0.0f);
         _canvas->SetPivot(UI::PivotPosition::Center);
         _panel->SetPivot(UI::PivotPosition::Center);
+        _text->SetPivot(UI::PivotPosition::BottomLeft);
     }
 
     if(g_theInput->IsKeyDown(KeyCode::F)) {
@@ -196,7 +212,7 @@ void Game::DrawPivotPositionText(const Vector2 &position) const {
     {
         g_theRenderer->SetModelMatrix(Matrix4::CreateTranslationMatrix(Vector2(leftTop.x, leftTop.y + f->GetLineHeight())));
         std::ostringstream ss;
-        ss << _canvas->GetPivot();
+        ss << _text->GetPivot();
         g_theRenderer->DrawTextLine(f, ss.str());
     }
 }

@@ -221,7 +221,11 @@ void Element::DebugRenderBoundsAndPivot(Renderer* renderer) const {
 
 void Element::DebugRenderPivot(Renderer* renderer) const {
     auto world_transform = GetWorldTransform();
-    Matrix4 pivot_mat = world_transform * Matrix4::CreateScaleMatrix(0.01f);
+    auto inv_scale_matrix = Matrix4::CalculateInverse(Matrix4::CreateScaleMatrix(world_transform.GetScale()));
+    Matrix4 pivot_scale_matrix = inv_scale_matrix * Matrix4::CreateScaleMatrix(0.01f);
+    auto pivot_translation = GetPivot();
+    auto pivot_translation_matrix = Matrix4::CreateTranslationMatrix(pivot_translation);
+    Matrix4 pivot_mat = world_transform * pivot_translation_matrix * pivot_scale_matrix;
     renderer->SetModelMatrix(pivot_mat);
     renderer->DrawX2D(_pivot_color);
 }

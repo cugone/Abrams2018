@@ -14,7 +14,9 @@ public:
     virtual ~Canvas();
     virtual void Update(float deltaSeconds) override;
     virtual void Render(Renderer* renderer) const override;
+    void SetupMVPFromTargetAndCamera(Renderer* renderer) const;
     virtual void DebugRender(Renderer* renderer) const override;
+    const Camera2D* GetUICamera() const;
 protected:
 private:
     void CalcDimensionsAndAspectRatio(Vector2& dimensions, float& aspectRatio);

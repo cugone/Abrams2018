@@ -45,10 +45,15 @@ void Canvas::Update(float deltaSeconds) {
 
 void Canvas::Render(Renderer* renderer) const {
     renderer->SetRenderTarget(_target_texture);
+    SetupMVPFromTargetAndCamera(renderer);
+    RenderChildren(renderer);
+}
+
+void Canvas::SetupMVPFromTargetAndCamera(Renderer* renderer) const {
     auto texture_dims = _target_texture->GetDimensions();
     auto target_dims = Vector2((float)texture_dims.x, (float)texture_dims.y);
-    Vector2 leftBottom = Vector2(-0.5f, 0.5f);
-    Vector2 rightTop = Vector2(0.5f, -0.5f);
+    Vector2 leftBottom = Vector2(-0.5f, 0.5f) * target_dims;
+    Vector2 rightTop = Vector2(0.5f, -0.5f) * target_dims;
     Vector2 nearFar{ 0.0f, 1.0f };
     _camera->SetupView(leftBottom, rightTop, nearFar, _aspect_ratio);
     auto scale = target_dims * 0.5f;
@@ -56,11 +61,15 @@ void Canvas::Render(Renderer* renderer) const {
     renderer->SetModelMatrix(s);
     renderer->SetViewMatrix(_camera->GetViewMatrix());
     renderer->SetProjectionMatrix(_camera->GetProjectionMatrix());
-    RenderChildren(renderer);
 }
 
 void Canvas::DebugRender(Renderer* renderer) const {
+    SetupMVPFromTargetAndCamera(renderer);
     DebugRenderBottomUp(renderer);
+}
+
+const Camera2D* Canvas::GetUICamera() const {
+    return _camera;
 }
 
 void Canvas::CalcDimensionsAndAspectRatio(Vector2& dimensions, float& aspectRatio) {

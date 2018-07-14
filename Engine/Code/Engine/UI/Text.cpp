@@ -2,8 +2,10 @@
 
 #include "Engine/Core/KerningFont.hpp"
 
+#include "Engine/Renderer/Camera2D.hpp"
 #include "Engine/Renderer/Renderer.hpp"
 
+#include "Engine/UI/Canvas.hpp"
 #include "Engine/UI/Types.hpp"
 
 namespace UI {
@@ -19,8 +21,20 @@ void Text::Update(float /*deltaSeconds*/) {
 }
 
 void Text::Render(Renderer* renderer) const {
-    renderer->SetModelMatrix(GetWorldTransform());
-    renderer->DrawTextLine(_font, _text, _color, _scale);
+    auto world_transform = GetWorldTransform();
+    auto world_transform_scale = world_transform.GetScale();
+    auto inv_scale_x = 1.0f / world_transform_scale.x;
+    auto inv_scale_y = 1.0f / world_transform_scale.y;
+    auto inv_scale_z = 1.0f / world_transform_scale.z;
+    auto inv_scale = Vector3(inv_scale_x, inv_scale_y, inv_scale_z);
+    auto inv_scale_matrix = Matrix4::CreateScaleMatrix(inv_scale);
+    Vector2 extents = GetSize();
+    Vector2 half_extents = extents * 0.5f;
+    auto inv_half_extents = Vector2(-half_extents.x, half_extents.y);
+    auto inv_half_extents_matrix = Matrix4::CreateTranslationMatrix(inv_half_extents);
+    renderer->SetModelMatrix(world_transform * inv_scale_matrix * inv_half_extents_matrix);
+    renderer->SetViewMatrix(Matrix4::GetIdentity());
+    renderer->DrawTextLine(_font, _text, _color);
 }
 
 void Text::DebugRender(Renderer* renderer) const {
@@ -30,12 +44,13 @@ void Text::DebugRender(Renderer* renderer) const {
 void Text::SetFont(KerningFont* font) {
     _font = font;
     DirtyElement();
+    CalcBoundsFromFont(_font);
 }
 
 void Text::SetText(const std::string& text) {
     _text = text;
     DirtyElement();
-    CalcBoundsForMeThenMyChildren();
+    CalcBoundsFromFont(_font);
 }
 
 const std::string& Text::GetText() const {
@@ -61,6 +76,7 @@ Rgba& Text::GetColor() {
 void Text::SetScale(float value) {
     _scale = value;
     DirtyElement();
+    CalcBoundsFromFont(_font);
 }
 
 float Text::GetScale() const {
@@ -80,11 +96,15 @@ void Text::CalcBoundsFromFont(KerningFont* font) {
     auto old_size = GetSize();
     float old_width = old_size.x;
     float old_height = old_size.y;
-    if(old_width < width) {
-        SetSize(UI::Metric{ UI::Ratio{ Vector2::ZERO }, Vector2{ width, old_height } });
-    }
-    if(old_height < height) {
-        SetSize(UI::Metric{ UI::Ratio{ Vector2::ZERO }, Vector2{ old_width, height } });
+    if(old_width < width && old_height < height) {
+        SetSize(UI::Metric{ UI::Ratio{ Vector2::ZERO }, Vector2{ width, height } });
+    } else {
+        if(old_width < width) {
+            SetSize(UI::Metric{ UI::Ratio{ Vector2::ZERO }, Vector2{ width, old_height } });
+        }
+        if(old_height < height) {
+            SetSize(UI::Metric{ UI::Ratio{ Vector2::ZERO }, Vector2{ old_width, height } });
+        }
     }
 }
 

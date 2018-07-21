@@ -280,6 +280,9 @@
     <ClCompile Include="UI\Label.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="Core\JsonParser.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -539,6 +542,9 @@
     </ClInclude>
     <ClInclude Include="UI\Label.hpp">
       <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\JsonParser.hpp">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

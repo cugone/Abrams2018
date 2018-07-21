@@ -280,7 +280,7 @@
     <ClCompile Include="UI\Label.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="Core\JsonParser.cpp">
+    <ClCompile Include="Core\JsonDocument.cpp">
       <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -543,7 +543,7 @@
     <ClInclude Include="UI\Label.hpp">
       <Filter>UI</Filter>
     </ClInclude>
-    <ClInclude Include="Core\JsonParser.hpp">
+    <ClInclude Include="Core\JsonDocument.hpp">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

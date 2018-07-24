@@ -44,7 +44,12 @@
     <ClCompile Include="Core\FileUtils.cpp" />
     <ClCompile Include="Core\Image.cpp" />
     <ClCompile Include="Core\JobSystem.cpp" />
+    <ClCompile Include="Core\JsonArray.cpp" />
     <ClCompile Include="Core\JsonDocument.cpp" />
+    <ClCompile Include="Core\JsonNumber.cpp" />
+    <ClCompile Include="Core\JsonObject.cpp" />
+    <ClCompile Include="Core\JsonString.cpp" />
+    <ClCompile Include="Core\JsonValue.cpp" />
     <ClCompile Include="Core\KerningFont.cpp" />
     <ClCompile Include="Core\Rgba.cpp" />
     <ClCompile Include="Core\Riff.cpp" />
@@ -130,7 +135,13 @@
     <ClInclude Include="Core\FileUtils.hpp" />
     <ClInclude Include="Core\Image.hpp" />
     <ClInclude Include="Core\JobSystem.hpp" />
+    <ClInclude Include="Core\Json.hpp" />
+    <ClInclude Include="Core\JsonArray.hpp" />
     <ClInclude Include="Core\JsonDocument.hpp" />
+    <ClInclude Include="Core\JsonNumber.hpp" />
+    <ClInclude Include="Core\JsonObject.hpp" />
+    <ClInclude Include="Core\JsonString.hpp" />
+    <ClInclude Include="Core\JsonValue.hpp" />
     <ClInclude Include="Core\KerningFont.hpp" />
     <ClInclude Include="Core\Rgba.hpp" />
     <ClInclude Include="Core\Riff.hpp" />

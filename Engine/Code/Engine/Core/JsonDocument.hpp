@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "Engine/Core/Json.hpp"
+
 namespace DataUtils::Json {
 
     class Document {

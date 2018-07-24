@@ -9,7 +9,7 @@
 
 namespace DataUtils::Json {
 
-    void Document::Parse(const std::string& json_string) {
+    void Document::Parse(const std::string& /*json_string*/) {
 
     }
 
@@ -32,23 +32,23 @@ namespace DataUtils::Json {
         _state = newState;
     }
 
-    Object Document::ParseObject(const std::string::const_iterator& iter) {
+    Object Document::ParseObject(const std::string::const_iterator& /*iter*/) {
 
     }
 
-    Array Document::ParseArray(const std::string::const_iterator& iter) {
+    Array Document::ParseArray(const std::string::const_iterator& /*iter*/) {
 
     }
 
-    Value Document::ParseValue(const std::string::const_iterator& iter) {
+    Value Document::ParseValue(const std::string::const_iterator& /*iter*/) {
 
     }
 
-    String Document::ParseString(const std::string::const_iterator& iter) {
+    String Document::ParseString(const std::string::const_iterator& /*iter*/) {
 
     }
 
-    Number Document::ParseNumber(const std::string::const_iterator& iter) {
+    Number Document::ParseNumber(const std::string::const_iterator& /*iter*/) {
 
     }
 

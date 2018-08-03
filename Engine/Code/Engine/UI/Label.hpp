@@ -32,6 +32,8 @@ public:
     float GetScale() const;
     float GetScale();
 
+    virtual void SetPosition(const Metric& position) override;
+
 protected:
     void CalcBoundsFromFont(KerningFont* font);
 private:

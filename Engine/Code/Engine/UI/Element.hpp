@@ -26,11 +26,21 @@ public:
 
     template<typename T>
     T* CreateChild();
-
     template<typename T>
     T* CreateChild(UI::Canvas* parentCanvas);
+    template<typename T>
+    T* CreateChildBefore(UI::Element* youngerSibling);
+    template<typename T>
+    T* CreateChildBefore(UI::Canvas* parentCanvas, UI::Element* youngerSibling);
+    template<typename T>
+    T* CreateChildAfter(UI::Element* olderSibling);
+    template<typename T>
+    T* CreateChildAfter(UI::Canvas* parentCanvas, UI::Element* olderSibling);
 
     UI::Element* AddChild(UI::Element* child);
+    UI::Element* AddChildBefore(UI::Element* child, UI::Element* younger_sibling);
+    UI::Element* AddChildAfter(UI::Element* child, UI::Element* older_sibling);
+
     void RemoveChild(Element* child);
     void RemoveAllChildren();
     void RemoveSelf();
@@ -48,7 +58,7 @@ public:
     Vector2 GetSize() const;
 
     const UI::Metric& GetPosition() const;
-    void SetPosition(const Metric& position);
+    virtual void SetPosition(const Metric& position);
 
     void SetPivot(const Vector2& pivotPosition);
     const Vector2& GetPivot() const;
@@ -58,6 +68,9 @@ public:
     void SetOrientationRadians(float value);
     float GetOrientationDegrees() const;
     float GetOrientationRadians() const;
+
+    void SetOrder(std::size_t value);
+    std::size_t GetOrder() const;
 
 protected:
 
@@ -133,10 +146,12 @@ private:
     UI::Canvas* _parent_canvas = nullptr;
     AABB2 _bounds{};
     float _orientationRadians = 0.0f;
+    std::size_t _order = 0;
     bool _dirty_bounds = false;
 
     float GetParentOrientationRadians() const;
     float GetParentOrientationDegrees() const;
+    void SortChildren();
 };
 
 template<typename T>
@@ -148,5 +163,27 @@ template<typename T>
 T* UI::Element::CreateChild(UI::Canvas* parentCanvas) {
     return (T*)AddChild(new T{ parentCanvas });
 }
+
+template<typename T>
+T* UI::Element::CreateChildBefore(UI::Element* youngerSibling) {
+    return (T*)AddChildBefore(new T{}, youngerSibling);
+}
+
+template<typename T>
+T* UI::Element::CreateChildAfter(UI::Element* olderSibling) {
+    return (T*)AddChildAfter(new T{}, olderSibling);
+}
+
+template<typename T>
+T* UI::Element::CreateChildBefore(UI::Canvas* parentCanvas, UI::Element* youngerSibling) {
+    return (T*)AddChildBefore(new T{ parentCanvas }, youngerSibling);
+}
+
+template<typename T>
+T* UI::Element::CreateChildAfter(UI::Canvas* parentCanvas, UI::Element* olderSibling) {
+    return (T*)AddChildAfter(new T{ parentCanvas }, olderSibling);
+}
+
+bool operator<(const Element& a, const Element& b);
 
 } //End UI

@@ -31,8 +31,35 @@ Element::~Element() {
 
 Element* Element::AddChild(Element* child) {
     _dirty_bounds = true;
-    child->_parent = this;
     _children.push_back(child);
+    child->_parent = this;
+    child->_order = _children.size();
+    CalcBoundsForMeThenMyChildren();
+    return child;
+}
+
+UI::Element* Element::AddChildBefore(UI::Element* child, UI::Element* younger_sibling) {
+    auto result = AddChild(child);
+    if(younger_sibling->_order > 0) {
+        result->_order = younger_sibling->_order - static_cast<std::size_t>(1);
+    } else {
+        result->_order = younger_sibling->_order;
+        ++(younger_sibling->_order);
+    }
+    SortChildren();
+    CalcBoundsForMeThenMyChildren();
+    return child;
+}
+
+UI::Element* Element::AddChildAfter(UI::Element* child, UI::Element* older_sibling) {
+    auto result = AddChild(child);
+    if(older_sibling->_order < _children.size() - 1) {
+        result->_order = older_sibling->_order + static_cast<std::size_t>(1);
+    } else {
+        result->_order = older_sibling->_order;
+        --(older_sibling->_order);
+    }
+    SortChildren();
     CalcBoundsForMeThenMyChildren();
     return child;
 }
@@ -479,6 +506,14 @@ float Element::GetOrientationRadians() const {
     return _orientationRadians;
 }
 
+void Element::SetOrder(std::size_t value) {
+    _order = value;
+}
+
+std::size_t Element::GetOrder() const {
+    return _order;
+}
+
 float Element::CalcLocalRotationDegrees() const {
     return MathUtils::ConvertRadiansToDegrees(GetOrientationDegrees());
 }
@@ -509,4 +544,11 @@ void Element::SetSize(const Metric& size) {
     CalcBoundsForMeThenMyChildren();
 }
 
+void Element::SortChildren() {
+    std::sort(std::begin(_children), std::end(_children), [](UI::Element* a, UI::Element* b) { return a->_order < b->_order; });
+}
+
+bool operator<(const Element& a, const Element& b) {
+    return a.GetOrder() < b.GetOrder();
+}
 } //End UI

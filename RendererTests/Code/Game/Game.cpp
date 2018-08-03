@@ -36,8 +36,8 @@ Game::~Game() {
     delete _camera2;
     _camera2 = nullptr;
 
-    delete _canvas;
-    _canvas = nullptr;
+    delete _cnvFullscreen;
+    _cnvFullscreen = nullptr;
 
 }
 
@@ -53,21 +53,27 @@ void Game::InitializeData() {
 }
 
 void Game::InitializeUI() {
-    _canvas = new UI::Canvas(*g_theRenderer, nullptr, (std::min)(GRAPHICS_OPTION_WINDOW_WIDTH, GRAPHICS_OPTION_WINDOW_HEIGHT));
-    _canvas->SetDebugColors(Rgba::CYAN, Rgba::NOALPHA);
-    _canvas->SetPivot(_pivot_position);
+    _cnvFullscreen = new UI::Canvas(*g_theRenderer, nullptr, (std::min)(GRAPHICS_OPTION_WINDOW_WIDTH, GRAPHICS_OPTION_WINDOW_HEIGHT));
+    _cnvFullscreen->SetDebugColors(Rgba::CYAN, Rgba::NOALPHA);
+    _cnvFullscreen->SetPivot(UI::PivotPosition::Center);
 
-    _panel = new UI::Panel(_canvas);
-    _panel->SetDebugColors(Rgba::ORANGE, Rgba::NOALPHA, Rgba::ORANGE);
-    _panel->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * 0.5f}, Vector2::ZERO });
-    _canvas->AddChild(_panel);
+    _lblPivotName = new UI::Label(_cnvFullscreen);
+    _lblPivotName->SetDebugColors(Rgba::BLACK, Rgba::NOALPHA, Rgba::CYAN);
+    _lblPivotName->SetPivot(UI::PivotPosition::Center);
+    _lblPivotName->SetText("Hello World");
+    _lblPivotName->SetFont(g_theRenderer->GetFont("System32"));
+    _lblPivotName->SetPosition(UI::Metric{ UI::Ratio{Vector2(0.0f, 0.0f)}, Vector2::ZERO });
+    _cnvFullscreen->AddChild(_lblPivotName);
 
-    _text = new UI::Label(_canvas);
-    _text->SetDebugColors(Rgba::BLACK, Rgba::NOALPHA, Rgba::CYAN);
-    _text->SetPivot(UI::PivotPosition::BottomLeft);
-    _text->SetText("Hello World");
-    _text->SetFont(g_theRenderer->GetFont("System32"));
-    _panel->AddChild(_text);
+    _lblPivotPosition = new UI::Label(_cnvFullscreen);
+    _lblPivotPosition->SetFont(g_theRenderer->GetFont("System32"));
+    _lblPivotPosition->SetDebugColors(Rgba::BLACK, Rgba::NOALPHA, Rgba::CYAN);
+    _lblPivotPosition->SetPivot(UI::PivotPosition::Center);
+    _lblPivotPosition->SetText("Hello World");
+    _lblPivotPosition->SetPosition(UI::Metric{ UI::Ratio{Vector2(0.0f, 0.0f)}, Vector2(0.0f, 0.1f) });//_lblPivotName->GetSize().y) });
+    _cnvFullscreen->AddChild(_lblPivotPosition);
+
+    SetPivotPositionText();
 }
 
 void Game::BeginFrame() {
@@ -81,47 +87,28 @@ void Game::Update(float deltaSeconds) {
     }
 
     if(g_theInput->WasKeyJustPressed(KeyCode::Q)) {
-        _text->SetPivot(--_pivot_position);
+        _lblPivotName->SetPivot(--_pivot_position);
+        SetPivotPositionText();
     } else if(g_theInput->WasKeyJustPressed(KeyCode::E)) {
-        _text->SetPivot(++_pivot_position);
+        _lblPivotName->SetPivot(++_pivot_position);
+        SetPivotPositionText();
     }
-
-    if(g_theInput->IsKeyDown(KeyCode::Up)) {
-        _camera2->Translate(Vector2(0.0f, -_cameraSpeed));
-    } else if(g_theInput->IsKeyDown(KeyCode::Down)) {
-        _camera2->Translate(Vector2(0.0f, _cameraSpeed));
-    }
-
-    if(g_theInput->IsKeyDown(KeyCode::Left)) {
-        _camera2->Translate(Vector2(-_cameraSpeed, 0.0f));
-    } else if(g_theInput->IsKeyDown(KeyCode::Right)) {
-        _camera2->Translate(Vector2(_cameraSpeed, 0.0f));
-    }
-
+    
     if(g_theInput->WasKeyJustPressed(KeyCode::R)) {
         _camera2->SetPosition(Vector2::ZERO);
-        _canvas->SetOrientationDegrees(0.0f);
-        _panel->SetOrientationDegrees(0.0f);
-        _text->SetOrientationDegrees(0.0f);
-        _canvas->SetPivot(UI::PivotPosition::Center);
-        _panel->SetPivot(UI::PivotPosition::Center);
-        _text->SetPivot(UI::PivotPosition::BottomLeft);
-    }
+        
+        _cnvFullscreen->SetOrientationDegrees(0.0f);
+        _cnvFullscreen->SetPivot(UI::PivotPosition::TopLeft);
+        _cnvFullscreen->SetPosition(UI::Metric{ UI::Ratio{}, Vector2::ZERO });
 
-    if(g_theInput->IsKeyDown(KeyCode::F)) {
-        _canvas->SetOrientationDegrees(_canvas->GetOrientationDegrees() + 1.0f);
-    }
+        _lblPivotPosition->SetOrientationDegrees(0.0f);
+        _lblPivotPosition->SetPivot(UI::PivotPosition::BottomLeft);
+        _lblPivotPosition->SetPosition(UI::Metric{ UI::Ratio{Vector2{0.0f, 0.0f}}, Vector2::ZERO });
 
-    if(g_theInput->IsKeyDown(KeyCode::G)) {
-        _canvas->SetOrientationDegrees(_canvas->GetOrientationDegrees() - 1.0f);
-    }
+        _lblPivotName->SetOrientationDegrees(0.0f);
+        _lblPivotName->SetPivot(UI::PivotPosition::BottomLeft);
+        _lblPivotName->SetPosition(UI::Metric{ UI::Ratio{Vector2{0.0f, 0.0f}}, Vector2::ZERO });
 
-    if(g_theInput->IsKeyDown(KeyCode::V)) {
-        _panel->SetOrientationDegrees(_panel->GetOrientationDegrees() + 1.0f);
-    }
-
-    if(g_theInput->IsKeyDown(KeyCode::B)) {
-        _panel->SetOrientationDegrees(_panel->GetOrientationDegrees() - 1.0f);
     }
 
     if(g_theInput->WasKeyJustPressed(KeyCode::F1)) {
@@ -133,7 +120,7 @@ void Game::Update(float deltaSeconds) {
     }
 
     _camera2->Update(deltaSeconds);
-    _canvas->Update(deltaSeconds);
+    _cnvFullscreen->Update(deltaSeconds);
 }
 
 void Game::Render() const {
@@ -162,58 +149,51 @@ void Game::Render() const {
 
     g_theRenderer->SetProjectionMatrix(_camera2->GetProjectionMatrix());
 
-    DrawPivotPositionText(Vector2(view_leftBottom.x, view_rightTop.y));
-
     g_theRenderer->SetViewMatrix(_camera2->GetViewMatrix());
 
-    _canvas->Render(g_theRenderer);
+    _cnvFullscreen->Render(g_theRenderer);
     if(_debug) {
-        _canvas->DebugRender(g_theRenderer);
+        _cnvFullscreen->DebugRender(g_theRenderer);
     }
 }
 
-void Game::DrawPivotPositionText(const Vector2 &position) const {
-    auto f = g_theRenderer->GetFont("System32");
-    Vector2 leftTop = Vector2(position.x + 1, position.y + f->GetLineHeight());
-    g_theRenderer->SetModelMatrix(Matrix4::CreateTranslationMatrix(leftTop));
-    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Font_System32"));
+void Game::SetPivotPositionText() const {
     switch(_pivot_position) {
         case UI::PivotPosition::Center:
-            g_theRenderer->DrawTextLine(f, "Pivot Position: CENTER");
+            _lblPivotName->SetText("Pivot Position: CENTER");
             break;
         case UI::PivotPosition::TopLeft:
-            g_theRenderer->DrawTextLine(f, "Pivot Position: TOP LEFT");
+            _lblPivotName->SetText("Pivot Position: TOP LEFT");
             break;
         case UI::PivotPosition::Top:
-            g_theRenderer->DrawTextLine(f, "Pivot Position: TOP");
+            _lblPivotName->SetText("Pivot Position: TOP");
             break;
         case UI::PivotPosition::TopRight:
-            g_theRenderer->DrawTextLine(f, "Pivot Position: TOP RIGHT");
+            _lblPivotName->SetText("Pivot Position: TOP RIGHT");
             break;
         case UI::PivotPosition::Right:
-            g_theRenderer->DrawTextLine(f, "Pivot Position: RIGHT");
+            _lblPivotName->SetText("Pivot Position: RIGHT");
             break;
         case UI::PivotPosition::BottomRight:
-            g_theRenderer->DrawTextLine(f, "Pivot Position: BOTTOM RIGHT");
+            _lblPivotName->SetText("Pivot Position: BOTTOM RIGHT");
             break;
         case UI::PivotPosition::Bottom:
-            g_theRenderer->DrawTextLine(f, "Pivot Position: BOTTOM");
+            _lblPivotName->SetText("Pivot Position: BOTTOM");
             break;
         case UI::PivotPosition::BottomLeft:
-            g_theRenderer->DrawTextLine(f, "Pivot Position: BOTTOM LEFT");
+            _lblPivotName->SetText("Pivot Position: BOTTOM LEFT");
             break;
         case UI::PivotPosition::Left:
-            g_theRenderer->DrawTextLine(f, "Pivot Position: LEFT");
+            _lblPivotName->SetText("Pivot Position: LEFT");
             break;
         default:
-            g_theRenderer->DrawTextLine(f, "Pivot Position: NONE");
+            _lblPivotName->SetText("Pivot Position: NONE");
             break;
     }
     {
-        g_theRenderer->SetModelMatrix(Matrix4::CreateTranslationMatrix(Vector2(leftTop.x, leftTop.y + f->GetLineHeight())));
         std::ostringstream ss;
-        ss << _text->GetPivot();
-        g_theRenderer->DrawTextLine(f, ss.str());
+        ss << _lblPivotName->GetPivot();
+        _lblPivotPosition->SetText(ss.str());
     }
 }
 

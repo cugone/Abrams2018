@@ -26,7 +26,7 @@ public:
     void BeginFrame();
     void Update(float deltaSeconds);
     void Render() const;
-    void DrawPivotPositionText(const Vector2& position) const;
+    void SetPivotPositionText() const;
     void EndFrame();
 
 protected:
@@ -36,9 +36,9 @@ private:
 
     float _cameraSpeed = 10.0f;
     Camera2D* _camera2 = nullptr;
-    UI::Canvas* _canvas = nullptr;
-    UI::Panel* _panel = nullptr;
-    UI::Label* _text = nullptr;
+    UI::Canvas* _cnvFullscreen = nullptr;
+    UI::Label* _lblPivotPosition = nullptr;
+    UI::Label* _lblPivotName = nullptr;
     UI::PivotPosition _pivot_position = UI::PivotPosition::First_;
     bool _debug = true;
 

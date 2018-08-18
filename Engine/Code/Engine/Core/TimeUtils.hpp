@@ -9,6 +9,7 @@ namespace TimeUtils {
 template<typename Duration = std::chrono::duration<double>
         , typename Clock = std::chrono::high_resolution_clock>
 decltype(auto) GetCurrentTimeElapsed() {
+    using namespace std::chrono;
     static auto initial_now = time_point_cast<Duration>(Clock::now());
     auto now = time_point_cast<Duration>(Clock::now());
     return (now - initial_now).count();

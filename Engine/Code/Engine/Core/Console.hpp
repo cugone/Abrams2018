@@ -125,13 +125,13 @@ private:
     float _default_blink_time = 0.33f;
     float _blink_time = _default_blink_time;
     float _current_blink_time = 0.0f;
-    bool _show_cursor = false;
-    bool _is_open = false;
-    bool _highlight_mode = false;
-    bool _skip_nonwhitespace_mode = false;
-    bool _dirty_text = false;
-    bool _non_rendering_char = false;
-    bool _entryline_changed = false;
-    bool _output_changed = false;
+    uint8_t _show_cursor             : 1;
+    uint8_t _is_open                 : 1;
+    uint8_t _highlight_mode          : 1;
+    uint8_t _skip_nonwhitespace_mode : 1;
+    uint8_t _dirty_text              : 1;
+    uint8_t _non_rendering_char      : 1;
+    uint8_t _entryline_changed       : 1;
+    uint8_t _output_changed          : 1;
 
 };

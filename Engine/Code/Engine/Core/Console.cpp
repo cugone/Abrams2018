@@ -41,6 +41,15 @@ void* Console::GetAcceleratorTable() const {
 Console::Console(Renderer* renderer)
     : EngineSubsystem()
     , _renderer(renderer)
+    , _show_cursor(false)
+    , _is_open(false)
+    , _highlight_mode(false)
+    , _skip_nonwhitespace_mode(false)
+    , _dirty_text(false)
+    , _non_rendering_char(false)
+    , _entryline_changed(false)
+    , _output_changed(false)
+
 {
     ACCEL copy{};
     copy.fVirt = FCONTROL | FVIRTKEY;
@@ -736,7 +745,6 @@ void Console::Render() const {
     if(IsClosed()) {
         return;
     }
-
     auto view_half_extents = SetupViewFromCamera();
     DrawBackground(view_half_extents);
     DrawOutput(view_half_extents);
@@ -764,9 +772,6 @@ void Console::DrawCursor(const Vector2& view_half_extents) const {
 }
 
 void Console::DrawOutput(const Vector2& view_half_extents) const {
-    if(!_output_changed) {
-        return;
-    }
     auto font = _renderer->GetFont("System32");
     _renderer->SetMaterial(font->GetMaterial());
     float y = font->GetLineHeight();
@@ -953,6 +958,7 @@ void Console::DrawBackground(const Vector2& view_half_extents) const {
 }
 
 void Console::DrawEntryLine(const Vector2& view_half_extents) const {
+
     auto font = _renderer->GetFont("System32");
     float textline_bottom = view_half_extents.y * 0.99f;
     float textline_left = -view_half_extents.x * 0.99f;
@@ -1009,7 +1015,6 @@ Vector2 Console::SetupViewFromCamera() const {
     Vector2 leftBottom = Vector2(-view_half_width, view_half_height);
     Vector2 rightTop = Vector2(view_half_width, -view_half_height);
     Vector2 nearFar = Vector2(0.0f, 1.0f);
-    Vector2 cam_pos2 = Vector2(_camera->GetPosition());
     _camera->SetupView(leftBottom, rightTop, nearFar, _renderer->GetOutput()->GetAspectRatio());
 
     _renderer->SetViewMatrix(_camera->GetViewMatrix());

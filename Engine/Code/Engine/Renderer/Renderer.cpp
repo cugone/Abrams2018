@@ -1052,7 +1052,9 @@ bool Renderer::RegisterFont(const std::filesystem::path& filepath) {
 
 void Renderer::RegisterFontsFromFolder(const std::string& folderpath, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
-    return RegisterFontsFromFolder(FS::path{ folderpath }, recursive);
+    FS::path path{ folderpath };
+    path.make_preferred();
+    return RegisterFontsFromFolder(path, recursive);
 }
 
 void Renderer::RegisterFontsFromFolder(const std::filesystem::path& folderpath, bool recursive /*= false*/) {
@@ -1288,7 +1290,9 @@ bool Renderer::RegisterMaterial(const std::filesystem::path& filepath) {
 
 void Renderer::RegisterMaterialsFromFolder(const std::string& folderpath, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
-    RegisterMaterialsFromFolder(FS::path{folderpath}, recursive);
+    FS::path path{ folderpath };
+    path.make_preferred();
+    RegisterMaterialsFromFolder(path, recursive);
 }
 
 void Renderer::RegisterMaterialsFromFolder(const std::filesystem::path& folderpath, bool recursive /*= false*/) {

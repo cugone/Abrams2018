@@ -1570,7 +1570,9 @@ Texture* Renderer::CreateOrGetTexture(const std::string& filepath, const IntVect
 
 void Renderer::RegisterTexturesFromFolder(const std::string& folderpath, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
-    RegisterTexturesFromFolder(FS::path{ folderpath }, recursive);
+    FS::path path{ folderpath };
+    path.make_preferred();
+    RegisterTexturesFromFolder(path, recursive);
 }
 
 void Renderer::RegisterTexturesFromFolder(const std::filesystem::path& folderpath, bool recursive /*= false*/) {

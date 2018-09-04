@@ -1006,16 +1006,17 @@ void Console::DrawEntryLine(const Vector2& view_half_extents) const {
 }
 
 Vector2 Console::SetupViewFromCamera() const {
-    const auto& window_dimensions = _renderer->GetOutput()->GetDimensions();
+    const auto& window = _renderer->GetOutput();
+    const auto& window_dimensions = window->GetDimensions();
+    const auto& aspect = window->GetAspectRatio();
     float window_width = static_cast<float>(window_dimensions.x);
     float window_height = static_cast<float>(window_dimensions.y);
     float view_half_width = window_width * 0.50f;
     float view_half_height = window_height * 0.50f;
-
     Vector2 leftBottom = Vector2(-view_half_width, view_half_height);
     Vector2 rightTop = Vector2(view_half_width, -view_half_height);
     Vector2 nearFar = Vector2(0.0f, 1.0f);
-    _camera->SetupView(leftBottom, rightTop, nearFar, _renderer->GetOutput()->GetAspectRatio());
+    _camera->SetupView(leftBottom, rightTop, nearFar, aspect);
 
     _renderer->SetViewMatrix(_camera->GetViewMatrix());
     _renderer->SetProjectionMatrix(_camera->GetProjectionMatrix());

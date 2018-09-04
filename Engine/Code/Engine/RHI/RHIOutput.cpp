@@ -70,8 +70,12 @@ IntVector2 RHIOutput::GetDimensions() const {
 
 float RHIOutput::GetAspectRatio() const {
     if(_window) {
-        auto dims = GetDimensions();
-        return dims.y / static_cast<float>(dims.x);
+        const auto& dims = GetDimensions();
+        if(dims.y < dims.x) {
+            return dims.x / static_cast<float>(dims.y);
+        } else {
+            return dims.y / static_cast<float>(dims.x);
+        }
     }
     return 0.0f;
 }

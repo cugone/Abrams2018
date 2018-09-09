@@ -654,7 +654,7 @@ bool KerningFont::LoadFromXml(std::vector<unsigned char>& buffer) {
 }
 
 bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) {
-    //See http://www.angelcode.com/products/bmfont/doc/file_format.html#bin
+    //See https://www.angelcode.com/products/bmfont/doc/file_format.html#bin
     //for specifics regarding layout
 
     struct BMFBinaryHeader {
@@ -738,7 +738,7 @@ bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) {
             return false;
         }
         if(header.version != CURRENT_BMF_VERSION) {
-            DebuggerPrintf("BMF VERSION NUMBER HAS CHANGED. See http://www.angelcode.com/products/bmfont/doc/file_format.html#bin for updates!\n");
+            DebuggerPrintf("BMF VERSION NUMBER HAS CHANGED. See https://www.angelcode.com/products/bmfont/doc/file_format.html#bin for updates!\n");
             return false;
         }
     }
@@ -852,7 +852,7 @@ bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) {
             }
             default:
             {
-                DebuggerPrintf("BMF LAYOUT HAS CHANGED. See http://www.angelcode.com/products/bmfont/doc/file_format.html#bin for updates!\n");
+                DebuggerPrintf("BMF LAYOUT HAS CHANGED. See https://www.angelcode.com/products/bmfont/doc/file_format.html#bin for updates!\n");
                 return false;
             }
         }

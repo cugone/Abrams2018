@@ -284,7 +284,7 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
 
 }
 
-bool Console::HandleClipboardCopy() {
+bool Console::HandleClipboardCopy() const {
     bool did_copy = false;
     if(_cursor_position != _selection_position) {
         std::string copied_text = CopyText(_cursor_position, _selection_position);
@@ -645,7 +645,7 @@ void Console::RemoveText(std::string::const_iterator start, std::string::const_i
     _entryline_changed = true;
 }
 
-std::string Console::CopyText(std::string::const_iterator start, std::string::const_iterator end) {
+std::string Console::CopyText(std::string::const_iterator start, std::string::const_iterator end) const {
     if(end < start) {
         std::swap(start, end);
     }
@@ -745,6 +745,11 @@ void Console::Render() const {
     if(IsClosed()) {
         return;
     }
+
+    _renderer->SetModelMatrix(Matrix4::GetIdentity());
+    _renderer->SetViewMatrix(Matrix4::GetIdentity());
+    _renderer->SetProjectionMatrix(Matrix4::GetIdentity());
+
     auto view_half_extents = SetupViewFromCamera();
     DrawBackground(view_half_extents);
     DrawOutput(view_half_extents);

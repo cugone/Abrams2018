@@ -70,7 +70,7 @@ private:
     bool HandleBackspaceKey();
     bool HandleEscapeKey();
     bool HandleTabKey();
-    bool HandleClipboardCopy();
+    bool HandleClipboardCopy() const;
     void HandleClipboardPaste();
     void HandleClipboardCut();
     void HandleSelectAll();
@@ -83,7 +83,7 @@ private:
     void RemoveTextInFrontOfCaret();
     void RemoveTextBehindCaret();
     void RemoveText(std::string::const_iterator start, std::string::const_iterator end);
-    std::string CopyText(std::string::const_iterator start, std::string::const_iterator end);
+    std::string CopyText(std::string::const_iterator start, std::string::const_iterator end) const;
     void PasteText(const std::string& text, std::string::const_iterator loc);
     void DrawBackground(const Vector2& view_half_extents) const;
     void DrawEntryLine(const Vector2& view_half_extents) const;

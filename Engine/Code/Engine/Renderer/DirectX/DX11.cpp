@@ -3,18 +3,18 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
 
-bitfield_t MIP_MASK_BITS = 0b0000'0001;
-bitfield_t MAG_MASK_BITS = 0b0000'0010;
-bitfield_t MIN_MASK_BITS = 0b0000'0100;
-bitfield_t COMPARISON_MASK_BITS = 0b0000'1000;
-bitfield_t MINIMUM_MASK_BITS = 0b0001'0000;
-bitfield_t MAXIMUM_MASK_BITS = 0b0010'0000;
-bitfield_t ANISOTROPIC_MASK_BITS = 0b0100'0000;
+constexpr const bitfield_t MIP_MASK_BITS = 0b0000'0001;
+constexpr const bitfield_t MAG_MASK_BITS = 0b0000'0010;
+constexpr const bitfield_t MIN_MASK_BITS = 0b0000'0100;
+constexpr const bitfield_t COMPARISON_MASK_BITS = 0b0000'1000;
+constexpr const bitfield_t MINIMUM_MASK_BITS = 0b0001'0000;
+constexpr const bitfield_t MAXIMUM_MASK_BITS = 0b0010'0000;
+constexpr const bitfield_t ANISOTROPIC_MASK_BITS = 0b0100'0000;
 
 //Dragons be here!! Look at your own risk!
 D3D11_FILTER FilterModeToD3DFilter(const FilterMode& minFilterMode, const FilterMode& magFilterMode, const FilterMode& mipFilterMode, const FilterComparisonMode& minMaxComparison) {
 
-    bitfield_t filter_mask = GetFilterMaskFromModes(minFilterMode, magFilterMode, mipFilterMode, minMaxComparison);
+    const bitfield_t filter_mask = GetFilterMaskFromModes(minFilterMode, magFilterMode, mipFilterMode, minMaxComparison);
 
     //Any anisotropic setting overrides all others.
     if((filter_mask & ANISOTROPIC_MASK_BITS) == ANISOTROPIC_MASK_BITS) {

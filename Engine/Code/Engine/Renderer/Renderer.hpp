@@ -195,6 +195,7 @@ public:
     void DrawQuad2D(const Rgba& color, const Vector4& texCoords);
     void DrawCircle2D(float centerX, float centerY, float radius, const Rgba& color = Rgba::WHITE);
     void DrawCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::WHITE);
+    void DrawFilledCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::WHITE);
     void DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents = Vector2(0.5f, 0.5f));
     void DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor);
     void DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::WHITE);

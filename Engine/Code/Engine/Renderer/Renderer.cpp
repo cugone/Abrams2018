@@ -39,10 +39,10 @@
 #include "Thirdparty/stb/stb_image.h"
 #include "Thirdparty/TinyXML2/tinyxml2.h"
 
+#include <cstddef>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
-#include <cstddef>
 
 Renderer::Renderer(unsigned int width, unsigned int height)
     : _window_dimensions(width, height)
@@ -440,6 +440,34 @@ void Renderer::DrawCircle2D(float centerX, float centerY, float radius, const Rg
 
 void Renderer::DrawCircle2D(const Vector2& center, float radius, const Rgba& color /*= Rgba::WHITE*/) {
     DrawCircle2D(center.x, center.y, radius, color);
+}
+
+void Renderer::DrawFilledCircle2D(const Vector2& center, float radius, const Rgba& color /*= Rgba::WHITE*/) {
+
+    int num_sides = 65;
+    std::vector<Vector3> verts;
+    verts.reserve(num_sides + 1);
+    float anglePerVertex = 360.0f / static_cast<float>(num_sides);
+    for(float degrees = 0.0f; degrees < 360.0f; degrees += anglePerVertex) {
+        float radians = MathUtils::ConvertDegreesToRadians(degrees);
+        float pX = radius * std::cos(radians) + center.x;
+        float pY = radius * std::sin(radians) + center.y;
+        verts.emplace_back(Vector2(pX, pY), 0.0f);
+    }
+
+    std::vector<Vertex3D> vbo;
+    vbo.reserve(verts.size());
+    for(std::size_t i = 0; i < verts.size(); ++i) {
+        vbo.emplace_back(verts[i], color);
+    }
+
+    std::vector<unsigned int> ibo(num_sides * 3);
+    unsigned int j = 1;
+    for(std::size_t i = 1; i < ibo.size(); i += 3) {
+        ibo[i] = (j++);
+        ibo[i + 1] = (j);
+    }
+    DrawIndexed(PrimitiveType::TriangleStrip, vbo, ibo);
 }
 
 void Renderer::DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents /*= Vector2(0.5f, 0.5f)*/) {

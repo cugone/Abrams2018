@@ -1,11 +1,11 @@
 #pragma once
 
-#include <functional>
-#include <string>
-
 #include "Engine/Core/Win.hpp"
 
 #include "Engine/RHI/RHITypes.hpp"
+
+#include <functional>
+#include <string>
 
 class IntVector2;
 
@@ -35,7 +35,7 @@ public:
     void SetForegroundWindow();
     void SetFocus();
     
-    HWND GetWindowHandle();
+    HWND GetWindowHandle() const;
     void SetWindowHandle(HWND hWnd);
 
     const RHIOutputMode& GetDisplayMode() const;

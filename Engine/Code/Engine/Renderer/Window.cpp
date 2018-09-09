@@ -17,7 +17,7 @@ Window::Window() {
 
     RECT desktopRect;
     HWND desktopHwnd = ::GetDesktopWindow();
-    GetClientRect(desktopHwnd, &desktopRect);
+    ::GetClientRect(desktopHwnd, &desktopRect);
 
     ::AdjustWindowRectEx(&desktopRect, _styleFlags, _hasMenu, _styleFlagsEx);
     ::GetClipCursor(&_initialClippingArea);
@@ -135,7 +135,7 @@ void Window::SetFocus() {
     ::SetFocus(_hWnd);
 }
 
-HWND Window::GetWindowHandle() {
+HWND Window::GetWindowHandle() const {
     return _hWnd;
 }
 

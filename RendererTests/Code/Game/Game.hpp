@@ -7,6 +7,7 @@
 #include <string>
 
 class Camera2D;
+class Camera3D;
 
 namespace UI {
     class Canvas;
@@ -26,20 +27,22 @@ public:
     void BeginFrame();
     void Update(float deltaSeconds);
     void Render() const;
-    void SetPivotPositionText() const;
     void EndFrame();
 
 protected:
 private:
+    void UpdateCameraFromKeyboard(float deltaSeconds);
+    void UpdateCameraFromMouse(float deltaSeconds);
     void DoExport();
     void GenerateImageData(void* data);
+    void DrawWorldGrid() const;
+    void DrawAxes() const;
+    void DrawCube() const;
 
-    float _cameraSpeed = 10.0f;
+    const float _cameraSpeed = 10.0f;
+    const float _camera_move_speed_multiplier = 10.0f;
     Camera2D* _camera2 = nullptr;
-    UI::Canvas* _cnvFullscreen = nullptr;
-    UI::Label* _lblPivotPosition = nullptr;
-    UI::Label* _lblPivotName = nullptr;
-    UI::PivotPosition _pivot_position = UI::PivotPosition::First_;
+    Camera3D* _camera3 = nullptr;
     bool _debug = true;
 
 };

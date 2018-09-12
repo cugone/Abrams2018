@@ -16,6 +16,7 @@
 #include "Engine/Renderer/Texture1D.hpp"
 #include "Engine/Renderer/Texture2D.hpp"
 #include "Engine/Renderer/Texture3D.hpp"
+#include "Engine/Renderer/Window.hpp"
 
 #include "Engine/RHI/RHIOutput.hpp"
 
@@ -26,18 +27,20 @@
 
 #include <algorithm>
 #include <functional>
+#include <numeric>
 #include <sstream>
 
 Game::Game() {
     _camera2 = new Camera2D;
+    _camera3 = new Camera3D;
 }
 
 Game::~Game() {
+    delete _camera3;
+    _camera3 = nullptr;
+
     delete _camera2;
     _camera2 = nullptr;
-
-    delete _cnvFullscreen;
-    _cnvFullscreen = nullptr;
 
 }
 
@@ -53,27 +56,7 @@ void Game::InitializeData() {
 }
 
 void Game::InitializeUI() {
-    _cnvFullscreen = new UI::Canvas(*g_theRenderer, nullptr, (std::min)(GRAPHICS_OPTION_WINDOW_WIDTH, GRAPHICS_OPTION_WINDOW_HEIGHT));
-    _cnvFullscreen->SetDebugColors(Rgba::CYAN, Rgba::NOALPHA);
-    _cnvFullscreen->SetPivot(UI::PivotPosition::Center);
-
-    _lblPivotName = new UI::Label(_cnvFullscreen);
-    _lblPivotName->SetDebugColors(Rgba::BLACK, Rgba::NOALPHA, Rgba::CYAN);
-    _lblPivotName->SetPivot(UI::PivotPosition::Center);
-    _lblPivotName->SetText("Hello World");
-    _lblPivotName->SetFont(g_theRenderer->GetFont("System32"));
-    _lblPivotName->SetPosition(UI::Metric{ UI::Ratio{Vector2(0.0f, 0.0f)}, Vector2::ZERO });
-    _cnvFullscreen->AddChild(_lblPivotName);
-
-    _lblPivotPosition = new UI::Label(_cnvFullscreen);
-    _lblPivotPosition->SetFont(g_theRenderer->GetFont("System32"));
-    _lblPivotPosition->SetDebugColors(Rgba::BLACK, Rgba::NOALPHA, Rgba::CYAN);
-    _lblPivotPosition->SetPivot(UI::PivotPosition::Center);
-    _lblPivotPosition->SetText("Hello World");
-    _lblPivotPosition->SetPosition(UI::Metric{ UI::Ratio{Vector2(0.0f, 0.0f)}, Vector2(0.0f, 0.1f) });//_lblPivotName->GetSize().y) });
-    _cnvFullscreen->AddChild(_lblPivotPosition);
-
-    SetPivotPositionText();
+    /* DO NOTHING */
 }
 
 void Game::BeginFrame() {
@@ -86,30 +69,8 @@ void Game::Update(float deltaSeconds) {
         return;
     }
 
-    if(g_theInput->WasKeyJustPressed(KeyCode::Q)) {
-        _lblPivotName->SetPivot(--_pivot_position);
-        SetPivotPositionText();
-    } else if(g_theInput->WasKeyJustPressed(KeyCode::E)) {
-        _lblPivotName->SetPivot(++_pivot_position);
-        SetPivotPositionText();
-    }
-    
-    if(g_theInput->WasKeyJustPressed(KeyCode::R)) {
-        _camera2->SetPosition(Vector2::ZERO);
-        
-        _cnvFullscreen->SetOrientationDegrees(0.0f);
-        _cnvFullscreen->SetPivot(UI::PivotPosition::TopLeft);
-        _cnvFullscreen->SetPosition(UI::Metric{ UI::Ratio{}, Vector2::ZERO });
-
-        _lblPivotPosition->SetOrientationDegrees(0.0f);
-        _lblPivotPosition->SetPivot(UI::PivotPosition::BottomLeft);
-        _lblPivotPosition->SetPosition(UI::Metric{ UI::Ratio{Vector2{0.0f, 0.0f}}, Vector2::ZERO });
-
-        _lblPivotName->SetOrientationDegrees(0.0f);
-        _lblPivotName->SetPivot(UI::PivotPosition::BottomLeft);
-        _lblPivotName->SetPosition(UI::Metric{ UI::Ratio{Vector2{0.0f, 0.0f}}, Vector2::ZERO });
-
-    }
+    UpdateCameraFromKeyboard(deltaSeconds);
+    UpdateCameraFromMouse(deltaSeconds);
 
     if(g_theInput->WasKeyJustPressed(KeyCode::F1)) {
         _debug = !_debug;
@@ -120,12 +81,103 @@ void Game::Update(float deltaSeconds) {
     }
 
     _camera2->Update(deltaSeconds);
-    _cnvFullscreen->Update(deltaSeconds);
+    _camera3->Update(deltaSeconds);
+    std::ostringstream ss;
+    Vector3 camera_angles{ _camera3->rotationPitch, _camera3->rotationYaw, _camera3->rotationRoll};
+    ss << "P: " << _camera3->GetPosition() << " R: " << camera_angles << '\n';
+    DebuggerPrintf(ss.str().c_str());
+}
+
+void Game::UpdateCameraFromKeyboard(float deltaSeconds) {
+
+    bool is_fast = false;
+    if(g_theInput->IsKeyDown(KeyCode::Shift)) {
+        is_fast = true;
+    }
+
+    float camera_move_speed = _cameraSpeed * deltaSeconds * (is_fast ? _camera_move_speed_multiplier : 1.0f);
+    if(g_theInput->IsKeyDown(KeyCode::W)) {
+        _camera3->Translate(_camera3->GetForward() * camera_move_speed);
+    } else if(g_theInput->IsKeyDown(KeyCode::S)) {
+        _camera3->Translate(-_camera3->GetForward() * camera_move_speed);
+    }
+
+    if(g_theInput->IsKeyDown(KeyCode::A)) {
+        _camera3->Translate(-_camera3->GetRight() * camera_move_speed);
+    } else if(g_theInput->IsKeyDown(KeyCode::D)) {
+        _camera3->Translate(_camera3->GetRight() * camera_move_speed);
+    }
+
+    if(g_theInput->IsKeyDown(KeyCode::Q)) {
+        _camera3->rotationRoll -= 1.0f;
+        while(_camera3->rotationRoll < 0.0f) {
+            _camera3->rotationRoll += 360.0f;
+        }
+    } else if(g_theInput->IsKeyDown(KeyCode::E)) {
+        _camera3->rotationRoll += 1.0f;
+        while(_camera3->rotationRoll > 360.0f) {
+            _camera3->rotationRoll -= 360.0f;
+        }
+        while(_camera3->rotationRoll < -360.0f) {
+            _camera3->rotationRoll += 360.0f;
+        }
+    }
+
+    if(g_theInput->IsKeyDown(KeyCode::Space)) {
+        _camera3->Translate(_camera3->GetUp() * camera_move_speed);
+    } else if(g_theInput->IsKeyDown(KeyCode::Ctrl)) {
+        _camera3->Translate(-_camera3->GetUp() * camera_move_speed);
+    }
+
+    if(g_theInput->WasKeyJustPressed(KeyCode::R)) {
+        _camera3->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
+        _camera3->SetEulerAngles(Vector3{0.0f, 0.0f, 0.0f});
+        _camera2->SetPosition(Vector2::ZERO);
+        _camera2->SetRotationDegrees(0.0f);
+    }
+
+    if(g_theInput->WasKeyJustPressed(KeyCode::T)) {
+        float value = 90.0f * (is_fast ? -1.0f : 1.0f);
+        _camera3->SetEulerAngles(Vector3{ 0.0f, 0.0f, value });
+    }
+    if(g_theInput->WasKeyJustPressed(KeyCode::Y)) {
+        float value = 90.0f * (is_fast ? -1.0f : 1.0f);
+        _camera3->SetEulerAngles(Vector3{ value, 0.0f, 0.0f });
+    }
+    if(g_theInput->WasKeyJustPressed(KeyCode::U)) {
+        float value = 90.0f * (is_fast ? -1.0f : 1.0f);
+        _camera3->SetEulerAngles(Vector3{ 0.0f, value, 0.0f });
+    }
+}
+void Game::UpdateCameraFromMouse(float /*deltaSeconds*/) {
+    if(g_theApp->HasFocus()) {
+        const auto& window = *(g_theRenderer->GetOutput()->GetWindow());
+        auto mouse_pos = g_theInput->GetCursorWindowPosition(window);
+        g_theInput->SetCursorToWindowCenter(window);
+        auto mouse_delta_pos = mouse_pos - g_theInput->GetCursorWindowPosition(window);
+        auto moved_x = mouse_delta_pos.x;
+        auto moved_y = mouse_delta_pos.y;
+        _camera3->rotationYaw -= moved_x;
+        while(_camera3->rotationYaw > 360.0f) {
+            _camera3->rotationYaw -= 360.0f;
+        }
+        while(_camera3->rotationYaw < -360.0f) {
+            _camera3->rotationYaw += 360.0f;
+        }
+        _camera3->rotationPitch -= moved_y;
+        while(_camera3->rotationPitch > 360.0f) {
+            _camera3->rotationPitch -= 360.0f;
+        }
+        while(_camera3->rotationPitch < -360.0f) {
+            _camera3->rotationPitch += 360.0f;
+        }
+
+    }
 }
 
 void Game::Render() const {
     g_theRenderer->SetRenderTarget(nullptr);
-    g_theRenderer->ClearColor(Rgba::OLIVE);
+    g_theRenderer->ClearColor(Rgba::BLACK);
     g_theRenderer->ClearDepthStencilBuffer();
 
     g_theRenderer->SetViewport(0, 0, static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
@@ -134,67 +186,35 @@ void Game::Render() const {
     g_theRenderer->SetViewMatrix(Matrix4::GetIdentity());
     g_theRenderer->SetProjectionMatrix(Matrix4::GetIdentity());
 
+    _camera3->SetupView(45.0f, MathUtils::M_16_BY_9_RATIO, 0.01f, 1000.0f);
+
+    g_theRenderer->SetProjectionMatrix(_camera3->GetProjectionMatrix());
+    g_theRenderer->SetViewMatrix(_camera3->GetViewMatrix());
+
+    DrawCube();
+    DrawWorldGrid();
+    DrawAxes();
+
     const auto& window_dimensions = g_theRenderer->GetOutput()->GetDimensions();
     float window_width = static_cast<float>(window_dimensions.x);
     float window_height = static_cast<float>(window_dimensions.y);
-    float view_half_width  = window_width * 0.50f;
+    float view_half_width = window_width * 0.50f;
     float view_half_height = window_height * 0.50f;
 
     Vector2 view_leftBottom = Vector2(-view_half_width, view_half_height);
-    Vector2 view_rightTop   = Vector2(view_half_width, -view_half_height);
+    Vector2 view_rightTop = Vector2(view_half_width, -view_half_height);
     Vector2 view_nearFar = Vector2(0.0f, 1.0f);
     Vector2 cam_pos2 = Vector2(_camera2->GetPosition());
 
     _camera2->SetupView(view_leftBottom, view_rightTop, view_nearFar, MathUtils::M_16_BY_9_RATIO);
 
     g_theRenderer->SetProjectionMatrix(_camera2->GetProjectionMatrix());
-
     g_theRenderer->SetViewMatrix(_camera2->GetViewMatrix());
 
-    _cnvFullscreen->Render(g_theRenderer);
-    if(_debug) {
-        _cnvFullscreen->DebugRender(g_theRenderer);
-    }
-}
+    g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
+    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
+    g_theRenderer->DrawQuad2D();
 
-void Game::SetPivotPositionText() const {
-    switch(_pivot_position) {
-        case UI::PivotPosition::Center:
-            _lblPivotName->SetText("Pivot Position: CENTER");
-            break;
-        case UI::PivotPosition::TopLeft:
-            _lblPivotName->SetText("Pivot Position: TOP LEFT");
-            break;
-        case UI::PivotPosition::Top:
-            _lblPivotName->SetText("Pivot Position: TOP");
-            break;
-        case UI::PivotPosition::TopRight:
-            _lblPivotName->SetText("Pivot Position: TOP RIGHT");
-            break;
-        case UI::PivotPosition::Right:
-            _lblPivotName->SetText("Pivot Position: RIGHT");
-            break;
-        case UI::PivotPosition::BottomRight:
-            _lblPivotName->SetText("Pivot Position: BOTTOM RIGHT");
-            break;
-        case UI::PivotPosition::Bottom:
-            _lblPivotName->SetText("Pivot Position: BOTTOM");
-            break;
-        case UI::PivotPosition::BottomLeft:
-            _lblPivotName->SetText("Pivot Position: BOTTOM LEFT");
-            break;
-        case UI::PivotPosition::Left:
-            _lblPivotName->SetText("Pivot Position: LEFT");
-            break;
-        default:
-            _lblPivotName->SetText("Pivot Position: NONE");
-            break;
-    }
-    {
-        std::ostringstream ss;
-        ss << _lblPivotName->GetPivot();
-        _lblPivotPosition->SetText(ss.str());
-    }
 }
 
 void Game::EndFrame() {
@@ -232,4 +252,110 @@ void Game::GenerateImageData(void* data) {
     auto image = ((generate_image_job_t*)data)->img;
     auto filepath = ((generate_image_job_t*)data)->filepath;
     image->Export(filepath);
+}
+
+void Game::DrawWorldGrid() const {
+    if(!_debug) {
+        return;
+    }
+
+    static std::vector<Vertex3D> vbo;
+    vbo.clear();
+    for(float x = -1000.0f; x < 1000.0f; x += 1.0f) {
+        if(MathUtils::IsEquivalent(x, 0.0f)) {
+            vbo.push_back(Vertex3D(Vector3(x, -1000.0f, 0.0f)));
+            vbo.push_back(Vertex3D(Vector3(0.0f, 0.0f, 0.0f)));
+            continue;
+        }
+        vbo.push_back(Vertex3D(Vector3(x, -1000.0f, 0.0f)));
+        vbo.push_back(Vertex3D(Vector3(x, 1000.0f, 0.0f)));
+    }
+    for(float y = -1000.0f; y < 1000.0f; y += 1.0f) {
+        if(MathUtils::IsEquivalent(y, 0.0f)) {
+            vbo.push_back(Vertex3D(Vector3(-1000.0f, y, 0.0f)));
+            vbo.push_back(Vertex3D(Vector3(0.0f, y, 0.0f)));
+            continue;
+        }
+        vbo.push_back(Vertex3D(Vector3(-1000.0f, y, 0.0f)));
+        vbo.push_back(Vertex3D(Vector3(1000.0f, y, 0.0f)));
+    }
+
+    static std::vector<unsigned int> ibo(vbo.size());
+    std::iota(std::begin(ibo), std::end(ibo), 0);
+
+    g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
+    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__2D"));
+    g_theRenderer->DrawIndexed(PrimitiveType::Lines, vbo, ibo);
+}
+
+void Game::DrawAxes() const {
+    if(!_debug) {
+        return;
+    }
+
+    static std::vector<Vertex3D> vbo;
+    vbo.clear();
+    vbo.push_back(Vertex3D(Vector3::ZERO, Rgba::RED));
+    vbo.push_back(Vertex3D(Vector3::X_AXIS * 1000.0f, Rgba::RED));
+    vbo.push_back(Vertex3D(Vector3::ZERO, Rgba::GREEN));
+    vbo.push_back(Vertex3D(Vector3::Y_AXIS * 1000.0f, Rgba::GREEN));
+    vbo.push_back(Vertex3D(Vector3::ZERO, Rgba::BLUE));
+    vbo.push_back(Vertex3D(Vector3::Z_AXIS * 1000.0f, Rgba::BLUE));
+
+    static std::vector<unsigned int> ibo(vbo.size());
+    std::iota(std::begin(ibo), std::end(ibo), 0);
+
+    g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
+    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__2D"));
+    g_theRenderer->DrawIndexed(PrimitiveType::Lines, vbo, ibo);
+}
+
+void Game::DrawCube() const {
+
+    std::vector<Vertex3D> vbo = {
+        //Bottom
+        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 0.0f)),
+        Vertex3D(Vector3(-0.5f, -0.5f,  0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f)),
+        Vertex3D(Vector3(0.5f,  -0.5f,  0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f)),
+        Vertex3D(Vector3(0.5f,  -0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 0.0f)),
+        //Top
+        Vertex3D(Vector3(-0.5f, 0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f)),
+        Vertex3D(Vector3(-0.5f, 0.5f, 0.5f), Rgba::WHITE,  Vector2(0.0f, 0.0f)),
+        Vertex3D(Vector3(0.5f,  0.5f, 0.5f), Rgba::WHITE,  Vector2(1.0f, 0.0f)),
+        Vertex3D(Vector3(0.5f,  0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f)),
+        //Left
+        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f)),
+        Vertex3D(Vector3(-0.5f, 0.5f, -0.5f), Rgba::WHITE,  Vector2(1.0f, 0.0f)),
+        Vertex3D(Vector3(-0.5f, 0.5f, 0.5f), Rgba::WHITE,   Vector2(0.0f, 0.0f)),
+        Vertex3D(Vector3(-0.5f, -0.5f, 0.5f), Rgba::WHITE,  Vector2(0.0f, 1.0f)),
+        //Right
+        Vertex3D(Vector3(0.5f, -0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f)),
+        Vertex3D(Vector3(0.5f,  0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 0.0f)),
+        Vertex3D(Vector3(0.5f,  0.5f,  0.5f), Rgba::WHITE, Vector2(1.0f, 0.0f)),
+        Vertex3D(Vector3(0.5f, -0.5f,  0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f)),
+        //Front
+        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f)),
+        Vertex3D(Vector3(-0.5f,  0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 0.0f)),
+        Vertex3D(Vector3(0.5f,  0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 0.0f)),
+        Vertex3D(Vector3(0.5f, -0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f)),
+        //Back
+        Vertex3D(Vector3(-0.5f, -0.5f, 0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f)),
+        Vertex3D(Vector3(0.5f,  0.5f, 0.5f), Rgba::WHITE, Vector2(0.0f, 0.0f)),
+        Vertex3D(Vector3(-0.5f,  0.5f, 0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f)),
+        Vertex3D(Vector3(0.5f, -0.5f, 0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f)),
+
+    };
+
+    std::vector<unsigned int> ibo = {
+         0,  1,  2,  0,  2,  3,
+         4,  5,  6,  4,  6,  7,
+         8,  9, 10,  8, 10, 11,
+        12, 13, 14, 12, 14, 15,
+        16, 17, 18, 16, 18, 19,
+        20, 21, 22, 20, 23, 24,
+    };
+
+    g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
+    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
+    g_theRenderer->DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
 }

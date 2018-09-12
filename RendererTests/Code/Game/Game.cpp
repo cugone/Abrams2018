@@ -83,7 +83,7 @@ void Game::Update(float deltaSeconds) {
     _camera2->Update(deltaSeconds);
     _camera3->Update(deltaSeconds);
     std::ostringstream ss;
-    Vector3 camera_angles{ _camera3->rotationPitch, _camera3->rotationYaw, _camera3->rotationRoll};
+    Vector3 camera_angles{ _camera3->GetPitchDegrees(), _camera3->GetYawDegrees(), _camera3->GetRollDegrees()};
     ss << "P: " << _camera3->GetPosition() << " R: " << camera_angles << '\n';
     DebuggerPrintf(ss.str().c_str());
 }
@@ -109,18 +109,11 @@ void Game::UpdateCameraFromKeyboard(float deltaSeconds) {
     }
 
     if(g_theInput->IsKeyDown(KeyCode::Q)) {
-        _camera3->rotationRoll -= 1.0f;
-        while(_camera3->rotationRoll < 0.0f) {
-            _camera3->rotationRoll += 360.0f;
-        }
+        Vector3 angles = Vector3{ _camera3->GetPitchDegrees(), _camera3->GetYawDegrees(), _camera3->GetRollDegrees() - 1.0f };
+        _camera3->SetEulerAnglesDegrees(angles);
     } else if(g_theInput->IsKeyDown(KeyCode::E)) {
-        _camera3->rotationRoll += 1.0f;
-        while(_camera3->rotationRoll > 360.0f) {
-            _camera3->rotationRoll -= 360.0f;
-        }
-        while(_camera3->rotationRoll < -360.0f) {
-            _camera3->rotationRoll += 360.0f;
-        }
+        Vector3 angles = Vector3{ _camera3->GetPitchDegrees(), _camera3->GetYawDegrees(), _camera3->GetRollDegrees() + 1.0f };
+        _camera3->SetEulerAnglesDegrees(angles);
     }
 
     if(g_theInput->IsKeyDown(KeyCode::Space)) {
@@ -136,42 +129,17 @@ void Game::UpdateCameraFromKeyboard(float deltaSeconds) {
         _camera2->SetRotationDegrees(0.0f);
     }
 
-    if(g_theInput->WasKeyJustPressed(KeyCode::T)) {
-        float value = 90.0f * (is_fast ? -1.0f : 1.0f);
-        _camera3->SetEulerAngles(Vector3{ 0.0f, 0.0f, value });
-    }
-    if(g_theInput->WasKeyJustPressed(KeyCode::Y)) {
-        float value = 90.0f * (is_fast ? -1.0f : 1.0f);
-        _camera3->SetEulerAngles(Vector3{ value, 0.0f, 0.0f });
-    }
-    if(g_theInput->WasKeyJustPressed(KeyCode::U)) {
-        float value = 90.0f * (is_fast ? -1.0f : 1.0f);
-        _camera3->SetEulerAngles(Vector3{ 0.0f, value, 0.0f });
-    }
 }
 void Game::UpdateCameraFromMouse(float /*deltaSeconds*/) {
     if(g_theApp->HasFocus()) {
         const auto& window = *(g_theRenderer->GetOutput()->GetWindow());
         auto mouse_pos = g_theInput->GetCursorWindowPosition(window);
         g_theInput->SetCursorToWindowCenter(window);
-        auto mouse_delta_pos = mouse_pos - g_theInput->GetCursorWindowPosition(window);
+        auto mouse_delta_pos = (mouse_pos - g_theInput->GetCursorWindowPosition(window));
         auto moved_x = mouse_delta_pos.x;
         auto moved_y = mouse_delta_pos.y;
-        _camera3->rotationYaw -= moved_x;
-        while(_camera3->rotationYaw > 360.0f) {
-            _camera3->rotationYaw -= 360.0f;
-        }
-        while(_camera3->rotationYaw < -360.0f) {
-            _camera3->rotationYaw += 360.0f;
-        }
-        _camera3->rotationPitch -= moved_y;
-        while(_camera3->rotationPitch > 360.0f) {
-            _camera3->rotationPitch -= 360.0f;
-        }
-        while(_camera3->rotationPitch < -360.0f) {
-            _camera3->rotationPitch += 360.0f;
-        }
-
+        Vector3 angles = Vector3{ _camera3->GetPitchDegrees() - moved_y, _camera3->GetYawDegrees() - moved_x, _camera3->GetRollDegrees() };
+        _camera3->SetEulerAnglesDegrees(angles);
     }
 }
 

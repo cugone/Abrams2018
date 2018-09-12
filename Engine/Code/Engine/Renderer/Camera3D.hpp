@@ -39,11 +39,26 @@ public:
     const Matrix4& GetProjectionMatrix() const;
     const Matrix4& GetViewProjectionMatrix() const;
 
+    const Matrix4& GetInverseViewMatrix() const;
+    const Matrix4& GetInverseProjectionMatrix() const;
+    const Matrix4& GetInverseViewProjectionMatrix() const;
+
+    void SetEulerAngles(const Vector3& eulerAnglesDegrees);
+    void SetForwardFromTarget(const Vector3& lookAtPosition);
+
+    Vector3 GetRight() const;
+    Vector3 GetUp() const;
+    Vector3 GetForward() const;
+
     float trauma = 0.0f;
     float trauma_recovery_rate = 1.0f;
+    float rotationYaw = 0.0f;
+    float rotationPitch = 0.0f;
+    float rotationRoll = 0.0f;
 protected:
 private:
     void CalcViewMatrix();
+    void CalcRotationMatrix();
     void CalcViewProjectionMatrix();
     void CalcProjectionMatrix();
 
@@ -58,8 +73,14 @@ private:
     Vector3 right = Vector3::X_AXIS;
     Vector3 up = Vector3::Y_AXIS;
     Vector3 look = Vector3::Z_AXIS;
+    
+    Matrix4 rotation_matrix = Matrix4::GetIdentity();
     Matrix4 view_matrix = Matrix4::GetIdentity();
     Matrix4 projection_matrix = Matrix4::GetIdentity();
     Matrix4 view_projection_matrix = Matrix4::GetIdentity();
+
+    Matrix4 inv_view_matrix = Matrix4::GetIdentity();
+    Matrix4 inv_projection_matrix = Matrix4::GetIdentity();
+    Matrix4 inv_view_projection_matrix = Matrix4::GetIdentity();
 
 };

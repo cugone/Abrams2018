@@ -14,11 +14,13 @@ void Camera3D::SetupView(float fovVerticalDegrees, float aspectRatio /*= MathUti
 }
 
 void Camera3D::CalcViewProjectionMatrix() {
-    view_projection_matrix = view_matrix * projection_matrix;
+    view_projection_matrix = projection_matrix * view_matrix;
+    inv_view_projection_matrix = Matrix4::CalculateInverse(view_projection_matrix);
 }
 
 void Camera3D::CalcProjectionMatrix() {
     projection_matrix = Matrix4::CreateDXPerspectiveProjection(fov_vertical_degrees, aspect_ratio, near_distance, far_distance);
+    inv_projection_matrix = Matrix4::CalculateInverse(projection_matrix);
 }
 
 void Camera3D::CalcViewMatrix() {
@@ -32,11 +34,40 @@ void Camera3D::CalcViewMatrix() {
     vQ.SetIBasis(Vector4{ right, 0.0f });
     vQ.SetJBasis(Vector4{ up, 0.0f });
     vQ.SetKBasis(Vector4{ look, 0.0f });
+
     view_matrix = vT * vQ;
+    view_matrix = rotation_matrix * view_matrix;
+    inv_view_matrix = Matrix4::CalculateInverse(view_matrix);
+}
+
+void Camera3D::CalcRotationMatrix() {
+    float c_x_theta = MathUtils::CosDegrees(rotationPitch);
+    float s_x_theta = MathUtils::SinDegrees(rotationPitch);
+    Matrix4 Rx;
+    Rx.SetIBasis(Vector4(1.0f, 0.0f, 0.0f, 0.0f));
+    Rx.SetJBasis(Vector4(0.0f, c_x_theta, s_x_theta, 0.0f));
+    Rx.SetKBasis(Vector4(0.0f, -s_x_theta, c_x_theta, 0.0f));
+
+    float c_y_theta = MathUtils::CosDegrees(rotationYaw);
+    float s_y_theta = MathUtils::SinDegrees(rotationYaw);
+    Matrix4 Ry;
+    Ry.SetIBasis(Vector4(c_y_theta, 0.0f, -s_y_theta, 0.0f));
+    Ry.SetJBasis(Vector4(0.0f, 1.0f, 0.0f, 0.0f));
+    Ry.SetKBasis(Vector4(s_y_theta, 0.0f, c_y_theta, 0.0f));
+
+    float c_z_theta = MathUtils::CosDegrees(rotationRoll);
+    float s_z_theta = MathUtils::SinDegrees(rotationRoll);
+    Matrix4 Rz;
+    Rz.SetIBasis(Vector4(c_z_theta, s_z_theta, 0.0f, 0.0f));
+    Rz.SetJBasis(Vector4(-s_z_theta, c_z_theta, 0.0f, 0.0f));
+    Rz.SetKBasis(Vector4(0.0f, 0.0f, 1.0f, 0.0f));
+
+    rotation_matrix = Rz * Rx * Ry;
 }
 
 void Camera3D::Update(float deltaSeconds) {
     trauma -= trauma_recovery_rate * deltaSeconds;
+    CalcRotationMatrix();
 }
 
 const Vector3& Camera3D::GetPosition() const {
@@ -126,4 +157,38 @@ const Matrix4& Camera3D::GetProjectionMatrix() const {
 
 const Matrix4& Camera3D::GetViewProjectionMatrix() const {
     return view_projection_matrix;
+}
+
+const Matrix4& Camera3D::GetInverseViewMatrix() const {
+    return inv_view_matrix;
+}
+
+const Matrix4& Camera3D::GetInverseProjectionMatrix() const {
+    return inv_projection_matrix;
+}
+
+const Matrix4& Camera3D::GetInverseViewProjectionMatrix() const {
+    return inv_view_projection_matrix;
+}
+
+void Camera3D::SetEulerAngles(const Vector3& eulerAnglesDegrees) {
+    rotationPitch = eulerAnglesDegrees.x;
+    rotationYaw = eulerAnglesDegrees.y;
+    rotationRoll = eulerAnglesDegrees.z;
+}
+
+void Camera3D::SetForwardFromTarget(const Vector3& lookAtPosition) {
+    look = (lookAtPosition - position).GetNormalize();
+}
+
+Vector3 Camera3D::GetRight() const {
+    return Vector3(rotation_matrix.GetIBasis());
+}
+
+Vector3 Camera3D::GetUp() const {
+    return Vector3(rotation_matrix.GetJBasis());
+}
+
+Vector3 Camera3D::GetForward() const {
+    return Vector3(rotation_matrix.GetKBasis());
 }

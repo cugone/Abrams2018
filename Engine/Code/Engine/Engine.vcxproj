@@ -51,7 +51,6 @@
     <ClCompile Include="Core\StringUtils.cpp" />
     <ClCompile Include="Core\ThreadSafeQueue.cpp" />
     <ClCompile Include="Core\TimeUtils.cpp" />
-    <ClCompile Include="Core\Vertex3D.cpp" />
     <ClCompile Include="Input\InputSystem.cpp" />
     <ClCompile Include="Input\XboxController.cpp" />
     <ClCompile Include="Math\AABB2.cpp" />

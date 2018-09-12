@@ -39,6 +39,12 @@ public:
     XboxController() = default;
     ~XboxController() = default;
 
+    const Vector2& GetLeftThumbPosition() const;
+    const Vector2& GetRightThumbPosition() const;
+
+    float GetLeftTriggerPosition() const;
+    float GetRightTriggerPosition() const;
+
     bool IsButtonUp(const Button& button) const;
     bool WasButtonJustPressed(const Button& button) const;
     bool IsButtonDown(const Button& button) const;
@@ -70,6 +76,8 @@ public:
     void SetLeftMotorSpeedAsPercent(float speed);
     void SetRightMotorSpeedAsPercent(float speed);
     void SetBothMotorSpeedAsPercent(float speed);
+
+    void UpdateConnectedState(int controller_number);
 
 protected:
 private:

@@ -16,6 +16,22 @@ bool XboxController::IsAnyButtonDown() const {
     return _currentButtonState.any();
 }
 
+const Vector2& XboxController::GetLeftThumbPosition() const {
+    return _leftThumbDistance;
+}
+
+const Vector2& XboxController::GetRightThumbPosition() const {
+    return _rightThumbDistance;
+}
+
+float XboxController::GetLeftTriggerPosition() const {
+    return _triggerDistances.x;
+}
+
+float XboxController::GetRightTriggerPosition() const {
+    return _triggerDistances.y;
+}
+
 bool XboxController::IsButtonUp(const Button& button) const {
     return !_currentButtonState[(std::size_t)button];
 }
@@ -55,9 +71,6 @@ void XboxController::Update(int controller_number) {
     auto error_status = ::XInputGetState(controller_number, &state);
     _previousPacketNumber = _currentPacketNumber;
     _currentPacketNumber = state.dwPacketNumber;
-    if(_previousPacketNumber == _currentPacketNumber) {
-        return;
-    }
 
     if(error_status == ERROR_DEVICE_NOT_CONNECTED) {
         _previousActiveState = _currentActiveState;
@@ -163,6 +176,31 @@ void XboxController::SetRightMotorSpeedAsPercent(float speed) {
 void XboxController::SetBothMotorSpeedAsPercent(float speed) {
     SetLeftMotorSpeedAsPercent(speed);
     SetRightMotorSpeedAsPercent(speed);
+}
+
+void XboxController::UpdateConnectedState(int controller_number) {
+    XINPUT_STATE state;
+    std::memset(&state, 0, sizeof(state));
+
+    auto error_status = ::XInputGetState(controller_number, &state);
+    _previousPacketNumber = _currentPacketNumber;
+    _currentPacketNumber = state.dwPacketNumber;
+    if(_previousPacketNumber == _currentPacketNumber) {
+        return;
+    }
+
+    if(error_status == ERROR_DEVICE_NOT_CONNECTED) {
+        _previousActiveState = _currentActiveState;
+        _currentActiveState[(std::size_t)ActiveState::Connected] = false;
+        return;
+    }
+
+    if(error_status == ERROR_SUCCESS) {
+        _previousActiveState = _currentActiveState;
+        if(!_currentActiveState[(std::size_t)ActiveState::Connected]) {
+            _currentActiveState[(std::size_t)ActiveState::Connected] = true;
+        }
+    }
 }
 
 void XboxController::UpdateState() {

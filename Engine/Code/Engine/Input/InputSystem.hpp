@@ -10,6 +10,8 @@
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"
 
+class Window;
+
 enum class KeyCode : unsigned char {
     LButton
     ,RButton
@@ -291,6 +293,8 @@ public:
     bool IsKeyDown(const KeyCode& key) const;
     bool IsAnyKeyDown() const;
     bool WasKeyJustReleased(const KeyCode& key) const;
+    bool WasMouseWheelJustScrolledUp() const;
+    bool WasMouseWheelJustScrolledDown() const;
 
     std::size_t GetConnectedControllerCount() const;
     bool IsAnyControllerConnected() const;
@@ -300,10 +304,34 @@ public:
     static unsigned char ConvertKeyCodeToWinVK(const KeyCode& code);
     static KeyCode ConvertWinVKToKeyCode(unsigned char winVK);
 
+    void SetCursorScreenPosition(const Vector2& screen_pos);
+    Vector2 GetCursorScreenPosition() const;
+
+    void SetCursorWindowPosition(const Window& window, const Vector2& window_pos);
+    Vector2 GetCursorWindowPosition(const Window& window_ref) const;
+
+    void SetCursorToScreenCenter();
+    void SetCursorToWindowCenter(const Window& window_ref);
+    const Vector2& GetMouseCoords() const;
+
+    int GetMouseWheelPosition() const;
+    int GetMouseWheelPositionNormalized() const;
+
 protected:
 private:
+
+    void UpdateXboxConnectedState();
+
+    Vector2 GetScreenCenter() const;
+    Vector2 GetWindowCenter(const Window& window) const;
 
     std::array<XboxController, 4> _xboxControllers{};
     std::bitset<(std::size_t)KeyCode::Unknown> _previousKeys{};
     std::bitset<(std::size_t)KeyCode::Unknown> _currentKeys{};
+    Vector2 _mouseCoords = Vector2::ZERO;
+    Vector2 _mouseDelta = Vector2::ZERO;
+    int _mouseWheelPosition = 0;
+    int _connected_controller_count = 0;
+    float _time_to_check_controller_state = 0.0f;
+    float _max_time_to_check_controller_state = 2.0f;
 };

@@ -2,11 +2,14 @@
 
 #include "Engine/Core/Win.hpp"
 
+#include "Engine/Core/ErrorWarningAssert.hpp"
+
+#include "Engine/Math/MathUtils.hpp"
+
+#include "Engine/Renderer/Window.hpp"
+
 #include <algorithm>
 #include <sstream>
-
-#include "Engine/Core/ErrorWarningAssert.hpp"
-#include "Engine/Math/MathUtils.hpp"
 
 KeyCode& operator++(KeyCode& keycode) {
     using IntType = typename std::underlying_type_t<KeyCode>;
@@ -442,6 +445,105 @@ KeyCode InputSystem::ConvertWinVKToKeyCode(unsigned char winVK) {
     }
 }
 
+Vector2 InputSystem::GetCursorWindowPosition(const Window& window_ref) const {
+    POINT p;
+    if(::GetCursorPos(&p)) {
+        if(::ScreenToClient(window_ref.GetWindowHandle(), &p)) {
+            return Vector2{ static_cast<float>(p.x), static_cast<float>(p.y) };
+        }
+    }
+    return Vector2::ZERO;
+}
+
+Vector2 InputSystem::GetCursorScreenPosition() const {
+    POINT p;
+    if(::GetCursorPos(&p)) {
+        return Vector2{ static_cast<float>(p.x), static_cast<float>(p.y) };
+    }
+    return Vector2::ZERO;
+}
+
+void InputSystem::SetCursorToScreenCenter() {
+    HWND desktop_window = ::GetDesktopWindow();
+    RECT desktop_client;
+    if(::GetClientRect(desktop_window, &desktop_client)) {
+        float center_x = (desktop_client.left + desktop_client.right) * 0.5f;
+        float center_y = (desktop_client.top + desktop_client.bottom) * 0.5f;
+        SetCursorScreenPosition(Vector2{ center_x, center_y });
+    }
+}
+
+void InputSystem::SetCursorToWindowCenter(const Window& window_ref) {
+    RECT client_area;
+    if(::GetClientRect(window_ref.GetWindowHandle(), &client_area)) {
+        float center_x = (client_area.left + client_area.right) * 0.5f;
+        float center_y = (client_area.top + client_area.bottom) * 0.5f;
+        SetCursorWindowPosition(window_ref, Vector2{ center_x, center_y });
+    }
+}
+
+void InputSystem::SetCursorScreenPosition(const Vector2& screen_pos) {
+    int x = static_cast<int>(screen_pos.x);
+    int y = static_cast<int>(screen_pos.y);
+    ::SetCursorPos(x, y);
+}
+
+void InputSystem::UpdateXboxConnectedState() {
+    _connected_controller_count = 0;
+    for(int i = 0; i < 4; ++i) {
+        _xboxControllers[i].UpdateConnectedState(i);
+        if(_xboxControllers[i].WasJustConnected() || _xboxControllers[i].IsConnected()) {
+            ++_connected_controller_count;
+        }
+    }
+}
+
+Vector2 InputSystem::GetScreenCenter() const {
+    RECT desktopRect;
+    HWND desktopWindowHandle = ::GetDesktopWindow();
+    if(::GetClientRect(desktopWindowHandle, &desktopRect)) {
+        float center_x = (desktopRect.right + desktopRect.left) * 0.50f;
+        float center_y = (desktopRect.bottom + desktopRect.top) * 0.50f;
+        return Vector2{ center_x, center_y };
+    }
+    return Vector2::ZERO;
+}
+
+Vector2 InputSystem::GetWindowCenter(const Window& window) const {
+    RECT rect;
+    HWND windowHandle = window.GetWindowHandle();
+    if(::GetClientRect(windowHandle, &rect)) {
+        float center_x = (rect.right + rect.left) * 0.50f;
+        float center_y = (rect.bottom + rect.top) * 0.50f;
+        return Vector2{ center_x, center_y };
+    }
+    return Vector2::ZERO;
+}
+
+void InputSystem::SetCursorWindowPosition(const Window& window, const Vector2& window_pos) {
+    POINT p;
+    p.x = static_cast<long>(window_pos.x);
+    p.y = static_cast<long>(window_pos.y);
+    if(::ClientToScreen(window.GetWindowHandle(), &p)) {
+        SetCursorScreenPosition(Vector2{ static_cast<float>(p.x), static_cast<float>(p.y) });
+    }
+}
+
+const Vector2& InputSystem::GetMouseCoords() const {
+    return _mouseCoords;
+}
+
+int InputSystem::GetMouseWheelPosition() const {
+    return _mouseWheelPosition;
+}
+
+int InputSystem::GetMouseWheelPositionNormalized() const {
+    if(_mouseWheelPosition) {
+        return _mouseWheelPosition / std::abs(_mouseWheelPosition);
+    }
+    return 0;
+}
+
 void InputSystem::RegisterKeyDown(unsigned char keyIndex) {
     auto kc = ConvertWinVKToKeyCode(keyIndex);
     _currentKeys[(std::size_t)kc] = true;
@@ -590,22 +692,100 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             }
             RegisterKeyUp(key); return true;
         }
+        case WindowsSystemMessage::Mouse_LButtonDown:
+        {
+            constexpr uint16_t lbutton_mask  = 0b0000'0000'0000'0001; //0x0001
+            constexpr uint16_t rbutton_mask  = 0b0000'0000'0000'0010; //0x0002
+            constexpr uint16_t shift_mask    = 0b0000'0000'0000'0100; //0x0004
+            constexpr uint16_t ctrl_mask     = 0b0000'0000'0000'1000; //0x0008
+            constexpr uint16_t mbutton_mask  = 0b0000'0000'0001'0000; //0x0010
+            constexpr uint16_t xbutton1_mask = 0b0000'0000'0010'0000; //0x0020
+            constexpr uint16_t xbutton2_mask = 0b0000'0000'0100'0000; //0x0040
+            if(wp & lbutton_mask) {
+                unsigned char key = ConvertKeyCodeToWinVK(KeyCode::LButton);
+                RegisterKeyDown(key);
+                POINTS p = MAKEPOINTS(lp);
+                _mouseDelta = _mouseCoords;
+                _mouseCoords = Vector2(p.x, p.y);
+                _mouseDelta = _mouseCoords - _mouseDelta;
+                return true;
+            }
+        }
+        case WindowsSystemMessage::Mouse_LButtonUp:
+        {
+            constexpr uint16_t lbutton_mask  = 0b0000'0000'0000'0001; //0x0001
+            constexpr uint16_t rbutton_mask  = 0b0000'0000'0000'0010; //0x0002
+            constexpr uint16_t shift_mask    = 0b0000'0000'0000'0100; //0x0004
+            constexpr uint16_t ctrl_mask     = 0b0000'0000'0000'1000; //0x0008
+            constexpr uint16_t mbutton_mask  = 0b0000'0000'0001'0000; //0x0010
+            constexpr uint16_t xbutton1_mask = 0b0000'0000'0010'0000; //0x0020
+            constexpr uint16_t xbutton2_mask = 0b0000'0000'0100'0000; //0x0040
+            if(!(wp & lbutton_mask)) {
+                unsigned char key = ConvertKeyCodeToWinVK(KeyCode::LButton);
+                RegisterKeyUp(key);
+                POINTS p = MAKEPOINTS(lp);
+                _mouseDelta = _mouseCoords;
+                _mouseCoords = Vector2(p.x, p.y);
+                _mouseDelta = _mouseCoords - _mouseDelta;
+                return true;
+            }
+        }
+        case WindowsSystemMessage::Mouse_MouseMove:
+        {
+            constexpr uint16_t lbutton_mask = 0b0000'0000'0000'0001; //0x0001
+            constexpr uint16_t rbutton_mask = 0b0000'0000'0000'0010; //0x0002
+            constexpr uint16_t shift_mask = 0b0000'0000'0000'0100; //0x0004
+            constexpr uint16_t ctrl_mask = 0b0000'0000'0000'1000; //0x0008
+            constexpr uint16_t mbutton_mask = 0b0000'0000'0001'0000; //0x0010
+            constexpr uint16_t xbutton1_mask = 0b0000'0000'0010'0000; //0x0020
+            constexpr uint16_t xbutton2_mask = 0b0000'0000'0100'0000; //0x0040
+            POINTS p = MAKEPOINTS(lp);
+            _mouseDelta = _mouseCoords;
+            _mouseCoords = Vector2(p.x, p.y);
+            _mouseDelta = _mouseCoords - _mouseDelta;
+            return true;
+        }
+        case WindowsSystemMessage::Mouse_MouseWheel:
+        {
+            constexpr uint16_t wheeldelta_mask = 0b1111'1111'0000'0000; //FF00
+            constexpr uint16_t lbutton_mask = 0b0000'0000'0000'0001; //0x0001
+            constexpr uint16_t rbutton_mask = 0b0000'0000'0000'0010; //0x0002
+            constexpr uint16_t shift_mask = 0b0000'0000'0000'0100; //0x0004
+            constexpr uint16_t ctrl_mask = 0b0000'0000'0000'1000; //0x0008
+            constexpr uint16_t mbutton_mask = 0b0000'0000'0001'0000; //0x0010
+            constexpr uint16_t xbutton1_mask = 0b0000'0000'0010'0000; //0x0020
+            constexpr uint16_t xbutton2_mask = 0b0000'0000'0100'0000; //0x0040
+            POINTS p = MAKEPOINTS(lp);
+            _mouseDelta = _mouseCoords;
+            _mouseCoords = Vector2(p.x, p.y);
+            _mouseDelta = _mouseCoords - _mouseDelta;
+            _mouseWheelPosition = GET_WHEEL_DELTA_WPARAM(wp);
+            return true;
+        }
+
     }
     return false;
 }
 
 void InputSystem::Initialize() {
-    /* DO NOTHING */
+    UpdateXboxConnectedState();
+    std::ostringstream ss;
+    ss << _connected_controller_count << " Xbox controllers detected!\n";
+    DebuggerPrintf(ss.str().c_str());
 }
 
 void InputSystem::BeginFrame() {
-    for(int i = 0; i < 4; ++i) {
+    for(int i = 0; i < _connected_controller_count; ++i) {
         _xboxControllers[i].Update(i);
     }
 }
 
-void InputSystem::Update(float /*deltaSeconds*/) {
-    /* DO NOTHING */
+void InputSystem::Update(float deltaSeconds) {
+    _time_to_check_controller_state += deltaSeconds;
+    if(_max_time_to_check_controller_state < _time_to_check_controller_state) {
+        _time_to_check_controller_state = 0.0f;
+        UpdateXboxConnectedState();
+    }
 }
 
 void InputSystem::Render() const {
@@ -614,6 +794,7 @@ void InputSystem::Render() const {
 
 void InputSystem::EndFrame() {
     _previousKeys = _currentKeys;
+    _mouseWheelPosition = 0;
 }
 
 bool InputSystem::WasAnyKeyPressed() const {
@@ -648,6 +829,14 @@ bool InputSystem::IsAnyKeyDown() const {
 
 bool InputSystem::WasKeyJustReleased(const KeyCode& key) const {
     return _previousKeys[(std::size_t)key] && !_currentKeys[(std::size_t)key];
+}
+
+bool InputSystem::WasMouseWheelJustScrolledUp() const {
+    return GetMouseWheelPositionNormalized() > 0;
+}
+
+bool InputSystem::WasMouseWheelJustScrolledDown() const {
+    return GetMouseWheelPositionNormalized() < 0;
 }
 
 std::size_t InputSystem::GetConnectedControllerCount() const {

@@ -108,7 +108,21 @@ void App::RunFrame() {
     EndFrame();
 }
 
+bool App::HasFocus() const {
+    return _current_focus;
+}
+
+bool App::LostFocus() const {
+    return _previous_focus && !_current_focus;
+}
+
+bool App::GainedFocus() const {
+    return !_previous_focus && _current_focus;
+}
+
 bool App::ProcessSystemMessage(const EngineMessage& msg) {
+
+    WPARAM wp = msg.wparam;
     switch(msg.wmMessageCode) {
         case WindowsSystemMessage::Window_Close:
         case WindowsSystemMessage::Window_Quit:
@@ -116,6 +130,37 @@ bool App::ProcessSystemMessage(const EngineMessage& msg) {
         {
             SetIsQuitting(true);
             return true;
+        }
+        case WindowsSystemMessage::Window_ActivateApp:
+        {
+            bool losing_focus = wp == FALSE;
+            bool gaining_focus = wp == TRUE;
+            if(losing_focus) {
+                _current_focus = false;
+                _previous_focus = true;
+            }
+            if(gaining_focus) {
+                _current_focus = true;
+                _previous_focus = false;
+            }
+            return true;
+        }
+        case WindowsSystemMessage::Keyboard_Activate:
+        {
+            auto active_type = LOWORD(wp);
+            switch(active_type) {
+                case WA_ACTIVE: /* FALLTHROUGH */
+                case WA_CLICKACTIVE:
+                    _current_focus = true;
+                    _previous_focus = false;
+                    return true;
+                case WA_INACTIVE:
+                    _current_focus = false;
+                    _previous_focus = true;
+                    return true;
+                default:
+                    return false;
+            }
         }
         default:
             return false;

@@ -3,6 +3,9 @@
 #include <chrono>
 #include <string>
 
+using FPSeconds = std::chrono::duration<float>;
+using FPMilliseconds = std::chrono::duration<float, std::milli>;
+
 namespace TimeUtils {
 
 //Get the elapsed time between calls (defaults to double-precision seconds)

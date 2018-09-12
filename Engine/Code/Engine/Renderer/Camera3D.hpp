@@ -2,6 +2,7 @@
 
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Matrix4.hpp"
+#include "Engine/Math/Quaternion.hpp"
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"
 
@@ -43,18 +44,24 @@ public:
     const Matrix4& GetInverseProjectionMatrix() const;
     const Matrix4& GetInverseViewProjectionMatrix() const;
 
-    void SetEulerAngles(const Vector3& eulerAnglesDegrees);
+    void SetEulerAnglesDegrees(const Vector3& eulerAnglesDegrees);
+    void SetEulerAngles(const Vector3& eulerAngles);
     void SetForwardFromTarget(const Vector3& lookAtPosition);
 
     Vector3 GetRight() const;
     Vector3 GetUp() const;
     Vector3 GetForward() const;
 
+    float GetYawDegrees() const;
+    float GetPitchDegrees() const;
+    float GetRollDegrees() const;
+
+    float GetYaw() const;
+    float GetPitch() const;
+    float GetRoll() const;
+
     float trauma = 0.0f;
     float trauma_recovery_rate = 1.0f;
-    float rotationYaw = 0.0f;
-    float rotationPitch = 0.0f;
-    float rotationRoll = 0.0f;
 protected:
 private:
     void CalcViewMatrix();
@@ -70,10 +77,7 @@ private:
     float far_distance = 1.0f;
     Vector3 position = Vector3::ZERO;
     Vector3 world_up = Vector3::Y_AXIS;
-    Vector3 right = Vector3::X_AXIS;
-    Vector3 up = Vector3::Y_AXIS;
-    Vector3 look = Vector3::Z_AXIS;
-    
+    Quaternion rotation = Quaternion::GetIdentity();
     Matrix4 rotation_matrix = Matrix4::GetIdentity();
     Matrix4 view_matrix = Matrix4::GetIdentity();
     Matrix4 projection_matrix = Matrix4::GetIdentity();
@@ -83,4 +87,7 @@ private:
     Matrix4 inv_projection_matrix = Matrix4::GetIdentity();
     Matrix4 inv_view_projection_matrix = Matrix4::GetIdentity();
 
+    float rotationPitch = 0.0f;
+    float rotationYaw = 0.0f;
+    float rotationRoll = 0.0f;
 };

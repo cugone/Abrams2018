@@ -25,18 +25,9 @@ void Camera3D::CalcProjectionMatrix() {
 
 void Camera3D::CalcViewMatrix() {
 
-    look.Normalize();
-    up = MathUtils::CrossProduct(look, right).GetNormalize();
-    right = MathUtils::CrossProduct(up, look);
-
     Matrix4 vT = Matrix4::CreateTranslationMatrix(-position);
-    Matrix4 vQ;
-    vQ.SetIBasis(Vector4{ right, 0.0f });
-    vQ.SetJBasis(Vector4{ up, 0.0f });
-    vQ.SetKBasis(Vector4{ look, 0.0f });
-
-    view_matrix = vT * vQ;
-    view_matrix = rotation_matrix * view_matrix;
+    Matrix4 vQ = rotation_matrix;
+    view_matrix = vQ * vT;
     inv_view_matrix = Matrix4::CalculateInverse(view_matrix);
 }
 
@@ -62,7 +53,8 @@ void Camera3D::CalcRotationMatrix() {
     Rz.SetJBasis(Vector4(-s_z_theta, c_z_theta, 0.0f, 0.0f));
     Rz.SetKBasis(Vector4(0.0f, 0.0f, 1.0f, 0.0f));
 
-    rotation_matrix = Rz * Rx * Ry;
+    Matrix4 R = Rz * Rx * Ry;
+    rotation_matrix = R;
 }
 
 void Camera3D::Update(float deltaSeconds) {
@@ -171,24 +163,75 @@ const Matrix4& Camera3D::GetInverseViewProjectionMatrix() const {
     return inv_view_projection_matrix;
 }
 
-void Camera3D::SetEulerAngles(const Vector3& eulerAnglesDegrees) {
-    rotationPitch = eulerAnglesDegrees.x;
-    rotationYaw = eulerAnglesDegrees.y;
-    rotationRoll = eulerAnglesDegrees.z;
+void Camera3D::SetEulerAngles(const Vector3& eulerAngles) {
+    rotationPitch = eulerAngles.x;
+    rotationYaw = eulerAngles.y;
+    rotationRoll = eulerAngles.z;
+}
+
+void Camera3D::SetEulerAnglesDegrees(const Vector3& eulerAnglesDegrees) {
+    SetEulerAngles(Vector3{ MathUtils::ConvertDegreesToRadians(eulerAnglesDegrees.x)
+                   , MathUtils::ConvertDegreesToRadians(eulerAnglesDegrees.y)
+                   , MathUtils::ConvertDegreesToRadians(eulerAnglesDegrees.z) }
+                   );
 }
 
 void Camera3D::SetForwardFromTarget(const Vector3& lookAtPosition) {
-    look = (lookAtPosition - position).GetNormalize();
+    Vector3 forward = (lookAtPosition - position).GetNormalize();
+    Vector3 right = MathUtils::CrossProduct(forward, world_up.GetNormalize());
+    Vector3 up = MathUtils::CrossProduct(forward, right);
+    Matrix4 m;
+    m.SetIBasis(Vector4(right, 0.0f));
+    m.SetJBasis(Vector4(up, 0.0f));
+    m.SetKBasis(Vector4(forward, 0.0f));
+    rotation = Quaternion(m);
+    auto eulerangles = rotation.CalcEulerAnglesDegrees();
+    rotationPitch = eulerangles.x;
+    rotationYaw = eulerangles.y;
+    rotationRoll = eulerangles.z;
 }
 
 Vector3 Camera3D::GetRight() const {
-    return Vector3(rotation_matrix.GetIBasis());
+    auto forward = GetForward();
+    return MathUtils::CrossProduct(world_up, forward);
 }
 
 Vector3 Camera3D::GetUp() const {
-    return Vector3(rotation_matrix.GetJBasis());
+    auto forward = GetForward();
+    auto right = GetRight();
+    return MathUtils::CrossProduct(forward, right);
 }
 
 Vector3 Camera3D::GetForward() const {
-    return Vector3(rotation_matrix.GetKBasis());
+    float cos_yaw = MathUtils::CosDegrees(rotationYaw);
+    float cos_pitch = MathUtils::CosDegrees(rotationPitch);
+
+    float sin_yaw = MathUtils::SinDegrees(rotationYaw);
+    float sin_pitch = MathUtils::SinDegrees(rotationPitch);
+
+    return Vector3(-sin_yaw * cos_pitch, sin_pitch, cos_yaw * cos_pitch);
+}
+
+float Camera3D::GetYawDegrees() const {
+    return MathUtils::ConvertRadiansToDegrees(GetYaw());
+}
+
+float Camera3D::GetPitchDegrees() const {
+    return MathUtils::ConvertRadiansToDegrees(GetPitch());
+}
+
+float Camera3D::GetRollDegrees() const {
+    return MathUtils::ConvertRadiansToDegrees(GetRoll());
+}
+
+float Camera3D::GetYaw() const {
+    return rotationYaw;
+}
+
+float Camera3D::GetPitch() const {
+    return rotationPitch;
+}
+
+float Camera3D::GetRoll() const {
+    return rotationRoll;
 }

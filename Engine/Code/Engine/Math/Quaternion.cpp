@@ -195,15 +195,15 @@ Quaternion Quaternion::operator-() {
 }
 
 
-bool Quaternion::operator==(const Quaternion& rhs) {
+bool Quaternion::operator==(const Quaternion& rhs) const {
     return w == rhs.w && axis == rhs.axis;
 }
 
-bool Quaternion::operator!=(const Quaternion& rhs) {
+bool Quaternion::operator!=(const Quaternion& rhs) const {
     return !(*this == rhs);
 }
 
-Vector4 Quaternion::CalcAxisAngles(bool degrees) {
+Vector4 Quaternion::CalcAxisAngles(bool degrees) const {
     if(degrees) {
         return CalcAxisAnglesDegrees();
     } else {
@@ -211,62 +211,64 @@ Vector4 Quaternion::CalcAxisAngles(bool degrees) {
     }
 }
 
-Vector4 Quaternion::CalcAxisAnglesDegrees() {
-    if(w > 1.0f) {
-        Normalize();
+Vector4 Quaternion::CalcAxisAnglesDegrees() const {
+    auto q_n = GetNormalize();
+    if(q_n.w > 1.0f) {
+        q_n.Normalize();
     }
-    float s = std::sqrt(1.0f - w * w);
-    float angle = 2.0f * std::acos(w);
+    float s = std::sqrt(1.0f - q_n.w * q_n.w);
+    float angle = 2.0f * std::acos(q_n.w);
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;
     if(MathUtils::IsEquivalent(s, 0.0f)) {
-        x = axis.x;
-        y = axis.y;
-        z = axis.z;
+        x = q_n.axis.x;
+        y = q_n.axis.y;
+        z = q_n.axis.z;
     } else {
-        x = axis.x / s;
-        y = axis.y / s;
-        z = axis.z / s;
+        x = q_n.axis.x / s;
+        y = q_n.axis.y / s;
+        z = q_n.axis.z / s;
     }
     return Vector4(x, y, z, MathUtils::ConvertRadiansToDegrees(angle));
 }
 
-Vector4 Quaternion::CalcAxisAnglesRadians() {
-    if(w > 1.0f) {
-        Normalize();
+Vector4 Quaternion::CalcAxisAnglesRadians() const {
+    auto q_n = GetNormalize();
+    if(q_n.w > 1.0f) {
+        q_n.Normalize();
     }
-    float s = std::sqrt(1.0f - w * w);
-    float angle = 2.0f * std::acos(w);
+    float s = std::sqrt(1.0f - q_n.w * q_n.w);
+    float angle = 2.0f * std::acos(q_n.w);
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;
     if(MathUtils::IsEquivalent(s, 0.0f)) {
-        x = axis.x;
-        y = axis.y;
-        z = axis.z;
+        x = q_n.axis.x;
+        y = q_n.axis.y;
+        z = q_n.axis.z;
     } else {
-        x = axis.x / s;
-        y = axis.y / s;
-        z = axis.z / s;
+        x = q_n.axis.x / s;
+        y = q_n.axis.y / s;
+        z = q_n.axis.z / s;
     }
     return Vector4(x, y, z, angle);
 }
 
-Vector3 Quaternion::CalcEulerAnglesDegrees() {
+Vector3 Quaternion::CalcEulerAnglesDegrees() const {
     return CalcEulerAngles(true);
 }
 
-Vector3 Quaternion::CalcEulerAnglesRadians() {
+Vector3 Quaternion::CalcEulerAnglesRadians() const {
     return CalcEulerAngles(false);
 }
 
 //From http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm
-Vector3 Quaternion::CalcEulerAngles(bool degrees) {
+Vector3 Quaternion::CalcEulerAngles(bool degrees) const {
 
     //First pass change to non-normalized version later.
 
-    Normalize();
+    auto q_n = GetNormalize();
 
     //Euclidean Space standards
     //Heading = rot. about y (yaw)
@@ -281,8 +283,8 @@ Vector3 Quaternion::CalcEulerAngles(bool degrees) {
     //float s3 = std::sin(bank);
 
     Vector3 result;
-    float test = axis.x * axis.y + axis.z * w;
-    float y = 2.0f * std::atan2(axis.x, w);
+    float test = q_n.axis.x * q_n.axis.y + q_n.axis.z * q_n.w;
+    float y = 2.0f * std::atan2(q_n.axis.x, q_n.w);
     float z = MathUtils::M_1PI_2;
     float x = 0.0f;
     if(MathUtils::IsEquivalent(test, 0.50f)) {
@@ -297,12 +299,12 @@ Vector3 Quaternion::CalcEulerAngles(bool degrees) {
         return result;
     }
 
-    float sqx = axis.x * axis.x;
-    float sqy = axis.y * axis.y;
-    float sqz = axis.z * axis.z;
-    y = std::atan2(2.0f * axis.y*w - 2.0f * axis.x * axis.z, 1.0f - sqy - 2.0f * sqz);
+    float sqx = q_n.axis.x * q_n.axis.x;
+    float sqy = q_n.axis.y * q_n.axis.y;
+    float sqz = q_n.axis.z * q_n.axis.z;
+    y = std::atan2(2.0f * q_n.axis.y * w - 2.0f * q_n.axis.x * q_n.axis.z, 1.0f - sqy - 2.0f * sqz);
     z = std::asin(2.0f * test);
-    x = std::atan2(2.0f * axis.x * w - 2.0f * axis.z, 1.0f - 2.0f * sqx - 2.0f * sqz);
+    x = std::atan2(2.0f * q_n.axis.x * w - 2.0f * q_n.axis.z, 1.0f - 2.0f * sqx - 2.0f * sqz);
 
     if(degrees) {
         result.y = MathUtils::ConvertRadiansToDegrees(y);

@@ -47,15 +47,15 @@ public:
 
     Quaternion operator-();
 
-    bool operator==(const Quaternion& rhs);
-    bool operator!=(const Quaternion& rhs);
+    bool operator==(const Quaternion& rhs) const;
+    bool operator!=(const Quaternion& rhs) const;
 
-    Vector4 CalcAxisAnglesDegrees();
-    Vector4 CalcAxisAnglesRadians();
-    Vector4 CalcAxisAngles(bool degrees);
-    Vector3 CalcEulerAnglesDegrees();
-    Vector3 CalcEulerAnglesRadians();
-    Vector3 CalcEulerAngles(bool degrees);
+    Vector4 CalcAxisAnglesDegrees() const;
+    Vector4 CalcAxisAnglesRadians() const;
+    Vector4 CalcAxisAngles(bool degrees) const;
+    Vector3 CalcEulerAnglesDegrees() const;
+    Vector3 CalcEulerAnglesRadians() const;
+    Vector3 CalcEulerAngles(bool degrees) const;
 
     float CalcLength() const;
     float CalcLengthSquared() const;

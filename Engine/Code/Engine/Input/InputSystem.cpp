@@ -772,20 +772,20 @@ void InputSystem::Initialize() {
     std::ostringstream ss;
     ss << _connected_controller_count << " Xbox controllers detected!\n";
     DebuggerPrintf(ss.str().c_str());
+    _connection_poll.SetSeconds(2.0f);
 }
 
 void InputSystem::BeginFrame() {
+    if(_connection_poll.CheckAndReset()) {
+        UpdateXboxConnectedState();
+    }
     for(int i = 0; i < _connected_controller_count; ++i) {
         _xboxControllers[i].Update(i);
     }
 }
 
-void InputSystem::Update(float deltaSeconds) {
-    _time_to_check_controller_state += deltaSeconds;
-    if(_max_time_to_check_controller_state < _time_to_check_controller_state) {
-        _time_to_check_controller_state = 0.0f;
-        UpdateXboxConnectedState();
-    }
+void InputSystem::Update(float /*deltaSeconds*/) {
+    /* DO NOTHING */
 }
 
 void InputSystem::Render() const {

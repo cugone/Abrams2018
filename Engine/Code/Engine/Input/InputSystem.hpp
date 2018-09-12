@@ -5,6 +5,7 @@
 #include <bitset>
 
 #include "Engine/Core/EngineSubsystem.hpp"
+#include "Engine/Core/Stopwatch.hpp"
 
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/Vector2.hpp"
@@ -330,8 +331,7 @@ private:
     std::bitset<(std::size_t)KeyCode::Unknown> _currentKeys{};
     Vector2 _mouseCoords = Vector2::ZERO;
     Vector2 _mouseDelta = Vector2::ZERO;
+    Stopwatch _connection_poll{};
     int _mouseWheelPosition = 0;
     int _connected_controller_count = 0;
-    float _time_to_check_controller_state = 0.0f;
-    float _max_time_to_check_controller_state = 2.0f;
 };

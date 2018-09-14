@@ -20,6 +20,7 @@ Image::Image(const std::string& filePath)
 
     namespace FS = std::filesystem;
     FS::path fp(filePath);
+    fp.make_preferred();
     std::vector<unsigned char> buf = {};
     if(FileUtils::ReadBufferFromFile(buf, fp.string())) {
         m_isGif = (buf[0] == 'G' && buf[1] == 'I' && buf[2] == 'F' && buf[3] == '8' && (buf[4] == '9' || buf[4] == '7') && buf[5] == 'a');

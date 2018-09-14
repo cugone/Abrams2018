@@ -119,6 +119,7 @@ bool Shader::LoadFromXml(Renderer* renderer, const XMLElement& element) {
     }
 
     FS::path p(sp_src);
+    p.make_preferred();
     auto program = _renderer->GetShaderProgram(p.string());
     if(program == nullptr) {
         ERROR_AND_DIE("ShaderProgram referenced in Shader file does not already exist.");

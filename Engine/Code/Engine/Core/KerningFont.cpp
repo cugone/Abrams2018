@@ -95,12 +95,13 @@ bool KerningFont::LoadFromFile(const std::string& filepath) {
     {
         namespace FS = std::filesystem;
         FS::path path{ filepath };
+        std::string pathAsStr = path.string();
+        path.make_preferred();
         bool path_exists = FS::exists(path);
         bool is_not_directory = !FS::is_directory(path);
         bool is_file = FS::is_regular_file(path);
         bool is_fnt = path.has_extension() && StringUtils::ToLowerCase(path.extension().string()) == ".fnt";
         bool is_valid = path_exists && is_not_directory && is_file && is_fnt;
-        std::string pathAsStr = path.string();
         if(!is_valid) {
             std::ostringstream ss;
             ss << pathAsStr << " is not a BMFont file.\n";
@@ -606,7 +607,9 @@ bool KerningFont::LoadFromXml(std::vector<unsigned char>& buffer) {
         {
             unsigned int page_id = DataUtils::ParseXmlAttribute(*xml_page, "id", 0u);
             FS::path page_file = xml_page->Attribute("file");
+            page_file.make_preferred();
             p += page_file;
+            p.make_preferred();
             _image_paths[page_id] = p.string();
         }
     }

@@ -58,6 +58,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
         DataUtils::ValidateXmlElement(*xml_shader, "shader", "", "src");
         auto file = DataUtils::ParseXmlAttribute(*xml_shader, "src", "");
         FS::path p(file);
+        p.make_preferred();
         auto shader = _renderer->GetShader(p.string());
         if(shader == nullptr) {
             std::ostringstream ss;
@@ -70,7 +71,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
 
     auto xml_textures = element.FirstChildElement("textures");
     if(xml_textures != nullptr) {
-        auto loaded_textures = _renderer->GetLoadedTextures();
+        const auto& loaded_textures = _renderer->GetLoadedTextures();
         auto invalid_tex = _renderer->GetTexture("__invalid");
 
         auto xml_diffuse = xml_textures->FirstChildElement("diffuse");

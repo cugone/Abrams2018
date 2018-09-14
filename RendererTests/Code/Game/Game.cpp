@@ -82,10 +82,7 @@ void Game::Update(float deltaSeconds) {
 
     _camera2->Update(deltaSeconds);
     _camera3->Update(deltaSeconds);
-    std::ostringstream ss;
-    Vector3 camera_angles{ _camera3->GetPitchDegrees(), _camera3->GetYawDegrees(), _camera3->GetRollDegrees()};
-    ss << "P: " << _camera3->GetPosition() << " R: " << camera_angles << '\n';
-    DebuggerPrintf(ss.str().c_str());
+
 }
 
 void Game::UpdateCameraFromKeyboard(float deltaSeconds) {
@@ -229,23 +226,13 @@ void Game::DrawWorldGrid() const {
 
     static std::vector<Vertex3D> vbo;
     vbo.clear();
-    for(float x = -1000.0f; x < 1000.0f; x += 1.0f) {
-        if(MathUtils::IsEquivalent(x, 0.0f)) {
-            vbo.push_back(Vertex3D(Vector3(x, -1000.0f, 0.0f)));
-            vbo.push_back(Vertex3D(Vector3(0.0f, 0.0f, 0.0f)));
-            continue;
-        }
-        vbo.push_back(Vertex3D(Vector3(x, -1000.0f, 0.0f)));
-        vbo.push_back(Vertex3D(Vector3(x, 1000.0f, 0.0f)));
+    for(float x = -50.0f; x < 50.0f; x += 1.0f) {
+        vbo.push_back(Vertex3D(Vector3(x, 0.0f, -50.0f)));
+        vbo.push_back(Vertex3D(Vector3(x, 0.0f, 50.0f)));
     }
-    for(float y = -1000.0f; y < 1000.0f; y += 1.0f) {
-        if(MathUtils::IsEquivalent(y, 0.0f)) {
-            vbo.push_back(Vertex3D(Vector3(-1000.0f, y, 0.0f)));
-            vbo.push_back(Vertex3D(Vector3(0.0f, y, 0.0f)));
-            continue;
-        }
-        vbo.push_back(Vertex3D(Vector3(-1000.0f, y, 0.0f)));
-        vbo.push_back(Vertex3D(Vector3(1000.0f, y, 0.0f)));
+    for(float z = -50.0f; z < 50.0f; z += 1.0f) {
+        vbo.push_back(Vertex3D(Vector3(-50.0f, 0.0f, z)));
+        vbo.push_back(Vertex3D(Vector3(50.0f, 0.0f, z)));
     }
 
     static std::vector<unsigned int> ibo(vbo.size());
@@ -264,11 +251,11 @@ void Game::DrawAxes() const {
     static std::vector<Vertex3D> vbo;
     vbo.clear();
     vbo.push_back(Vertex3D(Vector3::ZERO, Rgba::RED));
-    vbo.push_back(Vertex3D(Vector3::X_AXIS * 1000.0f, Rgba::RED));
+    vbo.push_back(Vertex3D(Vector3::X_AXIS * 50.0f, Rgba::RED));
     vbo.push_back(Vertex3D(Vector3::ZERO, Rgba::GREEN));
-    vbo.push_back(Vertex3D(Vector3::Y_AXIS * 1000.0f, Rgba::GREEN));
+    vbo.push_back(Vertex3D(Vector3::Y_AXIS * 50.0f, Rgba::GREEN));
     vbo.push_back(Vertex3D(Vector3::ZERO, Rgba::BLUE));
-    vbo.push_back(Vertex3D(Vector3::Z_AXIS * 1000.0f, Rgba::BLUE));
+    vbo.push_back(Vertex3D(Vector3::Z_AXIS * 50.0f, Rgba::BLUE));
 
     static std::vector<unsigned int> ibo(vbo.size());
     std::iota(std::begin(ibo), std::end(ibo), 0);
@@ -282,35 +269,35 @@ void Game::DrawCube() const {
 
     std::vector<Vertex3D> vbo = {
         //Bottom
-        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 0.0f)),
-        Vertex3D(Vector3(-0.5f, -0.5f,  0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f)),
-        Vertex3D(Vector3(0.5f,  -0.5f,  0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f)),
-        Vertex3D(Vector3(0.5f,  -0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 0.0f)),
+        Vertex3D(Vector3(-0.5f, -0.5f,  0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f), -Vector3::Y_AXIS),
+        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 0.0f), -Vector3::Y_AXIS),
+        Vertex3D(Vector3(0.5f,  -0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 0.0f), -Vector3::Y_AXIS),
+        Vertex3D(Vector3(0.5f,  -0.5f,  0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f), -Vector3::Y_AXIS),
         //Top
-        Vertex3D(Vector3(-0.5f, 0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f)),
-        Vertex3D(Vector3(-0.5f, 0.5f, 0.5f), Rgba::WHITE,  Vector2(0.0f, 0.0f)),
-        Vertex3D(Vector3(0.5f,  0.5f, 0.5f), Rgba::WHITE,  Vector2(1.0f, 0.0f)),
-        Vertex3D(Vector3(0.5f,  0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f)),
+        Vertex3D(Vector3(-0.5f, 0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f), Vector3::Y_AXIS),
+        Vertex3D(Vector3(-0.5f, 0.5f, 0.5f), Rgba::WHITE,  Vector2(0.0f, 0.0f), Vector3::Y_AXIS),
+        Vertex3D(Vector3(0.5f,  0.5f, 0.5f), Rgba::WHITE,  Vector2(1.0f, 0.0f), Vector3::Y_AXIS),
+        Vertex3D(Vector3(0.5f,  0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f), Vector3::Y_AXIS),
         //Left
-        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f)),
-        Vertex3D(Vector3(-0.5f, 0.5f, -0.5f), Rgba::WHITE,  Vector2(1.0f, 0.0f)),
-        Vertex3D(Vector3(-0.5f, 0.5f, 0.5f), Rgba::WHITE,   Vector2(0.0f, 0.0f)),
-        Vertex3D(Vector3(-0.5f, -0.5f, 0.5f), Rgba::WHITE,  Vector2(0.0f, 1.0f)),
+        Vertex3D(Vector3(-0.5f, 0.5f, -0.5f), Rgba::WHITE,  Vector2(1.0f, 0.0f), -Vector3::X_AXIS),
+        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f), -Vector3::X_AXIS),
+        Vertex3D(Vector3(-0.5f, -0.5f, 0.5f), Rgba::WHITE,  Vector2(0.0f, 1.0f), -Vector3::X_AXIS),
+        Vertex3D(Vector3(-0.5f, 0.5f, 0.5f), Rgba::WHITE,   Vector2(0.0f, 0.0f), -Vector3::X_AXIS),
         //Right
-        Vertex3D(Vector3(0.5f, -0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f)),
-        Vertex3D(Vector3(0.5f,  0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 0.0f)),
-        Vertex3D(Vector3(0.5f,  0.5f,  0.5f), Rgba::WHITE, Vector2(1.0f, 0.0f)),
-        Vertex3D(Vector3(0.5f, -0.5f,  0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f)),
+        Vertex3D(Vector3(0.5f, -0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f), Vector3::X_AXIS),
+        Vertex3D(Vector3(0.5f,  0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 0.0f), Vector3::X_AXIS),
+        Vertex3D(Vector3(0.5f,  0.5f,  0.5f), Rgba::WHITE, Vector2(1.0f, 0.0f), Vector3::X_AXIS),
+        Vertex3D(Vector3(0.5f, -0.5f,  0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f), Vector3::X_AXIS),
         //Front
-        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f)),
-        Vertex3D(Vector3(-0.5f,  0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 0.0f)),
-        Vertex3D(Vector3(0.5f,  0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 0.0f)),
-        Vertex3D(Vector3(0.5f, -0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f)),
+        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f), -Vector3::Z_AXIS),
+        Vertex3D(Vector3(-0.5f,  0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 0.0f), -Vector3::Z_AXIS),
+        Vertex3D(Vector3(0.5f,   0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 0.0f), -Vector3::Z_AXIS),
+        Vertex3D(Vector3(0.5f,  -0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f), -Vector3::Z_AXIS),
         //Back
-        Vertex3D(Vector3(-0.5f, -0.5f, 0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f)),
-        Vertex3D(Vector3(0.5f,  0.5f, 0.5f), Rgba::WHITE, Vector2(0.0f, 0.0f)),
-        Vertex3D(Vector3(-0.5f,  0.5f, 0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f)),
-        Vertex3D(Vector3(0.5f, -0.5f, 0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f)),
+        Vertex3D(Vector3(0.5f,  -0.5f, 0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f), Vector3::Z_AXIS),
+        Vertex3D(Vector3(0.5f,   0.5f, 0.5f), Rgba::WHITE, Vector2(0.0f, 0.0f), Vector3::Z_AXIS),
+        Vertex3D(Vector3(-0.5f,  0.5f, 0.5f), Rgba::WHITE, Vector2(1.0f, 0.0f), Vector3::Z_AXIS),
+        Vertex3D(Vector3(-0.5f, -0.5f, 0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f), Vector3::Z_AXIS),
 
     };
 
@@ -320,7 +307,7 @@ void Game::DrawCube() const {
          8,  9, 10,  8, 10, 11,
         12, 13, 14, 12, 14, 15,
         16, 17, 18, 16, 18, 19,
-        20, 21, 22, 20, 23, 24,
+        20, 21, 22, 20, 22, 23,
     };
 
     g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());

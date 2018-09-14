@@ -126,8 +126,8 @@ void Rgba::ScaleAlpha(float scale) {
 unsigned int Rgba::GetAsRawValue() const {
     return static_cast<unsigned int>(  ((static_cast<unsigned int>(r) << 24) & 0xFF000000)
                                      | ((static_cast<unsigned int>(g) << 16) & 0x00FF0000)
-                                     | ((static_cast<unsigned int>(r) << 8)  & 0x0000FF00)
-                                     | ((static_cast<unsigned int>(r) << 0)  & 0x000000FF));
+                                     | ((static_cast<unsigned int>(b) << 8)  & 0x0000FF00)
+                                     | ((static_cast<unsigned int>(a) << 0)  & 0x000000FF));
 }
 
 void Rgba::SetFromRawValue(unsigned long value) {
@@ -135,10 +135,10 @@ void Rgba::SetFromRawValue(unsigned long value) {
 }
 
 void Rgba::SetRGBAFromRawValue(unsigned long value) {
-    r = static_cast<unsigned char>((value & 0xFF000000U) >> 24);
-    g = static_cast<unsigned char>((value & 0x00FF0000U) >> 16);
-    b = static_cast<unsigned char>((value & 0x0000FF00U) >> 8);
-    a = static_cast<unsigned char>((value & 0x000000FFU) >> 0);
+    r = static_cast<unsigned char>((value & 0xFF000000ul) >> 24);
+    g = static_cast<unsigned char>((value & 0x00FF0000ul) >> 16);
+    b = static_cast<unsigned char>((value & 0x0000FF00ul) >> 8);
+    a = static_cast<unsigned char>((value & 0x000000FFul) >> 0);
 }
 
 void Rgba::SetRGBFromRawValue(unsigned long value) {

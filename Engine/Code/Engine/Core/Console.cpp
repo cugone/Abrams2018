@@ -663,6 +663,7 @@ void Console::PasteText(const std::string& text, std::string::const_iterator loc
 
 void Console::Initialize() {
     _camera = new Camera2D;
+    _cursor_timer.SetFrequency(static_cast<float>(_blink_rate));
     RegisterDefaultCommands();
     RegisterDefaultFont();
 }
@@ -729,15 +730,13 @@ void Console::RegisterDefaultCommands() {
 }
 
 void Console::BeginFrame() {
-    /* DO NOTHING */
-}
-
-void Console::Update(float deltaSeconds) {
-    _current_blink_time += deltaSeconds;
-    if(_blink_time < _current_blink_time) {
-        _current_blink_time = 0.0f;
+    if(_cursor_timer.CheckAndReset()) {
         _show_cursor = !_show_cursor;
     }
+}
+
+void Console::Update(float /*deltaSeconds*/) {
+    /* DO NOTHING */
 }
 
 void Console::Render() const {

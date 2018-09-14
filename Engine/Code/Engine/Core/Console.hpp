@@ -2,6 +2,7 @@
 
 #include "Engine/Core/EngineSubsystem.hpp"
 #include "Engine/Core/Rgba.hpp"
+#include "Engine/Core/Stopwatch.hpp"
 #include "Engine/Core/Vertex3D.hpp"
 
 #include "Engine/Math/Vector2.hpp"
@@ -122,9 +123,9 @@ private:
     std::string::const_iterator _cursor_position{};
     std::string::const_iterator _selection_position{};
     decltype(_entryline_buffer)::const_iterator _current_history_position{};
-    float _default_blink_time = 0.33f;
-    float _blink_time = _default_blink_time;
-    float _current_blink_time = 0.0f;
+    int _default_blink_rate = 3;
+    int _blink_rate = _default_blink_rate;
+    Stopwatch _cursor_timer{};
     uint8_t _show_cursor             : 1;
     uint8_t _is_open                 : 1;
     uint8_t _highlight_mode          : 1;

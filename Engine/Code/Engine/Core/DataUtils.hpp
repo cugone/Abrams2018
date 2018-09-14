@@ -17,6 +17,10 @@ using XMLElement = tinyxml2::XMLElement;
 
 namespace DataUtils {
 
+constexpr inline unsigned int Bit(unsigned int n) {
+    return 1 << n;
+}
+
 void ValidateXmlElement(const XMLElement& element,
                         const std::string& name,
                         const std::string& requiredChildElements,

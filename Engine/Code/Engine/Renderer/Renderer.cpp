@@ -236,6 +236,7 @@ void Renderer::DrawIndexed(const PrimitiveType& topology, const std::vector<Vert
 AnimatedSprite* Renderer::CreateAnimatedSprite(const std::string& filepath) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p.make_preferred();
     tinyxml2::XMLDocument doc;
     auto xml_result = doc.LoadFile(p.string().c_str());
     if(xml_result == tinyxml2::XML_SUCCESS) {
@@ -259,6 +260,7 @@ SpriteSheet* Renderer::CreateSpriteSheet(const XMLElement& elem) {
 SpriteSheet* Renderer::CreateSpriteSheet(const std::string& filepath, unsigned int width /*= 1*/, unsigned int height /*= 1*/) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p.make_preferred();
     if(!FS::exists(p)) {
         DebuggerPrintf((p.string() + " not found.\n").c_str());
         return nullptr;
@@ -654,12 +656,15 @@ struct vs_in_t {
     float3 position : POSITION;
     float4 color : COLOR;
     float2 uv : UV;
+    float4 normal : NORMAL;
 };
 
 struct ps_in_t {
     float4 position : SV_POSITION;
     float4 color : COLOR;
     float2 uv : UV;
+    float4 normal : NORMAL;
+    float3 world_position : WORLD;
 };
 
 SamplerState sSampler : register(s0);
@@ -675,6 +680,7 @@ ps_in_t VertexFunction(vs_in_t input_vertex) {
     ps_in_t output;
 
     float4 local = float4(input_vertex.position, 1.0f);
+    float4 normal = input_vertex.normal;
     float4 world = mul(local, g_MODEL);
     float4 view = mul(world, g_VIEW);
     float4 clip = mul(view, g_PROJECTION);
@@ -682,6 +688,8 @@ ps_in_t VertexFunction(vs_in_t input_vertex) {
     output.position = clip;
     output.color = input_vertex.color;
     output.uv = input_vertex.uv;
+    output.normal = normal;
+    output.world_position = world.xyz;
 
     return output;
 }
@@ -696,9 +704,11 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     auto pos_offset = offsetof(Vertex3D, position);
     auto color_offset = offsetof(Vertex3D, color);
     auto uv_offset = offsetof(Vertex3D, texcoords);
+    auto normal = offsetof(Vertex3D, normal);
     il->AddElement(pos_offset, ImageFormat::R32G32B32_Float, "POSITION");
     il->AddElement(color_offset, ImageFormat::R8G8B8A8_UNorm, "COLOR");
     il->AddElement(uv_offset, ImageFormat::R32G32_Float, "UV");
+    il->AddElement(normal, ImageFormat::R32G32B32_Float, "NORMAL");
     auto vs_bytecode = _rhi_device->CompileShader("__defaultVS", program.data(), program.size(), "VertexFunction", PipelineStage::Vs);
     ID3D11VertexShader* vs = nullptr;
     _rhi_device->GetDxDevice()->CreateVertexShader(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize(), nullptr, &vs);
@@ -866,17 +876,20 @@ Material* Renderer::CreateMaterialFromFont(KerningFont* font) {
     }
     bool has_lots_of_textures = has_textures && image_count > 6;
     for(std::size_t i = 0; i < image_count; ++i) {
+        FS::path image_path = font->GetImagePaths()[i];
+        auto fullpath = folderpath / image_path;
+        fullpath.make_preferred();
         switch(i) {
-            case 0:  (material_stream << "<diffuse src=\""   << folderpath << "\\" << font->GetImagePaths()[i] << "\" />"); break;
-            case 1:  (material_stream << "<normal src=\""    << folderpath << "\\" << font->GetImagePaths()[i] << "\" />"); break;
-            case 2:  (material_stream << "<lighting src=\""  << folderpath << "\\" << font->GetImagePaths()[i] << "\" />"); break;
-            case 3:  (material_stream << "<specular src=\""  << folderpath << "\\" << font->GetImagePaths()[i] << "\" />"); break;
-            case 4:  (material_stream << "<occlusion src=\"" << folderpath << "\\" << font->GetImagePaths()[i] << "\" />"); break;
-            case 5:  (material_stream << "<emissive src=\""  << folderpath << "\\" << font->GetImagePaths()[i] << "\" />"); break;
+            case 0: material_stream << R"(<diffuse src=")"   << fullpath << R"(" />)"; break;
+            case 1: material_stream << R"(<normal src=")"    << fullpath << R"(" />)"; break;
+            case 2: material_stream << R"(<lighting src=")"  << fullpath << R"(" />)"; break;
+            case 3: material_stream << R"(<specular src=")"  << fullpath << R"(" />)"; break;
+            case 4: material_stream << R"(<occlusion src=")" << fullpath << R"(" />)"; break;
+            case 5: material_stream << R"(<emissive src=")"  << fullpath << R"(" />)"; break;
             default: /* DO NOTHING */;
         }
         if(i >= 6 && has_lots_of_textures) {
-            material_stream << "<texture index=\"" << (i-6) << "\" src=\"" << folderpath << "\\" << font->GetImagePaths()[i] << "\" />";
+            material_stream << R"(<texture index=")" << (i-6) << R"("\" src=")" << fullpath << R"(" />)";
         }
     }
     if(has_textures) {
@@ -1061,7 +1074,7 @@ bool Renderer::RegisterFont(const std::filesystem::path& filepath) {
             FS::path folderpath = font->GetFilePath();
             folderpath.make_preferred();
             folderpath = folderpath.parent_path();
-            FS::path texture_path = folderpath.string() + "\\" + texture_filename;
+            FS::path texture_path = folderpath / FS::path{ texture_filename };
             texture_path.make_preferred();
             CreateTexture(texture_path.string(), IntVector3::XY_AXIS);
         }
@@ -1375,7 +1388,10 @@ RHIOutput* Renderer::GetOutput() const {
 }
 
 ShaderProgram* Renderer::GetShaderProgram(const std::string& nameOrFile) {
-    auto found_iter = _shader_programs.find(nameOrFile);
+    namespace FS = std::filesystem;
+    FS::path p{ nameOrFile };
+    p.make_preferred();
+    auto found_iter = _shader_programs.find(p.string());
     if(found_iter == _shader_programs.end()) {
         return nullptr;
     }
@@ -1386,7 +1402,21 @@ ShaderProgram* Renderer::CreateShaderProgramFromHlslFile(const std::string& file
     std::vector<unsigned char> contents;
     if(FileUtils::ReadBufferFromFile(contents, filepath)) {
         std::string data(reinterpret_cast<const char*>(contents.data()), contents.size());
-        ShaderProgram* sp = _rhi_device->CreateShaderProgramFromHlslString(filepath, data, entryPoint, inputLayout, target);
+        bool requested_retry = false;
+        ShaderProgram* sp = nullptr;
+        do {
+            sp = _rhi_device->CreateShaderProgramFromHlslString(filepath, data, entryPoint, inputLayout, target);
+#ifdef RENDER_DEBUG
+            if(sp == nullptr) {
+                std::ostringstream error_msg{};
+                error_msg << "Shader \"" << filepath << "\" failed to compile.\n";
+                error_msg << "See Output window for details.\n";
+                error_msg << "Press Retry to re-compile.";
+                auto button_id = ::MessageBoxA(GetOutput()->GetWindow()->GetWindowHandle(), error_msg.str().c_str(), "Shader compilation error.", MB_RETRYCANCEL | MB_ICONERROR);
+                requested_retry = button_id == IDRETRY;
+            }
+#endif
+        } while(requested_retry);
         return sp;
     }
     return nullptr;

@@ -22,6 +22,7 @@ class BlendState;
 class Camera3D;
 class ConstantBuffer;
 class DepthStencilState;
+struct DepthStencilDesc;
 class IndexBuffer;
 class IntVector3;
 class KerningFont;
@@ -44,22 +45,6 @@ class Texture1D;
 class Texture2D;
 class Texture3D;
 class VertexBuffer;
-
-struct depthstencil_state_t {
-    bool depth_enabled;
-    bool depth_write;
-    bool stencil_enabled;
-    bool stencil_read;
-    bool stencil_write;
-    StencilOperation stencil_failFrontOp;
-    StencilOperation stencil_failBackOp;
-    StencilOperation stencil_failDepthFrontOp;
-    StencilOperation stencil_failDepthBackOp;
-    StencilOperation stencil_passFrontOp;
-    StencilOperation stencil_passBackOp;
-    ComparisonFunction stencil_testFront;
-    ComparisonFunction stencil_testBack;
-};
 
 struct matrix_buffer_t {
     Matrix4 model{};
@@ -94,6 +79,12 @@ public:
     Texture* GetTexture(const std::string& nameOrFile);
 
     Texture* CreateDepthStencil(RHIDevice* owner, const IntVector2& dimensions);
+
+    void SetDepthStencilState(const DepthStencilDesc& newDepthStencilState);
+    void SetDepthStencilState(DepthStencilState* depthstencil);
+    DepthStencilState* GetDepthStencilState(const std::string& name);
+    void EnableDepth();
+    void DisableDepth();
 
     Texture* Create1DTexture(const std::string& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
     Texture* Create1DTextureFromMemory(const unsigned char* data, unsigned int width = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
@@ -131,7 +122,7 @@ public:
     void Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo);
     void Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, std::size_t vertex_count);
     void DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo);
-    void DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo, std::size_t vertex_count);
+    void DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo, std::size_t vertex_count, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0);
 
     RHIDeviceContext* GetDeviceContext() const;
     RHIDevice* GetDevice() const;
@@ -215,6 +206,7 @@ private:
     bool RegisterMaterial(const std::filesystem::path& filepath);
     void RegisterMaterialsFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
     void RegisterRasterState(const std::string& name, RasterState* raster);
+    void RegisterDepthStencilState(const std::string& name, DepthStencilState* depthstencil);
     void RegisterSampler(const std::string& name, Sampler* sampler);
     void RegisterFont(const std::string& name, KerningFont* font);
     bool RegisterFont(const std::filesystem::path& filepath);
@@ -224,7 +216,7 @@ private:
     void UpdateIbo(const IndexBuffer::buffer_t& ibo);
 
     void Draw(const PrimitiveType& topology, VertexBuffer* vbo, std::size_t vertex_count);
-    void DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, IndexBuffer* ibo, std::size_t index_count);
+    void DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, IndexBuffer* ibo, std::size_t index_count, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0);
 
     SpriteSheet* CreateSpriteSheetFromGif(const std::string& filepath);
     AnimatedSprite* CreateAnimatedSpriteFromGif(const std::string& filepath);
@@ -264,6 +256,10 @@ private:
     RasterState* CreateWireframeFrontCullingRaster();
     RasterState* CreateSolidFrontCullingRaster();
 
+    void CreateAndRegisterDefaultDepthStencilStates();
+    DepthStencilState* CreateDisabledDepth();
+    DepthStencilState* CreateEnabledDepth();
+
     void UnbindAllShaderResources();
 
     matrix_buffer_t _matrix_data = {};
@@ -294,6 +290,7 @@ private:
     std::map<std::string, Shader*> _shaders = {};
     std::map<std::string, Sampler*> _samplers = {};
     std::map<std::string, RasterState*> _rasters = {};
+    std::map<std::string, DepthStencilState*> _depthstencils = {};
     std::map<std::string, KerningFont*> _fonts = {};
     bool _vsync = false;
 

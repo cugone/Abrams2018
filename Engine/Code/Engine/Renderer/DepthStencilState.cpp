@@ -55,6 +55,37 @@ DepthStencilState::DepthStencilState(RHIDevice* device, const XMLElement& elemen
     }
 }
 
+DepthStencilState::DepthStencilState(RHIDevice* device, const DepthStencilDesc& desc)
+    : _enableDepthTest(desc.depth_enabled)
+    , _enableStencilTest(desc.stencil_enabled)
+    , _enableDepthWrite(desc.depth_write)
+    , _enableStencilRead(desc.stencil_read)
+    , _enableStencilWrite(desc.stencil_write)
+    , _depthComparison(desc.depth_comparison)
+    , _failFrontBackOp(std::make_pair<>(desc.stencil_failFrontOp, desc.stencil_failBackOp))
+    , _failDepthFrontBackOp(std::make_pair<>(desc.stencil_failDepthFrontOp, desc.stencil_failDepthBackOp))
+    , _passFrontBackOp(std::make_pair<>(desc.stencil_passFrontOp, desc.stencil_passBackOp))
+    , _stencilComparisonFrontBack(std::make_pair<>(desc.stencil_testFront, desc.stencil_testBack))
+{
+    bool succeeded = CreateDepthStencilState(device
+                                             , _enableDepthTest
+                                             , _enableStencilTest
+                                             , _enableDepthWrite
+                                             , _enableStencilRead
+                                             , _enableStencilWrite
+                                             , _depthComparison
+                                             , _failFrontBackOp
+                                             , _failDepthFrontBackOp
+                                             , _passFrontBackOp
+                                             , _stencilComparisonFrontBack
+    );
+    if(!succeeded) {
+        _dx_state->Release();
+        _dx_state = nullptr;
+        ERROR_AND_DIE("DepthStencilState failed to create.");
+    }
+}
+
 DepthStencilState::~DepthStencilState() {
     _dx_state->Release();
     _dx_state = nullptr;
@@ -62,6 +93,25 @@ DepthStencilState::~DepthStencilState() {
 
 ID3D11DepthStencilState* DepthStencilState::GetDxDepthStencilState() const {
     return _dx_state;
+}
+
+DepthStencilDesc DepthStencilState::GetDesc() const {
+    DepthStencilDesc desc;
+    desc.depth_enabled = _enableDepthTest;
+    desc.depth_write = _enableDepthWrite;
+    desc.depth_comparison = _depthComparison;
+    desc.stencil_enabled = _enableStencilTest;
+    desc.stencil_failBackOp = _failFrontBackOp.second;
+    desc.stencil_failDepthBackOp = _failDepthFrontBackOp.second;
+    desc.stencil_failDepthFrontOp = _failDepthFrontBackOp.first;
+    desc.stencil_failFrontOp = _failFrontBackOp.first;
+    desc.stencil_passBackOp = _passFrontBackOp.second;
+    desc.stencil_passFrontOp = _passFrontBackOp.first;
+    desc.stencil_read = _enableStencilRead;
+    desc.stencil_testBack = _stencilComparisonFrontBack.second;
+    desc.stencil_testFront = _stencilComparisonFrontBack.first;
+    desc.stencil_write = _enableStencilWrite;
+    return desc;
 }
 
 bool DepthStencilState::CreateDepthStencilState(RHIDevice* device, bool enableDepthTest /*= true */, bool enableStencilTest /*= false */, bool enableDepthWrite /*= true */, bool enableStencilRead /*= true */, bool enableStencilWrite /*= true */, const ComparisonFunction& depthComparison /*= ComparisonFunction::LESS */, std::pair<const StencilOperation&, const StencilOperation&> failFrontBackOp /*= std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP) */, std::pair<const StencilOperation&, const StencilOperation&> failDepthFrontBackOp /*= std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP) */, std::pair<const StencilOperation&, const StencilOperation&> passFrontBackOp /*= std::make_pair(StencilOperation::KEEP, StencilOperation::KEEP) */, std::pair<const ComparisonFunction&, const ComparisonFunction&> stencilComparisonFrontBack /*= std::make_pair(ComparisonFunction::ALWAYS, ComparisonFunction::ALWAYS)*/) {
@@ -93,7 +143,7 @@ bool DepthStencilState::LoadFromXml(RHIDevice* device, const XMLElement& element
     //    <raster>
     //        <fill>solid</fill>
     //        <cull>none</cull>
-    //        <antialiasing>true</antialiasing>
+    //        <antialiasing>false</antialiasing>
     //    </raster>
     //        <blends>
     //            <blend enable = "true">
@@ -178,16 +228,16 @@ bool DepthStencilState::LoadFromXml(RHIDevice* device, const XMLElement& element
         }
     }
 
-    return CreateDepthStencilState(device,
-                                   enableDepthTest,
-                                   enableStencilTest,
-                                   depthWritable,
-                                   enableStencilRead,
-                                   enableStencilWrite,
-                                   depthComparison,
-                                   failFBOp,
-                                   failDepthFBOp,
-                                   passFBOp,
-                                   stencilComparisonFB);
+    return CreateDepthStencilState(device
+                                   ,enableDepthTest
+                                   ,enableStencilTest
+                                   ,depthWritable
+                                   ,enableStencilRead
+                                   ,enableStencilWrite
+                                   ,depthComparison
+                                   ,failFBOp
+                                   ,failDepthFBOp
+                                   ,passFBOp
+                                   ,stencilComparisonFB);
 
 }

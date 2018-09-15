@@ -154,6 +154,7 @@ void Renderer::Initialize() {
 
     CreateAndRegisterDefaultSamplers();
     CreateAndRegisterDefaultRasterStates();
+    CreateAndRegisterDefaultDepthStencilStates();
     CreateAndRegisterDefaultTextures();
     CreateAndRegisterDefaultShaderPrograms();
     CreateAndRegisterDefaultShaders();
@@ -227,10 +228,10 @@ void Renderer::DrawIndexed(const PrimitiveType& topology, const std::vector<Vert
     DrawIndexed(topology, _temp_vbo, _temp_ibo, ibo.size());
 }
 
-void Renderer::DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo, std::size_t vertex_count) {
+void Renderer::DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo, std::size_t vertex_count, std::size_t startVertex /*= 0*/, std::size_t baseVertexLocation /*= 0*/) {
     UpdateVbo(vbo);
     UpdateIbo(ibo);
-    DrawIndexed(topology, _temp_vbo, _temp_ibo, vertex_count);
+    DrawIndexed(topology, _temp_vbo, _temp_ibo, vertex_count, startVertex, baseVertexLocation);
 }
 
 AnimatedSprite* Renderer::CreateAnimatedSprite(const std::string& filepath) {
@@ -330,7 +331,7 @@ void Renderer::Draw(const PrimitiveType& topology, VertexBuffer* vbo, std::size_
     _rhi_context->Draw(vertex_count);
 }
 
-void Renderer::DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, IndexBuffer* ibo, std::size_t index_count) {
+void Renderer::DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, IndexBuffer* ibo, std::size_t index_count, std::size_t startVertex /*= 0*/, std::size_t baseVertexLocation /*= 0*/) {
     GUARANTEE_OR_DIE(_current_material, "Attempting to call Draw function without a material set!\n");
     D3D11_PRIMITIVE_TOPOLOGY d3d_prim = PrimitiveTypeToD3dTopology(topology);
     _rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
@@ -340,7 +341,7 @@ void Renderer::DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, Ind
     ID3D11Buffer* dx_ibo_buffer = ibo->GetDxBuffer();
     _rhi_context->GetDxContext()->IASetVertexBuffers(0, 1, &dx_vbo_buffer, &stride, &offsets);
     _rhi_context->GetDxContext()->IASetIndexBuffer(dx_ibo_buffer, DXGI_FORMAT_R32_UINT, offsets);
-    _rhi_context->DrawIndexed(index_count);
+    _rhi_context->DrawIndexed(index_count, startVertex, baseVertexLocation);
 }
 
 void Renderer::DrawPoint2D(float pointX, float pointY, const Rgba& color /*= Rgba::WHITE*/) {
@@ -936,37 +937,73 @@ void Renderer::CreateAndRegisterDefaultRasterStates() {
 }
 
 RasterState* Renderer::CreateWireframeRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::Wireframe, CullMode::Back, true);
+    RasterState* state = new RasterState(_rhi_device, FillMode::Wireframe, CullMode::Back, false);
     return state;
 }
 
 RasterState* Renderer::CreateSolidRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::Solid, CullMode::Back, true);
+    RasterState* state = new RasterState(_rhi_device, FillMode::Solid, CullMode::Back, false);
     return state;
 }
 
 RasterState* Renderer::CreateWireframeNoCullingRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::Wireframe, CullMode::None, true);
+    RasterState* state = new RasterState(_rhi_device, FillMode::Wireframe, CullMode::None, false);
     return state;
 }
 
 RasterState* Renderer::CreateSolidNoCullingRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::Solid, CullMode::None, true);
+    RasterState* state = new RasterState(_rhi_device, FillMode::Solid, CullMode::None, false);
     return state;
 }
 
 RasterState* Renderer::CreateWireframeFrontCullingRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::Wireframe, CullMode::Front, true);
+    RasterState* state = new RasterState(_rhi_device, FillMode::Wireframe, CullMode::Front, false);
     return state;
 }
 
 RasterState* Renderer::CreateSolidFrontCullingRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::Solid, CullMode::Front, true);
+    RasterState* state = new RasterState(_rhi_device, FillMode::Solid, CullMode::Front, false);
+    return state;
+}
+
+void Renderer::CreateAndRegisterDefaultDepthStencilStates() {
+    DepthStencilState* depth_disabled = CreateDisabledDepth();
+    RegisterDepthStencilState("__depthdisabled", depth_disabled);
+    DepthStencilState* depth_enabled = CreateEnabledDepth();
+    RegisterDepthStencilState("__depthenabled", depth_enabled);
+}
+
+DepthStencilState* Renderer::CreateDisabledDepth() {
+    DepthStencilDesc desc;
+    desc.depth_enabled = false;
+    desc.depth_comparison = ComparisonFunction::Always;
+    DepthStencilState* state = new DepthStencilState(_rhi_device, desc);
+    return state;
+}
+
+DepthStencilState* Renderer::CreateEnabledDepth() {
+    DepthStencilDesc desc;
+    desc.depth_enabled = true;
+    desc.depth_comparison = ComparisonFunction::Less;
+    DepthStencilState* state = new DepthStencilState(_rhi_device, desc);
     return state;
 }
 
 void Renderer::UnbindAllShaderResources() {
     _rhi_context->UnbindAllShaderResources();
+}
+
+void Renderer::RegisterDepthStencilState(const std::string& name, DepthStencilState* depthstencil) {
+    if(depthstencil == nullptr) {
+        return;
+    }
+    auto found_iter = _depthstencils.find(name);
+    if(found_iter != _depthstencils.end()) {
+        delete found_iter->second;
+        found_iter->second = nullptr;
+    }
+    _depthstencils.insert_or_assign(name, depthstencil);
+
 }
 
 RasterState* Renderer::GetRasterState(const std::string& name) {
@@ -1253,7 +1290,7 @@ R"(
     <raster>
         <fill>solid</fill>
         <cull>none</cull>
-        <antialiasing>true</antialiasing>
+        <antialiasing>false</antialiasing>
     </raster>
         <blends>
             <blend enable = "true">
@@ -1713,6 +1750,35 @@ Texture* Renderer::CreateDepthStencil(RHIDevice* owner, const IntVector2& dimens
         return _current_depthstencil;
     }
     return nullptr;
+}
+
+void Renderer::SetDepthStencilState(const DepthStencilDesc& newDepthStencilState) {
+    delete _current_depthstencil_state;
+    _current_depthstencil_state = new DepthStencilState(_rhi_device, newDepthStencilState);
+}
+
+void Renderer::SetDepthStencilState(DepthStencilState* depthstencil) {
+    if(depthstencil == _current_depthstencil_state) {
+        return;
+    }
+    _current_depthstencil_state = depthstencil;
+    _rhi_context->SetDepthStencilState(depthstencil);
+}
+
+DepthStencilState* Renderer::GetDepthStencilState(const std::string& name) {
+    auto found_iter = _depthstencils.find(name);
+    if(found_iter == _depthstencils.end()) {
+        return nullptr;
+    }
+    return found_iter->second;
+}
+
+void Renderer::EnableDepth() {
+    SetDepthStencilState(GetDepthStencilState("__depthenabled"));
+}
+
+void Renderer::DisableDepth() {
+    SetDepthStencilState(GetDepthStencilState("__depthdisabled"));
 }
 
 Texture* Renderer::Create1DTexture(const std::string& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) {

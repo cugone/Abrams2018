@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 #include "ThirdParty/TinyXML2/tinyxml2.h"
 
 #include "Engine/Core/Rgba.hpp"
@@ -12,6 +10,9 @@
 #include "Engine/Math/Vector4.hpp"
 #include "Engine/Math/IntVector4.hpp"
 #include "Engine/Math/Matrix4.hpp"
+
+#include <functional>
+#include <string>
 
 using XMLElement = tinyxml2::XMLElement;
 
@@ -109,5 +110,7 @@ Matrix4 ParseXmlElementText(const XMLElement& element, const Matrix4& defaultVal
 
 std::string ParseXmlElementText(const XMLElement& element, const char* defaultValue);
 std::string ParseXmlElementText(const XMLElement& element, const std::string& defaultValue);
+
+void IterateAllChildElements(const XMLElement& element, const std::string& childname = std::string{}, const std::function<void(const XMLElement&)>& callback = [](const XMLElement&) { /* DO NOTHING */ });
 
 }

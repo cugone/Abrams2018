@@ -1,12 +1,13 @@
 #include "Engine/Core/DataUtils.hpp"
 
-#include <algorithm>
-#include <sstream>
-#include <vector>
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/MathUtils.hpp"
+
+#include <algorithm>
+#include <sstream>
+#include <vector>
 
 namespace DataUtils {
 
@@ -112,10 +113,11 @@ void ValidateXmlElement(const XMLElement& element,
 
     if(!extraOptionalAttributes.empty()) {
         std::ostringstream err_ss;
+        err_ss << "Optional Attribute validation failed. Found unknown attributes:\n";
         for(auto& c : extraOptionalAttributes) {
-            err_ss << "Optional Attribute validation failed. Unknown attribute \"" << c << "\" found.\n";
+            err_ss << "\t\"" << c << "\"\n";
         }
-        ERROR_AND_DIE(err_ss.str().c_str());
+        ERROR_RECOVERABLE(err_ss.str().c_str());
     }
 
     //Find extra children
@@ -126,10 +128,11 @@ void ValidateXmlElement(const XMLElement& element,
 
     if(!extraOptionalChildren.empty()) {
         std::ostringstream err_ss;
+        err_ss << "Optional Child validation failed. Found unknown children:\n";
         for(auto& c : extraOptionalChildren) {
-            err_ss << "Optional Child Element validation failed. Unknown child \"" << c << "\" found.\n";
+            err_ss << "\t\"" << c << "\"\n";
         }
-        ERROR_AND_DIE(err_ss.str().c_str());
+        ERROR_RECOVERABLE(err_ss.str().c_str());
     }
 #endif
 }
@@ -359,6 +362,18 @@ std::string ParseXmlElementText(const XMLElement& element, const std::string& de
         return defaultValue;
     } else {
         return textVal;
+    }
+}
+
+void IterateAllChildElements(const XMLElement& element, const std::string& childname /*= std::string{}*/, const std::function<void(const XMLElement&)>& callback /*= [](const XMLElement&) { / * DO NOTHING * / }*/) {
+    if(childname.empty()) {
+        for(auto xml_iter = element.FirstChildElement(); xml_iter != nullptr; xml_iter = xml_iter->NextSiblingElement()) {
+            callback(*xml_iter);
+        }
+    } else {
+        for(auto xml_iter = element.FirstChildElement(childname.c_str()); xml_iter != nullptr; xml_iter = xml_iter->NextSiblingElement(childname.c_str())) {
+            callback(*xml_iter);
+        }
     }
 }
 

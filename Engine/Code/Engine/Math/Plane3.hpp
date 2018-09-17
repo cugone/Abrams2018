@@ -16,6 +16,9 @@ public:
     explicit Plane3(const Vector3& normal, float distance_from_origin);
     ~Plane3() = default;
 
+    float Normalize();
+    Plane3 GetNormalize() const;
+
 protected:
 private:
 };

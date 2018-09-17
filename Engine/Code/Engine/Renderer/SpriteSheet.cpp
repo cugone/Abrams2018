@@ -62,9 +62,12 @@ const Texture& SpriteSheet::GetTexture() const {
 }
 
 void SpriteSheet::LoadFromXml(Renderer& renderer, const XMLElement& elem) {
+    namespace FS = std::filesystem;
     DataUtils::ValidateXmlElement(elem, "spritesheet", "", "src,dimensions");
     _spriteLayout = DataUtils::ParseXmlAttribute(elem, "dimensions", _spriteLayout);
-    std::string texturePath{};
-    texturePath = DataUtils::ParseXmlAttribute(elem, "src", texturePath);
-    _spriteSheetTexture = renderer.CreateOrGetTexture(texturePath, IntVector3::XY_AXIS);
+    std::string texturePathAsString{};
+    texturePathAsString = DataUtils::ParseXmlAttribute(elem, "src", texturePathAsString);
+    FS::path p{ texturePathAsString };
+    p.make_preferred();
+    _spriteSheetTexture = renderer.CreateOrGetTexture(p.string(), IntVector3::XY_AXIS);
 }

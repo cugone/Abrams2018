@@ -57,7 +57,6 @@
     <ClCompile Include="Math\AABB3.cpp" />
     <ClCompile Include="Math\Capsule2.cpp" />
     <ClCompile Include="Math\Capsule3.cpp" />
-    <ClCompile Include="Math\ConvexHull.cpp" />
     <ClCompile Include="Math\Disc2.cpp" />
     <ClCompile Include="Math\IntVector2.cpp" />
     <ClCompile Include="Math\IntVector3.cpp" />
@@ -145,7 +144,6 @@
     <ClInclude Include="Math\AABB3.hpp" />
     <ClInclude Include="Math\Capsule2.hpp" />
     <ClInclude Include="Math\Capsule3.hpp" />
-    <ClInclude Include="Math\ConvexHull.hpp" />
     <ClInclude Include="Math\Disc2.hpp" />
     <ClInclude Include="Math\IntVector2.hpp" />
     <ClInclude Include="Math\IntVector3.hpp" />

@@ -280,6 +280,9 @@
     <ClCompile Include="Core\Stopwatch.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Math\ConvexHull.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -542,6 +545,9 @@
     </ClInclude>
     <ClInclude Include="Core\Stopwatch.hpp">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\ConvexHull.hpp">
+      <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

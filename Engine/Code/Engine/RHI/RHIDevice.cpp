@@ -258,7 +258,7 @@ ID3DBlob* RHIDevice::CompileShader(const std::string& name, const void*  sourceC
     compile_options |= D3DCOMPILE_WARNINGS_ARE_ERRORS;
 #endif
 #ifdef FINAL_BUILD
-    compile_options |= D3DCOMPILE_PACK_MATRIX_ROW_MAJOR;
+    compile_options |= D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR;
     compile_options |= D3DCOMPILE_SKIP_VALIDATION;
     compile_options |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
 #endif

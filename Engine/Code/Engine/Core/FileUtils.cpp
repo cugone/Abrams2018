@@ -2,6 +2,7 @@
 
 #include "Engine/Core/StringUtils.hpp"
 
+#include <algorithm>
 #include <cstdio>
 #include <fstream>
 #include <ShlObj.h>
@@ -75,7 +76,7 @@ std::string GetAppDataPath() {
     return std::string{};
 }
 
-void IterateFileInFolders(const std::filesystem::path& folderpath, const std::string& validExtension /*= std::string{}*/, const std::function<void(const std::filesystem::path&)>& callback /*= [](const std::filesystem::path& p) { (void*)p; }*/, bool recursive /*= false*/) {
+void IterateFileInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, const std::function<void(const std::filesystem::path&)>& callback /*= [](const std::filesystem::path& p) { (void*)p; }*/, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
     auto preferred_folderpath = folderpath;
     preferred_folderpath.make_preferred();
@@ -84,13 +85,13 @@ void IterateFileInFolders(const std::filesystem::path& folderpath, const std::st
     if(!is_folder) {
         return;
     }
+    auto validExtensions = StringUtils::Split(StringUtils::ToLowerCase(validExtensionList));
     if(!recursive) {
         for(auto iter = FS::directory_iterator{ preferred_folderpath }; iter != FS::directory_iterator{}; ++iter) {
             auto cur_path = iter->path();
             auto my_extension = StringUtils::ToLowerCase(cur_path.extension().string());
-            auto valid_extension = StringUtils::ToLowerCase(validExtension);
-            bool valid_file_by_extension = my_extension == valid_extension;
-            if(valid_extension.empty() == false) {
+            auto valid_file_by_extension = std::find(std::begin(validExtensions), std::end(validExtensions), my_extension) != std::end(validExtensions);
+            if(validExtensions.empty() == false) {
                 if(valid_file_by_extension) {
                     callback(cur_path);
                 }
@@ -101,10 +102,12 @@ void IterateFileInFolders(const std::filesystem::path& folderpath, const std::st
     } else {
         for(auto iter = FS::recursive_directory_iterator{ preferred_folderpath }; iter != FS::recursive_directory_iterator{}; ++iter) {
             auto cur_path = iter->path();
+            if(FS::is_directory(cur_path)) {
+                continue;
+            }
             auto my_extension = StringUtils::ToLowerCase(cur_path.extension().string());
-            auto valid_extension = StringUtils::ToLowerCase(validExtension);
-            bool valid_file_by_extension = my_extension == valid_extension;
-            if(valid_extension.empty() == false) {
+            auto valid_file_by_extension = std::find(std::begin(validExtensions), std::end(validExtensions), my_extension) != std::end(validExtensions);
+            if(validExtensions.empty() == false) {
                 if(valid_file_by_extension) {
                     callback(cur_path);
                 }

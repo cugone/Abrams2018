@@ -8,6 +8,7 @@ void Camera3D::SetupView(float fovVerticalDegrees, float aspectRatio /*= MathUti
     world_up = worldUp.GetNormalize();
     near_view_height = 2.0f * near_distance * std::tan(0.5f * fov_vertical_degrees);
     far_view_height = 2.0f * far_distance * std::tan(0.5f * fov_vertical_degrees);
+    CalcRotationMatrix();
     CalcViewMatrix();
     CalcProjectionMatrix();
     CalcViewProjectionMatrix();
@@ -59,7 +60,6 @@ void Camera3D::CalcRotationMatrix() {
 
 void Camera3D::Update(float deltaSeconds) {
     trauma -= trauma_recovery_rate * deltaSeconds;
-    CalcRotationMatrix();
 }
 
 const Vector3& Camera3D::GetPosition() const {
@@ -98,7 +98,7 @@ void Camera3D::Translate(float x, float y) {
     Translate(Vector2{ x, y });
 }
 
-float Camera3D::GetFovYDegrees() const {
+float Camera3D::CalcFovYDegrees() const {
     return fov_vertical_degrees;
 }
 
@@ -137,6 +137,10 @@ float Camera3D::GetNearDistance() const {
 
 float Camera3D::GetFarDistance() const {
     return far_distance;
+}
+
+const Matrix4& Camera3D::GetRotationMatrix() const {
+    return rotation_matrix;
 }
 
 const Matrix4& Camera3D::GetViewMatrix() const {

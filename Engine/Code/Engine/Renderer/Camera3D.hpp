@@ -24,7 +24,7 @@ public:
     void Translate(const Vector2& displacement);
     void Translate(float x, float y);
 
-    float GetFovYDegrees() const;
+    float CalcFovYDegrees() const;
     float CalcFovXDegrees() const;
     float CalcNearViewWidth() const;
     float CalcNearViewHeight() const;
@@ -35,6 +35,8 @@ public:
     float GetInverseAspectRatio() const;
     float GetNearDistance() const;
     float GetFarDistance() const;
+
+    const Matrix4& GetRotationMatrix() const;
 
     const Matrix4& GetViewMatrix() const;
     const Matrix4& GetProjectionMatrix() const;

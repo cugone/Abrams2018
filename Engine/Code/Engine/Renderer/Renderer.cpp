@@ -10,6 +10,7 @@
 #include "Engine/Core/Vertex3D.hpp"
 
 #include "Engine/Math/AABB2.hpp"
+#include "Engine/Math/Frustum.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Vector2.hpp"
 
@@ -39,6 +40,7 @@
 #include "Thirdparty/stb/stb_image.h"
 #include "Thirdparty/TinyXML2/tinyxml2.h"
 
+#include <numeric>
 #include <cstddef>
 #include <filesystem>
 #include <fstream>
@@ -96,6 +98,12 @@ Renderer::~Renderer() {
     }
     _fonts.clear();
 
+    for(auto& ds : _depthstencils) {
+        delete ds.second;
+        ds.second = nullptr;
+    }
+    _depthstencils.clear();
+
     delete _temp_vbo;
     _temp_vbo = nullptr;
 
@@ -105,9 +113,7 @@ Renderer::~Renderer() {
     delete _default_depthstencil;
     _default_depthstencil = nullptr;
 
-    delete _current_depthstencil_state;
     _current_depthstencil_state = nullptr;
-
     _current_raster_state = nullptr;
     _current_sampler = nullptr;
     _current_material = nullptr;
@@ -138,8 +144,6 @@ void Renderer::Initialize() {
     _rhi_output = _rhi_device->CreateOutput(_window_dimensions);
     _rhi_context = _rhi_device->GetImmediateContext();
 
-    _default_depthstencil = CreateDepthStencil(_rhi_device, _window_dimensions);
-
     {
     VertexBuffer::buffer_t default_vbo(1024);
     IndexBuffer::buffer_t default_ibo(1024);
@@ -150,16 +154,21 @@ void Renderer::Initialize() {
     }
 
     _matrix_cb = _rhi_device->CreateConstantBuffer(&_matrix_data, sizeof(_matrix_data), BufferUsage::Dynamic, BufferBindUsage::Constant_Buffer);
-    //_time_cb = _rhi_device->CreateConstantBuffer(&_time_data, sizeof(_time_data), BufferUsage::DYNAMIC, BufferBindUsage::CONSTANT_BUFFER);
+    _time_cb = _rhi_device->CreateConstantBuffer(&_time_data, sizeof(_time_data), BufferUsage::Dynamic, BufferBindUsage::Constant_Buffer);
 
+    CreateAndRegisterDefaultDepthStencilStates();
     CreateAndRegisterDefaultSamplers();
     CreateAndRegisterDefaultRasterStates();
-    CreateAndRegisterDefaultDepthStencilStates();
     CreateAndRegisterDefaultTextures();
     CreateAndRegisterDefaultShaderPrograms();
     CreateAndRegisterDefaultShaders();
     CreateAndRegisterDefaultMaterials();
 
+    _default_depthstencil = CreateDepthStencil(_rhi_device, _window_dimensions);
+    SetDepthStencilState(GetDepthStencilState("__default"));
+    SetRasterState(GetRasterState("__solid"));
+    SetSampler(GetSampler("__default"));
+    _current_material = nullptr; //Explicit to avoid defaulting to full lighting material.
 }
 
 void Renderer::BeginFrame() {
@@ -210,6 +219,141 @@ void Renderer::DrawPoint(const Vertex3D& point) {
 
 void Renderer::DrawPoint(const Vector3& point, const Rgba& color /*= Rgba::WHITE*/, const Vector2& tex_coords /*= Vector2::ZERO*/) {
     DrawPoint(Vertex3D(point, color, tex_coords));
+}
+
+void Renderer::DrawFrustum(const Frustum& frustum, const Rgba& color /*= Rgba::YELLOW*/, const Vector2& tex_coords /*= Vector2::ZERO*/) {
+
+    const Vector3& point1{frustum.GetNearBottomLeft()};
+    const Vector3& point2{frustum.GetNearTopLeft()};
+    const Vector3& point3{frustum.GetNearTopRight()};
+    const Vector3& point4{frustum.GetNearBottomRight()};
+    const Vector3& point5{frustum.GetFarBottomLeft()};
+    const Vector3& point6{frustum.GetFarTopLeft()};
+    const Vector3& point7{frustum.GetFarTopRight()};
+    const Vector3& point8{frustum.GetFarBottomRight()};
+    std::vector<Vertex3D> vbo{
+        Vertex3D{point1, color, tex_coords}, //Near
+        Vertex3D{point2, color, tex_coords},
+        Vertex3D{point3, color, tex_coords},
+        Vertex3D{point4, color, tex_coords},
+        Vertex3D{point5, color, tex_coords}, //Far
+        Vertex3D{point6, color, tex_coords},
+        Vertex3D{point7, color, tex_coords},
+        Vertex3D{point8, color, tex_coords},
+    };
+    std::vector<unsigned int> ibo{
+        0, 1, 1, 2, 2, 3, 3, 0, //Near
+        4, 5, 5, 6, 6, 7, 7, 4, //Far
+        0, 4, 1, 5, 2, 6, 3, 7, //Edges
+    };
+    DrawIndexed(PrimitiveType::Lines, vbo, ibo);
+}
+
+void Renderer::DrawWorldGridXZ(float radius /*= 500.0f*/, float major_gridsize /*= 20.0f*/, float minor_gridsize /*= 5.0f*/, const Rgba& major_color /*= Rgba::WHITE*/, const Rgba& minor_color /*= Rgba::DARK_GRAY*/) {
+    static std::vector<Vertex3D> vbo;
+    float half_length = radius;
+    float length = radius * 2.0f;
+    float space_between_majors = length * (major_gridsize / length);
+    float space_between_minors = length * (minor_gridsize / length);
+    vbo.clear();
+    vbo.reserve(4 * static_cast<std::size_t>(std::ceil(length / minor_gridsize)) - static_cast<std::size_t>(major_gridsize));
+    //MAJOR LINES
+    for(float x = -half_length; x < half_length + 1.0f; x += space_between_majors) {
+        vbo.push_back(Vertex3D(Vector3(x, 0.0f, -half_length), major_color));
+        vbo.push_back(Vertex3D(Vector3(x, 0.0f, half_length), major_color));
+    }
+    for(float z = -half_length; z < half_length + 1.0f; z += space_between_majors) {
+        vbo.push_back(Vertex3D(Vector3(-half_length, 0.0f, z), major_color));
+        vbo.push_back(Vertex3D(Vector3(half_length, 0.0f, z), major_color));
+    }
+    //MINOR LINES
+    for(float x = -half_length; x < half_length; x += space_between_minors) {
+        if(MathUtils::IsEquivalent(std::fmod(x, space_between_majors), 0.0f)) {
+            continue;
+        }
+        vbo.push_back(Vertex3D(Vector3(x, 0.0f, -half_length), minor_color));
+        vbo.push_back(Vertex3D(Vector3(x, 0.0f, half_length), minor_color));
+    }
+    for(float z = -half_length; z < half_length; z += space_between_minors) {
+        if(MathUtils::IsEquivalent(std::fmod(z, space_between_majors), 0.0f)) {
+            continue;
+        }
+        vbo.push_back(Vertex3D(Vector3(-half_length, 0.0f, z), minor_color));
+        vbo.push_back(Vertex3D(Vector3(half_length, 0.0f, z), minor_color));
+    }
+
+    static std::vector<unsigned int> ibo{};
+    ibo.resize(vbo.size());
+    std::iota(std::begin(ibo), std::end(ibo), 0);
+
+    SetModelMatrix(Matrix4::GetIdentity());
+    SetMaterial(GetMaterial("__unlit"));
+    std::size_t major_count = ibo.empty() ? 0 : static_cast<std::size_t>(major_gridsize);
+    std::size_t major_start = 0;
+    std::size_t minor_count = ibo.empty() ? 0 : ibo.size() - static_cast<std::size_t>(minor_gridsize);
+    std::size_t minor_start = ibo.empty() ? 0 : major_count;
+    DrawIndexed(PrimitiveType::Lines, vbo, ibo, major_count, major_start);
+    DrawIndexed(PrimitiveType::Lines, vbo, ibo, minor_count, minor_start);
+
+}
+
+void Renderer::DrawWorldGridXY(float radius /*= 500.0f*/, float major_gridsize /*= 20.0f*/, float minor_gridsize /*= 5.0f*/, const Rgba& major_color /*= Rgba::WHITE*/, const Rgba& minor_color /*= Rgba::DARK_GRAY*/) {
+
+    float half_length = radius;
+    float length = radius * 2.0f;
+    float space_between_majors = std::floor(length * (major_gridsize / length));
+    float space_between_minors = std::floor(length * (minor_gridsize / length));
+    std::vector<Vertex3D> major_vbo{};
+    //MAJOR LINES
+    for(float x = -half_length; x < half_length + 1.0f; x += space_between_majors) {
+        major_vbo.push_back(Vertex3D(Vector3(x, -half_length, 0.0f), major_color));
+        major_vbo.push_back(Vertex3D(Vector3(x, half_length, 0.0f), major_color));
+    }
+    for(float y = -half_length; y < half_length + 1.0f; y += space_between_majors) {
+        major_vbo.push_back(Vertex3D(Vector3(-half_length, y, 0.0f), major_color));
+        major_vbo.push_back(Vertex3D(Vector3(half_length, y, 0.0f), major_color));
+    }
+    bool major_minor_are_same_size = MathUtils::IsEquivalent(major_gridsize, minor_gridsize);
+    bool has_minors = !major_minor_are_same_size;
+    std::vector<Vertex3D> minor_vbo{};
+    if(has_minors) {
+        //MINOR LINES
+        for(float x = -half_length; x < half_length; x += space_between_minors) {
+            if(MathUtils::IsEquivalent(std::fmod(x, space_between_majors), 0.0f)) {
+                continue;
+            }
+            minor_vbo.push_back(Vertex3D(Vector3(x, -half_length, 0.0f), minor_color));
+            minor_vbo.push_back(Vertex3D(Vector3(x, half_length, 0.0f), minor_color));
+        }
+        for(float y = -half_length; y < half_length; y += space_between_minors) {
+            if(MathUtils::IsEquivalent(std::fmod(y, space_between_majors), 0.0f)) {
+                continue;
+            }
+            minor_vbo.push_back(Vertex3D(Vector3(-half_length, y, 0.0f), minor_color));
+            minor_vbo.push_back(Vertex3D(Vector3(half_length, y, 0.0f), minor_color));
+        }
+    }
+
+    std::vector<unsigned int> ibo{};
+    ibo.resize(major_vbo.size() + minor_vbo.size());
+    std::iota(std::begin(ibo), std::begin(ibo) + major_vbo.size(), 0);
+    std::iota(std::begin(ibo) + major_vbo.size(), std::begin(ibo) + major_vbo.size() + minor_vbo.size(), major_vbo.size());
+
+    SetModelMatrix(Matrix4::GetIdentity());
+    SetMaterial(GetMaterial("__unlit"));
+    std::size_t major_start = 0;
+    std::size_t major_count = major_vbo.size();
+    std::size_t minor_start = major_vbo.size();
+    std::size_t minor_count = minor_vbo.size();
+    static std::vector<Vertex3D> vbo;
+    vbo.clear();
+    auto new_capacity = static_cast<std::size_t>(std::ceil(length / minor_gridsize));
+    vbo.reserve(4 * new_capacity);
+    vbo.insert(std::end(vbo), std::begin(major_vbo), std::end(major_vbo));
+    vbo.insert(std::end(vbo), std::begin(minor_vbo), std::end(minor_vbo));
+    DrawIndexed(PrimitiveType::Lines, vbo, ibo, major_count, major_start);
+    DrawIndexed(PrimitiveType::Lines, vbo, ibo, minor_count, minor_start);
+
 }
 
 void Renderer::Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo) {
@@ -967,10 +1111,18 @@ RasterState* Renderer::CreateSolidFrontCullingRaster() {
 }
 
 void Renderer::CreateAndRegisterDefaultDepthStencilStates() {
+    DepthStencilState* default_state = CreateDefaultDepthStencilState();
+    RegisterDepthStencilState("__default", default_state);
     DepthStencilState* depth_disabled = CreateDisabledDepth();
     RegisterDepthStencilState("__depthdisabled", depth_disabled);
     DepthStencilState* depth_enabled = CreateEnabledDepth();
     RegisterDepthStencilState("__depthenabled", depth_enabled);
+}
+
+DepthStencilState* Renderer::CreateDefaultDepthStencilState() {
+    DepthStencilDesc desc;
+    DepthStencilState* state = new DepthStencilState(_rhi_device, desc);
+    return state;
 }
 
 DepthStencilState* Renderer::CreateDisabledDepth() {
@@ -1589,7 +1741,7 @@ void Renderer::SetPerspectiveProjection(const Vector2& vfovDegrees_aspect, const
 }
 
 void Renderer::SetPerspectiveProjectionFromCamera(const Camera3D& camera) {
-    SetPerspectiveProjection(Vector2{ camera.GetFovYDegrees(), camera.GetAspectRatio()}, Vector2{ camera.GetNearDistance(), camera.GetFarDistance()});
+    SetPerspectiveProjection(Vector2{ camera.CalcFovYDegrees(), camera.GetAspectRatio()}, Vector2{ camera.GetNearDistance(), camera.GetFarDistance()});
 }
 
 void Renderer::SetConstantBuffer(unsigned int index, ConstantBuffer* buffer) {
@@ -1635,6 +1787,52 @@ void Renderer::SetViewport(unsigned int x, unsigned int y, unsigned int width, u
     _rhi_context->GetDxContext()->RSSetViewports(1, &viewport);
 }
 
+void Renderer::SetViewportAndScissor(unsigned int x, unsigned int y, unsigned int width, unsigned int height) {
+    SetScissorAndViewport(x, y, width, height);
+}
+
+void Renderer::SetViewports(const std::vector<AABB3>& viewports) {
+    std::vector<D3D11_VIEWPORT> dxViewports{};
+    dxViewports.resize(viewports.size());
+
+    for(std::size_t i = 0; i < dxViewports.size(); ++i) {
+        dxViewports[i].TopLeftX = viewports[i].mins.x;
+        dxViewports[i].TopLeftY = viewports[i].mins.y;
+        dxViewports[i].Width = viewports[i].maxs.x;
+        dxViewports[i].Height = viewports[i].maxs.y;
+        dxViewports[i].MinDepth = viewports[i].mins.z;
+        dxViewports[i].MaxDepth = viewports[i].maxs.z;
+    }
+    _rhi_context->GetDxContext()->RSSetViewports(dxViewports.size(), dxViewports.data());
+}
+
+void Renderer::SetScissor(unsigned int x, unsigned int y, unsigned int width, unsigned int height) {
+    D3D11_RECT scissor;
+    scissor.left = x;
+    scissor.right = x + width;
+    scissor.top = y;
+    scissor.bottom = y + height;
+    _rhi_context->GetDxContext()->RSSetScissorRects(1, &scissor);
+}
+
+void Renderer::SetScissorAndViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height) {
+    SetViewport(x, y, width, height);
+    SetScissor(x, y, width, height);
+}
+
+void Renderer::SetScissors(const std::vector<AABB2>& scissors) {
+    std::vector<D3D11_RECT> dxScissors{};
+    dxScissors.resize(scissors.size());
+
+    for(std::size_t i = 0; i < scissors.size(); ++i) {
+        dxScissors[i].left   = static_cast<long>(scissors[i].mins.x);
+        dxScissors[i].top    = static_cast<long>(scissors[i].mins.y);
+        dxScissors[i].right  = static_cast<long>(scissors[i].maxs.x);
+        dxScissors[i].bottom = static_cast<long>(scissors[i].maxs.y);
+    }
+    _rhi_context->GetDxContext()->RSSetScissorRects(dxScissors.size(), dxScissors.data());
+}
+
 void Renderer::SetViewportAsPercent(float /*x*/, float /*y*/, float /*w*/, float /*h*/) {
     /* DO NOTHING */
 }
@@ -1649,6 +1847,10 @@ void Renderer::ClearTargetColor(Texture* target, const Rgba& color) {
 
 void Renderer::ClearDepthStencilBuffer() {
     _rhi_context->ClearDepthStencilTarget(_current_depthstencil);
+}
+
+void Renderer::ClearTargetDepthStencilBuffer(Texture* target, bool depth /*= true*/, bool stencil /*= true*/, float depthValue /*= 1.0f*/, unsigned char stencilValue /*= 0*/) {
+    _rhi_context->ClearDepthStencilTarget(target, depth, stencil, depthValue, stencilValue);
 }
 
 void Renderer::Present() {
@@ -1737,24 +1939,33 @@ Texture* Renderer::CreateDepthStencil(RHIDevice* owner, const IntVector2& dimens
     HRESULT texture_hr = owner->GetDxDevice()->CreateTexture2D(&descDepth, nullptr, &dx_resource);
     bool texture_creation_succeeded = SUCCEEDED(texture_hr);
     if(texture_creation_succeeded) {
-        if(_current_depthstencil) {
-            delete _current_depthstencil;
-            _current_depthstencil = nullptr;
-        }
-        if(_current_depthstencil_state) {
-            delete _current_depthstencil_state;
-            _current_depthstencil_state = nullptr;
-        }
-        _current_depthstencil = new Texture2D(owner, dx_resource);
-        _current_depthstencil_state = new DepthStencilState(owner);
-        return _current_depthstencil;
+        return new Texture2D(owner, dx_resource);
     }
     return nullptr;
 }
 
-void Renderer::SetDepthStencilState(const DepthStencilDesc& newDepthStencilState) {
-    delete _current_depthstencil_state;
-    _current_depthstencil_state = new DepthStencilState(_rhi_device, newDepthStencilState);
+Texture* Renderer::CreateRenderableDepthStencil(RHIDevice* owner, const IntVector2& dimensions) {
+
+    ID3D11Texture2D* dx_resource = nullptr;
+
+    D3D11_TEXTURE2D_DESC descDepth;
+    descDepth.Width = dimensions.x;
+    descDepth.Height = dimensions.y;
+    descDepth.MipLevels = 1;
+    descDepth.ArraySize = 1;
+    descDepth.Format = DXGI_FORMAT_R32_TYPELESS;
+    descDepth.SampleDesc.Count = 1;
+    descDepth.SampleDesc.Quality = 0;
+    descDepth.Usage = D3D11_USAGE_DEFAULT;
+    descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+    descDepth.CPUAccessFlags = 0;
+    descDepth.MiscFlags = 0;
+    HRESULT texture_hr = owner->GetDxDevice()->CreateTexture2D(&descDepth, nullptr, &dx_resource);
+    bool texture_creation_succeeded = SUCCEEDED(texture_hr);
+    if(texture_creation_succeeded) {
+        return new Texture2D(owner, dx_resource);
+    }
+    return nullptr;
 }
 
 void Renderer::SetDepthStencilState(DepthStencilState* depthstencil) {

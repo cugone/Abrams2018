@@ -50,7 +50,7 @@ bool RasterState::LoadFromXML(RHIDevice* device, const XMLElement& element) {
     desc.cullmode = CullMode::Back;
     desc.antialiasedLineEnable = false;
     desc.depthClipEnable = true;
-    desc.scissorEnable = false;
+    desc.scissorEnable = true;
 
     auto xml_raster = element.FirstChildElement("raster");
     if(xml_raster != nullptr) {
@@ -99,9 +99,9 @@ bool RasterState::LoadFromXML(RHIDevice* device, const XMLElement& element) {
         }
 
         desc.multisampleEnable = false;
-        auto xml_msaa = xml_raster->FirstChildElement("scissor");
+        auto xml_msaa = xml_raster->FirstChildElement("msaa");
         if(xml_msaa != nullptr) {
-            DataUtils::ValidateXmlElement(*xml_msaa, "scissor", "", "");
+            DataUtils::ValidateXmlElement(*xml_msaa, "msaa", "", "");
             desc.multisampleEnable = DataUtils::ParseXmlElementText(*xml_msaa, desc.multisampleEnable);
         }
     }

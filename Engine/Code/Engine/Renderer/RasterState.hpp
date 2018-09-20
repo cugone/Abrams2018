@@ -24,7 +24,7 @@ struct RasterDesc {
         , slopeScaledDepthBias(0.0f)
         , depthBias(0)
         , depthClipEnable(true)
-        , scissorEnable(false)
+        , scissorEnable(true)
         , multisampleEnable(false)
         , antialiasedLineEnable(false)
     {

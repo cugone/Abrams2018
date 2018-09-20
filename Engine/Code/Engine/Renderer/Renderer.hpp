@@ -3,6 +3,8 @@
 #include "Engine/Core/DataUtils.hpp"
 #include "Engine/Core/Vertex3D.hpp"
 
+#include "Engine/Math/AABB2.hpp"
+#include "Engine/Math/AABB3.hpp"
 #include "Engine/Math/IntVector2.hpp"
 #include "Engine/Math/Matrix4.hpp"
 
@@ -45,6 +47,7 @@ class Texture1D;
 class Texture2D;
 class Texture3D;
 class VertexBuffer;
+class Frustum;
 
 struct matrix_buffer_t {
     Matrix4 model{};
@@ -79,8 +82,8 @@ public:
     Texture* GetTexture(const std::string& nameOrFile);
 
     Texture* CreateDepthStencil(RHIDevice* owner, const IntVector2& dimensions);
+    Texture* CreateRenderableDepthStencil(RHIDevice* owner, const IntVector2& dimensions);
 
-    void SetDepthStencilState(const DepthStencilDesc& newDepthStencilState);
     void SetDepthStencilState(DepthStencilState* depthstencil);
     DepthStencilState* GetDepthStencilState(const std::string& name);
     void EnableDepth();
@@ -111,14 +114,26 @@ public:
 
     void SetRenderTarget(Texture* color_target = nullptr, Texture* depthstencil_target = nullptr);
     void SetViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
+    void SetViewportAndScissor(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
+    void SetViewports(const std::vector<AABB3>& viewports);
     void SetViewportAsPercent(float x, float y, float w, float h);
+
+    void SetScissor(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
+    void SetScissorAndViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
+    void SetScissors(const std::vector<AABB2>& scissors);
+
     void ClearColor(const Rgba& color);
     void ClearTargetColor(Texture* target, const Rgba& color);
+    void ClearTargetDepthStencilBuffer(Texture* target, bool depth = true, bool stencil = true, float depthValue = 1.0f, unsigned char stencilValue = 0);
     void ClearDepthStencilBuffer();
     void Present();
 
     void DrawPoint(const Vertex3D& point);
     void DrawPoint(const Vector3& point, const Rgba& color = Rgba::WHITE, const Vector2& tex_coords = Vector2::ZERO);
+    void DrawFrustum(const Frustum& frustum, const Rgba& color = Rgba::YELLOW, const Vector2& tex_coords = Vector2::ZERO);
+    void DrawWorldGridXZ(float radius = 500.0f, float major_gridsize = 20.0f, float minor_gridsize = 5.0f, const Rgba& major_color = Rgba::WHITE, const Rgba& minor_color = Rgba::DARK_GRAY);
+    void DrawWorldGridXY(float radius = 500.0f, float major_gridsize = 20.0f, float minor_gridsize = 5.0f, const Rgba& major_color = Rgba::WHITE, const Rgba& minor_color = Rgba::DARK_GRAY);
+
     void Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo);
     void Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, std::size_t vertex_count);
     void DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo);
@@ -257,6 +272,7 @@ private:
     RasterState* CreateSolidFrontCullingRaster();
 
     void CreateAndRegisterDefaultDepthStencilStates();
+    DepthStencilState* CreateDefaultDepthStencilState();
     DepthStencilState* CreateDisabledDepth();
     DepthStencilState* CreateEnabledDepth();
 

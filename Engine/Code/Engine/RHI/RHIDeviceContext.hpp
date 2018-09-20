@@ -33,11 +33,7 @@ public:
     void Flush();
 
     void ClearColorTarget(Texture* output, const Rgba& color);
-    void ClearDepthStencilTarget(Texture* output
-                                         , bool depth = true
-                                         , bool stencil = true
-                                         , float depthValue = 1.0f
-                                         , unsigned char stencilValue = 0);
+    void ClearDepthStencilTarget(Texture* output, bool depth = true, bool stencil = true, float depthValue = 1.0f, unsigned char stencilValue = 0);
 
     void SetMaterial(Material* material);
     void SetTexture(unsigned int index, Texture* texture);

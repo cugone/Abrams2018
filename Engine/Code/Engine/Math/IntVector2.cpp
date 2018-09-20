@@ -48,6 +48,10 @@ IntVector2::IntVector2(const std::string& value)
     }
 }
 
+IntVector2 IntVector2::operator-() const {
+    return IntVector2(-x, -y);
+}
+
 void IntVector2::SetXY(int newX, int newY) {
     x = newX;
     y = newY;

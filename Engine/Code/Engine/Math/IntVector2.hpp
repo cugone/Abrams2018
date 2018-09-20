@@ -27,6 +27,8 @@ public:
     IntVector2& operator=(const IntVector2& rhs) = default;
     IntVector2& operator=(IntVector2&& rhs) = default;
     
+    IntVector2 operator-() const;
+
     bool operator==(const IntVector2& rhs);
     bool operator!=(const IntVector2& rhs);
 

@@ -21,9 +21,19 @@
 
 #define MAX_LOGS 3u
 #ifdef _WIN64
+#ifndef PLATFORM_WINDOWS
+#define PLATFORM_WINDOWS
+#endif
+#ifdef PROFILE_BUILD
 #define MAX_PROFILE_HISTORY 0xFFull
 #define MAX_PROFILE_TREES 50ull
-#else
+#endif
+#elif _WIN32
+#ifndef PLATFORM_WINDOWS
+#define PLATFORM_WINDOWS
+#endif
+#ifdef PROFILE_BUILD
 #define MAX_PROFILE_HISTORY 0xFFu
 #define MAX_PROFILE_TREES 50u
+#endif
 #endif

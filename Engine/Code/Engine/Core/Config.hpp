@@ -52,7 +52,8 @@ private:
     bool Parse(std::ifstream& input);
     bool Parse(std::istream& input);
     bool ParseMultiParams(const std::string& input);
-
+    void ConvertFromMultiParam(std::string &whole_line);
+    void CollapseMultiParamWhitespace(std::string &whole_line);
     std::map<std::string, std::string> _config{};
     
 };

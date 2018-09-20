@@ -240,6 +240,29 @@ bool Config::Parse(std::string& input) {
 
 bool Config::ParseMultiParams(const std::string& input) {
     std::string whole_line = input;
+    CollapseMultiParamWhitespace(whole_line);
+    ConvertFromMultiParam(whole_line);
+    std::istringstream ss(whole_line);
+    return Parse(ss);
+}
+
+void Config::ConvertFromMultiParam(std::string &whole_line) {
+    //Replace space-delimited KVPs with newlines;
+    bool inQuote = false;
+    for(auto iter = whole_line.begin(); iter != whole_line.end(); ++iter) {
+        if(*iter == '"') {
+            inQuote = !inQuote;
+            continue;
+        }
+        if(!inQuote) {
+            if(*iter == ' ') {
+                whole_line.replace(iter, iter + 1, "\n");
+            }
+        }
+    }
+}
+
+void Config::CollapseMultiParamWhitespace(std::string &whole_line) {
     //Remove spaces around equals
     auto eq_loc = std::find(whole_line.begin(), whole_line.end(), '=');
     while(eq_loc != std::end(whole_line)) {
@@ -258,32 +281,9 @@ bool Config::ParseMultiParams(const std::string& input) {
     //Remove consecutive spaces
     whole_line.erase(std::unique(whole_line.begin(), whole_line.end(),
                                  [](char lhs, char rhs) {
-        return lhs == rhs && lhs == ' ';
+        return lhs == rhs && std::isspace(lhs, std::locale(""));
     }),
                      whole_line.end());
-    //Replace space-delimited KVPs with newlines;
-    bool inQuote = false;
-    for(auto iter = whole_line.begin(); iter != whole_line.end(); ++iter) {
-        if(*iter == '"') {
-            inQuote = !inQuote;
-            continue;
-        }
-        if(!inQuote) {
-            if(*iter == ' ') {
-                whole_line.replace(iter, iter + 1, "\n");
-            }
-        }
-    }
-    std::istringstream ss;
-    ss.str(whole_line);
-    std::string cur_line;
-    while(std::getline(ss, cur_line)) {
-        bool did_parse = Parse(cur_line);
-        if(!did_parse) {
-            return false;
-        }
-    }
-    return true;
 }
 
 bool Config::Parse(std::ifstream& input) {

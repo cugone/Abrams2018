@@ -56,22 +56,27 @@ void Texture2D::SetDeviceAndTexture(RHIDevice* device, ID3D11Texture2D* texture)
         success &= SUCCEEDED(_device->GetDxDevice()->CreateRenderTargetView(_dx_tex, nullptr, &_rtv)) == true;
     }
 
-    if(t_desc.BindFlags & D3D11_BIND_SHADER_RESOURCE) {
-        success &= SUCCEEDED(_device->GetDxDevice()->CreateShaderResourceView(_dx_tex, nullptr, &_srv)) == true;
+    if(t_desc.BindFlags & D3D11_BIND_DEPTH_STENCIL) {
+        success &= SUCCEEDED(_device->GetDxDevice()->CreateDepthStencilView(_dx_tex, nullptr, &_dsv)) == true;
     }
 
-    if(t_desc.BindFlags & D3D11_BIND_DEPTH_STENCIL) {
-        success &= SUCCEEDED(_device->GetDxDevice()->CreateDepthStencilView(_dx_tex, nullptr, &_dsv));
+    if(t_desc.BindFlags & D3D11_BIND_SHADER_RESOURCE) {
+        if(_dsv) {
+            D3D11_SHADER_RESOURCE_VIEW_DESC desc{};
+            desc.Format = DXGI_FORMAT_R32_FLOAT;
+            success &= SUCCEEDED(_device->GetDxDevice()->CreateShaderResourceView(_dx_tex, &desc, &_srv)) == true;
+        } else {
+            success &= SUCCEEDED(_device->GetDxDevice()->CreateShaderResourceView(_dx_tex, nullptr, &_srv)) == true;
+        }
     }
 
     if(t_desc.BindFlags & D3D11_BIND_UNORDERED_ACCESS) {
-        D3D11_UNORDERED_ACCESS_VIEW_DESC desc;
-        ZeroMemory(&desc, sizeof(desc));
+        D3D11_UNORDERED_ACCESS_VIEW_DESC desc{};
         desc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
         desc.Texture2D.MipSlice = 0;
         desc.Format = t_desc.Format;
 
-        success &= SUCCEEDED(_device->GetDxDevice()->CreateUnorderedAccessView(_dx_tex, &desc, &_uav));
+        success &= SUCCEEDED(_device->GetDxDevice()->CreateUnorderedAccessView(_dx_tex, &desc, &_uav)) == true;
     }
     ASSERT_OR_DIE(success, "Set device and texture failed.");
 }

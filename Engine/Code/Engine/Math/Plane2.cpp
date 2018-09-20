@@ -15,6 +15,7 @@ float Plane2::Normalize() {
         normal.y *= inv_length;
         dist *= inv_length;
     }
+    return length;
 }
 
 Plane2 Plane2::GetNormalize() const {

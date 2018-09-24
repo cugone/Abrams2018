@@ -1,8 +1,10 @@
 #include "Engine/Core/FileUtils.hpp"
 
+#include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
 
 #include <algorithm>
+#include <chrono>
 #include <cstdio>
 #include <fstream>
 #include <ShlObj.h>
@@ -117,6 +119,31 @@ void IterateFileInFolders(const std::filesystem::path& folderpath, const std::st
             } else {
                 callback(cur_path);
             }
+        }
+    }
+}
+
+int CountFilesInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, bool recursive /*= false*/) {
+    int count = 0;
+    auto cb = [&count](const std::filesystem::path& /*p*/)->void { ++count; };
+    IterateFileInFolders(folderpath, validExtensionList, cb, recursive);
+    return count;
+}
+
+void FileUtils::RemoveExceptMostRecentFiles(const std::filesystem::path& folderpath, int mostRecentCountToKeep) {
+    namespace FS = std::filesystem;
+    namespace Chrono = std::chrono;
+    using Clock = Chrono::steady_clock;
+    auto now = Clock::now();
+    if(mostRecentCountToKeep < CountFilesInFolders(folderpath)) {
+        std::vector<FS::path> paths{};
+        auto add_path_cb = [&paths](const FS::path& p) { paths.push_back(p); };
+        IterateFileInFolders(folderpath, std::string{}, add_path_cb, false);
+        auto sort_pred = [](const FS::path& a, const FS::path& b) { return FS::last_write_time(a) > FS::last_write_time(b); };
+        std::sort(std::begin(paths), std::end(paths), sort_pred);
+        paths.erase(std::begin(paths), std::begin(paths) + mostRecentCountToKeep);
+        for(auto& p : paths) {
+            FS::remove(p);
         }
     }
 }

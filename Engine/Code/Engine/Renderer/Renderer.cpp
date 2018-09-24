@@ -384,13 +384,13 @@ void Renderer::DrawDebugSphere(float radius, const Rgba& color) {
     SetMaterial(GetMaterial("__unlit"));
     Matrix4 Rx = Matrix4::Create3DXRotationDegreesMatrix(90.0f);
     Matrix4 Ry = Matrix4::Create3DYRotationDegreesMatrix(90.0f);
-    Matrix4 Rz = Matrix4::Create3DZRotationDegreesMatrix(90.0f);
+    Matrix4 Rz{};
 
-    SetModelMatrix(Rx);
+    AppendModelMatrix(Rx);
     DrawCircle2D(Vector2::ZERO, radius, color);
-    SetModelMatrix(Ry);
+    AppendModelMatrix(Ry);
     DrawCircle2D(Vector2::ZERO, radius, color);
-    SetModelMatrix(Rz);
+    AppendModelMatrix(Rz);
     DrawCircle2D(Vector2::ZERO, radius, color);
 }
 
@@ -1728,7 +1728,7 @@ void Renderer::SetProjectionMatrix(const Matrix4& mat) {
 }
 
 void Renderer::AppendModelMatrix(const Matrix4& modelMatrix) {
-    _matrix_data.model = modelMatrix * _matrix_data.model;
+    _matrix_data.model = _matrix_data.model * modelMatrix;
     _matrix_cb->Update(_rhi_context, &_matrix_data);
     SetConstantBuffer(MATRIX_BUFFER_INDEX, _matrix_cb);
 }

@@ -35,7 +35,9 @@ bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::strin
     namespace FS = std::filesystem;
     FS::path p(filePath);
     p.make_preferred();
-    bool not_valid_path = FS::is_directory(p) || !FS::exists(p);
+    bool path_is_directory = FS::is_directory(p);
+    bool path_not_exist = !FS::exists(p);
+    bool not_valid_path = path_is_directory || path_not_exist;
     if(not_valid_path) {
         return false;
     }
@@ -81,7 +83,8 @@ void IterateFileInFolders(const std::filesystem::path& folderpath, const std::st
     auto preferred_folderpath = folderpath;
     preferred_folderpath.make_preferred();
     bool exists = FS::exists(preferred_folderpath);
-    bool is_folder = exists && FS::is_directory(preferred_folderpath);
+    bool is_directory = FS::is_directory(preferred_folderpath);
+    bool is_folder = exists && is_directory;
     if(!is_folder) {
         return;
     }

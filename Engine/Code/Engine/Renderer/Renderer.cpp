@@ -380,6 +380,56 @@ void Renderer::DrawAxes(float maxlength /*= 1000.0f*/, bool disable_unit_depth /
     DrawIndexed(PrimitiveType::Lines, vbo, ibo, 6, 6);
 }
 
+void Renderer::DrawDebugSphere(float radius, const Rgba& color) {
+    int num_sides = 64;
+    auto num_sides_as_float = static_cast<float>(num_sides);
+    std::vector<Vector3> verts;
+    verts.reserve(num_sides * 3);
+    float anglePerVertex = 360.0f / num_sides_as_float;
+    for(float degrees = 0.0f; degrees < 360.0f; degrees += anglePerVertex) {
+        float radians = MathUtils::ConvertDegreesToRadians(degrees);
+        float pX = radius * std::cos(radians);
+        float pY = radius * std::sin(radians);
+        verts.push_back(Vector3(Vector2(pX, pY), 0.0f));
+    }
+    for(float degrees = 0.0f; degrees < 360.0f; degrees += anglePerVertex) {
+        float radians = MathUtils::ConvertDegreesToRadians(degrees);
+        float pX = radius * std::cos(radians);
+        float pY = radius * std::sin(radians);
+        verts.push_back(Vector3(pX, 0.0f, pY));
+    }
+    for(float degrees = 0.0f; degrees < 360.0f; degrees += anglePerVertex) {
+        float radians = MathUtils::ConvertDegreesToRadians(degrees);
+        float pX = radius * std::cos(radians);
+        float pY = radius * std::sin(radians);
+        verts.push_back(Vector3(0.0f, pX, pY));
+    }
+
+    std::vector<Vertex3D> vbo{};
+    vbo.resize(verts.size());
+    for(std::size_t i = 0; i < vbo.size(); ++i) {
+        vbo[i] = Vertex3D(verts[i], color);
+    }
+
+    std::vector<unsigned int> ibo;
+    ibo.resize(num_sides * 3);
+    auto first_start  = ibo.begin() + 0;
+    auto first_end    = ibo.begin() + num_sides;
+    auto first_value = 0;
+    auto second_start = ibo.begin() + num_sides;
+    auto second_end   = ibo.begin() + num_sides * 2;
+    auto second_value = num_sides;
+    auto third_start  = ibo.begin() + num_sides * 2;
+    auto third_end    = ibo.begin() + num_sides * 3;
+    auto third_value = num_sides * 2;
+    std::iota(first_start, first_end, first_value);
+    std::iota(second_start, second_end, second_value);
+    std::iota(third_start, third_end, third_value);
+    DrawIndexed(PrimitiveType::LinesStrip, vbo, ibo, num_sides, first_value);
+    DrawIndexed(PrimitiveType::LinesStrip, vbo, ibo, num_sides, second_value);
+    DrawIndexed(PrimitiveType::LinesStrip, vbo, ibo, num_sides, third_value);
+}
+
 void Renderer::Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo) {
     UpdateVbo(vbo);
     Draw(topology, _temp_vbo, vbo.size());
@@ -717,7 +767,7 @@ void Renderer::DrawX2D(const Rgba& color) {
 }
 
 void Renderer::DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides /*= 3*/, const Rgba& color /*= Rgba::WHITE*/) {
-    float num_sides_as_float = static_cast<float>(numSides);
+    auto num_sides_as_float = static_cast<float>(numSides);
     std::vector<Vector3> verts;
     verts.reserve(numSides);
     float anglePerVertex = 360.0f / num_sides_as_float;

@@ -156,13 +156,13 @@ void Game::Render() const {
     g_theRenderer->SetProjectionMatrix(_camera3->GetProjectionMatrix());
     g_theRenderer->SetViewMatrix(_camera3->GetViewMatrix());
 
-    DrawCube();
+    //DrawCube();
     DrawWorldGrid();
     DrawAxes();
-
+    g_theRenderer->DrawDebugSphere(1.0f, Rgba::PERIWINKLE);
     const auto& window_dimensions = g_theRenderer->GetOutput()->GetDimensions();
-    float window_width = static_cast<float>(window_dimensions.x);
-    float window_height = static_cast<float>(window_dimensions.y);
+    auto window_width = static_cast<float>(window_dimensions.x);
+    auto window_height = static_cast<float>(window_dimensions.y);
     float view_half_width = window_width * 0.50f;
     float view_half_height = window_height * 0.50f;
 

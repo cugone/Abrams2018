@@ -353,7 +353,31 @@ void Renderer::DrawWorldGridXY(float radius /*= 500.0f*/, float major_gridsize /
     vbo.insert(std::end(vbo), std::begin(minor_vbo), std::end(minor_vbo));
     DrawIndexed(PrimitiveType::Lines, vbo, ibo, major_count, major_start);
     DrawIndexed(PrimitiveType::Lines, vbo, ibo, minor_count, minor_start);
+}
 
+void Renderer::DrawAxes(float maxlength /*= 1000.0f*/, bool disable_unit_depth /*= true*/) {
+    static std::vector<Vertex3D> vbo{
+        Vertex3D{Vector3::ZERO, Rgba::RED},
+        Vertex3D{Vector3::ZERO, Rgba::GREEN},
+        Vertex3D{Vector3::ZERO, Rgba::BLUE},
+        Vertex3D{Vector3::X_AXIS * maxlength, Rgba::RED},
+        Vertex3D{Vector3::Y_AXIS * maxlength, Rgba::GREEN},
+        Vertex3D{Vector3::Z_AXIS * maxlength, Rgba::BLUE},
+        Vertex3D{Vector3::X_AXIS, Rgba::RED},
+        Vertex3D{Vector3::Y_AXIS, Rgba::GREEN},
+        Vertex3D{Vector3::Z_AXIS, Rgba::BLUE},
+    };
+    static std::vector<unsigned int> ibo{
+        0, 3, 1, 4, 2, 5,
+        0, 6, 1, 7, 2, 8
+    };
+    SetModelMatrix(Matrix4::GetIdentity());
+    SetMaterial(GetMaterial("__unlit"));
+    DrawIndexed(PrimitiveType::Lines, vbo, ibo, 6, 0);
+    if(disable_unit_depth) {
+        DisableDepth();
+    }
+    DrawIndexed(PrimitiveType::Lines, vbo, ibo, 6, 6);
 }
 
 void Renderer::Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo) {

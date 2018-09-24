@@ -581,6 +581,9 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             constexpr uint32_t transition_state_mask = 0b1000'0000'0000'0000'0000'0000'0000'0000; //0x80000000;
             bool is_extended_key = (lpBits & extended_key_mask) != 0;
             auto my_key = ConvertWinVKToKeyCode(key);
+            if(my_key == KeyCode::Unknown) {
+                return true;
+            }
             if(is_extended_key) {
                 switch(my_key) {
                     case KeyCode::Alt:  my_key = KeyCode::RAlt; break;
@@ -614,6 +617,9 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             constexpr uint32_t transition_state_mask = 0b1000'0000'0000'0000'0000'0000'0000'0000; //0x80000000;
             bool is_extended_key = (lpBits & extended_key_mask) != 0;
             auto my_key = ConvertWinVKToKeyCode(key);
+            if(my_key == KeyCode::Unknown) {
+                return true;
+            }
             if(is_extended_key) {
                 switch(my_key) {
                     case KeyCode::Alt:  my_key = KeyCode::RAlt; break;
@@ -647,6 +653,9 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             constexpr uint32_t transition_state_mask = 0b1000'0000'0000'0000'0000'0000'0000'0000; //0x80000000;
             bool is_extended_key = (lpBits & extended_key_mask) != 0;
             auto my_key = ConvertWinVKToKeyCode(key);
+            if(my_key == KeyCode::Unknown) {
+                return true;
+            }
             if(is_extended_key) {
                 switch(my_key) {
                     case KeyCode::Alt:  my_key = KeyCode::RAlt; break;
@@ -680,6 +689,9 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             constexpr uint32_t transition_state_mask = 0b1000'0000'0000'0000'0000'0000'0000'0000; //0x80000000;
             bool is_extended_key = (lpBits & extended_key_mask) != 0;
             auto my_key = ConvertWinVKToKeyCode(key);
+            if(my_key == KeyCode::Unknown) {
+                return true;
+            }
             if(is_extended_key) {
                 switch(my_key) {
                     case KeyCode::Alt:  my_key = KeyCode::RAlt; break;
@@ -772,7 +784,7 @@ void InputSystem::Initialize() {
     std::ostringstream ss;
     ss << _connected_controller_count << " Xbox controllers detected!\n";
     DebuggerPrintf(ss.str().c_str());
-    _connection_poll.SetSeconds(2.0f);
+    _connection_poll.SetSeconds(1.0f);
 }
 
 void InputSystem::BeginFrame() {

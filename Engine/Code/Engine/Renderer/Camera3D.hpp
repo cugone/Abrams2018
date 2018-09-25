@@ -46,6 +46,7 @@ public:
     const Matrix4& GetInverseProjectionMatrix() const;
     const Matrix4& GetInverseViewProjectionMatrix() const;
 
+    Vector3 GetEulerAngles() const;
     void SetEulerAnglesDegrees(const Vector3& eulerAnglesDegrees);
     void SetEulerAngles(const Vector3& eulerAngles);
     void SetForwardFromTarget(const Vector3& lookAtPosition);

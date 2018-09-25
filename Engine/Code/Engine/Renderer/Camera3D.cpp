@@ -24,6 +24,10 @@ void Camera3D::CalcProjectionMatrix() {
     inv_projection_matrix = Matrix4::CalculateInverse(projection_matrix);
 }
 
+Vector3 Camera3D::GetEulerAngles() const {
+    return Vector3{rotationPitch, rotationYaw, rotationRoll};
+}
+
 void Camera3D::CalcViewMatrix() {
 
     Matrix4 vT = Matrix4::CreateTranslationMatrix(-position);

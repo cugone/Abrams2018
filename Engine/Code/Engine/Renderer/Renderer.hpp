@@ -208,7 +208,9 @@ public:
     void DrawPolygon2D(const Vector2& center, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::WHITE);
     void DrawX2D(const Vector2& position = Vector2::ZERO, const Vector2& half_extents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::WHITE);
     void DrawX2D(const Rgba& color);
-    void DrawTextLine(KerningFont* font, const std::string& text, const Rgba& color = Rgba::WHITE, float scale = 1.0f);
+    void DrawTextLine(KerningFont* font, const std::string& text, const Rgba& color = Rgba::WHITE);
+    void DrawMultilineText(KerningFont* font, const std::string& text, const Rgba& color = Rgba::WHITE);
+    void AppendMultiLineTextBuffer(KerningFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo);
 
 protected:
 private:

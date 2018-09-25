@@ -40,6 +40,7 @@
 #include "Thirdparty/stb/stb_image.h"
 #include "Thirdparty/TinyXML2/tinyxml2.h"
 
+#include <algorithm>
 #include <numeric>
 #include <cstddef>
 #include <filesystem>
@@ -722,7 +723,7 @@ void Renderer::DrawPolygon2D(const Vector2& center, float radius, std::size_t nu
     DrawPolygon2D(center.x, center.y, radius, numSides, color);
 }
 
-void Renderer::DrawTextLine(KerningFont* font, const std::string& text, const Rgba& color /*= Rgba::WHITE*/, float /*scale*/ /*= 1.0f*/) {
+void Renderer::DrawTextLine(KerningFont* font, const std::string& text, const Rgba& color /*= Rgba::WHITE*/) {
     if(font == nullptr) {
         return;
     }
@@ -759,7 +760,7 @@ void Renderer::DrawTextLine(KerningFont* font, const std::string& text, const Rg
         vbo.push_back(Vertex3D(Vector3(quad_right, quad_top, 0.0f), color, Vector2(char_uvr, char_uvt)));
         vbo.push_back(Vertex3D(Vector3(quad_right, quad_bottom, 0.0f), color, Vector2(char_uvr, char_uvb)));
 
-        unsigned int s = static_cast<unsigned int>(vbo.size());
+        const auto s = static_cast<unsigned int>(vbo.size());
         ibo.push_back(s - 4);
         ibo.push_back(s - 3);
         ibo.push_back(s - 2);
@@ -775,6 +776,75 @@ void Renderer::DrawTextLine(KerningFont* font, const std::string& text, const Rg
         }
     }
     DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
+}
+
+void Renderer::DrawMultilineText(KerningFont* font, const std::string& text, const Rgba& color /*= Rgba::WHITE*/) {
+    SetMaterial(font->GetMaterial());
+    float y = font->GetLineHeight();
+    float draw_loc_y = 0.0f;
+    float draw_loc_x = 0.0f;
+    auto draw_loc = Vector2(draw_loc_x * 0.99f, draw_loc_y);
+
+    std::vector<Vertex3D> vbo{};
+    std::vector<unsigned int> ibo{};
+    std::vector<std::string> lines = StringUtils::Split(text, '\n', false);
+    for(auto& line : lines) {
+        draw_loc.y += y;
+        AppendMultiLineTextBuffer(font, line, draw_loc, color, vbo, ibo);
+    }
+    DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
+}
+
+void Renderer::AppendMultiLineTextBuffer(KerningFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo) {
+
+    if(font == nullptr) {
+        return;
+    }
+    if(text.empty()) {
+        return;
+    }
+
+    float cursor_x = start_position.x;
+    float cursor_y = start_position.y;
+    float line_top = cursor_y - font->GetCommonDef().base;
+    float texture_w = static_cast<float>(font->GetCommonDef().scale.x);
+    float texture_h = static_cast<float>(font->GetCommonDef().scale.y);
+    std::size_t text_size = text.size();
+    vbo.reserve(text_size * 4);
+    ibo.reserve(text_size * 6);
+
+    for(auto text_iter = text.begin(); text_iter != text.end(); /* DO NOTHING */) {
+        KerningFont::CharDef current_def = font->GetCharDef(*text_iter);
+        float char_uvl = current_def.position.x / texture_w;
+        float char_uvt = current_def.position.y / texture_h;
+        float char_uvr = char_uvl + (current_def.dimensions.x / texture_w);
+        float char_uvb = char_uvt + (current_def.dimensions.y / texture_h);
+
+        float quad_top = line_top + current_def.offsets.y;
+        float quad_bottom = quad_top + current_def.dimensions.y;
+        float quad_left = cursor_x - current_def.offsets.x;
+        float quad_right = quad_left + current_def.dimensions.x;
+
+        vbo.push_back(Vertex3D(Vector3(quad_left, quad_bottom, 0.0f), color, Vector2(char_uvl, char_uvb)));
+        vbo.push_back(Vertex3D(Vector3(quad_left, quad_top, 0.0f), color, Vector2(char_uvl, char_uvt)));
+        vbo.push_back(Vertex3D(Vector3(quad_right, quad_top, 0.0f), color, Vector2(char_uvr, char_uvt)));
+        vbo.push_back(Vertex3D(Vector3(quad_right, quad_bottom, 0.0f), color, Vector2(char_uvr, char_uvb)));
+
+        unsigned int s = static_cast<unsigned int>(vbo.size());
+        ibo.push_back(s - 4);
+        ibo.push_back(s - 3);
+        ibo.push_back(s - 2);
+        ibo.push_back(s - 4);
+        ibo.push_back(s - 2);
+        ibo.push_back(s - 1);
+
+        auto previous_char = text_iter;
+        ++text_iter;
+        if(text_iter != text.end()) {
+            int kern_value = font->GetKerningValue(*previous_char, *text_iter);
+            cursor_x += (current_def.xadvance + kern_value);
+        }
+    }
 }
 
 void Renderer::CreateAndRegisterDefaultShaderPrograms() {

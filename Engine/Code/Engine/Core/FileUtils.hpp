@@ -12,5 +12,7 @@ bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::strin
 bool CreateFolders(const std::string& filepath);
 std::string GetAppDataPath();
 void IterateFileInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList = std::string{}, const std::function<void(const std::filesystem::path&)>& callback = [](const std::filesystem::path& /*p*/) { /* DO NOTHING */ }, bool recursive = false);
+int CountFilesInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList = std::string{}, bool recursive = false);
+void RemoveExceptMostRecentFiles(const std::filesystem::path& folderpath, int mostRecentCountToKeep);
 
 } //End FileUtils

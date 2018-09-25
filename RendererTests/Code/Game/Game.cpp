@@ -156,13 +156,13 @@ void Game::Render() const {
     g_theRenderer->SetProjectionMatrix(_camera3->GetProjectionMatrix());
     g_theRenderer->SetViewMatrix(_camera3->GetViewMatrix());
 
-    DrawCube();
+    //DrawCube();
     DrawWorldGrid();
     DrawAxes();
-
+    g_theRenderer->DrawDebugSphere(1.0f, Rgba::PERIWINKLE);
     const auto& window_dimensions = g_theRenderer->GetOutput()->GetDimensions();
-    float window_width = static_cast<float>(window_dimensions.x);
-    float window_height = static_cast<float>(window_dimensions.y);
+    auto window_width = static_cast<float>(window_dimensions.x);
+    auto window_height = static_cast<float>(window_dimensions.y);
     float view_half_width = window_width * 0.50f;
     float view_half_height = window_height * 0.50f;
 
@@ -172,13 +172,6 @@ void Game::Render() const {
     Vector2 cam_pos2 = Vector2(_camera2->GetPosition());
 
     _camera2->SetupView(view_leftBottom, view_rightTop, view_nearFar, MathUtils::M_16_BY_9_RATIO);
-
-    g_theRenderer->SetProjectionMatrix(_camera2->GetProjectionMatrix());
-    g_theRenderer->SetViewMatrix(_camera2->GetViewMatrix());
-
-    g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
-    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
-    g_theRenderer->DrawQuad2D();
 
 }
 
@@ -223,82 +216,55 @@ void Game::DrawWorldGrid() const {
     if(!_debug) {
         return;
     }
-
-    static std::vector<Vertex3D> vbo;
-    vbo.clear();
-    for(float x = -50.0f; x < 50.0f; x += 1.0f) {
-        vbo.push_back(Vertex3D(Vector3(x, 0.0f, -50.0f)));
-        vbo.push_back(Vertex3D(Vector3(x, 0.0f, 50.0f)));
-    }
-    for(float z = -50.0f; z < 50.0f; z += 1.0f) {
-        vbo.push_back(Vertex3D(Vector3(-50.0f, 0.0f, z)));
-        vbo.push_back(Vertex3D(Vector3(50.0f, 0.0f, z)));
-    }
-
-    static std::vector<unsigned int> ibo(vbo.size());
-    std::iota(std::begin(ibo), std::end(ibo), 0);
-
-    g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
-    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__2D"));
-    g_theRenderer->DrawIndexed(PrimitiveType::Lines, vbo, ibo);
+    g_theRenderer->DrawWorldGridXZ();
 }
 
 void Game::DrawAxes() const {
     if(!_debug) {
         return;
     }
-
-    static std::vector<Vertex3D> vbo;
-    vbo.clear();
-    vbo.push_back(Vertex3D(Vector3::ZERO, Rgba::RED));
-    vbo.push_back(Vertex3D(Vector3::X_AXIS * 50.0f, Rgba::RED));
-    vbo.push_back(Vertex3D(Vector3::ZERO, Rgba::GREEN));
-    vbo.push_back(Vertex3D(Vector3::Y_AXIS * 50.0f, Rgba::GREEN));
-    vbo.push_back(Vertex3D(Vector3::ZERO, Rgba::BLUE));
-    vbo.push_back(Vertex3D(Vector3::Z_AXIS * 50.0f, Rgba::BLUE));
-
-    static std::vector<unsigned int> ibo(vbo.size());
-    std::iota(std::begin(ibo), std::end(ibo), 0);
-
-    g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
-    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__2D"));
-    g_theRenderer->DrawIndexed(PrimitiveType::Lines, vbo, ibo);
+    g_theRenderer->DrawAxes();
 }
 
 void Game::DrawCube() const {
-
+    auto aabb2 = AABB2::ZERO_TO_ONE;
+    auto mins = aabb2.mins;
+    auto maxs = aabb2.maxs;
+    auto tex_left_bottom  = Vector2{mins.x, maxs.y};
+    auto tex_left_top     = Vector2{mins.x, mins.y};
+    auto tex_right_top    = Vector2{maxs.x, mins.y};
+    auto tex_right_bottom = Vector2{maxs.x, maxs.y};
     std::vector<Vertex3D> vbo = {
         //Bottom
-        Vertex3D(Vector3(-0.5f, -0.5f,  0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f), -Vector3::Y_AXIS),
-        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 0.0f), -Vector3::Y_AXIS),
-        Vertex3D(Vector3(0.5f,  -0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 0.0f), -Vector3::Y_AXIS),
-        Vertex3D(Vector3(0.5f,  -0.5f,  0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f), -Vector3::Y_AXIS),
+        Vertex3D(Vector3(-0.5f, -0.5f,  0.5f), Rgba::WHITE, tex_left_bottom, -Vector3::Y_AXIS),
+        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::WHITE, tex_left_top, -Vector3::Y_AXIS),
+        Vertex3D(Vector3(0.5f,  -0.5f, -0.5f), Rgba::WHITE, tex_right_top, -Vector3::Y_AXIS),
+        Vertex3D(Vector3(0.5f,  -0.5f,  0.5f), Rgba::WHITE, tex_right_bottom, -Vector3::Y_AXIS),
         //Top
-        Vertex3D(Vector3(-0.5f, 0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f), Vector3::Y_AXIS),
-        Vertex3D(Vector3(-0.5f, 0.5f, 0.5f), Rgba::WHITE,  Vector2(0.0f, 0.0f), Vector3::Y_AXIS),
-        Vertex3D(Vector3(0.5f,  0.5f, 0.5f), Rgba::WHITE,  Vector2(1.0f, 0.0f), Vector3::Y_AXIS),
-        Vertex3D(Vector3(0.5f,  0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f), Vector3::Y_AXIS),
+        Vertex3D(Vector3(-0.5f, 0.5f, -0.5f), Rgba::WHITE, tex_left_bottom, Vector3::Y_AXIS),
+        Vertex3D(Vector3(-0.5f, 0.5f, 0.5f), Rgba::WHITE,  tex_left_top, Vector3::Y_AXIS),
+        Vertex3D(Vector3(0.5f,  0.5f, 0.5f), Rgba::WHITE,  tex_right_top, Vector3::Y_AXIS),
+        Vertex3D(Vector3(0.5f,  0.5f, -0.5f), Rgba::WHITE, tex_right_bottom, Vector3::Y_AXIS),
         //Left
-        Vertex3D(Vector3(-0.5f, 0.5f, -0.5f), Rgba::WHITE,  Vector2(1.0f, 0.0f), -Vector3::X_AXIS),
-        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f), -Vector3::X_AXIS),
-        Vertex3D(Vector3(-0.5f, -0.5f, 0.5f), Rgba::WHITE,  Vector2(0.0f, 1.0f), -Vector3::X_AXIS),
-        Vertex3D(Vector3(-0.5f, 0.5f, 0.5f), Rgba::WHITE,   Vector2(0.0f, 0.0f), -Vector3::X_AXIS),
+        Vertex3D(Vector3(-0.5f, 0.5f, -0.5f), Rgba::WHITE,  tex_right_top, -Vector3::X_AXIS),
+        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::WHITE, tex_right_bottom, -Vector3::X_AXIS),
+        Vertex3D(Vector3(-0.5f, -0.5f, 0.5f), Rgba::WHITE,  tex_left_bottom, -Vector3::X_AXIS),
+        Vertex3D(Vector3(-0.5f, 0.5f, 0.5f), Rgba::WHITE,   tex_left_top, -Vector3::X_AXIS),
         //Right
-        Vertex3D(Vector3(0.5f, -0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f), Vector3::X_AXIS),
-        Vertex3D(Vector3(0.5f,  0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 0.0f), Vector3::X_AXIS),
-        Vertex3D(Vector3(0.5f,  0.5f,  0.5f), Rgba::WHITE, Vector2(1.0f, 0.0f), Vector3::X_AXIS),
-        Vertex3D(Vector3(0.5f, -0.5f,  0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f), Vector3::X_AXIS),
+        Vertex3D(Vector3(0.5f, -0.5f, -0.5f), Rgba::WHITE, tex_left_bottom, Vector3::X_AXIS),
+        Vertex3D(Vector3(0.5f,  0.5f, -0.5f), Rgba::WHITE, tex_left_top, Vector3::X_AXIS),
+        Vertex3D(Vector3(0.5f,  0.5f,  0.5f), Rgba::WHITE, tex_right_top, Vector3::X_AXIS),
+        Vertex3D(Vector3(0.5f, -0.5f,  0.5f), Rgba::WHITE, tex_right_bottom, Vector3::X_AXIS),
         //Front
-        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f), -Vector3::Z_AXIS),
-        Vertex3D(Vector3(-0.5f,  0.5f, -0.5f), Rgba::WHITE, Vector2(0.0f, 0.0f), -Vector3::Z_AXIS),
-        Vertex3D(Vector3(0.5f,   0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 0.0f), -Vector3::Z_AXIS),
-        Vertex3D(Vector3(0.5f,  -0.5f, -0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f), -Vector3::Z_AXIS),
+        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::WHITE, tex_left_bottom, -Vector3::Z_AXIS),
+        Vertex3D(Vector3(-0.5f,  0.5f, -0.5f), Rgba::WHITE, tex_left_top, -Vector3::Z_AXIS),
+        Vertex3D(Vector3(0.5f,   0.5f, -0.5f), Rgba::WHITE, tex_right_top, -Vector3::Z_AXIS),
+        Vertex3D(Vector3(0.5f,  -0.5f, -0.5f), Rgba::WHITE, tex_right_bottom, -Vector3::Z_AXIS),
         //Back
-        Vertex3D(Vector3(0.5f,  -0.5f, 0.5f), Rgba::WHITE, Vector2(0.0f, 1.0f), Vector3::Z_AXIS),
-        Vertex3D(Vector3(0.5f,   0.5f, 0.5f), Rgba::WHITE, Vector2(0.0f, 0.0f), Vector3::Z_AXIS),
-        Vertex3D(Vector3(-0.5f,  0.5f, 0.5f), Rgba::WHITE, Vector2(1.0f, 0.0f), Vector3::Z_AXIS),
-        Vertex3D(Vector3(-0.5f, -0.5f, 0.5f), Rgba::WHITE, Vector2(1.0f, 1.0f), Vector3::Z_AXIS),
-
+        Vertex3D(Vector3(0.5f,  -0.5f, 0.5f), Rgba::WHITE, tex_left_bottom, Vector3::Z_AXIS),
+        Vertex3D(Vector3(0.5f,   0.5f, 0.5f), Rgba::WHITE, tex_left_top, Vector3::Z_AXIS),
+        Vertex3D(Vector3(-0.5f,  0.5f, 0.5f), Rgba::WHITE, tex_right_top, Vector3::Z_AXIS),
+        Vertex3D(Vector3(-0.5f, -0.5f, 0.5f), Rgba::WHITE, tex_right_bottom, Vector3::Z_AXIS),
     };
 
     std::vector<unsigned int> ibo = {

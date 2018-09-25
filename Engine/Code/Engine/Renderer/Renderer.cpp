@@ -354,7 +354,45 @@ void Renderer::DrawWorldGridXY(float radius /*= 500.0f*/, float major_gridsize /
     vbo.insert(std::end(vbo), std::begin(minor_vbo), std::end(minor_vbo));
     DrawIndexed(PrimitiveType::Lines, vbo, ibo, major_count, major_start);
     DrawIndexed(PrimitiveType::Lines, vbo, ibo, minor_count, minor_start);
+}
 
+void Renderer::DrawAxes(float maxlength /*= 1000.0f*/, bool disable_unit_depth /*= true*/) {
+    static std::vector<Vertex3D> vbo{
+        Vertex3D{Vector3::ZERO, Rgba::RED},
+        Vertex3D{Vector3::ZERO, Rgba::GREEN},
+        Vertex3D{Vector3::ZERO, Rgba::BLUE},
+        Vertex3D{Vector3::X_AXIS * maxlength, Rgba::RED},
+        Vertex3D{Vector3::Y_AXIS * maxlength, Rgba::GREEN},
+        Vertex3D{Vector3::Z_AXIS * maxlength, Rgba::BLUE},
+        Vertex3D{Vector3::X_AXIS, Rgba::RED},
+        Vertex3D{Vector3::Y_AXIS, Rgba::GREEN},
+        Vertex3D{Vector3::Z_AXIS, Rgba::BLUE},
+    };
+    static std::vector<unsigned int> ibo{
+        0, 3, 1, 4, 2, 5,
+        0, 6, 1, 7, 2, 8
+    };
+    SetModelMatrix(Matrix4::GetIdentity());
+    SetMaterial(GetMaterial("__unlit"));
+    DrawIndexed(PrimitiveType::Lines, vbo, ibo, 6, 0);
+    if(disable_unit_depth) {
+        DisableDepth();
+    }
+    DrawIndexed(PrimitiveType::Lines, vbo, ibo, 6, 6);
+}
+
+void Renderer::DrawDebugSphere(float radius, const Rgba& color) {
+    SetMaterial(GetMaterial("__unlit"));
+    Matrix4 Rx = Matrix4::Create3DXRotationDegreesMatrix(90.0f);
+    Matrix4 Ry = Matrix4::Create3DYRotationDegreesMatrix(90.0f);
+    Matrix4 Rz{};
+
+    AppendModelMatrix(Rx);
+    DrawCircle2D(Vector2::ZERO, radius, color);
+    AppendModelMatrix(Ry);
+    DrawCircle2D(Vector2::ZERO, radius, color);
+    AppendModelMatrix(Rz);
+    DrawCircle2D(Vector2::ZERO, radius, color);
 }
 
 void Renderer::Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo) {
@@ -694,7 +732,7 @@ void Renderer::DrawX2D(const Rgba& color) {
 }
 
 void Renderer::DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides /*= 3*/, const Rgba& color /*= Rgba::WHITE*/) {
-    float num_sides_as_float = static_cast<float>(numSides);
+    auto num_sides_as_float = static_cast<float>(numSides);
     std::vector<Vector3> verts;
     verts.reserve(numSides);
     float anglePerVertex = 360.0f / num_sides_as_float;
@@ -1760,7 +1798,7 @@ void Renderer::SetProjectionMatrix(const Matrix4& mat) {
 }
 
 void Renderer::AppendModelMatrix(const Matrix4& modelMatrix) {
-    _matrix_data.model = modelMatrix * _matrix_data.model;
+    _matrix_data.model = _matrix_data.model * modelMatrix;
     _matrix_cb->Update(_rhi_context, &_matrix_data);
     SetConstantBuffer(MATRIX_BUFFER_INDEX, _matrix_cb);
 }

@@ -13,7 +13,7 @@
 
 class Window;
 
-enum class KeyCode : unsigned char {
+enum class KeyCode : int {
     LButton
     ,RButton
     ,Cancel
@@ -268,6 +268,7 @@ enum class KeyCode : unsigned char {
     ,Oem_Clear
     ,Last_
     ,Unknown = 0xFF
+    ,Max
 };
 
 KeyCode& operator++(KeyCode& keycode);
@@ -327,8 +328,8 @@ private:
     Vector2 GetWindowCenter(const Window& window) const;
 
     std::array<XboxController, 4> _xboxControllers{};
-    std::bitset<(std::size_t)KeyCode::Unknown> _previousKeys{};
-    std::bitset<(std::size_t)KeyCode::Unknown> _currentKeys{};
+    std::bitset<(std::size_t)KeyCode::Max> _previousKeys{};
+    std::bitset<(std::size_t)KeyCode::Max> _currentKeys{};
     Vector2 _mouseCoords = Vector2::ZERO;
     Vector2 _mouseDelta = Vector2::ZERO;
     Stopwatch _connection_poll{};

@@ -1,5 +1,7 @@
 #include "Engine/Core/FileLogger.hpp"
 
+#include "Engine/Core/BuildConfig.cpp"
+
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/JobSystem.hpp"
@@ -117,6 +119,10 @@ void FileLogger::Initialize(JobSystem& jobSystem, const std::string& log_name) {
     p.make_preferred();
     _current_log_path = p.string();
     FileUtils::CreateFolders(folder_p.string());
+    if(FS::exists(log_str)) {
+        FS::remove(log_str);
+    }
+    FileUtils::RemoveExceptMostRecentFiles(folder_p, MAX_LOGS);
     _is_running = true;
     _stream.open(_current_log_path);
     if(_stream.fail()) {

@@ -133,6 +133,8 @@ public:
     void DrawFrustum(const Frustum& frustum, const Rgba& color = Rgba::YELLOW, const Vector2& tex_coords = Vector2::ZERO);
     void DrawWorldGridXZ(float radius = 500.0f, float major_gridsize = 20.0f, float minor_gridsize = 5.0f, const Rgba& major_color = Rgba::WHITE, const Rgba& minor_color = Rgba::DARK_GRAY);
     void DrawWorldGridXY(float radius = 500.0f, float major_gridsize = 20.0f, float minor_gridsize = 5.0f, const Rgba& major_color = Rgba::WHITE, const Rgba& minor_color = Rgba::DARK_GRAY);
+    void DrawAxes(float maxlength = 1000.0f, bool disable_unit_depth = true);
+    void DrawDebugSphere(float radius, const Rgba& color);
 
     void Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo);
     void Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, std::size_t vertex_count);

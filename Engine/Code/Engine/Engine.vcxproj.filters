@@ -286,6 +286,9 @@
     <ClCompile Include="Math\Frustum.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="Networking\Address.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -551,6 +554,9 @@
     </ClInclude>
     <ClInclude Include="Math\Frustum.hpp">
       <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Networking\Address.hpp">
+      <Filter>Networking</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

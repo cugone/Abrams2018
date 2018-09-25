@@ -74,6 +74,7 @@
     <ClCompile Include="Math\Vector2.cpp" />
     <ClCompile Include="Math\Vector3.cpp" />
     <ClCompile Include="Math\Vector4.cpp" />
+    <ClCompile Include="Networking\Address.cpp" />
     <ClCompile Include="Renderer\AnimatedSprite.cpp" />
     <ClCompile Include="Renderer\ArrayBuffer.cpp" />
     <ClCompile Include="Renderer\BlendState.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="Math\Vector2.hpp" />
     <ClInclude Include="Math\Vector3.hpp" />
     <ClInclude Include="Math\Vector4.hpp" />
+    <ClInclude Include="Networking\Address.hpp" />
     <ClInclude Include="Renderer\AnimatedSprite.hpp" />
     <ClInclude Include="Renderer\ArrayBuffer.hpp" />
     <ClInclude Include="Renderer\BlendState.hpp" />

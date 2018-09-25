@@ -27,16 +27,44 @@ public:
     IntVector2& operator=(const IntVector2& rhs) = default;
     IntVector2& operator=(IntVector2&& rhs) = default;
     
-    IntVector2 operator-() const;
+    IntVector2 operator+(const IntVector2& rhs) const;
+    IntVector2& operator+=(const IntVector2& rhs);
 
-    bool operator==(const IntVector2& rhs);
-    bool operator!=(const IntVector2& rhs);
+    IntVector2 operator-() const;
+    IntVector2 operator-(const IntVector2& rhs) const;
+    IntVector2& operator-=(const IntVector2& rhs);
+
+    friend IntVector2 operator*(int lhs, const IntVector2& rhs);
+    IntVector2 operator*(const IntVector2& rhs) const;
+    IntVector2& operator*=(const IntVector2& rhs);
+    IntVector2 operator*(int scalar) const;
+    IntVector2& operator*=(int scalar);
+    IntVector2 operator*(float scalar) const;
+    IntVector2& operator*=(float scalar);
+
+    IntVector2 operator/(const IntVector2& rhs) const;
+    IntVector2& operator/=(const IntVector2& rhs);
+    IntVector2 operator/(int scalar) const;
+    IntVector2& operator/=(int scalar);
+    IntVector2 operator/(float scalar) const;
+    IntVector2& operator/=(float scalar);
+
+    bool operator==(const IntVector2& rhs)const;
+    bool operator!=(const IntVector2& rhs)const;
+
+    bool operator<(const IntVector2& rhs)const;
+    bool operator>=(const IntVector2& rhs)const;
+    bool operator<=(const IntVector2& rhs)const;
+    bool operator>(const IntVector2& rhs)const;
+
+    friend std::ostream& operator<<(std::ostream& out_stream, const IntVector2& v);
+    friend std::istream& operator>>(std::istream& in_stream, IntVector2& v);
 
     void SetXY(int newX, int newY);
     void GetXY(int& out_x, int& out_y);
 
-    int x;
-    int y;
+    int x = 0;
+    int y = 0;
 
 protected:
 private:

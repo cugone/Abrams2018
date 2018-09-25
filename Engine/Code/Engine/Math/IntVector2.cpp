@@ -52,6 +52,130 @@ IntVector2 IntVector2::operator-() const {
     return IntVector2(-x, -y);
 }
 
+IntVector2 IntVector2::operator+(const IntVector2& rhs) const {
+    return IntVector2(x + rhs.x, y + rhs.y);
+}
+
+IntVector2& IntVector2::operator+=(const IntVector2& rhs) {
+    x += rhs.x;
+    y += rhs.y;
+    return *this;
+}
+
+IntVector2 IntVector2::operator-(const IntVector2& rhs) const {
+    return IntVector2(x - rhs.x, y - rhs.y);
+}
+
+IntVector2& IntVector2::operator-=(const IntVector2& rhs) {
+    x -= rhs.x;
+    y -= rhs.y;
+    return *this;
+}
+
+bool IntVector2::operator<(const IntVector2& rhs) const {
+    return (x < rhs.x) && (y < rhs.y);
+}
+
+bool IntVector2::operator>=(const IntVector2& rhs) const {
+    return !(*this < rhs);
+}
+
+bool IntVector2::operator>(const IntVector2& lhs) const {
+    return (lhs < *this);
+}
+
+bool IntVector2::operator<=(const IntVector2& lhs) const {
+    return !(lhs > *this);
+}
+
+std::ostream& operator<<(std::ostream& out_stream, const IntVector2& v) {
+    out_stream << '[' << v.x << ',' << v.y << ']';
+    return out_stream;
+}
+
+std::istream& operator>>(std::istream& in_stream, IntVector2& v) {
+    int x = 0;
+    int y = 0;
+
+    in_stream.ignore(); //[
+    in_stream >> x;
+    in_stream.ignore(); //,
+    in_stream >> y;
+    in_stream.ignore(); //]
+
+    v.x = x;
+    v.y = y;
+
+    return in_stream;
+}
+IntVector2 operator*(int lhs, const IntVector2& rhs) {
+    return IntVector2(lhs * rhs.x, lhs * rhs.y);
+}
+
+IntVector2 IntVector2::operator*(const IntVector2& rhs) const {
+    return IntVector2(x * rhs.x, y * rhs.y);
+}
+
+IntVector2& IntVector2::operator*=(const IntVector2& rhs) {
+    x *= rhs.x;
+    y *= rhs.y;
+    return *this;
+}
+
+IntVector2 IntVector2::operator*(int scalar) const {
+    return IntVector2(x * scalar, y * scalar);
+}
+
+IntVector2& IntVector2::operator*=(int scalar) {
+    x *= scalar;
+    y *= scalar;
+    return *this;
+}
+
+IntVector2 IntVector2::operator*(float scalar) const {
+    int nx = static_cast<int>(std::floor(static_cast<float>(x) * scalar));
+    int ny = static_cast<int>(std::floor(static_cast<float>(y) * scalar));
+    return IntVector2(nx, ny);
+}
+
+IntVector2& IntVector2::operator*=(float scalar) {
+    x = static_cast<int>(std::floor(static_cast<float>(x) * scalar));
+    y = static_cast<int>(std::floor(static_cast<float>(y) * scalar));
+    return *this;
+}
+
+IntVector2 IntVector2::operator/(const IntVector2& rhs) const {
+    return IntVector2(x / rhs.x, y / rhs.y);
+}
+
+IntVector2& IntVector2::operator/=(const IntVector2& rhs) {
+    x /= rhs.x;
+    y /= rhs.y;
+    return *this;
+}
+
+IntVector2 IntVector2::operator/(int scalar) const {
+    return IntVector2(x / scalar, y / scalar);
+}
+
+IntVector2& IntVector2::operator/=(int scalar) {
+    x /= scalar;
+    y /= scalar;
+    return *this;
+}
+
+IntVector2 IntVector2::operator/(float scalar) const {
+    int nx = static_cast<int>(std::floor(static_cast<float>(x) / scalar));
+    int ny = static_cast<int>(std::floor(static_cast<float>(y) / scalar));
+    return IntVector2(nx, ny);
+}
+
+IntVector2& IntVector2::operator/=(float scalar) {
+    x = static_cast<int>(std::floor(static_cast<float>(x) / scalar));
+    y = static_cast<int>(std::floor(static_cast<float>(y) / scalar));
+    return *this;
+}
+
 void IntVector2::SetXY(int newX, int newY) {
     x = newX;
     y = newY;
@@ -62,10 +186,10 @@ void IntVector2::GetXY(int& out_x, int& out_y) {
     out_y = y;
 }
 
-bool IntVector2::operator!=(const IntVector2& rhs) {
+bool IntVector2::operator!=(const IntVector2& rhs) const {
     return !(*this == rhs);
 }
 
-bool IntVector2::operator==(const IntVector2& rhs) {
+bool IntVector2::operator==(const IntVector2& rhs) const {
     return x == rhs.x && y == rhs.y;
 }

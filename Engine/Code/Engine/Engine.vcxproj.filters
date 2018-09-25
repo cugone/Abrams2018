@@ -32,6 +32,9 @@
     <Filter Include="UI">
       <UniqueIdentifier>{31c49598-4777-42bf-b190-1015b5ca2e33}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Networking">
+      <UniqueIdentifier>{5b92a416-0a32-4dce-abea-a56660a892da}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">

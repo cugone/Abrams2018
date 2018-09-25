@@ -43,6 +43,9 @@ public:
     void ErrorMsg(const std::string& msg);
 
     void* GetAcceleratorTable() const;
+    bool IsOpen() const;
+    bool IsClosed() const;
+
 protected:
 private:
     struct OutputEntry {
@@ -90,7 +93,6 @@ private:
     void DrawEntryLine(const Vector2& view_half_extents) const;
     void DrawCursor(const Vector2& view_half_extents) const;
     void DrawOutput(const Vector2& view_half_extents) const;
-    void BuildOutputBuffer(KerningFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo) const;
 
     void OutputMsg(const std::string& msg, const Rgba& color);
 
@@ -99,8 +101,6 @@ private:
     void UnregisterAllCommands();
 
     void ToggleConsole();
-    bool IsOpen() const;
-    bool IsClosed() const;
     void Open();
     void Close();
 

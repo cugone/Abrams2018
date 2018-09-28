@@ -49,8 +49,11 @@ public:
     ID3D11DeviceContext* GetDxContext();
 
     void UnbindAllShaderResources();
+    void UnbindAllCustomConstantBuffers();
 
 private:
+    void UnbindAllConstantBuffers();
+
     void SetShader(Shader* shader);
     void SetShaderProgram(ShaderProgram* shaderProgram = nullptr);
     void SetDepthStencilState(DepthStencilState* depthStencilState = nullptr);

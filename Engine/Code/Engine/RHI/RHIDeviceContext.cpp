@@ -2,8 +2,6 @@
 
 #include "Engine/Core/Rgba.hpp"
 
-#include "Engine/Renderer/Texture.hpp"
-
 #include "Engine/Renderer/BlendState.hpp"
 #include "Engine/Renderer/Buffer.hpp"
 #include "Engine/Renderer/ConstantBuffer.hpp"
@@ -16,6 +14,8 @@
 #include "Engine/Renderer/ShaderProgram.hpp"
 #include "Engine/Renderer/StructuredBuffer.hpp"
 #include "Engine/Renderer/RasterState.hpp"
+#include "Engine/Renderer/Renderer.hpp"
+#include "Engine/Renderer/Texture.hpp"
 #include "Engine/Renderer/VertexBuffer.hpp"
 
 RHIDeviceContext::RHIDeviceContext(RHIDevice* parentDevice, ID3D11DeviceContext* deviceContext)
@@ -109,9 +109,8 @@ void RHIDeviceContext::SetIndexBuffer(IndexBuffer* buffer) {
 }
 
 void RHIDeviceContext::SetConstantBuffer(unsigned int index, ConstantBuffer* buffer) {
-    ID3D11Buffer * const dx_buffer = buffer->GetDxBuffer();
-    ID3D11Buffer* nobuffer[1] = { nullptr };
     if(buffer) {
+        ID3D11Buffer * const dx_buffer = buffer->GetDxBuffer();
         _dx_context->VSSetConstantBuffers(index, 1, &dx_buffer);
         _dx_context->PSSetConstantBuffers(index, 1, &dx_buffer);
         _dx_context->DSSetConstantBuffers(index, 1, &dx_buffer);
@@ -119,6 +118,7 @@ void RHIDeviceContext::SetConstantBuffer(unsigned int index, ConstantBuffer* buf
         _dx_context->GSSetConstantBuffers(index, 1, &dx_buffer);
         _dx_context->CSSetConstantBuffers(index, 1, &dx_buffer);
     } else {
+        ID3D11Buffer* nobuffer[1] = { nullptr };
         _dx_context->VSSetConstantBuffers(index, 1, nobuffer);
         _dx_context->PSSetConstantBuffers(index, 1, nobuffer);
         _dx_context->DSSetConstantBuffers(index, 1, nobuffer);
@@ -230,6 +230,28 @@ void RHIDeviceContext::SetSampler(Sampler* sampler) {
     }
 }
 
+void RHIDeviceContext::UnbindAllConstantBuffers() {
+    constexpr auto nobuffers_count = D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT;
+    ID3D11Buffer* nobuffers[nobuffers_count] = { nullptr };
+    _dx_context->VSSetConstantBuffers(0, nobuffers_count, nobuffers);
+    _dx_context->PSSetConstantBuffers(0, nobuffers_count, nobuffers);
+    _dx_context->DSSetConstantBuffers(0, nobuffers_count, nobuffers);
+    _dx_context->HSSetConstantBuffers(0, nobuffers_count, nobuffers);
+    _dx_context->GSSetConstantBuffers(0, nobuffers_count, nobuffers);
+    _dx_context->CSSetConstantBuffers(0, nobuffers_count, nobuffers);
+}
+
+void RHIDeviceContext::UnbindAllCustomConstantBuffers() {
+    constexpr auto nobuffers_count = D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - Renderer::CONSTANT_BUFFER_START_INDEX;
+    ID3D11Buffer* nobuffers[nobuffers_count] = { nullptr };
+    _dx_context->VSSetConstantBuffers(Renderer::CONSTANT_BUFFER_START_INDEX, nobuffers_count, nobuffers);
+    _dx_context->PSSetConstantBuffers(Renderer::CONSTANT_BUFFER_START_INDEX, nobuffers_count, nobuffers);
+    _dx_context->DSSetConstantBuffers(Renderer::CONSTANT_BUFFER_START_INDEX, nobuffers_count, nobuffers);
+    _dx_context->HSSetConstantBuffers(Renderer::CONSTANT_BUFFER_START_INDEX, nobuffers_count, nobuffers);
+    _dx_context->GSSetConstantBuffers(Renderer::CONSTANT_BUFFER_START_INDEX, nobuffers_count, nobuffers);
+    _dx_context->CSSetConstantBuffers(Renderer::CONSTANT_BUFFER_START_INDEX, nobuffers_count, nobuffers);
+}
+
 void RHIDeviceContext::UnbindAllShaderResources() {
     ID3D11ShaderResourceView* no_srvs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = { nullptr };
     _dx_context->VSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, &no_srvs[0]);
@@ -247,11 +269,20 @@ void RHIDeviceContext::SetShader(Shader* shader) {
         SetDepthStencilState(nullptr);
         SetBlendState(nullptr);
         SetSampler(nullptr);
+        //UnbindAllCustomConstantBuffers();
     } else {
         SetShaderProgram(shader->GetShaderProgram());
         SetRasterState(shader->GetRasterState());
         SetDepthStencilState(shader->GetDepthStencilState());
         SetBlendState(shader->GetBlendState());
         SetSampler(shader->GetSampler());
+        //const auto& cbs = shader->GetConstantBuffers();
+        //if(cbs.empty()) {
+        //    UnbindAllCustomConstantBuffers();
+        //    return;
+        //}
+        //for(auto i = 0u; i < cbs.size(); ++i) {
+        //    SetConstantBuffer(i + Renderer::CONSTANT_BUFFER_START_INDEX, cbs[i]);
+        //}
     }
 }

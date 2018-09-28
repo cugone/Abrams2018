@@ -5,11 +5,21 @@
 #include "Engine/RHI/RHIDevice.hpp"
 #include "Engine/RHI/RHIDeviceContext.hpp"
 
+#include <sstream>
 
-ConstantBuffer::ConstantBuffer(RHIDevice* owner, const buffer_t& buffer, std::size_t buffer_size, const BufferUsage& usage, const BufferBindUsage& bindUsage)
+ConstantBuffer::ConstantBuffer(RHIDevice* owner, const buffer_t& buffer, const std::size_t& buffer_size, const BufferUsage& usage, const BufferBindUsage& bindUsage)
     : Buffer<void*>()
     , _buffer_size(buffer_size)
 {
+    if(_buffer_size % 16) {
+        ERROR_AND_DIE("Constant Buffer size not a multiple of 16.")
+    }
+    if(D3D11_REQ_CONSTANT_BUFFER_ELEMENT_COUNT < _buffer_size) {
+        std::ostringstream ss;
+        ss << "Constant Buffer of size " << _buffer_size << " exceeds maximum of " << D3D11_REQ_CONSTANT_BUFFER_ELEMENT_COUNT << '\n';
+        ERROR_AND_DIE(ss.str().c_str());
+    }
+
     D3D11_BUFFER_DESC buffer_desc = {};
     buffer_desc.Usage = BufferUsageToD3DUsage(usage);
     buffer_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);

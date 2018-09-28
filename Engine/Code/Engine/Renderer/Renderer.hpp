@@ -74,6 +74,11 @@ public:
     void Render() const;
     void EndFrame();
 
+    VertexBuffer* CreateVertexBuffer(const VertexBuffer::buffer_t& vbo);
+    IndexBuffer* CreateIndexBuffer(const IndexBuffer::buffer_t& ibo);
+    ConstantBuffer* CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size);
+    StructuredBuffer* CreateStructuredBuffer(const StructuredBuffer::buffer_t& sbo, std::size_t element_size, std::size_t element_count);
+
     Texture* CreateOrGetTexture(const std::string& filepath, const IntVector3& dimensions);
     void RegisterTexturesFromFolder(const std::string& folderpath, bool recursive = false);
     bool RegisterTexture(const std::string& name, Texture* texture);
@@ -214,6 +219,12 @@ public:
     void DrawMultilineText(KerningFont* font, const std::string& text, const Rgba& color = Rgba::WHITE);
     void AppendMultiLineTextBuffer(KerningFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo);
 
+    constexpr static unsigned int MATRIX_BUFFER_INDEX = 0;
+    constexpr static unsigned int TIME_BUFFER_INDEX = 1;
+    constexpr static unsigned int LIGHTING_BUFFER_INDEX = 2;
+    constexpr static unsigned int CONSTANT_BUFFER_START_INDEX = 3;
+    constexpr static unsigned int STRUCTURED_BUFFER_START_INDEX = 64;
+
 protected:
 private:
 
@@ -286,7 +297,6 @@ private:
     time_buffer_t _time_data = {};
     std::size_t _current_vbo_size = 0;
     std::size_t _current_ibo_size = 0;
-    constexpr static unsigned int MATRIX_BUFFER_INDEX = 0;
     RHIDeviceContext* _rhi_context = nullptr;
     RHIDevice* _rhi_device = nullptr;
     RHIOutput* _rhi_output = nullptr;
@@ -304,6 +314,7 @@ private:
     IndexBuffer* _temp_ibo = nullptr;
     ConstantBuffer* _matrix_cb = nullptr;
     ConstantBuffer* _time_cb = nullptr;
+    ConstantBuffer* _lighting_cb = nullptr;
     std::map<std::string, Texture*> _textures = {};
     std::map<std::string, ShaderProgram*> _shader_programs = {};
     std::map<std::string, Material*> _materials = {};

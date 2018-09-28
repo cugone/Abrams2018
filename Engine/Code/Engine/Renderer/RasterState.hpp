@@ -8,43 +8,33 @@ class RHIDevice;
 struct ID3D11RasterizerState;
 
 struct RasterDesc {
-    FillMode fillmode;
-    CullMode cullmode;
-    float depthBiasClamp;
-    float slopeScaledDepthBias;
-    int depthBias;
-    bool depthClipEnable;
-    bool scissorEnable;
-    bool multisampleEnable;
-    bool antialiasedLineEnable;
-    RasterDesc()
-        : fillmode(FillMode::Solid)
-        , cullmode(CullMode::Back)
-        , depthBiasClamp(0.0f)
-        , slopeScaledDepthBias(0.0f)
-        , depthBias(0)
-        , depthClipEnable(true)
-        , scissorEnable(true)
-        , multisampleEnable(false)
-        , antialiasedLineEnable(false)
-    {
-        /* DO NOTHING */
-    }
+    FillMode fillmode = FillMode::Solid;
+    CullMode cullmode = CullMode::Back;
+    float depthBiasClamp = 0.0f;
+    float slopeScaledDepthBias = 0.0f;
+    int depthBias = 0;
+    bool depthClipEnable = true;
+    bool scissorEnable = true;
+    bool multisampleEnable = false;
+    bool antialiasedLineEnable = false;
+    RasterDesc() = default;
+    explicit RasterDesc(const XMLElement& element);
 };
 
 class RasterState {
 public:
     RasterState(RHIDevice* device, const RasterDesc& desc);
-    RasterState(RHIDevice* device, const FillMode& fillmode = FillMode::Solid, const CullMode& cullmode = CullMode::Back, bool antiAliasing = false);
     RasterState(RHIDevice* device, const XMLElement& element);
     ~RasterState();
 
+    const RasterDesc& GetDesc() const;
     ID3D11RasterizerState* GetDxRasterState();
+
+    void SetDebugName([[maybe_unused]] const std::string& name) const noexcept;
 protected:
-    bool LoadFromXML(RHIDevice* device, const XMLElement& element);
-    bool CreateRasterState(RHIDevice* device, const FillMode& fillmode = FillMode::Solid, const CullMode& cullmode = CullMode::Back, bool antiAliasing = false);
-    bool CreateRasterState(RHIDevice* device, const RasterDesc& raster_desc = RasterDesc());
+    bool CreateRasterState(RHIDevice* device, const RasterDesc& raster_desc = RasterDesc{});
 private:
+    RasterDesc _desc{};
     ID3D11RasterizerState* _dx_state;
 
 };

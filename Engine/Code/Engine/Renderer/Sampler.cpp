@@ -1,59 +1,37 @@
 #include "Engine/Renderer/Sampler.hpp"
 
+#include "Engine/Core/BuildConfig.cpp"
+
 #include "Engine/Core/ErrorWarningAssert.hpp"
 
 #include "Engine/Renderer/DirectX/DX11.hpp"
 
 #include "Engine/RHI/RHIDevice.hpp"
 
-Sampler::Sampler(RHIDevice* device
-                 , const FilterMode& min_filter /*= FilterMode::POINT */
-                 , const FilterMode& mag_filter /*= FilterMode::POINT */
-                 , const FilterMode& mip_filter /*= FilterMode::POINT */
-                 , const FilterComparisonMode& compare_mode /*= FilterComparisonMode::NONE */
-                 , const TextureAddressMode& UaddressMode /*= TextureAddressMode::WRAP */
-                 , const TextureAddressMode& VaddressMode /*= TextureAddressMode::WRAP */
-                 , const TextureAddressMode& WaddressMode /*= TextureAddressMode::WRAP */
-                 , const Rgba& borderColor /*= Rgba::WHITE */
-                 , const ComparisonFunction& compareFunc /*= ComparisonFunction::NEVER */
-                 , unsigned int maxAnisotropicLevel /*= 1 */
-                 , float mipmapLODBias /*= 0.0f */
-                 , float minLOD /*= 0.0f */
-                 , float maxLOD /*= 0.0f */)
-{
+void Sampler::SetDebugName([[maybe_unused]] const std::string& name) const noexcept {
+#ifdef RENDER_DEBUG
+    _dx_state->SetPrivateData(WKPDID_D3DDebugObjectName, name.size(), name.data());
+#endif
+}
 
-    bool succeeded = CreateSamplerState(device,
-                                        min_filter, mag_filter, mip_filter, compare_mode,
-                                        UaddressMode, VaddressMode, WaddressMode, borderColor, compareFunc,
-                                        maxAnisotropicLevel, mipmapLODBias, minLOD, maxLOD);
-    if(!succeeded) {
-        _dx_state->Release();
-        _dx_state = nullptr;
-        ERROR_AND_DIE("Sampler: dx Sample failed to create.\n");
-    }
+Sampler::Sampler(RHIDevice* device, const XMLElement& element)
+    : Sampler(device, SamplerDesc{ element }) {
+    /* DO NOTHING */
 }
 
 Sampler::Sampler(RHIDevice* device, const SamplerDesc& desc) {
-    bool succeeded = CreateSamplerState(device, desc);
-    if(!succeeded) {
+    if(!CreateSamplerState(device, desc)) {
         _dx_state->Release();
         _dx_state = nullptr;
         ERROR_AND_DIE("Sampler: dx Sample failed to create.\n");
-    }
-}
-
-Sampler::Sampler(RHIDevice* device, const XMLElement& element) {
-    bool succeeded = LoadFromXml(device, element);
-    if(!succeeded) {
-        _dx_state->Release();
-        _dx_state = nullptr;
-        ERROR_AND_DIE("Sampler: LoadFromXml failed.\n");
     }
 }
 
 Sampler::~Sampler() {
-    _dx_state->Release();
-    _dx_state = nullptr;
+    if(_dx_state) {
+        _dx_state->Release();
+        _dx_state = nullptr;
+    }
 }
 
 ID3D11SamplerState* Sampler::GetDxSampler() const {
@@ -61,123 +39,96 @@ ID3D11SamplerState* Sampler::GetDxSampler() const {
 }
 
 bool Sampler::LoadFromXml(RHIDevice* device, const XMLElement& element) {
-
-    SamplerDesc desc;
-    auto xml_sampler = element.FirstChildElement("sampler");
-    if(xml_sampler != nullptr) {
-
-        DataUtils::ValidateXmlElement(*xml_sampler, "sampler", "", "", "filter,textureAddress,lod", "borderColor,test,maxAF");
-
-        desc.borderColor = DataUtils::ParseXmlAttribute(*xml_sampler, "borderColor", desc.borderColor);
-
-        std::string compare_str = "never";
-        compare_str = DataUtils::ParseXmlAttribute(*xml_sampler, "test", compare_str);
-        desc.compareFunc = ComparisonFunctionFromString(compare_str);
-
-        desc.maxAnisotropicLevel = DataUtils::ParseXmlAttribute(*xml_sampler, "maxAF", desc.maxAnisotropicLevel);
-
-        auto xml_filter = xml_sampler->FirstChildElement("filter");
-        if(xml_filter != nullptr) {
-
-            DataUtils::ValidateXmlElement(*xml_filter, "filter", "", "min,mag,mip,mode");
-
-            std::string filter_str = "point";
-            filter_str = DataUtils::ParseXmlAttribute(*xml_filter, "min", filter_str);
-            desc.min_filter = FilterModeFromString(filter_str);
-
-            filter_str = "point";
-            filter_str = DataUtils::ParseXmlAttribute(*xml_filter, "mag", filter_str);
-            desc.mag_filter = FilterModeFromString(filter_str);
-
-            filter_str = "point";
-            filter_str = DataUtils::ParseXmlAttribute(*xml_filter, "mip", filter_str);
-            desc.mip_filter = FilterModeFromString(filter_str);
-
-            compare_str = "none";
-            compare_str = DataUtils::ParseXmlAttribute(*xml_filter, "mode", compare_str);
-            desc.compare_mode = FilterComparisonModeFromString(compare_str);
-        }
-
-        auto xml_textureAddress = xml_sampler->FirstChildElement("textureAddress");
-        if(xml_textureAddress != nullptr) {
-
-            DataUtils::ValidateXmlElement(*xml_textureAddress, "textureAddress", "", "", "", "u,v,w");
-
-            std::string str = "wrap";
-            str = DataUtils::ParseXmlAttribute(*xml_textureAddress, "u", str);
-            desc.UaddressMode = TextureAddressModeFromString(str);
-
-            str = "wrap";
-            str = DataUtils::ParseXmlAttribute(*xml_textureAddress, "v", str);
-            desc.VaddressMode = TextureAddressModeFromString(str);
-
-            str = "wrap";
-            str = DataUtils::ParseXmlAttribute(*xml_textureAddress, "w", str);
-            desc.WaddressMode = TextureAddressModeFromString(str);
-
-        }
-
-        auto xml_lod = xml_sampler->FirstChildElement("lod");
-        if(xml_lod != nullptr) {
-            DataUtils::ValidateXmlElement(*xml_lod, "lod", "", "", "", "min,max,mipmapbias");
-            desc.minLOD = DataUtils::ParseXmlAttribute(*xml_lod, "min", desc.minLOD);
-            desc.maxLOD = DataUtils::ParseXmlAttribute(*xml_lod, "max", desc.maxLOD);
-            desc.mipmapLODBias = DataUtils::ParseXmlAttribute(*xml_lod, "mipmapbias", desc.mipmapLODBias);
-        }
-    }
-
-    return CreateSamplerState(device, desc);
-
+    return CreateSamplerState(device, SamplerDesc{ element });
 }
 
-bool Sampler::CreateSamplerState(RHIDevice* device, const FilterMode& min_filter /*= FilterMode::POINT */, const FilterMode& mag_filter /*= FilterMode::POINT */, const FilterMode& mip_filter /*= FilterMode::POINT */, const FilterComparisonMode& compare_mode /*= FilterComparisonMode::NONE */, const TextureAddressMode& UaddressMode /*= TextureAddressMode::WRAP */, const TextureAddressMode& VaddressMode /*= TextureAddressMode::WRAP */, const TextureAddressMode& WaddressMode /*= TextureAddressMode::WRAP */, const Rgba& borderColor /*= Rgba::WHITE */, const ComparisonFunction& compareFunc /*= ComparisonFunction::NEVER */, unsigned int maxAnisotropicLevel /*= 1 */, float mipmapLODBias /*= 0.0f */, float minLOD /*= 0.0f */, float maxLOD /*= 0.0f*/) {
+bool Sampler::CreateSamplerState(RHIDevice* device, const SamplerDesc& desc /*= SamplerDesc()*/) {
 
-    D3D11_SAMPLER_DESC desc;
-    memset(&desc, 0, sizeof(desc));
+    D3D11_SAMPLER_DESC dx_desc{};
 
-    desc.Filter = FilterModeToD3DFilter(min_filter, mag_filter, mip_filter, compare_mode);
+    dx_desc.Filter = FilterModeToD3DFilter(desc.min_filter, desc.mag_filter, desc.mip_filter, desc.compare_mode);
 
-    desc.AddressU = AddressModeToD3DAddressMode(UaddressMode);
-    desc.AddressV = AddressModeToD3DAddressMode(VaddressMode);
-    desc.AddressW = AddressModeToD3DAddressMode(WaddressMode);
+    dx_desc.AddressU = AddressModeToD3DAddressMode(desc.UaddressMode);
+    dx_desc.AddressV = AddressModeToD3DAddressMode(desc.VaddressMode);
+    dx_desc.AddressW = AddressModeToD3DAddressMode(desc.WaddressMode);
 
-    desc.MinLOD = minLOD;
-    desc.MaxLOD = maxLOD;
+    dx_desc.MinLOD = desc.minLOD;
+    dx_desc.MaxLOD = desc.maxLOD;
 
-    desc.MipLODBias = mipmapLODBias;
+    dx_desc.MipLODBias = desc.mipmapLODBias;
 
-    desc.MaxAnisotropy = maxAnisotropicLevel;
+    dx_desc.MaxAnisotropy = desc.maxAnisotropicLevel;
 
-    desc.ComparisonFunc = ComparisonFunctionToD3DComparisonFunction(compareFunc);
+    dx_desc.ComparisonFunc = ComparisonFunctionToD3DComparisonFunction(desc.compareFunc);
 
     float r = 1.0f;
     float g = 1.0f;
     float b = 1.0f;
     float a = 1.0f;
-    borderColor.GetAsFloats(r, g, b, a);
-    desc.BorderColor[0] = r;
-    desc.BorderColor[1] = g;
-    desc.BorderColor[2] = b;
-    desc.BorderColor[3] = a;
+    desc.borderColor.GetAsFloats(r, g, b, a);
+    dx_desc.BorderColor[0] = r;
+    dx_desc.BorderColor[1] = g;
+    dx_desc.BorderColor[2] = b;
+    dx_desc.BorderColor[3] = a;
 
-
-    HRESULT hr = device->GetDxDevice()->CreateSamplerState(&desc, &_dx_state);
+    HRESULT hr = device->GetDxDevice()->CreateSamplerState(&dx_desc, &_dx_state);
     return SUCCEEDED(hr);
 }
 
-bool Sampler::CreateSamplerState(RHIDevice* device, const SamplerDesc& desc /*= SamplerDesc()*/) {
-    return CreateSamplerState(device
-                              , desc.min_filter
-                              , desc.mag_filter
-                              , desc.mip_filter
-                              , desc.compare_mode
-                              , desc.UaddressMode
-                              , desc.VaddressMode
-                              , desc.WaddressMode
-                              , desc.borderColor
-                              , desc.compareFunc
-                              , desc.maxAnisotropicLevel
-                              , desc.mipmapLODBias
-                              , desc.minLOD
-                              , desc.maxLOD);
+SamplerDesc::SamplerDesc(const XMLElement& element) {
+    if(auto xml_sampler = element.FirstChildElement("sampler")) {
+        DataUtils::ValidateXmlElement(*xml_sampler, "sampler", "", "", "filter,textureAddress,lod", "borderColor,test,maxAF");
+
+        this->borderColor = DataUtils::ParseXmlAttribute(*xml_sampler, "borderColor", this->borderColor);
+
+        std::string compare_str = "never";
+        compare_str = DataUtils::ParseXmlAttribute(*xml_sampler, "test", compare_str);
+        this->compareFunc = ComparisonFunctionFromString(compare_str);
+
+        this->maxAnisotropicLevel = DataUtils::ParseXmlAttribute(*xml_sampler, "maxAF", this->maxAnisotropicLevel);
+
+        if(auto xml_filter = xml_sampler->FirstChildElement("filter")) {
+            DataUtils::ValidateXmlElement(*xml_filter, "filter", "", "min,mag,mip,mode");
+
+            std::string filter_str = "point";
+            filter_str = DataUtils::ParseXmlAttribute(*xml_filter, "min", filter_str);
+            this->min_filter = FilterModeFromString(filter_str);
+
+            filter_str = "point";
+            filter_str = DataUtils::ParseXmlAttribute(*xml_filter, "mag", filter_str);
+            this->mag_filter = FilterModeFromString(filter_str);
+
+            filter_str = "point";
+            filter_str = DataUtils::ParseXmlAttribute(*xml_filter, "mip", filter_str);
+            this->mip_filter = FilterModeFromString(filter_str);
+
+            compare_str = "none";
+            compare_str = DataUtils::ParseXmlAttribute(*xml_filter, "mode", compare_str);
+            this->compare_mode = FilterComparisonModeFromString(compare_str);
+        }
+        if(auto xml_textureAddress = xml_sampler->FirstChildElement("textureAddress")) {
+
+            DataUtils::ValidateXmlElement(*xml_textureAddress, "textureAddress", "", "", "", "u,v,w");
+
+            std::string str = "wrap";
+            str = DataUtils::ParseXmlAttribute(*xml_textureAddress, "u", str);
+            this->UaddressMode = TextureAddressModeFromString(str);
+
+            str = "wrap";
+            str = DataUtils::ParseXmlAttribute(*xml_textureAddress, "v", str);
+            this->VaddressMode = TextureAddressModeFromString(str);
+
+            str = "wrap";
+            str = DataUtils::ParseXmlAttribute(*xml_textureAddress, "w", str);
+            this->WaddressMode = TextureAddressModeFromString(str);
+
+        }
+        if(auto xml_lod = xml_sampler->FirstChildElement("lod")) {
+            DataUtils::ValidateXmlElement(*xml_lod, "lod", "", "", "", "min,max,mipmapbias");
+            this->minLOD = DataUtils::ParseXmlAttribute(*xml_lod, "min", this->minLOD);
+            this->maxLOD = DataUtils::ParseXmlAttribute(*xml_lod, "max", this->maxLOD);
+            this->mipmapLODBias = DataUtils::ParseXmlAttribute(*xml_lod, "mipmapbias", this->mipmapLODBias);
+        }
+    }
+
 }

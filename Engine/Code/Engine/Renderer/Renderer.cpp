@@ -148,14 +148,14 @@ void Renderer::Initialize() {
     {
     VertexBuffer::buffer_t default_vbo(1024);
     IndexBuffer::buffer_t default_ibo(1024);
-    _temp_vbo = _rhi_device->CreateVertexBuffer(default_vbo, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer);
-    _temp_ibo = _rhi_device->CreateIndexBuffer(default_ibo, BufferUsage::Dynamic, BufferBindUsage::Index_Buffer);
+    _temp_vbo = CreateVertexBuffer(default_vbo);
+    _temp_ibo = CreateIndexBuffer(default_ibo);
     _current_vbo_size = default_vbo.size();
     _current_ibo_size = default_ibo.size();
     }
 
-    _matrix_cb = _rhi_device->CreateConstantBuffer(&_matrix_data, sizeof(_matrix_data), BufferUsage::Dynamic, BufferBindUsage::Constant_Buffer);
-    _time_cb = _rhi_device->CreateConstantBuffer(&_time_data, sizeof(_time_data), BufferUsage::Dynamic, BufferBindUsage::Constant_Buffer);
+    _matrix_cb = CreateConstantBuffer(&_matrix_data, sizeof(_matrix_data));
+    _time_cb = CreateConstantBuffer(&_time_data, sizeof(_time_data));
 
     CreateAndRegisterDefaultDepthStencilStates();
     CreateAndRegisterDefaultSamplers();
@@ -166,6 +166,7 @@ void Renderer::Initialize() {
     CreateAndRegisterDefaultMaterials();
 
     _default_depthstencil = CreateDepthStencil(_rhi_device, _window_dimensions);
+    _default_depthstencil->SetDebugName("__default");
     SetDepthStencilState(GetDepthStencilState("__default"));
     SetRasterState(GetRasterState("__solid"));
     SetSampler(GetSampler("__default"));
@@ -186,6 +187,22 @@ void Renderer::Render() const {
 
 void Renderer::EndFrame() {
     Present();
+}
+
+ConstantBuffer* Renderer::CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) {
+    return _rhi_device->CreateConstantBuffer(buffer, buffer_size, BufferUsage::Dynamic, BufferBindUsage::Constant_Buffer);
+}
+
+VertexBuffer* Renderer::CreateVertexBuffer(const VertexBuffer::buffer_t& vbo) {
+    return _rhi_device->CreateVertexBuffer(vbo, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer);
+}
+
+IndexBuffer* Renderer::CreateIndexBuffer(const IndexBuffer::buffer_t& ibo) {
+    return _rhi_device->CreateIndexBuffer(ibo, BufferUsage::Dynamic, BufferBindUsage::Index_Buffer);
+}
+
+StructuredBuffer* Renderer::CreateStructuredBuffer(const StructuredBuffer::buffer_t& sbo, std::size_t element_size, std::size_t element_count) {
+    return _rhi_device->CreateStructuredBuffer(sbo, element_size, element_count, BufferUsage::Static, BufferBindUsage::Shader_Resource);
 }
 
 bool Renderer::RegisterTexture(const std::string& name, Texture* texture) {
@@ -1160,6 +1177,7 @@ Material* Renderer::CreateMaterialFromFont(KerningFont* font) {
 
 void Renderer::CreateAndRegisterDefaultSamplers() {
     auto default_sampler = CreateDefaultSampler();
+    default_sampler->SetDebugName("__default");
     RegisterSampler("__default", default_sampler);
 }
 
@@ -1169,72 +1187,108 @@ Sampler* Renderer::CreateDefaultSampler() {
 
 void Renderer::CreateAndRegisterDefaultRasterStates() {
     RasterState* wireframe_raster = CreateWireframeRaster();
+    wireframe_raster->SetDebugName("__wireframe");
     RegisterRasterState("__wireframe", wireframe_raster);
 
     RasterState* solid_raster = CreateSolidRaster();
+    solid_raster->SetDebugName("__solid");
     RegisterRasterState("__solid", solid_raster);
 
     RasterState* wireframenc_raster = CreateWireframeNoCullingRaster();
+    wireframenc_raster->SetDebugName("__wireframenc");
     RegisterRasterState("__wireframenc", wireframenc_raster);
 
     RasterState* solidnc_raster = CreateSolidNoCullingRaster();
+    solidnc_raster->SetDebugName("__solidnc");
     RegisterRasterState("__solidnc", solidnc_raster);
 
     RasterState* wireframefc_raster = CreateWireframeFrontCullingRaster();
+    wireframefc_raster->SetDebugName("__wireframefc");
     RegisterRasterState("__wireframefc", wireframefc_raster);
 
     RasterState* solidfc_raster = CreateSolidFrontCullingRaster();
+    solidfc_raster->SetDebugName("__solidfc");
     RegisterRasterState("__solidfc", solidfc_raster);
 
 }
 
 RasterState* Renderer::CreateWireframeRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::Wireframe, CullMode::Back, false);
+    RasterDesc wireframe{};
+    wireframe.fillmode = FillMode::Wireframe;
+    wireframe.cullmode = CullMode::Back;
+    wireframe.antialiasedLineEnable = false;
+    RasterState* state = new RasterState(_rhi_device, wireframe);
     return state;
 }
 
 RasterState* Renderer::CreateSolidRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::Solid, CullMode::Back, false);
+    RasterDesc solid{};
+    solid.fillmode = FillMode::Solid;
+    solid.cullmode = CullMode::Back;
+    solid.antialiasedLineEnable = false;
+    RasterState* state = new RasterState(_rhi_device, solid);
     return state;
 }
 
 RasterState* Renderer::CreateWireframeNoCullingRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::Wireframe, CullMode::None, false);
+    RasterDesc wireframe{};
+    wireframe.fillmode = FillMode::Wireframe;
+    wireframe.cullmode = CullMode::None;
+    wireframe.antialiasedLineEnable = false;
+    RasterState* state = new RasterState(_rhi_device, wireframe);
     return state;
 }
 
 RasterState* Renderer::CreateSolidNoCullingRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::Solid, CullMode::None, false);
+    RasterDesc solid{};
+    solid.fillmode = FillMode::Solid;
+    solid.cullmode = CullMode::None;
+    solid.antialiasedLineEnable = false;
+    RasterState* state = new RasterState(_rhi_device, solid);
     return state;
 }
 
 RasterState* Renderer::CreateWireframeFrontCullingRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::Wireframe, CullMode::Front, false);
+    RasterDesc wireframe{};
+    wireframe.fillmode = FillMode::Wireframe;
+    wireframe.cullmode = CullMode::Front;
+    wireframe.antialiasedLineEnable = false;
+    RasterState* state = new RasterState(_rhi_device, wireframe);
     return state;
 }
 
 RasterState* Renderer::CreateSolidFrontCullingRaster() {
-    RasterState* state = new RasterState(_rhi_device, FillMode::Solid, CullMode::Front, false);
+    RasterDesc solid{};
+    solid.fillmode = FillMode::Solid;
+    solid.cullmode = CullMode::Front;
+    solid.antialiasedLineEnable = false;
+    RasterState* state = new RasterState(_rhi_device, solid);
     return state;
 }
 
 void Renderer::CreateAndRegisterDefaultDepthStencilStates() {
     DepthStencilState* default_state = CreateDefaultDepthStencilState();
+    default_state->SetDebugName("__default");
     RegisterDepthStencilState("__default", default_state);
+
     DepthStencilState* depth_disabled = CreateDisabledDepth();
+    depth_disabled->SetDebugName("__depthdisabled");
     RegisterDepthStencilState("__depthdisabled", depth_disabled);
+
     DepthStencilState* depth_enabled = CreateEnabledDepth();
+    depth_enabled->SetDebugName("__depthenabled");
     RegisterDepthStencilState("__depthenabled", depth_enabled);
+
 }
 
 DepthStencilState* Renderer::CreateDefaultDepthStencilState() {
-    DepthStencilDesc desc;
+    DepthStencilDesc desc{};
     DepthStencilState* state = new DepthStencilState(_rhi_device, desc);
     return state;
 }
 
 DepthStencilState* Renderer::CreateDisabledDepth() {
-    DepthStencilDesc desc;
+    DepthStencilDesc desc{};
     desc.depth_enabled = false;
     desc.depth_comparison = ComparisonFunction::Always;
     DepthStencilState* state = new DepthStencilState(_rhi_device, desc);
@@ -1242,7 +1296,7 @@ DepthStencilState* Renderer::CreateDisabledDepth() {
 }
 
 DepthStencilState* Renderer::CreateEnabledDepth() {
-    DepthStencilDesc desc;
+    DepthStencilDesc desc{};
     desc.depth_enabled = true;
     desc.depth_comparison = ComparisonFunction::Less;
     DepthStencilState* state = new DepthStencilState(_rhi_device, desc);
@@ -1406,24 +1460,31 @@ void Renderer::RegisterFontsFromFolder(const std::filesystem::path& folderpath, 
 
 void Renderer::CreateAndRegisterDefaultTextures() {
     auto default_texture = CreateDefaultTexture();
+    default_texture->SetDebugName("__default");
     RegisterTexture("__default", default_texture);
 
     auto invalid_texture = CreateInvalidTexture();
+    invalid_texture->SetDebugName("__invalid");
     RegisterTexture("__invalid", invalid_texture);
 
     auto diffuse_texture = CreateDefaultDiffuseTexture();
+    diffuse_texture->SetDebugName("__diffuse");
     RegisterTexture("__diffuse", diffuse_texture);
 
     auto normal_texture = CreateDefaultNormalTexture();
+    normal_texture->SetDebugName("__normal");
     RegisterTexture("__normal", normal_texture);
 
     auto specular_texture = CreateDefaultSpecularTexture();
+    specular_texture->SetDebugName("__specular");
     RegisterTexture("__specular", specular_texture);
 
     auto occlusion_texture = CreateDefaultOcclusionTexture();
+    occlusion_texture->SetDebugName("__occlusion");
     RegisterTexture("__occlusion", occlusion_texture);
 
     auto emissive_texture = CreateDefaultEmissiveTexture();
+    emissive_texture->SetDebugName("__emissive");
     RegisterTexture("__emissive", emissive_texture);
 
 }
@@ -1552,8 +1613,8 @@ R"(
         <cull>none</cull>
         <antialiasing>false</antialiasing>
     </raster>
-        <blends>
-            <blend enable = "true">
+    <blends>
+        <blend enable = "true">
             <color src = "src_alpha" dest = "inv_src_alpha" op = "add" />
         </blend>
     </blends>
@@ -1639,7 +1700,7 @@ void Renderer::RegisterMaterialsFromFolder(const std::filesystem::path& folderpa
     [this](const FS::path& p) {
         this->RegisterMaterial(p);
     };
-    FileUtils::IterateFileInFolders(folderpath, "", cb, recursive);
+    FileUtils::IterateFileInFolders(folderpath, ".material", cb, recursive);
 }
 
 void Renderer::RegisterShaderProgram(const std::string& name, ShaderProgram * sp) {

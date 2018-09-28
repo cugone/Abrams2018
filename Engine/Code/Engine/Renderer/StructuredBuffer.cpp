@@ -16,7 +16,7 @@ StructuredBuffer::StructuredBuffer(RHIDevice* owner, const buffer_t& buffer, std
     buffer_desc.Usage = BufferUsageToD3DUsage(usage);
     buffer_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
     buffer_desc.CPUAccessFlags = CPUAccessFlagFromUsage(usage);
-    buffer_desc.StructureByteStride = 0;
+    buffer_desc.StructureByteStride = static_cast<unsigned int>(_element_size);
     buffer_desc.ByteWidth = static_cast<unsigned int>(_buffer_size);
     buffer_desc.MiscFlags = ResourceMiscFlagToD3DMiscFlag(ResourceMiscFlag::Structured_Buffer);
 

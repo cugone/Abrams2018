@@ -951,6 +951,12 @@ cbuffer matrix_cb : register(b0) {
     float4x4 g_PROJECTION;
 };
 
+cbuffer time_cb : register(b1) {
+    float g_GAME_TIME;
+    float g_SYSTEM_TIME;
+    float g_GAME_FRAME_TIME;
+    float g_SYSTEM_FRAME_TIME;
+}
 
 struct vs_in_t {
     float3 position : POSITION;
@@ -1030,6 +1036,12 @@ cbuffer matrix_cb : register(b0) {
     float4x4 g_PROJECTION;
 };
 
+cbuffer time_cb : register(b1) {
+    float g_GAME_TIME;
+    float g_SYSTEM_TIME;
+    float g_GAME_FRAME_TIME;
+    float g_SYSTEM_FRAME_TIME;
+}
 
 struct vs_in_t {
     float3 position : POSITION;

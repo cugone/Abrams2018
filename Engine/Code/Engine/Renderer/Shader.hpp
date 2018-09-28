@@ -39,30 +39,6 @@ private:
 
     void CreateAndRegisterNewSamplerFromXml(const XMLElement& element);
     void CreateAndRegisterNewRasterFromXml(const XMLElement& element);
-    void CreateConstantBuffersFromXml(const XMLElement& element);
-
-    void BuildBufferFromXml(const XMLElement& element, std::vector<void *>& b_t);
-
-    void AppendScalarToConstantBufferBuffer(std::vector<void *>& b_t);
-    void AppendUnsignedScalarToConstantBufferBuffer(std::vector<void *>& b_t);
-
-    void AppendVector1ToConstantBufferBuffer(std::vector<void *>& b_t);
-    void AppendVector2ToConstantBufferBuffer(std::vector<void *>& b_t);
-    void AppendVector3ToConstantBufferBuffer(std::vector<void *>& b_t);
-    void AppendVector4ToConstantBufferBuffer(std::vector<void *>& b_t);
-    void AppendMatrix1ToConstantBufferBuffer(std::vector<void *>& b_t);
-    void AppendMatrix2ToConstantBufferBuffer(std::vector<void *>& b_t);
-    void AppendMatrix3ToConstantBufferBuffer(std::vector<void *>& b_t);
-    void AppendMatrix4ToConstantBufferBuffer(std::vector<void *>& b_t);
-
-    void AppendUnsignedVector1ToConstantBufferBuffer(std::vector<void *>& b_t);
-    void AppendUnsignedVector2ToConstantBufferBuffer(std::vector<void *>& b_t);
-    void AppendUnsignedVector3ToConstantBufferBuffer(std::vector<void *>& b_t);
-    void AppendUnsignedVector4ToConstantBufferBuffer(std::vector<void *>& b_t);
-    void AppendUnsignedMatrix1ToConstantBufferBuffer(std::vector<void *>& b_t);
-    void AppendUnsignedMatrix2ToConstantBufferBuffer(std::vector<void *>& b_t);
-    void AppendUnsignedMatrix3ToConstantBufferBuffer(std::vector<void *>& b_t);
-    void AppendUnsignedMatrix4ToConstantBufferBuffer(std::vector<void *>& b_t);
 
     std::string _name = "SHADER";
     Renderer* _renderer = nullptr;

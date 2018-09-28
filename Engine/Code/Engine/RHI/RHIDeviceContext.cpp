@@ -269,20 +269,18 @@ void RHIDeviceContext::SetShader(Shader* shader) {
         SetDepthStencilState(nullptr);
         SetBlendState(nullptr);
         SetSampler(nullptr);
-        //UnbindAllCustomConstantBuffers();
+        UnbindAllCustomConstantBuffers();
     } else {
         SetShaderProgram(shader->GetShaderProgram());
         SetRasterState(shader->GetRasterState());
         SetDepthStencilState(shader->GetDepthStencilState());
         SetBlendState(shader->GetBlendState());
         SetSampler(shader->GetSampler());
-        //const auto& cbs = shader->GetConstantBuffers();
-        //if(cbs.empty()) {
-        //    UnbindAllCustomConstantBuffers();
-        //    return;
-        //}
-        //for(auto i = 0u; i < cbs.size(); ++i) {
-        //    SetConstantBuffer(i + Renderer::CONSTANT_BUFFER_START_INDEX, cbs[i]);
-        //}
+        UnbindAllCustomConstantBuffers();
+        const auto& cbs = shader->GetConstantBuffers();
+        const auto s = cbs.size();
+        for(auto i = 0u; i < s; ++i) {
+            SetConstantBuffer(i + Renderer::CONSTANT_BUFFER_START_INDEX, cbs[i]);
+        }
     }
 }

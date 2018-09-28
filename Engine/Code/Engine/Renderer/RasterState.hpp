@@ -14,7 +14,7 @@ struct RasterDesc {
     float slopeScaledDepthBias = 0.0f;
     int depthBias = 0;
     bool depthClipEnable = true;
-    bool scissorEnable = true;
+    bool scissorEnable = false;
     bool multisampleEnable = false;
     bool antialiasedLineEnable = false;
     RasterDesc() = default;

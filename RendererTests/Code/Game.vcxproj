@@ -267,6 +267,7 @@
   <ItemGroup>
     <None Include="..\Run_Win32\Data\Materials\sif.material" />
     <None Include="..\Run_Win32\Data\Materials\Test.material" />
+    <None Include="..\Run_Win32\Data\Shaders\Test.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

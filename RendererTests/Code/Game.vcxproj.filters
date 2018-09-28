@@ -20,6 +20,12 @@
     <Filter Include="Data\Fonts">
       <UniqueIdentifier>{6e1c69e5-be94-49e7-a932-1678c953a0e8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data\Shaders">
+      <UniqueIdentifier>{56a89f66-9007-4f2d-a818-2babce46fcce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\ShaderPrograms">
+      <UniqueIdentifier>{8f3286c3-e63b-4b0b-b131-64d6d05a94ef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\App.cpp">
@@ -66,6 +72,9 @@
     </None>
     <None Include="..\Run_Win32\Data\Materials\sif.material">
       <Filter>Data\Materials</Filter>
+    </None>
+    <None Include="..\Run_Win32\Data\Shaders\Test.shader">
+      <Filter>Data\Shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

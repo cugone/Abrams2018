@@ -177,8 +177,22 @@ void Renderer::BeginFrame() {
     /* DO NOTHING */
 }
 
-void Renderer::Update(float /*deltaSeconds*/) {
-    /* DO NOTHING */
+void Renderer::Update(float deltaSeconds) {
+    UpdateSystemTime(deltaSeconds);
+}
+
+void Renderer::UpdateGameTime(float deltaSeconds) {
+    _time_data.game_time += deltaSeconds;
+    _time_data.game_frame_time = deltaSeconds;
+    _time_cb->Update(_rhi_context, &_time_data);
+    SetConstantBuffer(TIME_BUFFER_INDEX, _time_cb);
+}
+
+void Renderer::UpdateSystemTime(float deltaSeconds) {
+    _time_data.system_time += deltaSeconds;
+    _time_data.system_frame_time = deltaSeconds;
+    _time_cb->Update(_rhi_context, &_time_data);
+    SetConstantBuffer(TIME_BUFFER_INDEX, _time_cb);
 }
 
 void Renderer::Render() const {
@@ -187,6 +201,22 @@ void Renderer::Render() const {
 
 void Renderer::EndFrame() {
     Present();
+}
+
+float Renderer::GetGameFrameTime() const {
+    return _time_data.game_frame_time;
+}
+
+float Renderer::GetSystemFrameTime() const {
+    return _time_data.system_frame_time;
+}
+
+float Renderer::GetGameTime() const {
+    return _time_data.game_time;
+}
+
+float Renderer::GetSystemTime() const {
+    return _time_data.system_time;
 }
 
 ConstantBuffer* Renderer::CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) {

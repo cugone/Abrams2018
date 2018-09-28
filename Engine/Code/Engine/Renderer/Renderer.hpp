@@ -74,6 +74,11 @@ public:
     void Render() const;
     void EndFrame();
 
+    float GetGameFrameTime() const;
+    float GetSystemFrameTime() const;
+    float GetGameTime() const;
+    float GetSystemTime() const;
+
     VertexBuffer* CreateVertexBuffer(const VertexBuffer::buffer_t& vbo);
     IndexBuffer* CreateIndexBuffer(const IndexBuffer::buffer_t& ibo);
     ConstantBuffer* CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size);
@@ -181,6 +186,8 @@ public:
     void RegisterFont(KerningFont* font);
     void RegisterFontsFromFolder(const std::string& folderpath, bool recursive = false);
 
+    void UpdateGameTime(float deltaSeconds);
+
     void SetModelMatrix(const Matrix4& mat);
     void SetViewMatrix(const Matrix4& mat);
     void SetProjectionMatrix(const Matrix4& mat);
@@ -227,7 +234,7 @@ public:
 
 protected:
 private:
-
+    void UpdateSystemTime(float deltaSeconds);
     void RegisterTexturesFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
     bool RegisterTexture(const std::filesystem::path& filepath);
     void RegisterShaderProgram(const std::string& name, ShaderProgram * sp);

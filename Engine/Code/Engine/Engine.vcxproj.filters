@@ -564,5 +564,8 @@
     <ClInclude Include="Networking\NetUtils.hpp">
       <Filter>Networking</Filter>
     </ClInclude>
+    <ClInclude Include="..\Thirdparty\nlohmann\json\json.hpp">
+      <Filter>Thirdparty</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

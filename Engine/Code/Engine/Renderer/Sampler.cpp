@@ -38,10 +38,6 @@ ID3D11SamplerState* Sampler::GetDxSampler() const {
     return _dx_state;
 }
 
-bool Sampler::LoadFromXml(RHIDevice* device, const XMLElement& element) {
-    return CreateSamplerState(device, SamplerDesc{ element });
-}
-
 bool Sampler::CreateSamplerState(RHIDevice* device, const SamplerDesc& desc /*= SamplerDesc()*/) {
 
     D3D11_SAMPLER_DESC dx_desc{};

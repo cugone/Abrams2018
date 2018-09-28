@@ -8,19 +8,19 @@ class RHIDevice;
 struct ID3D11SamplerState;
 
 struct SamplerDesc {
-    FilterMode min_filter = FilterMode::Point;
-    FilterMode mag_filter = FilterMode::Point;
-    FilterMode mip_filter = FilterMode::Point;
+    FilterMode min_filter = FilterMode::Linear;
+    FilterMode mag_filter = FilterMode::Linear;
+    FilterMode mip_filter = FilterMode::Linear;
     FilterComparisonMode compare_mode = FilterComparisonMode::None;
-    TextureAddressMode UaddressMode = TextureAddressMode::Wrap;
-    TextureAddressMode VaddressMode = TextureAddressMode::Wrap;
-    TextureAddressMode WaddressMode = TextureAddressMode::Wrap;
+    TextureAddressMode UaddressMode = TextureAddressMode::Clamp;
+    TextureAddressMode VaddressMode = TextureAddressMode::Clamp;
+    TextureAddressMode WaddressMode = TextureAddressMode::Clamp;
     Rgba borderColor = Rgba::WHITE;
     ComparisonFunction compareFunc = ComparisonFunction::Never;
     unsigned int maxAnisotropicLevel = 1;
     float mipmapLODBias = 0.0f;
-    float minLOD = 0.0f;
-    float maxLOD = 0.0f;
+    float minLOD = (std::numeric_limits<float>::lowest)();
+    float maxLOD = (std::numeric_limits<float>::max)();
     SamplerDesc() = default;
     explicit SamplerDesc(const XMLElement& element);
 };
@@ -33,23 +33,9 @@ public:
     ID3D11SamplerState* GetDxSampler() const;
     void SetDebugName([[maybe_unused]] const std::string& name) const noexcept;
 protected:
-    bool LoadFromXml(RHIDevice* device, const XMLElement& element);
-    bool CreateSamplerState(RHIDevice* device, const SamplerDesc& desc = SamplerDesc());
-    bool CreateSamplerState(RHIDevice* device
-                            , const FilterMode& min_filter = FilterMode::Point
-                            , const FilterMode& mag_filter = FilterMode::Point
-                            , const FilterMode& mip_filter = FilterMode::Point
-                            , const FilterComparisonMode& compare_mode = FilterComparisonMode::None
-                            , const TextureAddressMode& UaddressMode = TextureAddressMode::Wrap
-                            , const TextureAddressMode& VaddressMode = TextureAddressMode::Wrap
-                            , const TextureAddressMode& WaddressMode = TextureAddressMode::Wrap
-                            , const Rgba& borderColor = Rgba::WHITE
-                            , const ComparisonFunction& compareFunc = ComparisonFunction::Never
-                            , unsigned int maxAnisotropicLevel = 1
-                            , float mipmapLODBias = 0.0f
-                            , float minLOD = 0.0f
-                            , float maxLOD = 0.0f);
 private:
+    bool CreateSamplerState(RHIDevice* device, const SamplerDesc& desc = SamplerDesc());
+
     SamplerDesc _desc{};
     ID3D11SamplerState* _dx_state = nullptr;
 };

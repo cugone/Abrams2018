@@ -195,6 +195,7 @@ public:
     void SetLightingEyePosition(const Vector3& position);
     void SetAmbientLight(const Rgba& ambient);
     void SetAmbientLight(const Rgba& color, float intensity);
+    void SetSpecGlossEmitFactors(Material* mat);
 
     const light_t& GetLight(unsigned int index) const;
     void SetPointLight(unsigned int index, const light_t& light);
@@ -353,6 +354,7 @@ private:
     DepthStencilState* CreateEnabledDepth();
 
     void UnbindAllShaderResources();
+    void UnbindAllConstantBuffers();
 
     matrix_buffer_t _matrix_data = {};
     time_buffer_t _time_data = {};

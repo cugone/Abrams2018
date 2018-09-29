@@ -55,6 +55,7 @@ Renderer::Renderer(unsigned int width, unsigned int height)
 
 Renderer::~Renderer() {
 
+    UnbindAllConstantBuffers();
     UnbindAllShaderResources();
 
     for(auto& texture : _textures) {
@@ -119,11 +120,14 @@ Renderer::~Renderer() {
     _current_sampler = nullptr;
     _current_material = nullptr;
 
-    delete _matrix_cb;
-    _matrix_cb = nullptr;
+    delete _lighting_cb;
+    _lighting_cb = nullptr;
 
     delete _time_cb;
     _time_cb = nullptr;
+
+    delete _matrix_cb;
+    _matrix_cb = nullptr;
 
     delete _rhi_context;
     _rhi_context = nullptr;
@@ -167,7 +171,7 @@ void Renderer::Initialize() {
     CreateAndRegisterDefaultMaterials();
 
     _default_depthstencil = CreateDepthStencil(_rhi_device, _window_dimensions);
-    _default_depthstencil->SetDebugName("__default");
+    _default_depthstencil->SetDebugName("__default_depthstencil");
     SetDepthStencilState(GetDepthStencilState("__default"));
     SetRasterState(GetRasterState("__solid"));
     SetSampler(GetSampler("__default"));
@@ -339,7 +343,7 @@ void Renderer::DrawWorldGridXZ(float radius /*= 500.0f*/, float major_gridsize /
     SetMaterial(GetMaterial("__unlit"));
     std::size_t major_count = ibo.empty() ? 0 : static_cast<std::size_t>(major_gridsize);
     std::size_t major_start = 0;
-    std::size_t minor_count = ibo.empty() ? 0 : ibo.size() - static_cast<std::size_t>(minor_gridsize);
+    std::size_t minor_count = ibo.empty() ? 0 : (ibo.size() - major_count);
     std::size_t minor_start = ibo.empty() ? 0 : major_count;
     DrawIndexed(PrimitiveType::Lines, vbo, ibo, major_count, major_start);
     DrawIndexed(PrimitiveType::Lines, vbo, ibo, minor_count, minor_start);
@@ -478,6 +482,15 @@ void Renderer::SetAmbientLight(const Rgba& ambient) {
 
 void Renderer::SetAmbientLight(const Rgba& color, float intensity) {
     _lighting_data.ambient = Vector4(color.GetRgbAsFloats(), intensity);
+    _lighting_cb->Update(_rhi_context, &_lighting_data);
+    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
+}
+
+void Renderer::SetSpecGlossEmitFactors(Material* mat) {
+    float spec = mat ? mat->GetSpecularIntensity() : 1.0f;
+    float gloss = mat ? mat->GetGlossyFactor() : 8.0f;
+    float emit = mat ? mat->GetEmissiveFactor() : 0.0f;
+    _lighting_data.specular_glossy_emissive_factors = Vector4(spec, gloss, emit, 1.0f);
     _lighting_cb->Update(_rhi_context, &_lighting_data);
     SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
 }
@@ -1306,7 +1319,7 @@ Material* Renderer::CreateMaterialFromFont(KerningFont* font) {
 
 void Renderer::CreateAndRegisterDefaultSamplers() {
     auto default_sampler = CreateDefaultSampler();
-    default_sampler->SetDebugName("__default");
+    default_sampler->SetDebugName("__default_sampler");
     RegisterSampler("__default", default_sampler);
 }
 
@@ -1397,7 +1410,7 @@ RasterState* Renderer::CreateSolidFrontCullingRaster() {
 
 void Renderer::CreateAndRegisterDefaultDepthStencilStates() {
     DepthStencilState* default_state = CreateDefaultDepthStencilState();
-    default_state->SetDebugName("__default");
+    default_state->SetDebugName("__default_depthstencilstate");
     RegisterDepthStencilState("__default", default_state);
 
     DepthStencilState* depth_disabled = CreateDisabledDepth();
@@ -1434,6 +1447,10 @@ DepthStencilState* Renderer::CreateEnabledDepth() {
 
 void Renderer::UnbindAllShaderResources() {
     _rhi_context->UnbindAllShaderResources();
+}
+
+void Renderer::UnbindAllConstantBuffers() {
+    _rhi_context->UnbindAllConstantBuffers();
 }
 
 void Renderer::RegisterDepthStencilState(const std::string& name, DepthStencilState* depthstencil) {
@@ -1589,7 +1606,7 @@ void Renderer::RegisterFontsFromFolder(const std::filesystem::path& folderpath, 
 
 void Renderer::CreateAndRegisterDefaultTextures() {
     auto default_texture = CreateDefaultTexture();
-    default_texture->SetDebugName("__default");
+    default_texture->SetDebugName("__default_texture");
     RegisterTexture("__default", default_texture);
 
     auto invalid_texture = CreateInvalidTexture();

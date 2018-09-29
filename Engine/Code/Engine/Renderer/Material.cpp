@@ -49,33 +49,52 @@ Material::Material(Renderer* renderer, const XMLElement& element)
 bool Material::LoadFromXml(const XMLElement& element) {
     namespace FS = std::filesystem;
 
-    DataUtils::ValidateXmlElement(element, "material", "", "name", "shader,textures");
+    DataUtils::ValidateXmlElement(element, "material", "shader", "name", "lighting,textures");
 
     _name = DataUtils::ParseXmlAttribute(element, "name", _name);
 
-    auto xml_shader = element.FirstChildElement("shader");
-    if(xml_shader != nullptr) {
+    {
+        auto xml_shader = element.FirstChildElement("shader");
         DataUtils::ValidateXmlElement(*xml_shader, "shader", "", "src");
         auto file = DataUtils::ParseXmlAttribute(*xml_shader, "src", "");
         FS::path p(file);
         p.make_preferred();
-        auto shader = _renderer->GetShader(p.string());
-        if(shader == nullptr) {
+        if(auto shader = _renderer->GetShader(p.string())) {
+            _shader = shader;
+        } else {
             std::ostringstream ss;
             ss << "Shader referenced in Material file \"" << _name << "\" does not already exist.";
             ERROR_AND_DIE(ss.str().c_str());
             return false;
         }
-        _shader = shader;
     }
 
-    auto xml_textures = element.FirstChildElement("textures");
-    if(xml_textures != nullptr) {
+    if(auto xml_lighting = element.FirstChildElement("lighting")) {
+        DataUtils::ValidateXmlElement(*xml_lighting, "lighting", "", "", "specularIntensity,specularFactor,specularPower,glossFactor,emissiveFactor");
+        //specularIntensity and specularFactor are synonyms
+        if(auto xml_specInt = element.FirstChildElement("specularIntensity")) {
+            _specularIntensity = DataUtils::ParseXmlElementText(*xml_specInt, _specularIntensity);
+        }
+        if(auto xml_specFactor = element.FirstChildElement("specularFactor")) {
+            _specularIntensity = DataUtils::ParseXmlElementText(*xml_specFactor, _specularIntensity);
+        }
+        //specularPower and glossFactor are synonyms
+        if(auto xml_specPower = element.FirstChildElement("specularPower")) {
+            _specularPower = DataUtils::ParseXmlElementText(*xml_specPower, _specularPower);
+        }
+        if(auto xml_glossFactor = element.FirstChildElement("glossFactor")) {
+            _specularPower = DataUtils::ParseXmlElementText(*xml_glossFactor, _specularPower);
+        }
+        if(auto xml_emissiveFactor = element.FirstChildElement("emissiveFactor")) {
+            _emissiveFactor = DataUtils::ParseXmlElementText(*xml_emissiveFactor, _emissiveFactor);
+        }
+    }
+
+    if(auto xml_textures = element.FirstChildElement("textures")) {
         const auto& loaded_textures = _renderer->GetLoadedTextures();
         auto invalid_tex = _renderer->GetTexture("__invalid");
 
-        auto xml_diffuse = xml_textures->FirstChildElement("diffuse");
-        if(xml_diffuse) {
+        if(auto xml_diffuse = xml_textures->FirstChildElement("diffuse")) {
             auto file = DataUtils::ParseXmlAttribute(*xml_diffuse, "src", "");
             FS::path p(file);
             p.make_preferred();
@@ -87,8 +106,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
             _textures[0] = tex;
         }
 
-        auto xml_normal = xml_textures->FirstChildElement("normal");
-        if(xml_normal) {
+        if(auto xml_normal = xml_textures->FirstChildElement("normal")) {
             auto file = DataUtils::ParseXmlAttribute(*xml_normal, "src", "");
             FS::path p(file);
             p.make_preferred();
@@ -100,8 +118,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
             _textures[1] = tex;
         }
 
-        auto xml_lighting = xml_textures->FirstChildElement("lighting");
-        if(xml_lighting) {
+        if(auto xml_lighting = xml_textures->FirstChildElement("lighting")) {
             auto file = DataUtils::ParseXmlAttribute(*xml_lighting, "src", "");
             FS::path p(file);
             p.make_preferred();
@@ -113,8 +130,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
             _textures[2] = tex;
         }
 
-        auto xml_specular = xml_textures->FirstChildElement("specular");
-        if(xml_specular) {
+        if(auto xml_specular = xml_textures->FirstChildElement("specular")) {
             auto file = DataUtils::ParseXmlAttribute(*xml_specular, "src", "");
             FS::path p(file);
             p.make_preferred();
@@ -126,8 +142,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
             _textures[3] = tex;
         }
 
-        auto xml_occlusion = xml_textures->FirstChildElement("occlusion");
-        if(xml_occlusion) {
+        if(auto xml_occlusion = xml_textures->FirstChildElement("occlusion")) {
             auto file = DataUtils::ParseXmlAttribute(*xml_occlusion, "src", "");
             FS::path p(file);
             p.make_preferred();
@@ -139,8 +154,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
             _textures[4] = tex;
         }
 
-        auto xml_emissive = xml_textures->FirstChildElement("emissive");
-        if(xml_emissive) {
+        if(auto xml_emissive = xml_textures->FirstChildElement("emissive")) {
             auto file = DataUtils::ParseXmlAttribute(*xml_emissive, "src", "");
             FS::path p(file);
             p.make_preferred();
@@ -151,21 +165,22 @@ bool Material::LoadFromXml(const XMLElement& element) {
             auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
             _textures[5] = tex;
         }
-
-        auto numTextures = DataUtils::GetChildElementCount(*xml_textures, "texture");
-        if(numTextures >= MAX_CUSTOM_TEXTURE_COUNT) {
-            DebuggerPrintf("Max custom texture count exceeded. Cannot bind more than %i custom textures.", MAX_CUSTOM_TEXTURE_COUNT);
-        }
-        AddTextureSlots(numTextures);
-        for(auto xml_texture = xml_textures->FirstChildElement("texture");
-            xml_texture != nullptr;
-            xml_texture = xml_texture->NextSiblingElement("texture")) {
-            DataUtils::ValidateXmlElement(*xml_texture, "texture", "", "index,src");
-            std::size_t index = CUSTOM_TEXTURE_INDEX_OFFSET + DataUtils::ParseXmlAttribute(*xml_texture, std::string("index"), 0u);
-            if(index >= CUSTOM_TEXTURE_INDEX_OFFSET + MAX_CUSTOM_TEXTURE_COUNT) {
-                continue;
+        {
+            auto numTextures = DataUtils::GetChildElementCount(*xml_textures, "texture");
+            if(numTextures >= MAX_CUSTOM_TEXTURE_COUNT) {
+                DebuggerPrintf("Max custom texture count exceeded. Cannot bind more than %i custom textures.", MAX_CUSTOM_TEXTURE_COUNT);
             }
-            auto file = DataUtils::ParseXmlAttribute(*xml_texture, "src", "");
+            AddTextureSlots(numTextures);
+        }
+
+        DataUtils::IterateAllChildElements(*xml_textures, "texture",
+        [this, &loaded_textures, &invalid_tex](const XMLElement& elem) {
+            DataUtils::ValidateXmlElement(elem, "texture", "", "index,src");
+            std::size_t index = CUSTOM_TEXTURE_INDEX_OFFSET + DataUtils::ParseXmlAttribute(elem, std::string("index"), 0u);
+            if(index >= CUSTOM_TEXTURE_INDEX_OFFSET + MAX_CUSTOM_TEXTURE_COUNT) {
+                return;
+            }
+            auto file = DataUtils::ParseXmlAttribute(elem, "src", "");
             FS::path p(file);
             p.make_preferred();
             const auto& p_str = p.string();
@@ -174,7 +189,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
             bool invalid_src = empty_path || texture_not_exist;
             auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
             _textures[index] = tex;
-        }
+        });
     }
     return true;
 }
@@ -206,4 +221,20 @@ std::size_t Material::GetTextureCount() const {
 
 Texture* Material::GetTexture(std::size_t i) const {
     return _textures[i];
+}
+
+float Material::GetSpecularIntensity() const {
+    return _specularIntensity;
+}
+
+float Material::GetGlossyFactor() const {
+    return _specularPower;
+}
+
+float Material::GetEmissiveFactor() const {
+    return _emissiveFactor;
+}
+
+Vector3 Material::GetSpecGlossEmitFactors() const {
+    return Vector3(GetSpecularIntensity(), GetGlossyFactor(), GetEmissiveFactor());
 }

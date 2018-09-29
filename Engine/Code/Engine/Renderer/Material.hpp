@@ -16,6 +16,11 @@ public:
     Shader * GetShader() const;
     std::size_t GetTextureCount() const;
     Texture* GetTexture(std::size_t i) const;
+    float GetSpecularIntensity() const;
+    float GetGlossyFactor() const;
+    float GetEmissiveFactor() const;
+    Vector3 GetSpecGlossEmitFactors() const;
+
 protected:
 private:
     bool LoadFromXml(const XMLElement& element);
@@ -24,6 +29,9 @@ private:
 
     constexpr static unsigned int CUSTOM_TEXTURE_INDEX_OFFSET = 6;
     constexpr static unsigned int MAX_CUSTOM_TEXTURE_COUNT = 58;
+    float _specularIntensity = 1.0f;
+    float _specularPower = 8.0f;
+    float _emissiveFactor = 0.0f;
     std::string _name = "MATERIAL";
     Renderer* _renderer = nullptr;
     std::vector<Texture*> _textures = {};

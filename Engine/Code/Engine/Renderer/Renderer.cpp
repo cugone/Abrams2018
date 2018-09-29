@@ -175,7 +175,7 @@ void Renderer::Initialize() {
     SetDepthStencilState(GetDepthStencilState("__default"));
     SetRasterState(GetRasterState("__solid"));
     SetSampler(GetSampler("__default"));
-    _current_material = nullptr; //Explicit to avoid defaulting to full lighting material.
+    _current_material = nullptr; //User must explicitly set to avoid defaulting to full lighting material.
 }
 
 void Renderer::BeginFrame() {
@@ -433,18 +433,65 @@ void Renderer::DrawAxes(float maxlength /*= 1000.0f*/, bool disable_unit_depth /
     DrawIndexed(PrimitiveType::Lines, vbo, ibo, 6, 6);
 }
 
-void Renderer::DrawDebugSphere(float radius, const Rgba& color) {
+void Renderer::DrawDebugSphere(const Rgba& color) {
     SetMaterial(GetMaterial("__unlit"));
-    Matrix4 Rx = Matrix4::Create3DXRotationDegreesMatrix(90.0f);
-    Matrix4 Ry = Matrix4::Create3DYRotationDegreesMatrix(90.0f);
-    Matrix4 Rz{};
 
-    AppendModelMatrix(Rx);
-    DrawCircle2D(Vector2::ZERO, radius, color);
-    AppendModelMatrix(Ry);
-    DrawCircle2D(Vector2::ZERO, radius, color);
-    AppendModelMatrix(Rz);
-    DrawCircle2D(Vector2::ZERO, radius, color);
+    float centerX = 0.0f;
+    float centerY = 0.0f;
+    int numSides = 65;
+    auto num_sides_as_float = static_cast<float>(numSides);
+    std::vector<Vector3> verts;
+    verts.reserve(numSides);
+    float anglePerVertex = 360.0f / num_sides_as_float;
+    for(float degrees = 0.0f; degrees < 360.0f; degrees += anglePerVertex) {
+        float radians = MathUtils::ConvertDegreesToRadians(degrees);
+        float pX = std::cos(radians) + centerX;
+        float pY = std::sin(radians) + centerY;
+        verts.push_back(Vector3(Vector2(pX, pY), 0.0f));
+    }
+    {
+        float radians = MathUtils::ConvertDegreesToRadians(360.0f);
+        float pX = std::cos(radians) + centerX;
+        float pY = std::sin(radians) + centerY;
+        verts.push_back(Vector3(Vector2(pX, pY), 0.0f));
+    }
+
+    for(float degrees = 0.0f; degrees < 360.0f; degrees += anglePerVertex) {
+        float radians = MathUtils::ConvertDegreesToRadians(degrees);
+        float pX = std::cos(radians) + centerX;
+        float pY = std::sin(radians) + centerY;
+        verts.push_back(Vector3(Vector2(pX, 0.0f), pY));
+    }
+    {
+        float radians = MathUtils::ConvertDegreesToRadians(360.0f);
+        float pX = std::cos(radians) + centerX;
+        float pY = std::sin(radians) + centerY;
+        verts.push_back(Vector3(Vector2(pX, 0.0f), pY));
+    }
+
+    for(float degrees = 0.0f; degrees < 360.0f; degrees += anglePerVertex) {
+        float radians = MathUtils::ConvertDegreesToRadians(degrees);
+        float pX = std::cos(radians) + centerX;
+        float pY = std::sin(radians) + centerY;
+        verts.push_back(Vector3(Vector2(0.0f, pX), pY));
+    }
+    {
+        float radians = MathUtils::ConvertDegreesToRadians(360.0f);
+        float pX = std::cos(radians) + centerX;
+        float pY = std::sin(radians) + centerY;
+        verts.push_back(Vector3(Vector2(0.0f, pX), pY));
+    }
+    std::vector<Vertex3D> vbo;
+    vbo.resize(verts.size());
+    for(std::size_t i = 0; i < vbo.size(); ++i) {
+        vbo[i] = Vertex3D(verts[i], color);
+    }
+
+    std::vector<unsigned int> ibo;
+    ibo.resize(verts.size());
+    std::iota(std::begin(ibo), std::end(ibo), 0);
+    DrawIndexed(PrimitiveType::LinesStrip, vbo, ibo);
+
 }
 
 void Renderer::Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo) {
@@ -1039,11 +1086,32 @@ void Renderer::CreateAndRegisterDefaultShaderPrograms() {
     auto unlit_sp = CreateDefaultUnlitShaderProgram();
     RegisterShaderProgram(unlit_sp->GetName(), unlit_sp);
 
+    auto normal_sp = CreateDefaultNormalShaderProgram();
+    RegisterShaderProgram(normal_sp->GetName(), normal_sp);
+
+    auto normalmap_sp = CreateDefaultNormalMapShaderProgram();
+    RegisterShaderProgram(normalmap_sp->GetName(), normalmap_sp);
+
 }
 
 ShaderProgram* Renderer::CreateDefaultShaderProgram() {
     std::string program =
 R"(
+
+static const int MAX_LIGHT_COUNT = 16;
+static const float PI = 3.141592653589793238;
+
+float3 NormalAsColor(float3 n) {
+    return ((n + 1.0f) * 0.5f);
+}
+
+float3 ColorAsNormal(float3 color) {
+    return ((color * 2.0f) - 1.0f);
+}
+
+float RangeMap(float valueToMap, float minInputRange, float maxInputRange, float minOutputRange, float maxOutputRange) {
+    return (valueToMap - minInputRange) * (maxOutputRange - minOutputRange) / (maxInputRange - minInputRange) + minOutputRange;
+}
 
 cbuffer matrix_cb : register(b0) {
     float4x4 g_MODEL;
@@ -1056,6 +1124,22 @@ cbuffer time_cb : register(b1) {
     float g_SYSTEM_TIME;
     float g_GAME_FRAME_TIME;
     float g_SYSTEM_FRAME_TIME;
+}
+
+struct light {
+    float4 position;
+    float4 color;
+    float4 attenuation;
+    float4 specAttenuation;
+    float4 innerOuterDotThresholds;
+    float4 direction;
+};
+
+cbuffer lighting_cb : register(b2) {
+    light g_Lights[16];
+    float4 g_lightAmbient;
+    float4 g_lightSpecGlossEmitFactors;
+    float4 g_lightEyePosition;
 }
 
 struct vs_in_t {
@@ -1101,8 +1185,80 @@ ps_in_t VertexFunction(vs_in_t input_vertex) {
 }
 
 float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
-    float4 albedo = tImage.Sample(sSampler, input_pixel.uv);
-    return albedo * input_pixel.color;
+
+    float2 uv = input_pixel.uv;
+    float4 albedo = tImage.Sample(sSampler, uv);
+    float4 tinted_color = albedo * input_pixel.color;
+
+    float3 normal_as_color = tNormal.Sample(sSampler, uv).rgb;
+    float3 local_normal = ColorAsNormal(normal_as_color);
+    local_normal = normalize(local_normal);
+    float3 world_position = input_pixel.world_position;
+    float3 world_normal = mul(float4(local_normal, 0.0f), g_MODEL).xyz;
+
+    float3 vector_to_eye = g_lightEyePosition.xyz - world_position;
+    float3 direction_from_eye = -normalize(vector_to_eye);
+
+    float3 ambient_occlusion_map_factor = tOcclusion.Sample(sSampler, uv).rgb;
+    float3 ambient_light = g_lightAmbient.rgb * g_lightAmbient.a * ambient_occlusion_map_factor;
+
+    float3 total_light_color = float3(0.0f, 0.0f, 0.0f);
+    float3 total_specular_color = float3(0.0f, 0.0f, 0.0f);
+
+    float3 reflected_eye_direction = reflect(direction_from_eye, world_normal);
+    float3 debugColor = float3( 0, 0, 0 );
+
+    [unroll]
+    for(int light_index = 0; light_index < 16; ++light_index) {
+        float4 light_pos = g_Lights[light_index].position;
+        float4 light_color_intensity = g_Lights[light_index].color;
+        float4 light_att = g_Lights[light_index].attenuation;
+        float4 light_specAtt = g_Lights[light_index].specAttenuation;
+        float innerDotThreshold = g_Lights[light_index].innerOuterDotThresholds.x;
+        float outerDotThreshold = g_Lights[light_index].innerOuterDotThresholds.y;
+        float3 light_forward = normalize(g_Lights[light_index].direction.xyz);
+
+        float3 vector_to_light = light_pos.xyz - world_position.xyz;
+        float distance_to_light = length(vector_to_light);
+        float3 direction_to_light = vector_to_light / distance_to_light;
+
+        float useDirection = light_att.w;
+        float useCalcDirection = 1.0f - light_att.w;
+        direction_to_light = useCalcDirection * (direction_to_light)+useDirection * (-light_forward);
+
+        //Calculate spotlight penumbra
+        float penumbra_dot = dot(-light_forward, direction_to_light);
+        float penumbra_factor = saturate(RangeMap(penumbra_dot, innerDotThreshold, outerDotThreshold, 1.0f, 0.0f));
+        debugColor += NormalAsColor(direction_to_light);
+
+        //Calculate dot3
+        float light_impact_factor = saturate(dot(direction_to_light, world_normal));
+
+        float intensity_factor = light_color_intensity.a;
+        float attenuation_factor = 1.0f / (light_att.x +
+            distance_to_light * light_att.y +
+            distance_to_light * distance_to_light * light_att.z);
+        attenuation_factor = saturate(attenuation_factor);
+
+        float3 light_color = light_color_intensity.rgb;
+        total_light_color += light_color * (intensity_factor * light_impact_factor * attenuation_factor * penumbra_factor);
+
+        float spec_attenuation_factor = 1.0f / (light_specAtt.x + distance_to_light * light_specAtt.y + distance_to_light * distance_to_light * light_specAtt.z);
+        float spec_dot3 = saturate(dot(reflected_eye_direction, direction_to_light));
+        float spec_factor = g_lightSpecGlossEmitFactors.x * pow(spec_dot3, g_lightSpecGlossEmitFactors.y);
+        float3 spec_color = light_color * (spec_attenuation_factor * intensity_factor * spec_factor);
+        total_specular_color += spec_color;
+    }
+
+    float3 diffuse_light_color = saturate(ambient_light + total_light_color);
+    float3 emissive_color = tEmissive.Sample(sSampler, uv).rgb;
+    float3 specular_map_color = tSpecular.Sample(sSampler, uv).rgb;
+
+    float3 final_color = (diffuse_light_color * tinted_color.rgb) + (total_specular_color * specular_map_color) + emissive_color;
+    float final_alpha = tinted_color.a;
+
+    float4 final_pixel = float4(final_color, final_alpha);
+    return final_pixel;
 }
 
 )";
@@ -1206,6 +1362,252 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
 
 }
 
+ShaderProgram* Renderer::CreateDefaultNormalShaderProgram() {
+    std::string program =
+        R"(
+
+float3 NormalAsColor(float3 n) {
+    return ((n + 1.0f) * 0.5f);
+}
+
+float3 ColorAsNormal(float3 color) {
+    return ((color * 2.0f) - 1.0f);
+}
+
+float RangeMap(float valueToMap, float minInputRange, float maxInputRange, float minOutputRange, float maxOutputRange) {
+    return (valueToMap - minInputRange) * (maxOutputRange - minOutputRange) / (maxInputRange - minInputRange) + minOutputRange;
+}
+
+cbuffer matrix_cb : register(b0) {
+    float4x4 g_MODEL;
+    float4x4 g_VIEW;
+    float4x4 g_PROJECTION;
+};
+
+cbuffer time_cb : register(b1) {
+    float g_GAME_TIME;
+    float g_SYSTEM_TIME;
+    float g_GAME_FRAME_TIME;
+    float g_SYSTEM_FRAME_TIME;
+}
+
+struct light {
+    float4 position;
+    float4 color;
+    float4 attenuation;
+    float4 specAttenuation;
+    float4 innerOuterDotThresholds;
+    float4 direction;
+};
+
+cbuffer lighting_cb : register(b2) {
+    light g_Lights[16];
+    float4 g_lightAmbient;
+    float4 g_lightSpecGlossEmitFactors;
+    float4 g_lightEyePosition;
+}
+
+struct vs_in_t {
+    float3 position : POSITION;
+    float4 color : COLOR;
+    float2 uv : UV;
+    float4 normal : NORMAL;
+};
+
+struct ps_in_t {
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
+    float2 uv : UV;
+    float4 normal : NORMAL;
+    float3 world_position : WORLD;
+};
+
+SamplerState sSampler : register(s0);
+
+Texture2D<float4> tImage    : register(t0);
+Texture2D<float4> tNormal   : register(t1);
+Texture2D<float4> tLighting : register(t2);
+Texture2D<float4> tSpecular : register(t3);
+Texture2D<float4> tOcclusion : register(t4);
+Texture2D<float4> tEmissive : register(t5);
+
+ps_in_t VertexFunction(vs_in_t input_vertex) {
+    ps_in_t output;
+
+    float4 local = float4(input_vertex.position, 1.0f);
+    float4 normal = input_vertex.normal;
+    float4 world = mul(local, g_MODEL);
+    float4 view = mul(world, g_VIEW);
+    float4 clip = mul(view, g_PROJECTION);
+
+    output.position = clip;
+    output.color = input_vertex.color;
+    output.uv = input_vertex.uv;
+    output.normal = normal;
+    output.world_position = world.xyz;
+
+    return output;
+}
+
+float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
+
+    float2 uv = input_pixel.uv;
+    float4 albedo = tImage.Sample(sSampler, uv);
+    float4 tinted_color = albedo * input_pixel.color;
+
+    float3 normal_as_color = NormalAsColor(input_pixel.normal.xyz);
+
+    float3 final_color = normal_as_color;
+    float final_alpha = 1.0f;
+
+    float4 final_pixel = float4(final_color, final_alpha);
+    return final_pixel;
+}
+
+)";
+    InputLayout* il = _rhi_device->CreateInputLayout();
+    auto pos_offset = offsetof(Vertex3D, position);
+    auto color_offset = offsetof(Vertex3D, color);
+    auto uv_offset = offsetof(Vertex3D, texcoords);
+    auto normal = offsetof(Vertex3D, normal);
+    il->AddElement(pos_offset, ImageFormat::R32G32B32_Float, "POSITION");
+    il->AddElement(color_offset, ImageFormat::R8G8B8A8_UNorm, "COLOR");
+    il->AddElement(uv_offset, ImageFormat::R32G32_Float, "UV");
+    il->AddElement(normal, ImageFormat::R32G32B32_Float, "NORMAL");
+    auto vs_bytecode = _rhi_device->CompileShader("__normalVS", program.data(), program.size(), "VertexFunction", PipelineStage::Vs);
+    ID3D11VertexShader* vs = nullptr;
+    _rhi_device->GetDxDevice()->CreateVertexShader(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize(), nullptr, &vs);
+    il->CreateInputLayout(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize());
+    auto ps_bytecode = _rhi_device->CompileShader("__normalPS", program.data(), program.size(), "PixelFunction", PipelineStage::Ps);
+    ID3D11PixelShader* ps = nullptr;
+    _rhi_device->GetDxDevice()->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBufferSize(), nullptr, &ps);
+    ShaderProgram* shader = new ShaderProgram("__normal", _rhi_device, vs, ps, vs_bytecode, ps_bytecode, il);
+    return shader;
+}
+
+ShaderProgram* Renderer::CreateDefaultNormalMapShaderProgram() {
+    std::string program =
+        R"(
+
+float3 NormalAsColor(float3 n) {
+    return ((n + 1.0f) * 0.5f);
+}
+
+float3 ColorAsNormal(float3 color) {
+    return ((color * 2.0f) - 1.0f);
+}
+
+float RangeMap(float valueToMap, float minInputRange, float maxInputRange, float minOutputRange, float maxOutputRange) {
+    return (valueToMap - minInputRange) * (maxOutputRange - minOutputRange) / (maxInputRange - minInputRange) + minOutputRange;
+}
+
+cbuffer matrix_cb : register(b0) {
+    float4x4 g_MODEL;
+    float4x4 g_VIEW;
+    float4x4 g_PROJECTION;
+};
+
+cbuffer time_cb : register(b1) {
+    float g_GAME_TIME;
+    float g_SYSTEM_TIME;
+    float g_GAME_FRAME_TIME;
+    float g_SYSTEM_FRAME_TIME;
+}
+
+struct light {
+    float4 position;
+    float4 color;
+    float4 attenuation;
+    float4 specAttenuation;
+    float4 innerOuterDotThresholds;
+    float4 direction;
+};
+
+cbuffer lighting_cb : register(b2) {
+    light g_Lights[16];
+    float4 g_lightAmbient;
+    float4 g_lightSpecGlossEmitFactors;
+    float4 g_lightEyePosition;
+}
+
+struct vs_in_t {
+    float3 position : POSITION;
+    float4 color : COLOR;
+    float2 uv : UV;
+    float4 normal : NORMAL;
+};
+
+struct ps_in_t {
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
+    float2 uv : UV;
+    float4 normal : NORMAL;
+    float3 world_position : WORLD;
+};
+
+SamplerState sSampler : register(s0);
+
+Texture2D<float4> tImage    : register(t0);
+Texture2D<float4> tNormal   : register(t1);
+Texture2D<float4> tLighting : register(t2);
+Texture2D<float4> tSpecular : register(t3);
+Texture2D<float4> tOcclusion : register(t4);
+Texture2D<float4> tEmissive : register(t5);
+
+ps_in_t VertexFunction(vs_in_t input_vertex) {
+    ps_in_t output;
+
+    float4 local = float4(input_vertex.position, 1.0f);
+    float4 normal = input_vertex.normal;
+    float4 world = mul(local, g_MODEL);
+    float4 view = mul(world, g_VIEW);
+    float4 clip = mul(view, g_PROJECTION);
+
+    output.position = clip;
+    output.color = input_vertex.color;
+    output.uv = input_vertex.uv;
+    output.normal = normal;
+    output.world_position = world.xyz;
+
+    return output;
+}
+
+float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
+
+    float2 uv = input_pixel.uv;
+    float4 albedo = tImage.Sample(sSampler, uv);
+    float4 tinted_color = albedo * input_pixel.color;
+
+    float3 normal_as_color = tNormal.Sample(sSampler, uv).rgb;
+
+    float3 final_color = normal_as_color;
+    float final_alpha = 1.0f;
+
+    float4 final_pixel = float4(final_color, final_alpha);
+    return final_pixel;
+}
+
+)";
+    InputLayout* il = _rhi_device->CreateInputLayout();
+    auto pos_offset = offsetof(Vertex3D, position);
+    auto color_offset = offsetof(Vertex3D, color);
+    auto uv_offset = offsetof(Vertex3D, texcoords);
+    auto normal = offsetof(Vertex3D, normal);
+    il->AddElement(pos_offset, ImageFormat::R32G32B32_Float, "POSITION");
+    il->AddElement(color_offset, ImageFormat::R8G8B8A8_UNorm, "COLOR");
+    il->AddElement(uv_offset, ImageFormat::R32G32_Float, "UV");
+    il->AddElement(normal, ImageFormat::R32G32B32_Float, "NORMAL");
+    auto vs_bytecode = _rhi_device->CompileShader("__normalmapVS", program.data(), program.size(), "VertexFunction", PipelineStage::Vs);
+    ID3D11VertexShader* vs = nullptr;
+    _rhi_device->GetDxDevice()->CreateVertexShader(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize(), nullptr, &vs);
+    il->CreateInputLayout(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize());
+    auto ps_bytecode = _rhi_device->CompileShader("__normalmapPS", program.data(), program.size(), "PixelFunction", PipelineStage::Ps);
+    ID3D11PixelShader* ps = nullptr;
+    _rhi_device->GetDxDevice()->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBufferSize(), nullptr, &ps);
+    ShaderProgram* shader = new ShaderProgram("__normalmap", _rhi_device, vs, ps, vs_bytecode, ps_bytecode, il);
+    return shader;
+}
+
 void Renderer::CreateAndRegisterDefaultMaterials() {
     auto default_mat = CreateDefaultMaterial();
     RegisterMaterial(default_mat->GetName(), default_mat);
@@ -1215,6 +1617,12 @@ void Renderer::CreateAndRegisterDefaultMaterials() {
 
     auto mat_2d = CreateDefault2DMaterial();
     RegisterMaterial(mat_2d->GetName(), mat_2d);
+
+    auto mat_norm = CreateDefaultNormalMaterial();
+    RegisterMaterial(mat_norm->GetName(), mat_norm);
+
+    auto mat_normmap = CreateDefaultNormalMapMaterial();
+    RegisterMaterial(mat_normmap->GetName(), mat_normmap);
 
 }
 
@@ -1257,6 +1665,40 @@ Material* Renderer::CreateDefault2DMaterial() {
         R"(
 <material name="__2D">
     <shader src="__2D" />
+</material>
+)";
+
+    tinyxml2::XMLDocument doc;
+    auto parse_result = doc.Parse(material.c_str(), material.size());
+    if(parse_result != tinyxml2::XML_SUCCESS) {
+        return nullptr;
+    }
+    return new Material(this, *doc.RootElement());
+
+}
+
+Material* Renderer::CreateDefaultNormalMaterial() {
+    std::string material =
+        R"(
+<material name="__normal">
+    <shader src="__normal" />
+</material>
+)";
+
+    tinyxml2::XMLDocument doc;
+    auto parse_result = doc.Parse(material.c_str(), material.size());
+    if(parse_result != tinyxml2::XML_SUCCESS) {
+        return nullptr;
+    }
+    return new Material(this, *doc.RootElement());
+
+}
+
+Material* Renderer::CreateDefaultNormalMapMaterial() {
+    std::string material =
+        R"(
+<material name="__normalmap">
+    <shader src="__normalmap" />
 </material>
 )";
 
@@ -1321,10 +1763,35 @@ void Renderer::CreateAndRegisterDefaultSamplers() {
     auto default_sampler = CreateDefaultSampler();
     default_sampler->SetDebugName("__default_sampler");
     RegisterSampler("__default", default_sampler);
+
+    auto linear_sampler = CreateLinearSampler();
+    linear_sampler->SetDebugName("__linear_sampler");
+    RegisterSampler("__linear_sampler", linear_sampler);
+
+    auto point_sampler = CreatePointSampler();
+    point_sampler->SetDebugName("__point_sampler");
+    RegisterSampler("__point_sampler", point_sampler);
+
 }
 
 Sampler* Renderer::CreateDefaultSampler() {
     return new Sampler(_rhi_device, SamplerDesc{});
+}
+
+Sampler* Renderer::CreateLinearSampler() {
+    SamplerDesc desc{};
+    desc.mag_filter = FilterMode::Linear;
+    desc.min_filter = FilterMode::Linear;
+    desc.mip_filter = FilterMode::Linear;
+    return new Sampler(_rhi_device, desc);
+}
+
+Sampler* Renderer::CreatePointSampler() {
+    SamplerDesc desc{};
+    desc.mag_filter = FilterMode::Point;
+    desc.min_filter = FilterMode::Point;
+    desc.mip_filter = FilterMode::Point;
+    return new Sampler(_rhi_device, desc);
 }
 
 void Renderer::CreateAndRegisterDefaultRasterStates() {
@@ -1491,8 +1958,8 @@ void Renderer::SetSampler(Sampler* sampler) {
     if(sampler == _current_sampler) {
         return;
     }
-    _current_sampler = sampler;
     _rhi_context->SetSampler(sampler);
+    _current_sampler = sampler;
 }
 
 void Renderer::RegisterRasterState(const std::string& name, RasterState* raster) {
@@ -1701,6 +2168,13 @@ void Renderer::CreateAndRegisterDefaultShaders() {
 
     auto default_2D = CreateDefault2DShader();
     RegisterShader(default_2D->GetName(), default_2D);
+
+    auto default_normal = CreateDefaultNormalShader();
+    RegisterShader(default_normal->GetName(), default_normal);
+
+    auto default_normal_map = CreateDefaultNormalMapShader();
+    RegisterShader(default_normal_map->GetName(), default_normal_map);
+
 }
 
 Shader* Renderer::CreateDefaultShader() {
@@ -1766,6 +2240,52 @@ R"(
     </blends>
     <depth enable = "false" writable = "false" />
     <stencil enable = "false" readable = "false" writable = "false" />
+</shader>
+)";
+    tinyxml2::XMLDocument doc;
+    auto parse_result = doc.Parse(shader.c_str(), shader.size());
+    if(parse_result != tinyxml2::XML_SUCCESS) {
+        return nullptr;
+    }
+
+    return new Shader(this, *doc.RootElement());
+}
+
+Shader* Renderer::CreateDefaultNormalShader() {
+    std::string shader =
+        R"(
+<shader name="__normal">
+    <shaderprogram src="__normal" />
+    <raster src="__solid" />
+    <sampler src="__default" />
+    <blends>
+        <blend enable="true">
+            <color src="src_alpha" dest="inv_src_alpha" op="add" />
+        </blend>
+    </blends>
+</shader>
+)";
+    tinyxml2::XMLDocument doc;
+    auto parse_result = doc.Parse(shader.c_str(), shader.size());
+    if(parse_result != tinyxml2::XML_SUCCESS) {
+        return nullptr;
+    }
+
+    return new Shader(this, *doc.RootElement());
+}
+
+Shader* Renderer::CreateDefaultNormalMapShader() {
+    std::string shader =
+        R"(
+<shader name="__normalmap">
+    <shaderprogram src="__normalmap" />
+    <raster src="__solid" />
+    <sampler src="__default" />
+    <blends>
+        <blend enable="true">
+            <color src="src_alpha" dest="inv_src_alpha" op="add" />
+        </blend>
+    </blends>
 </shader>
 )";
     tinyxml2::XMLDocument doc;
@@ -1935,8 +2455,8 @@ void Renderer::SetRasterState(RasterState* raster) {
     if(raster == _current_raster_state) {
         return;
     }
-    _current_raster_state = raster;
     _rhi_context->SetRasterState(raster);
+    _current_raster_state = raster;
 }
 
 void Renderer::SetVSync(bool value) {
@@ -1960,6 +2480,9 @@ void Renderer::SetMaterial(Material* material) {
     }
     _rhi_context->SetMaterial(material);
     _current_material = material;
+    _current_raster_state = material->GetShader()->GetRasterState();
+    _current_depthstencil_state = material->GetShader()->GetDepthStencilState();
+    _current_sampler = material->GetShader()->GetSampler();
 }
 
 const std::map<std::string, Texture*>& Renderer::GetLoadedTextures() const {
@@ -2287,8 +2810,8 @@ void Renderer::SetDepthStencilState(DepthStencilState* depthstencil) {
     if(depthstencil == _current_depthstencil_state) {
         return;
     }
-    _current_depthstencil_state = depthstencil;
     _rhi_context->SetDepthStencilState(depthstencil);
+    _current_depthstencil_state = depthstencil;
 }
 
 DepthStencilState* Renderer::GetDepthStencilState(const std::string& name) {

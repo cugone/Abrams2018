@@ -18,8 +18,8 @@ std::string ToLowerCase(std::string string);
 std::string ConvertUnicodeToMultiByte(const std::wstring& unicode_string);
 std::wstring ConvertMultiByteToUnicode(const std::string& filePath);
 
-bool StartsWith(const std::string& string, const std::string& search);
-bool EndsWith(const std::string& string, const std::string& search);
+bool StartsWith(const std::string& string, const std::string& start);
+bool EndsWith(const std::string& string, const std::string& end);
 
 std::string TrimWhitespace(std::string string);
 

@@ -128,14 +128,14 @@ std::wstring ConvertMultiByteToUnicode(const std::string& multi_byte_string) {
     return unicode_string;
 }
 
-bool StartsWith(const std::string& string, const std::string& search) {
-    auto found_loc = string.find(search);
+bool StartsWith(const std::string& string, const std::string& start) {
+    auto found_loc = string.find(start);
     return found_loc != std::string::npos && found_loc == 0;
 }
 
-bool EndsWith(const std::string& string, const std::string& search) {
-    auto found_loc = string.find(search);
-    return found_loc != std::string::npos && found_loc == string.size() - search.size();
+bool EndsWith(const std::string& string, const std::string& end) {
+    auto found_loc = string.find(end);
+    return found_loc != std::string::npos && found_loc == string.size() - end.size();
 }
 
 std::string TrimWhitespace(std::string string) {

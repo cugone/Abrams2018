@@ -62,6 +62,45 @@ struct time_buffer_t {
     float system_frame_time = 0.0f;
 };
 
+struct PointLightDesc {
+    Vector3 position = Vector3::ZERO;
+    Vector3 attenuation = Vector3::Z_AXIS;
+    float intensity = 1.0f;
+    Rgba color = Rgba::WHITE;
+};
+
+struct DirectionalLightDesc {
+    Vector3 direction = Vector3::X_AXIS;
+    Vector3 attenuation = Vector3::X_AXIS;
+    float intensity = 1.0f;
+    Rgba color = Rgba::WHITE;
+};
+
+struct SpotLightDesc {
+    Vector3 position = Vector3::ZERO;
+    Vector3 direction = Vector3::X_AXIS;
+    Vector3 attenuation = Vector3::Z_AXIS;
+    Vector2 inner_outer_anglesDegrees = Vector2{30.0f, 60.0f};
+    float intensity = 1.0f;
+    Rgba color = Rgba::WHITE;
+};
+
+struct light_t {
+    Vector4 position = Vector4::ZERO;
+    Vector4 color = Vector4::ONE_XYZ_ZERO_W;
+    Vector4 attenuation = Vector4::Z_AXIS;
+    Vector4 specAttenuation = Vector4::X_AXIS;
+    Vector4 innerOuterDotThresholds = Vector4(-2.0f, -3.0f, 0.0f, 0.0f);
+    Vector4 direction = -Vector4::Z_AXIS;
+};
+
+struct lighting_buffer_t {
+    light_t lights[Renderer::MAX_LIGHT_COUNT] = { light_t{} };
+    Vector4 ambient = Vector4::ZERO;
+    Vector4 specular_glossy_emissive_factors = Vector4(1.0f, 8.0f, 0.0f, 1.0f);
+    Vector4 eye_position = Vector4::ZERO;
+};
+
 class Renderer {
 public:
     Renderer() = default;
@@ -151,6 +190,18 @@ public:
     void DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo);
     void DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo, std::size_t vertex_count, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0);
 
+    void SetLightingEyePosition(const Vector3& position);
+    void SetAmbientLight(const Rgba& ambient);
+    void SetAmbientLight(const Rgba& color, float intensity);
+
+    const light_t& GetLight(unsigned int index) const;
+    void SetPointLight(unsigned int index, const light_t& light);
+    void SetPointLight(unsigned int index, const PointLightDesc& desc);
+    void SetDirectionalLight(unsigned int index, const light_t& light);
+    void SetDirectionalLight(unsigned int index, const DirectionalLightDesc& desc);
+    void SetSpotlight(unsigned int index, const light_t& light);
+    void SetSpotlight(unsigned int index, const SpotLightDesc& desc);
+
     RHIDeviceContext* GetDeviceContext() const;
     RHIDevice* GetDevice() const;
     RHIOutput* GetOutput() const;
@@ -231,6 +282,7 @@ public:
     constexpr static unsigned int LIGHTING_BUFFER_INDEX = 2;
     constexpr static unsigned int CONSTANT_BUFFER_START_INDEX = 3;
     constexpr static unsigned int STRUCTURED_BUFFER_START_INDEX = 64;
+    constexpr static unsigned int MAX_LIGHT_COUNT = 16;
 
 protected:
 private:
@@ -302,6 +354,7 @@ private:
 
     matrix_buffer_t _matrix_data = {};
     time_buffer_t _time_data = {};
+    lighting_buffer_t _lighting_data = {};
     std::size_t _current_vbo_size = 0;
     std::size_t _current_ibo_size = 0;
     RHIDeviceContext* _rhi_context = nullptr;
@@ -331,6 +384,5 @@ private:
     std::map<std::string, DepthStencilState*> _depthstencils = {};
     std::map<std::string, KerningFont*> _fonts = {};
     bool _vsync = false;
-
     friend class Shader;
 };

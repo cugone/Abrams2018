@@ -155,7 +155,7 @@ bool Obj::Parse(const std::filesystem::path& filepath) {
             ss.seekg(ss.beg);
             ss.seekp(ss.beg);
             _verts.reserve(vert_count);
-            _vbo.reserve(vert_count);
+            _vbo.resize(vert_count);
             while(std::getline(ss, cur_line, '\n')) {
                 if(StringUtils::StartsWith(cur_line, "v ")) {
                     auto elems = StringUtils::Split(StringUtils::TrimWhitespace(std::string{std::begin(cur_line) + 2, std::end(cur_line)}), ' ');
@@ -191,11 +191,13 @@ bool Obj::Parse(const std::filesystem::path& filepath) {
                         auto elems = StringUtils::Split(t, '/', false);
                         Vertex3D vertex{};
                         auto elem_count = elems.size();
+                        std::size_t cur_vbo_index = 0;
                         for(auto i = 0u; i < elem_count; ++i) {
                             switch(i) {
                                 case 0:
                                     if(!elems[0].empty()) {
                                         std::size_t cur_v = std::stoul(elems[0]);
+                                        cur_vbo_index = cur_v - 1;
                                         vertex.position = _verts[cur_v - 1];
                                         _ibo.push_back(cur_v - 1);
                                     }
@@ -215,7 +217,7 @@ bool Obj::Parse(const std::filesystem::path& filepath) {
                                 default: break;
                             }
                         }
-                        _vbo.push_back(vertex);
+                        _vbo[cur_vbo_index] = vertex;
                     }
                 } else {
                     /* DO NOTHING */

@@ -94,8 +94,10 @@ struct light_t {
     Vector4 direction = -Vector4::Z_AXIS;
 };
 
+constexpr const unsigned int max_light_count = 16;
+
 struct lighting_buffer_t {
-    light_t lights[Renderer::MAX_LIGHT_COUNT] = { light_t{} };
+    light_t lights[max_light_count] = { light_t{} };
     Vector4 ambient = Vector4::ZERO;
     Vector4 specular_glossy_emissive_factors = Vector4(1.0f, 8.0f, 0.0f, 1.0f);
     Vector4 eye_position = Vector4::ZERO;
@@ -282,7 +284,7 @@ public:
     constexpr static unsigned int LIGHTING_BUFFER_INDEX = 2;
     constexpr static unsigned int CONSTANT_BUFFER_START_INDEX = 3;
     constexpr static unsigned int STRUCTURED_BUFFER_START_INDEX = 64;
-    constexpr static unsigned int MAX_LIGHT_COUNT = 16;
+    constexpr static unsigned int MAX_LIGHT_COUNT = max_light_count;
 
 protected:
 private:

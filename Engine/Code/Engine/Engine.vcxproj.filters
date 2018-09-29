@@ -295,10 +295,10 @@
     <ClCompile Include="Renderer\Model.cpp">
       <Filter>Renderer\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Obj.cpp">
+    <ClCompile Include="Core\Mtl.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Mtl.cpp">
+    <ClCompile Include="Core\Obj.cpp">
       <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -579,10 +579,10 @@
     <ClInclude Include="Renderer\Model.hpp">
       <Filter>Renderer\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Obj.hpp">
+    <ClInclude Include="Core\Mtl.hpp">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Mtl.hpp">
+    <ClInclude Include="Core\Obj.hpp">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

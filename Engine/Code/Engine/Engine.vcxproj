@@ -45,6 +45,8 @@
     <ClCompile Include="Core\Image.cpp" />
     <ClCompile Include="Core\JobSystem.cpp" />
     <ClCompile Include="Core\KerningFont.cpp" />
+    <ClCompile Include="Core\Mtl.cpp" />
+    <ClCompile Include="Core\Obj.cpp" />
     <ClCompile Include="Core\Rgba.cpp" />
     <ClCompile Include="Core\Riff.cpp" />
     <ClCompile Include="Core\Stopwatch.cpp" />
@@ -89,8 +91,6 @@
     <ClCompile Include="Renderer\InputLayout.cpp" />
     <ClCompile Include="Renderer\Material.cpp" />
     <ClCompile Include="Renderer\Model.cpp" />
-    <ClCompile Include="Renderer\Mtl.cpp" />
-    <ClCompile Include="Renderer\Obj.cpp" />
     <ClCompile Include="Renderer\RasterState.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\Sampler.cpp" />
@@ -137,6 +137,8 @@
     <ClInclude Include="Core\Image.hpp" />
     <ClInclude Include="Core\JobSystem.hpp" />
     <ClInclude Include="Core\KerningFont.hpp" />
+    <ClInclude Include="Core\Mtl.hpp" />
+    <ClInclude Include="Core\Obj.hpp" />
     <ClInclude Include="Core\Rgba.hpp" />
     <ClInclude Include="Core\Riff.hpp" />
     <ClInclude Include="Core\Stopwatch.hpp" />
@@ -183,8 +185,6 @@
     <ClInclude Include="Renderer\InputLayout.hpp" />
     <ClInclude Include="Renderer\Material.hpp" />
     <ClInclude Include="Renderer\Model.hpp" />
-    <ClInclude Include="Renderer\Mtl.hpp" />
-    <ClInclude Include="Renderer\Obj.hpp" />
     <ClInclude Include="Renderer\RasterState.hpp" />
     <ClInclude Include="Renderer\Renderer.hpp" />
     <ClInclude Include="Renderer\Sampler.hpp" />

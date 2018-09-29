@@ -108,6 +108,14 @@ void Rgba::GetAsFloats(float& out_normalized_red, float& out_normalized_green, f
     out_normalized_alpha = a / 255.0f;
 }
 
+Vector4 Rgba::GetRgbaAsFloats() const {
+    return Vector4{r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f};
+}
+
+Vector3 Rgba::GetRgbAsFloats() const {
+    return Vector3{ r / 255.0f, g / 255.0f, b / 255.0f};
+}
+
 void Rgba::ScaleRGB(float scale) {
     float scaled_red = static_cast<float>(r) * scale;
     float scaled_green = static_cast<float>(g) * scale;

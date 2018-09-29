@@ -74,7 +74,7 @@ Vector4::Vector4(const std::string& value)
 {
     if(value[0] == '[') {
         if(value.back() == ']') {
-            std::string contents_str = value.substr(1, value.size() - 1);
+            std::string contents_str = std::string{ std::begin(value) + 1, std::end(value) - 1 };
             auto values = StringUtils::Split(contents_str);
             auto s = values.size();
             for(std::size_t i = 0; i < s; ++i) {

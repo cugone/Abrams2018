@@ -67,17 +67,31 @@ bool CreateFolders(const std::string& filepath) {
     return FS::create_directories(p);
 }
 
-std::string GetAppDataPath() {
+std::filesystem::path GetAppDataPath() {
     namespace FS = std::filesystem;
-    PWSTR ppszPath = nullptr;
-    bool success = SUCCEEDED(::SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, nullptr, &ppszPath));
-    if(success) {
-        FS::path p(ppszPath);
-        ::CoTaskMemFree(ppszPath);
-        p.make_preferred();
-        return p.string();
+    FS::path p{};
+    {
+        PWSTR ppszPath = nullptr;
+        bool success = SUCCEEDED(::SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, nullptr, &ppszPath));
+        if(success) {
+            p = FS::path(ppszPath);
+            ::CoTaskMemFree(ppszPath);
+            p.make_preferred();
+        }
     }
-    return std::string{};
+    return p;
+}
+
+std::filesystem::path GetExePath() {
+    namespace FS = std::filesystem;
+    FS::path result{};
+    {
+        TCHAR filename[MAX_PATH];
+        ::GetModuleFileName(nullptr, filename, MAX_PATH);
+        result = FS::path(filename);
+        result.make_preferred();
+    }
+    return result;
 }
 
 void IterateFileInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, const std::function<void(const std::filesystem::path&)>& callback /*= [](const std::filesystem::path& p) { (void*)p; }*/, bool recursive /*= false*/) {

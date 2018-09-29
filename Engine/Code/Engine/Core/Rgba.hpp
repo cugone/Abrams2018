@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Engine/Math/Vector4.hpp"
+#include "Engine/Math/Vector3.hpp"
+
 #include <string>
 #include <vector>
 

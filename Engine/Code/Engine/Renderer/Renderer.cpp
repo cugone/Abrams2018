@@ -156,7 +156,6 @@ void Renderer::Initialize() {
 
     _matrix_cb = CreateConstantBuffer(&_matrix_data, sizeof(_matrix_data));
     _time_cb = CreateConstantBuffer(&_time_data, sizeof(_time_data));
-    _lighting_cb = CreateConstantBuffer(&_lighting_cb, sizeof(_lighting_data));
 
     CreateAndRegisterDefaultDepthStencilStates();
     CreateAndRegisterDefaultSamplers();
@@ -463,92 +462,6 @@ void Renderer::DrawIndexed(const PrimitiveType& topology, const std::vector<Vert
     UpdateVbo(vbo);
     UpdateIbo(ibo);
     DrawIndexed(topology, _temp_vbo, _temp_ibo, vertex_count, startVertex, baseVertexLocation);
-}
-
-void Renderer::SetLightingEyePosition(const Vector3& position) {
-    _lighting_data.eye_position = Vector4(position, 1.0f);
-    _lighting_cb->Update(_rhi_context, &_lighting_data);
-    SetConstantBuffer(Renderer::LIGHTING_BUFFER_INDEX, _lighting_cb);
-}
-
-void Renderer::SetAmbientLight(const Rgba& ambient) {
-    float intensity = ambient.a / 255.0f;
-    SetAmbientLight(ambient, intensity);
-}
-
-void Renderer::SetAmbientLight(const Rgba& color, float intensity) {
-    _lighting_data.ambient = Vector4(color.GetRgbAsFloats(), intensity);
-    _lighting_cb->Update(_rhi_context, &_lighting_data);
-    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
-}
-
-const light_t& Renderer::GetLight(unsigned int index) const {
-    return _lighting_data.lights[index];
-}
-
-void Renderer::SetPointLight(unsigned int index, const light_t& light) {
-    _lighting_data.lights[index] = light;
-    _lighting_cb->Update(_rhi_context, &_lighting_data);
-    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
-}
-
-void Renderer::SetPointLight(unsigned int index, const PointLightDesc& desc) {
-    auto& l = _lighting_data.lights[index];
-    l = light_t{};
-    l.attenuation = Vector4(desc.attenuation, 0.0f);
-    l.specAttenuation = l.attenuation;
-    l.position = Vector4(desc.position, 1.0f);
-    l.color = Vector4(desc.color.GetRgbAsFloats(), desc.intensity);
-    _lighting_cb->Update(_rhi_context, &_lighting_data);
-    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
-}
-
-void Renderer::SetDirectionalLight(unsigned int index, const light_t& light) {
-    _lighting_data.lights[index] = light;
-    _lighting_cb->Update(_rhi_context, &_lighting_data);
-    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
-}
-
-void Renderer::SetDirectionalLight(unsigned int index, const DirectionalLightDesc& desc) {
-    auto& l = _lighting_data.lights[index];
-    l = light_t{};
-    l.direction = Vector4(desc.direction, 0.0f);
-    l.attenuation = Vector4(desc.attenuation, 1.0f);
-    l.specAttenuation = l.attenuation;
-    l.color = Vector4(desc.color.GetRgbAsFloats(), desc.intensity);
-    _lighting_cb->Update(_rhi_context, &_lighting_data);
-    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
-}
-
-void Renderer::SetSpotlight(unsigned int index, const light_t& light) {
-    _lighting_data.lights[index] = light;
-    _lighting_cb->Update(_rhi_context, &_lighting_data);
-    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
-}
-
-void Renderer::SetSpotlight(unsigned int index, const SpotLightDesc& desc) {
-    auto& l = _lighting_data.lights[index];
-    l = light_t{};
-    l.attenuation = Vector4(desc.attenuation, 0.0f);
-    l.specAttenuation = l.attenuation;
-    l.position = Vector4(desc.position, 1.0f);
-    l.color = Vector4(desc.color.GetRgbAsFloats(), desc.intensity);
-    l.direction = Vector4(desc.direction, 0.0f);
-
-    float inner_degrees = desc.inner_outer_anglesDegrees.x;
-    float inner_radians = MathUtils::ConvertDegreesToRadians(inner_degrees);
-    float inner_half_angle = inner_radians * 0.5f;
-    float inner_dot_threshold = std::cos(inner_half_angle);
-
-    float outer_degrees = desc.inner_outer_anglesDegrees.y;
-    float outer_radians = MathUtils::ConvertDegreesToRadians(outer_degrees);
-    float outer_half_angle = outer_radians * 0.5f;
-    float outer_dot_threshold = std::cos(outer_half_angle);
-
-    l.innerOuterDotThresholds = Vector4(Vector2(inner_dot_threshold, outer_dot_threshold), Vector2::ZERO);
-
-    _lighting_cb->Update(_rhi_context, &_lighting_data);
-    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
 }
 
 AnimatedSprite* Renderer::CreateAnimatedSprite(const std::string& filepath) {

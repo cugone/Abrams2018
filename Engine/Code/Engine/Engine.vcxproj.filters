@@ -295,6 +295,12 @@
     <ClCompile Include="Renderer\Model.cpp">
       <Filter>Renderer\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\Obj.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Mtl.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -571,6 +577,12 @@
       <Filter>Thirdparty</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Model.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Obj.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Mtl.hpp">
       <Filter>Renderer\Core</Filter>
     </ClInclude>
   </ItemGroup>

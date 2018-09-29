@@ -89,6 +89,8 @@
     <ClCompile Include="Renderer\InputLayout.cpp" />
     <ClCompile Include="Renderer\Material.cpp" />
     <ClCompile Include="Renderer\Model.cpp" />
+    <ClCompile Include="Renderer\Mtl.cpp" />
+    <ClCompile Include="Renderer\Obj.cpp" />
     <ClCompile Include="Renderer\RasterState.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\Sampler.cpp" />
@@ -181,6 +183,8 @@
     <ClInclude Include="Renderer\InputLayout.hpp" />
     <ClInclude Include="Renderer\Material.hpp" />
     <ClInclude Include="Renderer\Model.hpp" />
+    <ClInclude Include="Renderer\Mtl.hpp" />
+    <ClInclude Include="Renderer\Obj.hpp" />
     <ClInclude Include="Renderer\RasterState.hpp" />
     <ClInclude Include="Renderer\Renderer.hpp" />
     <ClInclude Include="Renderer\Sampler.hpp" />

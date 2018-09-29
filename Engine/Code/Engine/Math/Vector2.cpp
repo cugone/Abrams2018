@@ -37,8 +37,8 @@ Vector2::Vector2(const std::string& value)
             auto s = values.size();
             for(std::size_t i = 0; i < s; ++i) {
                 switch(i) {
-                    case 0: x = std::stof(values[i]);
-                    case 1: y = std::stof(values[i]);
+                    case 0: x = std::stof(values[i]); break;
+                    case 1: y = std::stof(values[i]); break;
                     default: break;
                 }
             }

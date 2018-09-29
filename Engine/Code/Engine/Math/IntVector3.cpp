@@ -64,9 +64,9 @@ IntVector3::IntVector3(const std::string& value)
             auto s = values.size();
             for(std::size_t i = 0; i < s; ++i) {
                 switch(i) {
-                    case 0: x = std::stoi(values[i]);
-                    case 1: y = std::stoi(values[i]);
-                    case 2: y = std::stoi(values[i]);
+                    case 0: x = std::stoi(values[i]); break;
+                    case 1: y = std::stoi(values[i]); break;
+                    case 2: z = std::stoi(values[i]); break;
                     default: break;
                 }
             }

@@ -269,6 +269,10 @@
     <None Include="..\Run_Win32\Data\Materials\Test.material" />
     <None Include="..\Run_Win32\Data\Shaders\Test.shader" />
   </ItemGroup>
+  <ItemGroup>
+    <Object Include="..\Run_Win32\Data\Models\bunny.obj" />
+    <Object Include="..\Run_Win32\Data\Models\suzanne.obj" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

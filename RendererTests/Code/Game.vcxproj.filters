@@ -26,6 +26,9 @@
     <Filter Include="Data\ShaderPrograms">
       <UniqueIdentifier>{8f3286c3-e63b-4b0b-b131-64d6d05a94ef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data\Models">
+      <UniqueIdentifier>{6edcd590-54ab-42d3-8ef2-fff733736c15}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\App.cpp">
@@ -76,5 +79,13 @@
     <None Include="..\Run_Win32\Data\Shaders\Test.shader">
       <Filter>Data\Shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="..\Run_Win32\Data\Models\bunny.obj">
+      <Filter>Data\Models</Filter>
+    </Object>
+    <Object Include="..\Run_Win32\Data\Models\suzanne.obj">
+      <Filter>Data\Models</Filter>
+    </Object>
   </ItemGroup>
 </Project>

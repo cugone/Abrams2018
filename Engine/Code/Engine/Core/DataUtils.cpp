@@ -137,44 +137,47 @@ void ValidateXmlElement(const XMLElement& element,
 #endif
 }
 
+void IterateAllAttributes(const XMLElement& element, const std::function<void(const XMLAttribute&)>& callback /*= [](const XMLAttribute&) { / * DO NOTHING * / }*/) {
+    for(auto attribute = element.FirstAttribute(); attribute != nullptr; attribute = attribute->Next()) {
+        callback(*attribute);
+    }
+}
+
 unsigned int GetAttributeCount(const XMLElement &element) {
     unsigned int attributeCount = 0;
-    for(auto attribute = element.FirstAttribute(); attribute != nullptr; attribute = attribute->Next()) {
+    IterateAllAttributes(element,
+    [&](const XMLAttribute& /*attribute*/) {
         ++attributeCount;
-    }
+    });
     return attributeCount;
 }
 
 std::vector<std::string> GetAttributeNames(const XMLElement& element) {
-    std::size_t attributeCount = GetAttributeCount(element);
-    std::vector<std::string> attributeNames(attributeCount);
-    std::size_t attributeIndex = 0;
-    for(auto attribute = element.FirstAttribute(); attributeIndex < attributeCount && attribute != nullptr; attribute = attribute->Next()) {
-        attributeNames[attributeIndex] = attribute->Name();
-        ++attributeIndex;
-    }
+    std::vector<std::string> attributeNames{};
+    attributeNames.reserve(GetAttributeCount(element));
+    IterateAllAttributes(element,
+    [&](const XMLAttribute& attribute) {
+        attributeNames.push_back(attribute.Name());
+    });
     return attributeNames;
 }
 
 unsigned int GetChildElementCount(const XMLElement &element, const std::string& elementName /*= std::string("")*/) {
     unsigned int childCount = 0;
-    const char* elementAsCstr = elementName.empty() ? nullptr : elementName.c_str();
-    for(auto childElement = element.FirstChildElement(elementAsCstr);
-        childElement != nullptr;
-        childElement = childElement->NextSiblingElement(elementAsCstr)) {
+    IterateAllChildElements(element, elementName,
+    [&](const XMLElement& /*elem*/) {
         ++childCount;
-    }
+    });
     return childCount;
 }
 
 std::vector<std::string> GetChildElementNames(const XMLElement& element) {
-    std::size_t childCount = GetChildElementCount(element);
-    std::vector<std::string> childElementNames(childCount);
-    std::size_t childIndex = 0;
-    for(auto child = element.FirstChildElement(); childIndex < childCount && child != nullptr; child = child->NextSiblingElement()) {
-        childElementNames[childIndex] = child->Name();
-        ++childIndex;
-    }
+    std::vector<std::string> childElementNames{};
+    childElementNames.reserve(GetChildElementCount(element));
+    IterateAllChildElements(element, std::string{},
+    [&](const XMLElement& elem) {
+        childElementNames.push_back(elem.Name());
+    });
     return childElementNames;
 }
 
@@ -265,7 +268,7 @@ long double ParseXmlElementText(const XMLElement& element, long double defaultVa
             return retVal;
         }
     } else {
-        auto values = StringUtils::Split(txt);
+        auto values = StringUtils::Split(txt, '~');
         if(values.size() == 1) {
             retVal = std::stold(values[0]);
         } else {
@@ -366,14 +369,11 @@ std::string ParseXmlElementText(const XMLElement& element, const std::string& de
 }
 
 void IterateAllChildElements(const XMLElement& element, const std::string& childname /*= std::string{}*/, const std::function<void(const XMLElement&)>& callback /*= [](const XMLElement&) { / * DO NOTHING * / }*/) {
-    if(childname.empty()) {
-        for(auto xml_iter = element.FirstChildElement(); xml_iter != nullptr; xml_iter = xml_iter->NextSiblingElement()) {
-            callback(*xml_iter);
-        }
-    } else {
-        for(auto xml_iter = element.FirstChildElement(childname.c_str()); xml_iter != nullptr; xml_iter = xml_iter->NextSiblingElement(childname.c_str())) {
-            callback(*xml_iter);
-        }
+    auto childNameAsCStr = childname.empty() ? nullptr : childname.c_str();
+    for(auto xml_iter = element.FirstChildElement(childNameAsCStr);
+        xml_iter != nullptr;
+        xml_iter = xml_iter->NextSiblingElement(childNameAsCStr)) {
+        callback(*xml_iter);
     }
 }
 

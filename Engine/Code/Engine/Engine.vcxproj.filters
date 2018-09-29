@@ -292,6 +292,9 @@
     <ClCompile Include="Networking\NetUtils.cpp">
       <Filter>Networking</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\Model.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -566,6 +569,9 @@
     </ClInclude>
     <ClInclude Include="..\Thirdparty\nlohmann\json\json.hpp">
       <Filter>Thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Model.hpp">
+      <Filter>Renderer\Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

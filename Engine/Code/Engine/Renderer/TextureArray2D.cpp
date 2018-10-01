@@ -23,8 +23,10 @@ void TextureArray2D::SetDebugName([[maybe_unused]] const std::string& name) cons
 
 TextureArray2D::~TextureArray2D() {
     _device = nullptr;
-    _dx_tex->Release();
-    _dx_tex = nullptr;
+    if(_dx_tex) {
+        _dx_tex->Release();
+        _dx_tex = nullptr;
+    }
 }
 
 TextureArray2D::TextureArray2D(TextureArray2D&& r_other) noexcept

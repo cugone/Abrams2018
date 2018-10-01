@@ -22,6 +22,7 @@ public:
 
     virtual bool ProcessSystemMessage(const EngineMessage& msg) override;
 
+    static bool applet_mode;
 protected:
 private:
     virtual void BeginFrame() override;

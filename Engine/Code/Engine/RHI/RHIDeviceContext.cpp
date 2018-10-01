@@ -27,8 +27,10 @@ RHIDeviceContext::RHIDeviceContext(RHIDevice* parentDevice, ID3D11DeviceContext*
 
 RHIDeviceContext::~RHIDeviceContext() {
     _device = nullptr;
-    _dx_context->Release();
-    _dx_context = nullptr;
+    if(_dx_context) {
+        _dx_context->Release();
+        _dx_context = nullptr;
+    }
 }
 
 void RHIDeviceContext::ClearState() {

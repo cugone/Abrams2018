@@ -26,15 +26,19 @@ DepthStencilState::DepthStencilState(RHIDevice* device, const DepthStencilDesc& 
     : _desc(desc)
 {
     if(!CreateDepthStencilState(device, desc)) {
-        _dx_state->Release();
-        _dx_state = nullptr;
+        if(_dx_state) {
+            _dx_state->Release();
+            _dx_state = nullptr;
+        }
         ERROR_AND_DIE("DepthStencilState failed to create.");
     }
 }
 
 DepthStencilState::~DepthStencilState() {
-    _dx_state->Release();
-    _dx_state = nullptr;
+    if(_dx_state) {
+        _dx_state->Release();
+        _dx_state = nullptr;
+    }
 }
 
 ID3D11DepthStencilState* DepthStencilState::GetDxDepthStencilState() const {

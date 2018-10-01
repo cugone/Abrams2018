@@ -19,8 +19,10 @@ void Texture1D::SetDebugName([[maybe_unused]] const std::string& name) const noe
 
 Texture1D::~Texture1D() {
     _device = nullptr;
-    _dx_tex->Release();
-    _dx_tex = nullptr;
+    if(_dx_tex) {
+        _dx_tex->Release();
+        _dx_tex = nullptr;
+    }
 }
 
 Texture1D::Texture1D(Texture1D&& r_other) noexcept

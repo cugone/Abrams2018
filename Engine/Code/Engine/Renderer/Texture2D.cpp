@@ -23,8 +23,10 @@ void Texture2D::SetDebugName([[maybe_unused]] const std::string& name) const noe
 
 Texture2D::~Texture2D() {
     _device = nullptr;
-    _dx_tex->Release();
-    _dx_tex = nullptr;
+    if(_dx_tex) {
+        _dx_tex->Release();
+        _dx_tex = nullptr;
+    }
 }
 
 Texture2D::Texture2D(Texture2D&& r_other) noexcept

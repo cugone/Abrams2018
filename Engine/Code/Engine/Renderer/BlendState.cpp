@@ -48,8 +48,10 @@ BlendState::BlendState(RHIDevice* device, const XMLElement& element) {
         });
 
         if(!CreateBlendState(device, _descs)) {
-            _dx_state->Release();
-            _dx_state = nullptr;
+            if(_dx_state) {
+                _dx_state->Release();
+                _dx_state = nullptr;
+            }
             ERROR_AND_DIE("\nBlendState: Failed to create.\n");
         }
     }
@@ -67,8 +69,10 @@ BlendState::BlendState(RHIDevice* device, const std::vector<BlendDesc>& descs /*
     , _descs{ descs }
 {
     if(!CreateBlendState(device, _descs)) {
-        _dx_state->Release();
-        _dx_state = nullptr;
+        if(_dx_state) {
+            _dx_state->Release();
+            _dx_state = nullptr;
+        }
         ERROR_AND_DIE("\nBlendState: Failed to create.\n");
     }
 }

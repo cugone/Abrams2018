@@ -109,7 +109,7 @@ public:
     Renderer(unsigned int width, unsigned int height);
     ~Renderer();
 
-    void Initialize();
+    void Initialize(bool headless = false);
     void BeginFrame();
     void Update(float deltaSeconds);
     void Render() const;

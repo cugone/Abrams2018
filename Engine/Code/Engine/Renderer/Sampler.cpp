@@ -21,8 +21,10 @@ Sampler::Sampler(RHIDevice* device, const XMLElement& element)
 
 Sampler::Sampler(RHIDevice* device, const SamplerDesc& desc) {
     if(!CreateSamplerState(device, desc)) {
-        _dx_state->Release();
-        _dx_state = nullptr;
+        if(_dx_state) {
+            _dx_state->Release();
+            _dx_state = nullptr;
+        }
         ERROR_AND_DIE("Sampler: dx Sample failed to create.\n");
     }
 }

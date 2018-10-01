@@ -143,9 +143,12 @@ Renderer::~Renderer() {
 
 }
 
-void Renderer::Initialize() {
+void Renderer::Initialize(bool headless /*= false*/) {
     _rhi_instance = RHIInstance::CreateInstance();
     _rhi_device = _rhi_instance->CreateDevice();
+    if(headless) {
+        return;
+    }
     _rhi_output = _rhi_device->CreateOutput(_window_dimensions);
     _rhi_context = _rhi_device->GetImmediateContext();
 
@@ -1955,11 +1958,15 @@ DepthStencilState* Renderer::CreateEnabledDepth() {
 }
 
 void Renderer::UnbindAllShaderResources() {
-    _rhi_context->UnbindAllShaderResources();
+    if(_rhi_context) {
+        _rhi_context->UnbindAllShaderResources();
+    }
 }
 
 void Renderer::UnbindAllConstantBuffers() {
-    _rhi_context->UnbindAllConstantBuffers();
+    if(_rhi_context) {
+        _rhi_context->UnbindAllConstantBuffers();
+    }
 }
 
 void Renderer::RegisterDepthStencilState(const std::string& name, DepthStencilState* depthstencil) {

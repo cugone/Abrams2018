@@ -14,6 +14,8 @@
 #include "Game/GameCommon.hpp"
 #include "Game/GameConfig.hpp"
 
+bool App::applet_mode = false;
+
 bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
     EngineMessage msg = {};
@@ -65,7 +67,10 @@ void App::SetIsQuitting(bool quit) {
 
 void App::Initialize() {
     FileUtils::CreateFolders("Data/");
-    g_theRenderer->Initialize();
+    g_theRenderer->Initialize(applet_mode);
+    if(applet_mode) {
+        return;
+    }
     g_theRenderer->SetVSync(GRAPHICS_OPTION_VSYNC);
     if(g_theRenderer->GetOutput()) {
         Window* window = g_theRenderer->GetOutput()->GetWindow();
@@ -195,3 +200,4 @@ void App::EndFrame() {
     g_theInput->EndFrame();
     g_theRenderer->EndFrame();
 }
+

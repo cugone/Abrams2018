@@ -17,8 +17,10 @@ InputLayout::~InputLayout() {
     _elements.clear();
     _elements.shrink_to_fit();
 
-    _dx_input_layout->Release();
-    _dx_input_layout = nullptr;
+    if(_dx_input_layout) {
+        _dx_input_layout->Release();
+        _dx_input_layout = nullptr;
+    }
 }
 
 void InputLayout::AddElement(std::size_t memberByteOffset, const ImageFormat& format, const char* semantic, unsigned int inputSlot /*= 0*/, bool isVertexData /*= true*/, unsigned int instanceDataStepRate /*= 0*/) {

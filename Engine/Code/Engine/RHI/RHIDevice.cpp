@@ -24,8 +24,10 @@ RHIDevice::RHIDevice()
 }
 RHIDevice::~RHIDevice() {
     _immediate_context = nullptr;
-    _dx_device->Release();
-    _dx_device = nullptr;
+    if(_dx_device) {
+        _dx_device->Release();
+        _dx_device = nullptr;
+    }
 }
 
 RHIDeviceContext* RHIDevice::GetImmediateContext() const {

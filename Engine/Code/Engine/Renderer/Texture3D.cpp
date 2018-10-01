@@ -18,8 +18,10 @@ void Texture3D::SetDebugName([[maybe_unused]] const std::string& name) const noe
 
 Texture3D::~Texture3D() {
     _device = nullptr;
-    _dx_tex->Release();
-    _dx_tex = nullptr;
+    if(_dx_tex) {
+        _dx_tex->Release();
+        _dx_tex = nullptr;
+    }
 }
 
 Texture3D::Texture3D(Texture3D&& r_other) noexcept

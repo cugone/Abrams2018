@@ -1,6 +1,8 @@
 #include <memory>
 #include <sstream>
 
+#include "Engine/Core/ArgumentParser.hpp"
+#include "Engine/Core/KeyValueParser.hpp"
 #include "Engine/Core/Config.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/Win.hpp"
@@ -19,11 +21,12 @@ void RunMessagePump();
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int nShowCmd) {
 
     Initialize(hInstance, lpCmdLine, nShowCmd);
-
-    while(!g_theApp->IsQuitting()) {
-        ::Sleep(0);
-        RunMessagePump();
-        g_theApp->RunFrame();
+    if(!g_theApp->applet_mode) {
+        while(!g_theApp->IsQuitting()) {
+            ::Sleep(0);
+            RunMessagePump();
+            g_theApp->RunFrame();
+        }
     }
     Shutdown();
     return 0;

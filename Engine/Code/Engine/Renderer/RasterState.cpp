@@ -28,15 +28,19 @@ RasterState::RasterState(RHIDevice* device, const RasterDesc& desc)
     : _desc(desc)
 {
     if(!CreateRasterState(device, _desc)) {
-        _dx_state->Release();
-        _dx_state = nullptr;
+        if(_dx_state) {
+            _dx_state->Release();
+            _dx_state = nullptr;
+        }
         ERROR_AND_DIE("RasterState: dx Rasterizer failed to create.\n");
     }
 }
 
 RasterState::~RasterState() {
-    _dx_state->Release();
-    _dx_state = nullptr;
+    if(_dx_state) {
+        _dx_state->Release();
+        _dx_state = nullptr;
+    }
 }
 
 const RasterDesc& RasterState::GetDesc() const {

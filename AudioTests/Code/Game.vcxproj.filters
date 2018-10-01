@@ -48,4 +48,9 @@
       <Filter>Data</Filter>
     </Media>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Run_Win32\Data\Audio\square.ogg">
+      <Filter>Data</Filter>
+    </None>
+  </ItemGroup>
 </Project>

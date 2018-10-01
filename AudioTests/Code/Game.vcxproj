@@ -263,6 +263,9 @@
   <ItemGroup>
     <Media Include="..\Run_Win32\Data\Audio\square.wav" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Run_Win32\Data\Audio\square.ogg" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

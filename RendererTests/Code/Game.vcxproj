@@ -266,7 +266,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Run_Win32\Data\Materials\sif.material" />
-    <None Include="..\Run_Win32\Data\Materials\Test.material" />
+    <None Include="..\Run_Win32\Data\Materials\Test.material">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="..\Run_Win32\Data\Shaders\Test.shader" />
   </ItemGroup>
   <ItemGroup>
@@ -286,6 +288,16 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastDebug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </Object>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Run_Win32\Data\ShaderPrograms\Test.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

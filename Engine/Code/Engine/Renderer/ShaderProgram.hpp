@@ -5,25 +5,41 @@
 class InputLayout;
 class RHIDevice;
 
+struct ShaderProgramDesc {
+    std::string name{ "UNNAMED SHADER PROGRAM" };
+    RHIDevice* device         = nullptr;
+    ID3D11VertexShader* vs    = nullptr;
+    ID3D11PixelShader* ps     = nullptr;
+    ID3DBlob* vs_bytecode     = nullptr;
+    ID3DBlob* ps_bytecode     = nullptr;
+    InputLayout* input_layout = nullptr;
+    ID3D11HullShader* hs      = nullptr;
+    ID3DBlob* hs_bytecode     = nullptr;
+    ID3D11DomainShader* ds    = nullptr;
+    ID3DBlob* ds_bytecode     = nullptr;
+    ID3D11GeometryShader* gs  = nullptr;
+    ID3DBlob* gs_bytecode     = nullptr;
+    ID3D11ComputeShader* cs   = nullptr;
+    ID3DBlob* cs_bytecode     = nullptr;
+    ShaderProgramDesc() = default;
+    ShaderProgramDesc(ShaderProgramDesc&& other);
+    ShaderProgramDesc& operator=(ShaderProgramDesc&& other);
+    ShaderProgramDesc(const ShaderProgramDesc& other) = delete;
+    ShaderProgramDesc& operator=(const ShaderProgramDesc& other) = delete;
+    ~ShaderProgramDesc();
+};
+
 class ShaderProgram {
 public:
-    ShaderProgram(const std::string& name,
-                  RHIDevice* device,
-                  ID3D11VertexShader* vs,
-                  ID3D11PixelShader* ps,
-                  ID3DBlob* vs_bytecode,
-                  ID3DBlob* ps_bytecode,
-                  InputLayout* input_layout,
-                  ID3D11HullShader* hs = nullptr,
-                  ID3DBlob* hs_bytecode = nullptr,
-                  ID3D11DomainShader* ds = nullptr,
-                  ID3DBlob* ds_bytecode = nullptr,
-                  ID3D11GeometryShader* gs = nullptr,
-                  ID3DBlob* gs_bytecode = nullptr,
-                  ID3D11ComputeShader* cs = nullptr,
-                  ID3DBlob* cs_bytecode = nullptr
-                  );
-    ~ShaderProgram();
+    explicit ShaderProgram(ShaderProgramDesc&& desc);
+    ShaderProgram(ShaderProgram&& other) = default;
+    ShaderProgram& operator=(ShaderProgram&& other) = default;
+    ShaderProgram(const ShaderProgram& other) = delete;
+    ShaderProgram& operator=(const ShaderProgram& other) = delete;
+    ~ShaderProgram() = default;
+
+    ShaderProgramDesc&& GetDescription();
+    void SetDescription(ShaderProgramDesc&& description);
 
     std::string GetName() const;
     RHIDevice* GetParentDevice();
@@ -43,20 +59,5 @@ public:
 
 protected:
 private:
-    std::string _name = "UNNAMED SHADER PROGRAM";
-    RHIDevice* _device = nullptr;
-    ID3DBlob* _vs_bytecode = nullptr;
-    ID3DBlob* _hs_bytecode = nullptr;
-    ID3DBlob* _ds_bytecode = nullptr;
-    ID3DBlob* _gs_bytecode = nullptr;
-    ID3DBlob* _ps_bytecode = nullptr;
-    ID3DBlob* _cs_bytecode = nullptr;
-    InputLayout* _il = nullptr;
-    ID3D11VertexShader* _vs = nullptr;
-    ID3D11HullShader* _hs = nullptr;
-    ID3D11DomainShader* _ds = nullptr;
-    ID3D11GeometryShader* _gs = nullptr;
-    ID3D11PixelShader* _ps = nullptr;
-    ID3D11ComputeShader* _cs = nullptr;
-
+    ShaderProgramDesc _desc{};
 };

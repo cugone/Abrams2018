@@ -11,6 +11,7 @@
 #include "Engine/Renderer/AnimatedSprite.hpp"
 #include "Engine/Renderer/Camera2D.hpp"
 #include "Engine/Renderer/Camera3D.hpp"
+#include "Engine/Renderer/RasterState.hpp"
 #include "Engine/Renderer/SpriteSheet.hpp"
 #include "Engine/Renderer/Texture.hpp"
 #include "Engine/Renderer/Texture1D.hpp"
@@ -51,6 +52,8 @@ void Game::Initialize() {
 
 void Game::InitializeData() {
     g_theRenderer->RegisterTexturesFromFolder(std::string{ "Data/Images" });
+    g_theRenderer->RegisterShaderProgramsFromFolder(std::string{"Data/ShaderPrograms"}, "VertexFunction,,,,PixelFunction,,", PipelineStage::Vs | PipelineStage::Ps);
+    g_theRenderer->RegisterShadersFromFolder(std::string{ "Data/Shaders" });
     g_theRenderer->RegisterMaterialsFromFolder(std::string{ "Data/Materials" });
     g_theRenderer->RegisterFontsFromFolder(std::string{ "Data/Fonts" });
 }
@@ -78,6 +81,18 @@ void Game::Update(float deltaSeconds) {
 
     if(g_theInput->WasKeyJustPressed(KeyCode::F2)) {
         DoExport();
+    }
+
+    if(g_theInput->WasKeyJustPressed(KeyCode::L)) {
+        _obj.Load(std::string{"Data/Models/suzanne.obj"});
+    }
+
+    if(g_theInput->WasKeyJustPressed(KeyCode::M)) {
+        _obj.Save(std::string{"Data/Models/suzanne_out.obj"});
+    }
+
+    if(g_theInput->WasKeyJustPressed(KeyCode::F3)) {
+        _wireframe_mode = !_wireframe_mode;
     }
 
     _camera2->Update(deltaSeconds);
@@ -141,7 +156,7 @@ void Game::UpdateCameraFromMouse(float /*deltaSeconds*/) {
 }
 
 void Game::Render() const {
-    g_theRenderer->SetRenderTarget(nullptr);
+    g_theRenderer->SetRenderTarget();
     g_theRenderer->ClearColor(Rgba::BLACK);
     g_theRenderer->ClearDepthStencilBuffer();
 
@@ -150,16 +165,15 @@ void Game::Render() const {
     g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
     g_theRenderer->SetViewMatrix(Matrix4::GetIdentity());
     g_theRenderer->SetProjectionMatrix(Matrix4::GetIdentity());
-
     _camera3->SetupView(45.0f, MathUtils::M_16_BY_9_RATIO, 0.01f, 1000.0f);
 
     g_theRenderer->SetProjectionMatrix(_camera3->GetProjectionMatrix());
     g_theRenderer->SetViewMatrix(_camera3->GetViewMatrix());
 
-    //DrawCube();
-    DrawWorldGrid();
-    DrawAxes();
-    g_theRenderer->DrawDebugSphere(1.0f, Rgba::PERIWINKLE);
+    g_theRenderer->SetLightingEyePosition(_camera3->GetPosition());
+
+    RenderStuff();
+
     const auto& window_dimensions = g_theRenderer->GetOutput()->GetDimensions();
     auto window_width = static_cast<float>(window_dimensions.x);
     auto window_height = static_cast<float>(window_dimensions.y);
@@ -173,6 +187,29 @@ void Game::Render() const {
 
     _camera2->SetupView(view_leftBottom, view_rightTop, view_nearFar, MathUtils::M_16_BY_9_RATIO);
 
+}
+
+void Game::RenderStuff() const {
+    DrawObj();
+    DrawWorldGrid();
+    DrawAxes();
+
+    g_theRenderer->EnableDepth();
+
+    Vector3 _spherePos{};
+    _spherePos.x = std::cos(g_theRenderer->GetSystemTime());
+    _spherePos.y = 0.0f;
+    _spherePos.z = std::sin(g_theRenderer->GetSystemTime());
+    _spherePos *= 5.0f;
+    //g_theRenderer->SetViewMatrix(Matrix4::CreateLookAtMatrix(_camera3->GetPosition(), _spherePos, Vector3::Y_AXIS));
+    Matrix4 T = Matrix4::GetIdentity();//Matrix4::CreateTranslationMatrix(_spherePos);
+    Matrix4 R = Matrix4::GetIdentity();//Matrix4::Create3DYRotationDegreesMatrix(180.0f);
+    Matrix4 S = Matrix4::GetIdentity();
+    auto inv_view = _camera3->GetInverseViewMatrix();
+    Matrix4 M = T * R * S;// *inv_view.GetRotation();
+    g_theRenderer->SetModelMatrix(M);
+    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
+    g_theRenderer->DrawQuad2D();
 }
 
 void Game::EndFrame() {
@@ -279,4 +316,23 @@ void Game::DrawCube() const {
     g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
     g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
     g_theRenderer->DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
+}
+
+void Game::DrawObj() const {
+    if(_obj.IsLoaded()) {
+        g_theRenderer->SetAmbientLight(Rgba::GREY, 0.5f);
+        DirectionalLightDesc dl_desc{};
+        dl_desc.direction = Vector3(-1.0f, -1.0f, 0.0f).GetNormalize();
+        g_theRenderer->SetDirectionalLight(0, dl_desc);
+        Matrix4 T = Matrix4::GetIdentity();
+        Matrix4 R = Matrix4::GetIdentity();
+        Matrix4 S = Matrix4::CreateScaleMatrix(10.0f);
+        Matrix4 M = T * R * S;
+        g_theRenderer->SetModelMatrix(M);
+        g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__normal"));
+        auto raster = _wireframe_mode ? g_theRenderer->GetRasterState("__wireframe")
+                                      : g_theRenderer->GetRasterState("__solid");
+        g_theRenderer->SetRasterState(raster);
+        g_theRenderer->DrawIndexed(PrimitiveType::Triangles, _obj.GetVbo(), _obj.GetIbo());
+    }
 }

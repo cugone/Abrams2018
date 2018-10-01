@@ -35,6 +35,8 @@ enum class PipelineStage : unsigned char {
 
 PipelineStage operator|(const PipelineStage& a, const PipelineStage& b);
 PipelineStage operator&(const PipelineStage& a, const PipelineStage& b);
+PipelineStage& operator|=(PipelineStage& a, const PipelineStage& b);
+PipelineStage& operator&=(PipelineStage& a, const PipelineStage& b);
 
 enum class ComparisonFunction {
     Never

@@ -1,6 +1,7 @@
 #include "Engine/Renderer/Shader.hpp"
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Core/StringUtils.hpp"
 
 #include "Engine/Renderer/BlendState.hpp"
 #include "Engine/Renderer/ConstantBuffer.hpp"
@@ -121,7 +122,7 @@ bool Shader::LoadFromXml(Renderer* renderer, const XMLElement& element) {
     _name = DataUtils::ParseXmlAttribute(element, std::string("name"), _name);
 
     auto xml_SP = element.FirstChildElement("shaderprogram");
-    DataUtils::ValidateXmlElement(*xml_SP, "shaderprogram", "", "src");
+    DataUtils::ValidateXmlElement(*xml_SP, "shaderprogram", "", "src", "pipelinestages");
 
     std::string sp_src = DataUtils::ParseXmlAttribute(*xml_SP, "src", "");
     if(sp_src.empty()) {
@@ -131,11 +132,65 @@ bool Shader::LoadFromXml(Renderer* renderer, const XMLElement& element) {
     FS::path p(sp_src);
     p.make_preferred();
     if((_shader_program = _renderer->GetShaderProgram(p.string())) == nullptr) {
-        ERROR_AND_DIE("ShaderProgram referenced in Shader file does not already exist.");
+        if(StringUtils::StartsWith(p.string(), "__")) {
+            std::ostringstream ss;
+            ss << "Intrinsic ShaderProgram referenced in Shader file \"" << _name << "\" does not already exist.";
+            ERROR_AND_DIE(ss.str().c_str());
+        }
+        bool is_hlsl = p.has_extension() && StringUtils::ToLowerCase(p.extension().string()) == ".hlsl";
+        if(is_hlsl) {
+            if(auto xml_pipelinestages = xml_SP->FirstChildElement("pipelinestages")) {
+                
+                DataUtils::ValidateXmlElement(*xml_pipelinestages, "pipelinestages", "vertex,hull,domain,geometry,pixel,compute", "");
+                PipelineStage targets = PipelineStage::None;
+                std::string entrypointList{};
+
+                auto stage_cb = [this, &p, &targets, &entrypointList](const XMLElement& elem) {
+                    auto name = std::string{ elem.Name() ? elem.Name() : "" };
+                    PipelineStage target = PipelineStage::None;
+                    if(name == "vertex") {
+                        auto entrypoint = DataUtils::ParseXmlAttribute(elem, "entrypoint", "");
+                        target = entrypoint.empty() ? PipelineStage::None : PipelineStage::Vs;
+                        entrypoint += ",";
+                        entrypointList += entrypoint;
+                    } else if(name == "hull") {
+                        auto entrypoint = DataUtils::ParseXmlAttribute(elem, "entrypoint", "");
+                        target = entrypoint.empty() ? PipelineStage::None : PipelineStage::Hs;
+                        entrypoint += ",";
+                        entrypointList += entrypoint;
+                    } else if(name == "domain") {
+                        auto entrypoint = DataUtils::ParseXmlAttribute(elem, "entrypoint", "");
+                        target = entrypoint.empty() ? PipelineStage::None : PipelineStage::Ds;
+                        entrypoint += ",";
+                        entrypointList += entrypoint;
+                    } else if(name == "geometry") {
+                        auto entrypoint = DataUtils::ParseXmlAttribute(elem, "entrypoint", "");
+                        target = entrypoint.empty() ? PipelineStage::None : PipelineStage::Gs;
+                        entrypoint += ",";
+                        entrypointList += entrypoint;
+                    } else if(name == "pixel") {
+                        auto entrypoint = DataUtils::ParseXmlAttribute(elem, "entrypoint", "");
+                        target = entrypoint.empty() ? PipelineStage::None : PipelineStage::Ps;
+                        entrypoint += ",";
+                        entrypointList += entrypoint;
+                    } else if(name == "compute") {
+                        auto entrypoint = DataUtils::ParseXmlAttribute(elem, "entrypoint", "");
+                        target = entrypoint.empty() ? PipelineStage::None : PipelineStage::Cs;
+                        entrypoint += ",";
+                        entrypointList += entrypoint;
+                    }
+                    targets |= target;
+                };
+                DataUtils::IterateAllChildElements(*xml_pipelinestages, "", stage_cb);
+                _renderer->CreateAndRegisterShaderProgramFromHlslFile(p.string(), entrypointList, targets);
+                _shader_program = _renderer->GetShaderProgram(p.string());
+            }
+        }
     }
     _depth_stencil_state = new DepthStencilState(_renderer->GetDevice(), element);
     _blend_state = new BlendState(_renderer->GetDevice(), element);
 
+    _raster_state = _renderer->GetRasterState("__default");
     if(auto xml_raster = element.FirstChildElement("raster")) {
         std::string rs_src = DataUtils::ParseXmlAttribute(*xml_raster, "src", "");
         if(auto found_raster = _renderer->GetRasterState(rs_src)) {
@@ -143,19 +198,16 @@ bool Shader::LoadFromXml(Renderer* renderer, const XMLElement& element) {
         } else {
             CreateAndRegisterNewRasterFromXml(element);
         }
-    } else {
-        CreateAndRegisterNewRasterFromXml(element);
     }
+
+    _sampler = _renderer->GetSampler("__default");
     if(auto xml_sampler = element.FirstChildElement("sampler")) {
         std::string s_src = DataUtils::ParseXmlAttribute(*xml_sampler, "src", "");
-        auto found_sampler = _renderer->GetSampler(s_src);
-        if(!found_sampler) {
-            CreateAndRegisterNewSamplerFromXml(element);
-        } else {
+        if(auto found_sampler = _renderer->GetSampler(s_src)) {
             _sampler = found_sampler;
+        } else {
+            CreateAndRegisterNewSamplerFromXml(element);
         }
-    } else {
-        CreateAndRegisterNewSamplerFromXml(element);
     }
     return true;
 }

@@ -1278,7 +1278,15 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     auto ps_bytecode = _rhi_device->CompileShader("__defaultPS", program.data(), program.size(), "PixelFunction", PipelineStage::Ps);
     ID3D11PixelShader* ps = nullptr;
     _rhi_device->GetDxDevice()->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBufferSize(), nullptr, &ps);
-    ShaderProgram* shader = new ShaderProgram("__default", _rhi_device, vs, ps, vs_bytecode, ps_bytecode, il);
+    ShaderProgramDesc desc{};
+    desc.name = "__default";
+    desc.device = _rhi_device;
+    desc.vs = vs;
+    desc.vs_bytecode = vs_bytecode;
+    desc.ps = ps;
+    desc.ps_bytecode = ps_bytecode;
+    desc.input_layout = il;
+    ShaderProgram* shader = new ShaderProgram(std::move(desc));
     return shader;
 }
 
@@ -1357,7 +1365,15 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     auto ps_bytecode = _rhi_device->CompileShader("__unlitPS", program.data(), program.size(), "PixelFunction", PipelineStage::Ps);
     ID3D11PixelShader* ps = nullptr;
     _rhi_device->GetDxDevice()->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBufferSize(), nullptr, &ps);
-    ShaderProgram* shader = new ShaderProgram("__unlit", _rhi_device, vs, ps, vs_bytecode, ps_bytecode, il);
+    ShaderProgramDesc desc{};
+    desc.name = "__unlit";
+    desc.device = _rhi_device;
+    desc.vs = vs;
+    desc.vs_bytecode = vs_bytecode;
+    desc.ps = ps;
+    desc.ps_bytecode = ps_bytecode;
+    desc.input_layout = il;
+    ShaderProgram* shader = new ShaderProgram(std::move(desc));
     return shader;
 
 }
@@ -1481,7 +1497,15 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     auto ps_bytecode = _rhi_device->CompileShader("__normalPS", program.data(), program.size(), "PixelFunction", PipelineStage::Ps);
     ID3D11PixelShader* ps = nullptr;
     _rhi_device->GetDxDevice()->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBufferSize(), nullptr, &ps);
-    ShaderProgram* shader = new ShaderProgram("__normal", _rhi_device, vs, ps, vs_bytecode, ps_bytecode, il);
+    ShaderProgramDesc desc{};
+    desc.name = "__normal";
+    desc.device = _rhi_device;
+    desc.vs = vs;
+    desc.vs_bytecode = vs_bytecode;
+    desc.ps = ps;
+    desc.ps_bytecode = ps_bytecode;
+    desc.input_layout = il;
+    ShaderProgram* shader = new ShaderProgram(std::move(desc));
     return shader;
 }
 
@@ -1604,7 +1628,15 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     auto ps_bytecode = _rhi_device->CompileShader("__normalmapPS", program.data(), program.size(), "PixelFunction", PipelineStage::Ps);
     ID3D11PixelShader* ps = nullptr;
     _rhi_device->GetDxDevice()->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBufferSize(), nullptr, &ps);
-    ShaderProgram* shader = new ShaderProgram("__normalmap", _rhi_device, vs, ps, vs_bytecode, ps_bytecode, il);
+    ShaderProgramDesc desc{};
+    desc.name = "__normalmap";
+    desc.device = _rhi_device;
+    desc.vs = vs;
+    desc.vs_bytecode = vs_bytecode;
+    desc.ps = ps;
+    desc.ps_bytecode = ps_bytecode;
+    desc.input_layout = il;
+    ShaderProgram* shader = new ShaderProgram(std::move(desc));
     return shader;
 }
 
@@ -1766,11 +1798,11 @@ void Renderer::CreateAndRegisterDefaultSamplers() {
 
     auto linear_sampler = CreateLinearSampler();
     linear_sampler->SetDebugName("__linear_sampler");
-    RegisterSampler("__linear_sampler", linear_sampler);
+    RegisterSampler("__linear", linear_sampler);
 
     auto point_sampler = CreatePointSampler();
     point_sampler->SetDebugName("__point_sampler");
-    RegisterSampler("__point_sampler", point_sampler);
+    RegisterSampler("__point", point_sampler);
 
 }
 
@@ -1795,6 +1827,10 @@ Sampler* Renderer::CreatePointSampler() {
 }
 
 void Renderer::CreateAndRegisterDefaultRasterStates() {
+    RasterState* default_raster = CreateDefaultRaster();
+    default_raster->SetDebugName("__default_raster");
+    RegisterRasterState("__default", default_raster);
+
     RasterState* wireframe_raster = CreateWireframeRaster();
     wireframe_raster->SetDebugName("__wireframe");
     RegisterRasterState("__wireframe", wireframe_raster);
@@ -1819,6 +1855,12 @@ void Renderer::CreateAndRegisterDefaultRasterStates() {
     solidfc_raster->SetDebugName("__solidfc");
     RegisterRasterState("__solidfc", solidfc_raster);
 
+}
+
+RasterState* Renderer::CreateDefaultRaster() {
+    RasterDesc default_raster{};
+    RasterState* state = new RasterState(_rhi_device, default_raster);
+    return state;
 }
 
 RasterState* Renderer::CreateWireframeRaster() {
@@ -1996,6 +2038,22 @@ void Renderer::RegisterShader(const std::string& name, Shader* shader) {
         found_iter->second = nullptr;
     }
     _shaders.insert_or_assign(name, shader);
+}
+
+bool Renderer::RegisterShader(const std::filesystem::path& filepath) {
+    namespace FS = std::filesystem;
+    std::filesystem::path filepath_copy = filepath;
+    tinyxml2::XMLDocument doc;
+    if(filepath_copy.has_extension() && filepath.extension() == ".shader") {
+        filepath_copy.make_preferred();
+        const auto p_str = filepath_copy.string();
+        if(doc.LoadFile(p_str.c_str()) == tinyxml2::XML_SUCCESS) {
+            Shader* shader = new Shader(this, *doc.RootElement());
+            RegisterShader(shader->GetName(), shader);
+            return true;
+        }
+    }
+    return false;
 }
 
 void Renderer::RegisterFont(const std::string& name, KerningFont* font) {
@@ -2375,6 +2433,7 @@ void Renderer::RegisterShaderProgram(const std::string& name, ShaderProgram * sp
     }
     auto found_iter = _shader_programs.find(name);
     if(found_iter != _shader_programs.end()) {
+        sp->SetDescription(std::move(found_iter->second->GetDescription()));
         delete found_iter->second;
         found_iter->second = nullptr;
     }
@@ -2422,28 +2481,47 @@ ShaderProgram* Renderer::GetShaderProgram(const std::string& nameOrFile) {
     return found_iter->second;
 }
 
-ShaderProgram* Renderer::CreateShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPoint, InputLayout* inputLayout, const PipelineStage& target) {
-    std::vector<unsigned char> contents;
-    if(FileUtils::ReadBufferFromFile(contents, filepath)) {
-        std::string data(reinterpret_cast<const char*>(contents.data()), contents.size());
-        bool requested_retry = false;
+ShaderProgram* Renderer::CreateShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPointList, const PipelineStage& target) {
+    bool requested_retry = false;
+    do {
         ShaderProgram* sp = nullptr;
-        do {
-            sp = _rhi_device->CreateShaderProgramFromHlslString(filepath, data, entryPoint, inputLayout, target);
+        std::string contents{};
+        if(FileUtils::ReadBufferFromFile(contents, filepath)) {
+                sp = _rhi_device->CreateShaderProgramFromHlslString(filepath, contents, entryPointList, nullptr, target);
 #ifdef RENDER_DEBUG
-            if(sp == nullptr) {
-                std::ostringstream error_msg{};
-                error_msg << "Shader \"" << filepath << "\" failed to compile.\n";
-                error_msg << "See Output window for details.\n";
-                error_msg << "Press Retry to re-compile.";
-                auto button_id = ::MessageBoxA(GetOutput()->GetWindow()->GetWindowHandle(), error_msg.str().c_str(), "Shader compilation error.", MB_RETRYCANCEL | MB_ICONERROR);
-                requested_retry = button_id == IDRETRY;
-            }
+                if(sp == nullptr) {
+                    std::ostringstream error_msg{};
+                    error_msg << "Shader \"" << filepath << "\" failed to compile.\n";
+                    error_msg << "See Output window for details.\n";
+                    error_msg << "Press Retry to re-compile.";
+                    auto button_id = ::MessageBoxA(GetOutput()->GetWindow()->GetWindowHandle(), error_msg.str().c_str(), "Shader compilation error.", MB_RETRYCANCEL | MB_ICONERROR);
+                    requested_retry = button_id == IDRETRY;
+                }
 #endif
-        } while(requested_retry);
-        return sp;
-    }
+            return sp;
+        }
+    } while(requested_retry);
     return nullptr;
+}
+
+void Renderer::CreateAndRegisterShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPointList, const PipelineStage& target) {
+    auto sp = CreateShaderProgramFromHlslFile(filepath, entryPointList, target);
+    RegisterShaderProgram(filepath, sp);
+}
+
+void Renderer::RegisterShaderProgramsFromFolder(const std::string& folderpath, const std::string& entrypoint, const PipelineStage& target, bool recursive /*= false*/) {
+    namespace FS = std::filesystem;
+    FS::path path{ folderpath };
+    path.make_preferred();
+    RegisterShaderProgramsFromFolder(path, entrypoint, target, recursive);
+}
+
+void Renderer::RegisterShaderProgramsFromFolder(const std::filesystem::path& folderpath, const std::string& entrypoint, const PipelineStage& target, bool recursive /*= false*/) {
+    namespace FS = std::filesystem;
+    auto cb = [this, &entrypoint, target](const FS::path& p) {
+        this->CreateAndRegisterShaderProgramFromHlslFile(p.string(), entrypoint, target);
+    };
+    FileUtils::IterateFileInFolders(folderpath, ".hlsl", cb, recursive);
 }
 
 void Renderer::CreateAndRegisterRasterStateFromRasterDescription(const std::string& name, const RasterDesc& desc) {
@@ -2495,6 +2573,22 @@ Shader* Renderer::GetShader(const std::string& nameOrFile) {
         return nullptr;
     }
     return found_iter->second;
+}
+
+void Renderer::RegisterShadersFromFolder(const std::string& filepath, bool recursive /*= false*/) {
+    namespace FS = std::filesystem;
+    FS::path p(filepath);
+    p.make_preferred();
+    RegisterShadersFromFolder(p, recursive);
+}
+
+void Renderer::RegisterShadersFromFolder(const std::filesystem::path& folderpath, bool recursive /*= false*/) {
+    namespace FS = std::filesystem;
+    auto cb =
+        [this](const FS::path& p) {
+        this->RegisterShader(p);
+    };
+    FileUtils::IterateFileInFolders(folderpath, ".shader", cb, recursive);
 }
 
 std::size_t Renderer::GetFontCount() const {

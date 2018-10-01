@@ -88,4 +88,9 @@
       <Filter>Data\Models</Filter>
     </Object>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Run_Win32\Data\ShaderPrograms\Test.hlsl">
+      <Filter>Data\ShaderPrograms</Filter>
+    </FxCompile>
+  </ItemGroup>
 </Project>

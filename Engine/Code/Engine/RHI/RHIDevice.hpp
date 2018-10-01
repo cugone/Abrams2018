@@ -42,12 +42,16 @@ public:
     bool IsAllowTearingSupported() const;
 
     ShaderProgram* CreateShaderProgramFromHlslString(const std::string& name, const std::string& hlslString, const std::string& entryPoint, InputLayout* inputLayout, const PipelineStage& target);
+    ShaderProgram* CreateShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPoint, const PipelineStage& target);
 
     ID3DBlob* CompileShader(const std::string& name, const void*  sourceCode, std::size_t sourceCodeSize, const std::string& entryPoint, const PipelineStage& target);
 private:
     RHIDeviceContext* _immediate_context = nullptr;
     RHIOutput* CreateOutputFromWindow(Window*& window);
 
+    InputLayout* CreateInputLayoutFromByteCode(ID3DBlob* bytecode);
+    void PopulateInputLayoutUsingReflection(ID3D11ShaderReflection* vertexReflection, InputLayout* il);
+    D3D11_INPUT_ELEMENT_DESC CreateInputElementFromSignature(D3D11_SIGNATURE_PARAMETER_DESC &input_desc, unsigned int& last_input_slot);
     bool QueryForAllowTearingSupport(IDXGIFactory5* dxgi_factory);
     void GetPrimaryDisplayModeDescriptions(IDXGIAdapter4* dxgi_adapter, std::vector<DXGI_MODE_DESC1>& descriptions);
     DXGI_MODE_DESC1 GetDisplayModeMatchingDimensions(const std::vector<DXGI_MODE_DESC1>& descriptions, unsigned int w, unsigned int h);

@@ -25,16 +25,20 @@ void InputLayout::AddElement(std::size_t memberByteOffset, const ImageFormat& fo
     D3D11_INPUT_ELEMENT_DESC e_desc = {};
     e_desc.Format = ImageFormatToDxgiFormat(format);
     e_desc.InputSlotClass = isVertexData ? D3D11_INPUT_PER_VERTEX_DATA : D3D11_INPUT_PER_INSTANCE_DATA;
-    e_desc.InstanceDataStepRate = instanceDataStepRate;
+    e_desc.InstanceDataStepRate = isVertexData ? 0 : instanceDataStepRate;
     e_desc.SemanticName = semantic;
     e_desc.SemanticIndex = 0;
     e_desc.InputSlot = inputSlot;
     e_desc.AlignedByteOffset = memberByteOffset;
     _elements.push_back(e_desc);
-    _elements.shrink_to_fit();
+}
+
+void InputLayout::AddElement(const D3D11_INPUT_ELEMENT_DESC& desc) {
+    _elements.push_back(desc);
 }
 
 void InputLayout::CreateInputLayout(void* byte_code, std::size_t byte_code_length) {
+    _elements.shrink_to_fit();
     if(_dx_input_layout) {
         _dx_input_layout->Release();
         _dx_input_layout = nullptr;

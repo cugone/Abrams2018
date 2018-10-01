@@ -4,6 +4,8 @@
 
 #include "Engine/Core/EngineBase.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Core/FileUtils.hpp"
+#include "Engine/Core/StringUtils.hpp"
 
 #include "Engine/RHI/RHIOutput.hpp"
 #include "Engine/RHI/RHIDeviceContext.hpp"
@@ -12,6 +14,8 @@
 #include "Engine/Renderer/DepthStencilState.hpp"
 #include "Engine/Renderer/Window.hpp"
 #include "Engine/Renderer/ShaderProgram.hpp"
+
+#include <sstream>
 
 RHIDevice::RHIDevice()
 : _immediate_context(nullptr)
@@ -195,7 +199,87 @@ DXGI_MODE_DESC1 RHIDevice::GetDisplayModeMatchingDimensions(const std::vector<DX
     return descriptions.back();
 }
 
-ShaderProgram* RHIDevice::CreateShaderProgramFromHlslString(const std::string& name, const std::string& hlslString, const std::string& entryPoint, InputLayout* inputLayout, const PipelineStage& target) {
+InputLayout* RHIDevice::CreateInputLayoutFromByteCode(ID3DBlob* bytecode) {
+    ID3D11ShaderReflection* vertexReflection = nullptr;
+    bool success = SUCCEEDED(::D3DReflect(bytecode->GetBufferPointer(), bytecode->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&vertexReflection));
+    if(!success) {
+        return nullptr;
+    }
+    InputLayout* il = new InputLayout(this);
+    PopulateInputLayoutUsingReflection(vertexReflection, il);
+    il->CreateInputLayout(bytecode->GetBufferPointer(), bytecode->GetBufferSize());
+    return il;
+}
+
+void RHIDevice::PopulateInputLayoutUsingReflection(ID3D11ShaderReflection* vertexReflection, InputLayout* il) {
+    D3D11_SHADER_DESC desc{};
+    vertexReflection->GetDesc(&desc);
+    unsigned int input_count = desc.InputParameters;
+    unsigned int last_input_slot = 16;
+    for(auto i = 0u; i < input_count; ++i) {
+        D3D11_SIGNATURE_PARAMETER_DESC input_desc{};
+        vertexReflection->GetInputParameterDesc(i, &input_desc);
+        il->AddElement(CreateInputElementFromSignature(input_desc, last_input_slot));
+    }
+}
+
+D3D11_INPUT_ELEMENT_DESC RHIDevice::CreateInputElementFromSignature(D3D11_SIGNATURE_PARAMETER_DESC& input_desc, unsigned int& last_input_slot) {
+    D3D11_INPUT_ELEMENT_DESC elem{};
+    //TODO: Meta file required in the future!
+    elem.InputSlot = 0;
+    elem.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+    elem.InstanceDataStepRate = 0;
+    //-----
+    elem.SemanticName = input_desc.SemanticName;
+    elem.SemanticIndex = input_desc.SemanticIndex;
+    elem.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+    last_input_slot = elem.InputSlot;
+
+    constexpr auto r_mask = D3D_COMPONENT_MASK_X;
+    constexpr auto rg_mask = D3D_COMPONENT_MASK_X | D3D_COMPONENT_MASK_Y;
+    constexpr auto rgb_mask = D3D_COMPONENT_MASK_X | D3D_COMPONENT_MASK_Y | D3D_COMPONENT_MASK_Z;
+    constexpr auto rgba_mask = D3D_COMPONENT_MASK_X | D3D_COMPONENT_MASK_Y | D3D_COMPONENT_MASK_Z | D3D_COMPONENT_MASK_W;
+    auto one_channel_uint = ImageFormatToDxgiFormat(ImageFormat::R32_UInt);
+    auto one_channel_sint = ImageFormatToDxgiFormat(ImageFormat::R32_SInt);
+    auto one_channel_float = ImageFormatToDxgiFormat(ImageFormat::R32_Float);
+    auto two_channel_uint = ImageFormatToDxgiFormat(ImageFormat::R32G32_UInt);
+    auto two_channel_sint = ImageFormatToDxgiFormat(ImageFormat::R32G32_SInt);
+    auto two_channel_float = ImageFormatToDxgiFormat(ImageFormat::R32G32_Float);
+    auto three_channel_uint = ImageFormatToDxgiFormat(ImageFormat::R32G32B32_UInt);
+    auto three_channel_sint = ImageFormatToDxgiFormat(ImageFormat::R32G32B32_SInt);
+    auto three_channel_float = ImageFormatToDxgiFormat(ImageFormat::R32G32B32_Float);
+    auto four_channel_uint = ImageFormatToDxgiFormat(ImageFormat::R32G32B32A32_UInt);
+    auto four_channel_sint = ImageFormatToDxgiFormat(ImageFormat::R32G32B32A32_SInt);
+    auto four_channel_float = ImageFormatToDxgiFormat(ImageFormat::R32G32B32A32_Float);
+    if(input_desc.Mask == r_mask) {
+        switch(input_desc.ComponentType) {
+            case D3D_REGISTER_COMPONENT_UINT32:  elem.Format = one_channel_uint; break;
+            case D3D_REGISTER_COMPONENT_SINT32:  elem.Format = one_channel_sint; break;
+            case D3D_REGISTER_COMPONENT_FLOAT32: elem.Format = one_channel_float; break;
+        }
+    } else if(input_desc.Mask <= rg_mask) {
+        switch(input_desc.ComponentType) {
+            case D3D_REGISTER_COMPONENT_UINT32:  elem.Format = two_channel_uint; break;
+            case D3D_REGISTER_COMPONENT_SINT32:  elem.Format = two_channel_sint; break;
+            case D3D_REGISTER_COMPONENT_FLOAT32: elem.Format = two_channel_float; break;
+        }
+    } else if(input_desc.Mask <= rgb_mask) {
+        switch(input_desc.ComponentType) {
+            case D3D_REGISTER_COMPONENT_UINT32:  elem.Format = three_channel_uint; break;
+            case D3D_REGISTER_COMPONENT_SINT32:  elem.Format = three_channel_sint; break;
+            case D3D_REGISTER_COMPONENT_FLOAT32: elem.Format = three_channel_float; break;
+        }
+    } else if(input_desc.Mask <= rgba_mask) {
+        switch(input_desc.ComponentType) {
+            case D3D_REGISTER_COMPONENT_UINT32:  elem.Format = four_channel_uint; break;
+            case D3D_REGISTER_COMPONENT_SINT32:  elem.Format = four_channel_sint; break;
+            case D3D_REGISTER_COMPONENT_FLOAT32: elem.Format = four_channel_float; break;
+        }
+    }
+    return elem;
+}
+
+ShaderProgram* RHIDevice::CreateShaderProgramFromHlslString(const std::string& name, const std::string& hlslString, const std::string& entryPointList, InputLayout* inputLayout, const PipelineStage& target) {
     bool uses_vs_stage = static_cast<unsigned char>(target & PipelineStage::Vs) != 0;
     bool uses_hs_stage = static_cast<unsigned char>(target & PipelineStage::Hs) != 0;
     bool uses_ds_stage = static_cast<unsigned char>(target & PipelineStage::Ds) != 0;
@@ -203,50 +287,92 @@ ShaderProgram* RHIDevice::CreateShaderProgramFromHlslString(const std::string& n
     bool uses_ps_stage = static_cast<unsigned char>(target & PipelineStage::Ps) != 0;
     bool uses_cs_stage = static_cast<unsigned char>(target & PipelineStage::Cs) != 0;
 
-    ID3DBlob * vs_bytecode = nullptr;
-    ID3D11VertexShader* vs = nullptr;
+    auto entrypoints = StringUtils::Split(entryPointList, ',', false);
+
+    enum class EntrypointIndexes : unsigned char {
+        Vs,
+        Hs,
+        Ds,
+        Gs,
+        Ps,
+        Cs,
+    };
+
+    ShaderProgramDesc desc{};
+    desc.device = this;
+    desc.name = name;
     if(uses_vs_stage) {
-        vs_bytecode = CompileShader(name, hlslString.data(), hlslString.size(), entryPoint, PipelineStage::Vs);
+        std::string stage = ":VS";
+        ID3DBlob * vs_bytecode = CompileShader(name + stage, hlslString.data(), hlslString.size(), entrypoints[static_cast<std::size_t>(EntrypointIndexes::Vs)], PipelineStage::Vs);
+        ID3D11VertexShader* vs = nullptr;
         _dx_device->CreateVertexShader(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize(), nullptr, &vs);
-        inputLayout->CreateInputLayout(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize());
+        if(inputLayout) {
+            inputLayout->CreateInputLayout(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize());
+        } else {
+            inputLayout = CreateInputLayoutFromByteCode(vs_bytecode);
+        }
+        desc.vs = vs;
+        desc.vs_bytecode = vs_bytecode;
+        desc.input_layout = inputLayout;
     }
 
-    ID3DBlob* ps_bytecode = nullptr;
-    ID3D11PixelShader* ps = nullptr;
     if(uses_ps_stage) {
-        ps_bytecode = CompileShader(name, hlslString.data(), hlslString.size(), entryPoint, PipelineStage::Ps);
+        std::string stage = ":PS";
+        ID3DBlob* ps_bytecode = CompileShader(name + stage, hlslString.data(), hlslString.size(), entrypoints[static_cast<std::size_t>(EntrypointIndexes::Ps)], PipelineStage::Ps);
+        ID3D11PixelShader* ps = nullptr;
         _dx_device->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBufferSize(), nullptr, &ps);
+        desc.ps = ps;
+        desc.ps_bytecode = ps_bytecode;
     }
 
-    ID3DBlob* hs_bytecode = nullptr;
-    ID3D11HullShader* hs = nullptr;
     if(uses_hs_stage) {
-        hs_bytecode = CompileShader(name, hlslString.data(), hlslString.size(), entryPoint, PipelineStage::Hs);
+        std::string stage = ":HS";
+        ID3DBlob* hs_bytecode = CompileShader(name + stage, hlslString.data(), hlslString.size(), entrypoints[static_cast<std::size_t>(EntrypointIndexes::Hs)], PipelineStage::Hs);
+        ID3D11HullShader* hs = nullptr;
         _dx_device->CreateHullShader(hs_bytecode->GetBufferPointer(), hs_bytecode->GetBufferSize(), nullptr, &hs);
+        desc.hs = hs;
+        desc.hs_bytecode = hs_bytecode;
     }
 
-    ID3DBlob* ds_bytecode = nullptr;
-    ID3D11DomainShader* ds = nullptr;
     if(uses_ds_stage) {
-        ds_bytecode = CompileShader(name, hlslString.data(), hlslString.size(), entryPoint, PipelineStage::Ds);
+        std::string stage = ":DS";
+        ID3DBlob* ds_bytecode = CompileShader(name + stage, hlslString.data(), hlslString.size(), entrypoints[static_cast<std::size_t>(EntrypointIndexes::Ds)], PipelineStage::Ds);
+        ID3D11DomainShader* ds = nullptr;
         _dx_device->CreateDomainShader(ds_bytecode->GetBufferPointer(), ds_bytecode->GetBufferSize(), nullptr, &ds);
     }
 
-    ID3DBlob* gs_bytecode = nullptr;
-    ID3D11GeometryShader* gs = nullptr;
     if(uses_gs_stage) {
-        gs_bytecode = CompileShader(name, hlslString.data(), hlslString.size(), entryPoint, PipelineStage::Gs);
+        std::string stage = ":GS";
+        ID3DBlob* gs_bytecode = CompileShader(name + stage, hlslString.data(), hlslString.size(), entrypoints[static_cast<std::size_t>(EntrypointIndexes::Gs)], PipelineStage::Gs);
+        ID3D11GeometryShader* gs = nullptr;
         _dx_device->CreateGeometryShader(gs_bytecode->GetBufferPointer(), gs_bytecode->GetBufferSize(), nullptr, &gs);
     }
 
-    ID3DBlob* cs_bytecode = nullptr;
-    ID3D11ComputeShader* cs = nullptr;
     if(uses_cs_stage) {
-        cs_bytecode = CompileShader(name, hlslString.data(), hlslString.size(), entryPoint, PipelineStage::Cs);
+        std::string stage = ":CS";
+        ID3DBlob* cs_bytecode = CompileShader(name + stage, hlslString.data(), hlslString.size(), entrypoints[static_cast<std::size_t>(EntrypointIndexes::Cs)], PipelineStage::Cs);
+        ID3D11ComputeShader* cs = nullptr;
         _dx_device->CreateComputeShader(cs_bytecode->GetBufferPointer(), cs_bytecode->GetBufferSize(), nullptr, &cs);
     }
-    ShaderProgram* new_sp = new ShaderProgram(name, this, vs, ps, vs_bytecode, ps_bytecode, inputLayout, hs, hs_bytecode, ds, ds_bytecode, gs, gs_bytecode, cs, cs_bytecode);
+    ShaderProgram* new_sp = new ShaderProgram(std::move(desc));
     return new_sp;
+}
+
+ShaderProgram* RHIDevice::CreateShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPoint, const PipelineStage& target) {
+    bool retry_requested = false;
+    do {
+        std::string source{};
+        if(FileUtils::ReadBufferFromFile(source, filepath)) {
+            ShaderProgram* sp = CreateShaderProgramFromHlslString(filepath, source, entryPoint, nullptr, target);
+            if(sp) {
+                return sp;
+            }
+            std::ostringstream ss;
+            ss << "Shader program " << filepath << " failed to compile.\nSee Output window for errors.\nPress Retry to recompile.";
+            retry_requested = IDRETRY == ::MessageBoxA(nullptr, ss.str().c_str(), "ShaderProgram Compiler Error", MB_ICONERROR | MB_RETRYCANCEL);
+        }
+    } while(retry_requested);
+    ERROR_AND_DIE("Unrecoverable error. Cannot continue with malformed shader file.");
 }
 
 ID3DBlob* RHIDevice::CompileShader(const std::string& name, const void*  sourceCode, std::size_t sourceCodeSize, const std::string& entryPoint, const PipelineStage& target) {

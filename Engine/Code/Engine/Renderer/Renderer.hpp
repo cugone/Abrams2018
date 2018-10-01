@@ -210,8 +210,9 @@ public:
     RHIOutput* GetOutput() const;
 
     ShaderProgram* GetShaderProgram(const std::string& nameOrFile);
-    ShaderProgram* CreateShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPoint, InputLayout* inputLayout, const PipelineStage& target);
-
+    ShaderProgram* CreateShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPointList, const PipelineStage& target);
+    void CreateAndRegisterShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPointList, const PipelineStage& target);
+    void RegisterShaderProgramsFromFolder(const std::string& folderpath, const std::string& entrypoint, const PipelineStage& target, bool recursive = false);
     void CreateAndRegisterRasterStateFromRasterDescription(const std::string& name, const RasterDesc& desc);
     void SetRasterState(RasterState* raster);
     RasterState* GetRasterState(const std::string& name);
@@ -233,6 +234,7 @@ public:
 
     std::size_t GetShaderCount() const;
     Shader* GetShader(const std::string& nameOrFile);
+    void RegisterShadersFromFolder(const std::string& filepath, bool recursive = false);
 
     std::size_t GetFontCount() const;
     KerningFont* GetFont(const std::string& nameOrFile);
@@ -293,7 +295,10 @@ private:
     void RegisterTexturesFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
     bool RegisterTexture(const std::filesystem::path& filepath);
     void RegisterShaderProgram(const std::string& name, ShaderProgram * sp);
+    void RegisterShaderProgramsFromFolder(const std::filesystem::path& folderpath, const std::string& entrypoint, const PipelineStage& target, bool recursive = false);
     void RegisterShader(const std::string& name, Shader* shader);
+    bool RegisterShader(const std::filesystem::path& filepath);
+    void RegisterShadersFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
     void RegisterMaterial(const std::string& name, Material* mat);
     bool RegisterMaterial(const std::filesystem::path& filepath);
     void RegisterMaterialsFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
@@ -349,6 +354,7 @@ private:
     Sampler* CreatePointSampler();
 
     void CreateAndRegisterDefaultRasterStates();
+    RasterState* CreateDefaultRaster();
     RasterState* CreateWireframeRaster();
     RasterState* CreateSolidRaster();
     RasterState* CreateWireframeNoCullingRaster();

@@ -14,6 +14,7 @@ public:
     ~InputLayout();
 
     void AddElement(std::size_t memberByteOffset, const ImageFormat& format, const char* semantic, unsigned int inputSlot = 0, bool isVertexData = true, unsigned int instanceDataStepRate = 0);
+    void AddElement(const D3D11_INPUT_ELEMENT_DESC& desc);
     void CreateInputLayout(void* byte_code, std::size_t byte_code_length);
     ID3D11InputLayout* GetDxInputLayout() const;
 protected:

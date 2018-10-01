@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace FileUtils {
 
@@ -30,19 +31,13 @@ public:
     };
     struct RiffSubChunk {
         char fourcc[4];
-        uint8_t* data = nullptr;
-        ~RiffSubChunk() {
-            delete[] data;
-            data = nullptr;
-        }
+        std::unique_ptr<uint8_t[]> data{};
+        ~RiffSubChunk() = default;
     };
     struct RiffChunk {
         RiffHeader header{};
-        RiffSubChunk* data = nullptr;
-        ~RiffChunk() {
-            delete[] data;
-            data = nullptr;
-        }
+        std::unique_ptr<RiffSubChunk> data{};
+        ~RiffChunk() = default;
     };
     Riff() = default;
     ~Riff();
@@ -56,8 +51,8 @@ private:
     bool ParseDataIntoChunks(std::vector<unsigned char>& buffer);
 
     void ShowRiffChunkHeaders();
-    std::vector<RiffChunk*> _chunks{};
-    mutable std::vector<RiffChunk*>::iterator _current_chunk{};
+    std::vector<std::unique_ptr<RiffChunk>> _chunks{};
+    mutable decltype(_chunks)::iterator _current_chunk{};
 
     friend class Wav;
 };

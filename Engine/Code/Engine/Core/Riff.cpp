@@ -34,10 +34,8 @@ bool Riff::ParseDataIntoChunks(std::vector<unsigned char>& buffer) {
     bool is_first_chunk = true;
     RiffHeader cur_header{};
     while(stream.read(reinterpret_cast<char*>(&cur_header), sizeof(cur_header))) {
-        RiffChunk* cur_chunk = new RiffChunk;
+        auto cur_chunk = std::make_unique<RiffChunk>();
         if(is_first_chunk && StringUtils::FourCC(cur_header.fourcc) != RiffChunkID::RIFF) {
-            delete cur_chunk;
-            cur_chunk = nullptr;
             return false;
         }
         is_first_chunk = false;
@@ -45,23 +43,15 @@ bool Riff::ParseDataIntoChunks(std::vector<unsigned char>& buffer) {
         switch(StringUtils::FourCC(cur_header.fourcc)) {
             case RiffChunkID::RIFF:
             {
-                RiffSubChunk* subdata = new RiffSubChunk;
+                auto subdata = std::make_unique<RiffSubChunk>();
                 if(!stream.read(reinterpret_cast<char*>(&subdata->fourcc), 4)) {
-                    delete subdata;
-                    subdata = nullptr;
-                    delete cur_chunk;
-                    cur_chunk = nullptr;
                     return false;
                 }
-                subdata->data = new uint8_t[cur_header.length - 4];
-                if(!stream.read(reinterpret_cast<char*>(subdata->data), cur_header.length - 4)) {
-                    delete subdata;
-                    subdata = nullptr;
-                    delete cur_chunk;
-                    cur_chunk = nullptr;
+                subdata->data = std::move(std::make_unique<uint8_t[]>(cur_header.length - 4));
+                if(!stream.read(reinterpret_cast<char*>(subdata->data.get()), cur_header.length - 4)) {
                     return false;
                 }
-                cur_chunk->data = subdata;
+                cur_chunk->data = std::move(subdata);
                 break;
             }
             case RiffChunkID::INFO:
@@ -70,23 +60,15 @@ bool Riff::ParseDataIntoChunks(std::vector<unsigned char>& buffer) {
             }
             case RiffChunkID::LIST:
             {
-                RiffSubChunk* subdata = new RiffSubChunk;
+                auto subdata = std::make_unique<RiffSubChunk>();
                 if(!stream.read(reinterpret_cast<char*>(&subdata->fourcc), 4)) {
-                    delete subdata;
-                    subdata = nullptr;
-                    delete cur_chunk;
-                    cur_chunk = nullptr;
                     return false;
                 }
-                subdata->data = new uint8_t[cur_header.length - 4];
-                if(!stream.read(reinterpret_cast<char*>(subdata->data), cur_header.length - 4)) {
-                    delete subdata;
-                    subdata = nullptr;
-                    delete cur_chunk;
-                    cur_chunk = nullptr;
+                subdata->data = std::move(std::make_unique<uint8_t[]>(cur_header.length - 4));
+                if(!stream.read(reinterpret_cast<char*>(subdata->data.get()), cur_header.length - 4)) {
                     return false;
                 }
-                cur_chunk->data = subdata;
+                cur_chunk->data = std::move(subdata);
                 break;
             }
             default:
@@ -96,7 +78,7 @@ bool Riff::ParseDataIntoChunks(std::vector<unsigned char>& buffer) {
                 break;
             }
         }
-        _chunks.push_back(cur_chunk);
+        _chunks.push_back(std::move(cur_chunk));
     }
     _current_chunk = _chunks.begin();
     return true;
@@ -125,7 +107,7 @@ Riff::RiffChunk* Riff::GetNextChunk() const {
     if(_current_chunk == _chunks.end()) {
         return nullptr;
     }
-    auto chunk = *_current_chunk;
+    auto chunk = (*_current_chunk).get();
     _current_chunk++;
     return chunk;
 }

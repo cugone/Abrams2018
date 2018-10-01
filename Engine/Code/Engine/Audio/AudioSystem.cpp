@@ -31,36 +31,27 @@ AudioSystem::~AudioSystem() {
         std::scoped_lock<std::mutex> _lock(_cs);
         done_cleanup = _active_channels.empty();
     } while(!done_cleanup);
-    for(auto& channel : _active_channels) {
-        channel.reset();
-    }
+
     _active_channels.clear();
     _active_channels.shrink_to_fit();
-    for(auto& channel : _idle_channels) {
-        channel.reset();
-    }
+
     _idle_channels.clear();
     _idle_channels.shrink_to_fit();
 
-    for(auto& sound : _sounds) {
-        delete sound.second;
-        sound.second = nullptr;
-    }
     _sounds.clear();
-
-    for(auto& wav : _wave_files) {
-        delete wav.second;
-        wav.second = nullptr;
-    }
     _wave_files.clear();
 
-    _master_voice->DestroyVoice();
-    _master_voice = nullptr;
+    if(_master_voice) {
+        _master_voice->DestroyVoice();
+        _master_voice = nullptr;
+    }
 
-    _xaudio2->UnregisterForCallbacks(&_engine_callback);
+    if(_xaudio2) {
+        _xaudio2->UnregisterForCallbacks(&_engine_callback);
 
-    _xaudio2->Release();
-    _xaudio2 = nullptr;
+        _xaudio2->Release();
+        _xaudio2 = nullptr;
+    }
 
     ::CoUninitialize();
 }
@@ -196,13 +187,11 @@ void AudioSystem::Play(const std::string& filepath) {
 void AudioSystem::Play(const std::filesystem::path& filepath) {
     auto filepathAsString = filepath.string();
     auto found_iter = _sounds.find(filepathAsString);
-    Sound* snd = nullptr;
     if(found_iter == _sounds.end()) {
-        snd = new Sound(filepathAsString);
-        _sounds.insert_or_assign(filepathAsString, snd);
-    } else {
-        snd = (*found_iter).second;
+        _sounds.insert_or_assign(filepathAsString, std::move(std::make_unique<Sound>(*this, filepathAsString)));
+        found_iter = _sounds.find(filepathAsString);
     }
+    Sound* snd = found_iter->second.get();
     Play(*snd);
 }
 
@@ -219,15 +208,15 @@ void AudioSystem::RegisterWavFile(const std::filesystem::path& filepath) {
         return;
     }
 
-    auto wav = new FileUtils::Wav;
-    auto wav_result = wav->Load(filepath.string());
-    if(wav_result == FileUtils::Wav::WAV_SUCCESS) {
-        _wave_files.insert_or_assign(filepath.string(), wav);
-        return;
+    unsigned int wav_result = FileUtils::Wav::WAV_SUCCESS;
+    {
+        auto wav = std::make_unique<FileUtils::Wav>();
+        wav_result = wav->Load(filepath.string());
+        if(wav_result == FileUtils::Wav::WAV_SUCCESS) {
+            _wave_files.insert_or_assign(filepath.string(), std::move(wav));
+            return;
+        }
     }
-
-    delete wav;
-    wav = nullptr;
     switch(wav_result) {
         case FileUtils::Wav::WAV_ERROR_NOT_A_WAV:
         {
@@ -305,23 +294,23 @@ void AudioSystem::Channel::SetVolume(float newVolume) {
 
 std::size_t AudioSystem::Sound::_id = 0;
 
-AudioSystem::Sound::Sound(const std::string& filepath) {
-    auto wav = new FileUtils::Wav;
-    auto result = wav->Load(filepath);
-    if(result != FileUtils::Wav::WAV_SUCCESS) {
-        delete wav;
-        wav = nullptr;
-        std::string error = "Error loading " + filepath;
-        ERROR_AND_DIE(error.c_str());
+AudioSystem::Sound::Sound(AudioSystem& audiosystem, const std::string& filepath)
+    : _audio_system(&audiosystem)
+{
+    auto path = std::filesystem::path{ filepath };
+    path.make_preferred();
+    auto found_iter = _audio_system->_wave_files.find(path.string());
+    if(found_iter == _audio_system->_wave_files.end()) {
+        _audio_system->RegisterWavFile(path.string());
+        found_iter = _audio_system->_wave_files.find(path.string());
     }
     _my_id = _id++;
-    _wave_file = wav;
+    _wave_file = found_iter->second.get();
 }
 
 AudioSystem::Sound::~Sound() {
     _channels.clear();
     _channels.shrink_to_fit();
-    delete _wave_file;
     _wave_file = nullptr;
 }
 

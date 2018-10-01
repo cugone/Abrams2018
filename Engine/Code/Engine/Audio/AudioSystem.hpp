@@ -39,7 +39,7 @@ public:
     };
     class Sound {
     public:
-        Sound(const std::string& filepath);
+        Sound(AudioSystem& audiosystem, const std::string& filepath);
         ~Sound();
         void AddChannel(Channel* channel);
         void RemoveChannel(Channel* channel);
@@ -49,6 +49,7 @@ public:
         const FileUtils::Wav* const GetWav() const;
     private:
         static std::size_t _id;
+        AudioSystem* _audio_system{};
         std::size_t _my_id = 0;
         FileUtils::Wav* _wave_file{};
         std::vector<Channel*> _channels{};
@@ -110,8 +111,8 @@ private:
     WAVEFORMATEXTENSIBLE _audio_format_ex{};
     std::size_t _sound_count{};
     std::size_t _max_channels{};
-    std::map<std::string, FileUtils::Wav*> _wave_files{};
-    std::map<std::string, Sound*> _sounds{};
+    std::map<std::string, std::unique_ptr<FileUtils::Wav>> _wave_files{};
+    std::map<std::string, std::unique_ptr<Sound>> _sounds{};
     std::vector<std::unique_ptr<Channel>> _active_channels{};
     std::vector<std::unique_ptr<Channel>> _idle_channels{};
     IXAudio2* _xaudio2 = nullptr;

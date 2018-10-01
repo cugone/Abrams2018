@@ -18,7 +18,7 @@ class Wav {
 public:
 
     Wav() = default;
-    ~Wav();
+    ~Wav() = default;
 
     struct WavHeader {
         char fourcc[4]{};
@@ -44,11 +44,8 @@ public:
 
     struct WavDataChunk {
         uint32_t length{};
-        uint8_t* data;
-        ~WavDataChunk() {
-            delete[] data;
-            data = nullptr;
-        }
+        std::unique_ptr<uint8_t[]> data;
+        ~WavDataChunk() = default;
     };
 
     static constexpr const unsigned int WAV_SUCCESS = 0;
@@ -66,8 +63,6 @@ private:
     WavFormatChunk _fmt{};
     WavFactChunk _fact{};
     WavDataChunk _data{};
-    Riff::RiffChunk _list{};
-    Riff* _riff_data = nullptr;
 
 };
 

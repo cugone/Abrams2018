@@ -24,12 +24,25 @@ bool WriteBufferToFile(void* buffer, std::size_t size, const std::string& filePa
 
     std::ofstream ofs;
     ofs.open(p.string(), std::ios_base::binary);
-    if(ofs.write(reinterpret_cast<const char*>(buffer), size)) {
-        ofs.close();
-        return true;
-    }
+    ofs.write(reinterpret_cast<const char*>(buffer), size);
     ofs.close();
-    return false;
+    return true;
+}
+
+bool WriteBufferToFile(const std::string& buffer, const std::string& filePath) {
+    namespace FS = std::filesystem;
+    FS::path p(filePath);
+    p.make_preferred();
+    bool not_valid_path = FS::is_directory(p);
+    if(not_valid_path) {
+        return false;
+    }
+
+    std::ofstream ofs;
+    ofs.open(p.string());
+    ofs.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
+    ofs.close();
+    return true;
 }
 
 bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::string& filePath) {
@@ -51,12 +64,33 @@ bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::strin
     ifs.seekg(0, std::ios_base::beg);
     ifs.clear();
     out_buffer.resize(static_cast<std::size_t>(byte_size));
-    bool success = false;
-    if(ifs.read(reinterpret_cast<char*>(out_buffer.data()), out_buffer.size())) {
-        success = true;
-    }
+    ifs.read(reinterpret_cast<char*>(out_buffer.data()), out_buffer.size());
     ifs.close();
-    return success;
+    return true;
+}
+
+bool ReadBufferFromFile(std::string& out_buffer, const std::string& filepath) {
+
+    namespace FS = std::filesystem;
+    FS::path p(filepath);
+    p.make_preferred();
+    bool path_is_directory = FS::is_directory(p);
+    bool path_not_exist = !FS::exists(p);
+    bool not_valid_path = path_is_directory || path_not_exist;
+    if(not_valid_path) {
+        return false;
+    }
+
+    std::ifstream ifs;
+    ifs.open(p);
+    ifs.seekg(0, std::ios_base::end);
+    auto byte_size = ifs.tellg();
+    ifs.seekg(0, std::ios_base::beg);
+    ifs.clear();
+    out_buffer.resize(static_cast<std::size_t>(byte_size));
+    ifs.read(reinterpret_cast<char*>(out_buffer.data()), out_buffer.size());
+    ifs.close();
+    return true;
 }
 
 bool CreateFolders(const std::string& filepath) {

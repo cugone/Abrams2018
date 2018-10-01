@@ -8,7 +8,9 @@
 namespace FileUtils {
 
 bool WriteBufferToFile(void* buffer, std::size_t size, const std::string& filePath);
+bool WriteBufferToFile(const std::string& buffer, const std::string& filePath);
 bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::string& filePath);
+bool ReadBufferFromFile(std::string& out_buffer, const std::string& filepath);
 bool CreateFolders(const std::string& filepath);
 std::filesystem::path GetAppDataPath();
 std::filesystem::path GetExePath();

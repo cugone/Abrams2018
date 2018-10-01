@@ -301,6 +301,9 @@
     <ClCompile Include="Core\Obj.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Core\KeyValueParser.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -583,6 +586,9 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\Obj.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\KeyValueParser.hpp">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

@@ -45,6 +45,7 @@
     <ClCompile Include="Core\Image.cpp" />
     <ClCompile Include="Core\JobSystem.cpp" />
     <ClCompile Include="Core\KerningFont.cpp" />
+    <ClCompile Include="Core\KeyValueParser.cpp" />
     <ClCompile Include="Core\Mtl.cpp" />
     <ClCompile Include="Core\Obj.cpp" />
     <ClCompile Include="Core\Rgba.cpp" />
@@ -137,6 +138,7 @@
     <ClInclude Include="Core\Image.hpp" />
     <ClInclude Include="Core\JobSystem.hpp" />
     <ClInclude Include="Core\KerningFont.hpp" />
+    <ClInclude Include="Core\KeyValueParser.hpp" />
     <ClInclude Include="Core\Mtl.hpp" />
     <ClInclude Include="Core\Obj.hpp" />
     <ClInclude Include="Core\Rgba.hpp" />

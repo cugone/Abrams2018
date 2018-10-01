@@ -5,10 +5,15 @@
 #include <map>
 #include <string>
 
+class KeyValueParser;
+
 class Config {
 public:
     Config() = default;
+    Config(KeyValueParser&& kvp);
     ~Config() = default;
+
+    bool HasKey(const std::string& key) const;
 
     void GetValue(const std::string& key, char& value);
     void GetValue(const std::string& key, unsigned char& value);
@@ -48,12 +53,6 @@ public:
 
 protected:
 private:
-    bool Parse(std::string& input);
-    bool Parse(std::ifstream& input);
-    bool Parse(std::istream& input);
-    bool ParseMultiParams(const std::string& input);
-    void ConvertFromMultiParam(std::string &whole_line);
-    void CollapseMultiParamWhitespace(std::string &whole_line);
     std::map<std::string, std::string> _config{};
     
 };

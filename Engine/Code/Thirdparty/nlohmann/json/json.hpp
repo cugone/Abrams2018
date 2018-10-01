@@ -1848,7 +1848,7 @@ public:
     std::char_traits<char>::int_type get_character() noexcept override {
         // check if buffer needs to be filled
         if(utf8_bytes_index == utf8_bytes_filled) {
-            if(sizeof(typename WideStringType::value_type) == 2) {
+            if constexpr (sizeof(typename WideStringType::value_type) == 2) {
                 fill_buffer_utf16();
             } else {
                 fill_buffer_utf32();

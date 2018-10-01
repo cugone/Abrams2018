@@ -14,9 +14,11 @@
 #elif defined(FINAL_BUILD)
 #undef TRACK_MEMORY
 #undef PROFILE_BUILD
+#define NO_XML_VALIDATION
 #else
 #define TRACK_MEMORY TRACK_MEMORY_BASIC
 #define PROFILE_BUILD
+#define NO_XML_VALIDATION
 #endif
 
 #define MAX_LOGS 3u

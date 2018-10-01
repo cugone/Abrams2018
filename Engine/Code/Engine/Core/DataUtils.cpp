@@ -1,5 +1,6 @@
 #include "Engine/Core/DataUtils.hpp"
 
+#include "Engine/Core/BuildConfig.cpp"
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
@@ -11,12 +12,13 @@
 
 namespace DataUtils {
 
-void ValidateXmlElement(const XMLElement& element,
-                        const std::string& name,
-                        const std::string& requiredChildElements,
-                        const std::string& requiredAttributes,
-                        const std::string& optionalChildElements /*= std::string("")*/,
-                        const std::string& optionalAttributes /*= std::string("")*/) {
+void ValidateXmlElement([[maybe_unused]] const XMLElement& element,
+                        [[maybe_unused]] const std::string& name,
+                        [[maybe_unused]] const std::string& requiredChildElements,
+                        [[maybe_unused]] const std::string& requiredAttributes,
+                        [[maybe_unused]] const std::string& optionalChildElements /*= std::string("")*/,
+                        [[maybe_unused]] const std::string& optionalAttributes /*= std::string("")*/) {
+#if !defined(NO_XML_VALIDATION)
     if(name.empty()) {
         std::ostringstream err_ss;
         err_ss << "Element validation failed. Element name is required.";
@@ -134,7 +136,8 @@ void ValidateXmlElement(const XMLElement& element,
         }
         ERROR_RECOVERABLE(err_ss.str().c_str());
     }
-#endif
+#endif //#if _DEBUG
+#endif //#if !NO_XML_VALIDATION
 }
 
 void IterateAllAttributes(const XMLElement& element, const std::function<void(const XMLAttribute&)>& callback /*= [](const XMLAttribute&) { / * DO NOTHING * / }*/) {

@@ -806,3 +806,28 @@ CullMode CullModeFromString(std::string str) {
 D3D11_RESOURCE_MISC_FLAG ResourceMiscFlagToD3DMiscFlag(const ResourceMiscFlag& flags) {
     return static_cast<D3D11_RESOURCE_MISC_FLAG>(flags);
 }
+
+std::string PipelineStageToString(const PipelineStage& stage) {
+    switch(stage) {
+        case PipelineStage::None: return std::string{};
+        case PipelineStage::Vs: return std::string{"vs"};
+        case PipelineStage::Hs: return std::string{"hs"};
+        case PipelineStage::Ds: return std::string{"ds"};
+        case PipelineStage::Gs: return std::string{"gs"};
+        case PipelineStage::Ps: return std::string{"ps"};
+        case PipelineStage::Cs: return std::string{"cs"};
+        default: return std::string{""};
+    }
+}
+
+PipelineStage PipelineStageFromString(const std::string& stage) {
+    auto stage_lower = StringUtils::ToLowerCase(stage);
+    if(stage_lower == std::string{})       return PipelineStage::None;
+    else if(stage_lower == std::string{"vs"}) return PipelineStage::Vs;
+    else if(stage_lower == std::string{"hs"}) return PipelineStage::Hs;
+    else if(stage_lower == std::string{"ds"}) return PipelineStage::Ds;
+    else if(stage_lower == std::string{"gs"}) return PipelineStage::Gs;
+    else if(stage_lower == std::string{"ps"}) return PipelineStage::Ps;
+    else if(stage_lower == std::string{"cs"}) return PipelineStage::Cs;
+    else return PipelineStage::None;
+}

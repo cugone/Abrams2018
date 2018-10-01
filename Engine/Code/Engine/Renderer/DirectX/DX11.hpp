@@ -67,3 +67,6 @@ FillMode FillModeFromString(std::string str);
 CullMode CullModeFromString(std::string str);
 
 D3D11_RESOURCE_MISC_FLAG ResourceMiscFlagToD3DMiscFlag(const ResourceMiscFlag& flags);
+
+std::string PipelineStageToString(const PipelineStage& stage);
+PipelineStage PipelineStageFromString(const std::string& stage);

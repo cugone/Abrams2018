@@ -8,6 +8,9 @@
     <Filter Include="Gameplay">
       <UniqueIdentifier>{f1d81600-9ec8-46cc-adb0-4d95a5c18561}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data">
+      <UniqueIdentifier>{449034c3-81b9-4953-a2fb-5e483c93471b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\App.cpp">
@@ -39,5 +42,10 @@
     <ClInclude Include="Game\Game.hpp">
       <Filter>Gameplay</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="..\Run_Win32\Data\Audio\square.wav">
+      <Filter>Data</Filter>
+    </Media>
   </ItemGroup>
 </Project>

@@ -24,6 +24,14 @@ void Camera3D::CalcProjectionMatrix() {
     inv_projection_matrix = Matrix4::CalculateInverse(projection_matrix);
 }
 
+Matrix4 Camera3D::CreateBillboardMatrix(const Matrix4& rotationMatrix) {
+    return inv_view_matrix.GetRotation() * Matrix4::Create3DYRotationDegreesMatrix(180.0f) * rotationMatrix;
+}
+
+Matrix4 Camera3D::CreateReverseBillboardMatrix(const Matrix4& rotationMatrix) {
+    return inv_view_matrix.GetRotation() * rotationMatrix;
+}
+
 Vector3 Camera3D::GetEulerAngles() const {
     return Vector3{rotationPitch, rotationYaw, rotationRoll};
 }

@@ -170,6 +170,7 @@ void Game::Render() const {
     g_theRenderer->SetProjectionMatrix(_camera3->GetProjectionMatrix());
     g_theRenderer->SetViewMatrix(_camera3->GetViewMatrix());
 
+    g_theRenderer->SetAmbientLight(Rgba::WHITE);
     g_theRenderer->SetLightingEyePosition(_camera3->GetPosition());
 
     RenderStuff();
@@ -201,15 +202,26 @@ void Game::RenderStuff() const {
     _spherePos.y = 0.0f;
     _spherePos.z = std::sin(g_theRenderer->GetSystemTime());
     _spherePos *= 5.0f;
-    //g_theRenderer->SetViewMatrix(Matrix4::CreateLookAtMatrix(_camera3->GetPosition(), _spherePos, Vector3::Y_AXIS));
-    Matrix4 T = Matrix4::GetIdentity();//Matrix4::CreateTranslationMatrix(_spherePos);
-    Matrix4 R = Matrix4::GetIdentity();//Matrix4::Create3DYRotationDegreesMatrix(180.0f);
+
+    Matrix4 T = Matrix4::CreateTranslationMatrix(-Vector3::ONE * 2.5f);
+    Matrix4 R = Matrix4::GetIdentity();
     Matrix4 S = Matrix4::GetIdentity();
-    auto inv_view = _camera3->GetInverseViewMatrix();
-    Matrix4 M = T * R * S;// *inv_view.GetRotation();
+    Matrix4 billboard = _camera3->CreateBillboardMatrix(R);
+    Matrix4 M = T * billboard * S;
     g_theRenderer->SetModelMatrix(M);
     g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
-    g_theRenderer->DrawQuad2D();
+    g_theRenderer->DrawQuad(Rgba::RED, Rgba::BLUE);
+
+    T = Matrix4::CreateTranslationMatrix(Vector3::X_AXIS * 5.0f);
+    R = Matrix4::GetIdentity();
+    S = Matrix4::GetIdentity();
+    Matrix4 r_billboard = _camera3->CreateReverseBillboardMatrix(R);
+    M = T * r_billboard * S;
+    g_theRenderer->SetModelMatrix(M);
+    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
+    g_theRenderer->DrawQuad(Rgba::RED, Rgba::BLUE);
+
+
 }
 
 void Game::EndFrame() {

@@ -37,6 +37,8 @@ public:
     float GetFarDistance() const;
 
     const Matrix4& GetRotationMatrix() const;
+    Matrix4 CreateBillboardMatrix(const Matrix4& rotationMatrix);
+    Matrix4 CreateReverseBillboardMatrix(const Matrix4& rotationMatrix);
 
     const Matrix4& GetViewMatrix() const;
     const Matrix4& GetProjectionMatrix() const;
@@ -93,4 +95,5 @@ private:
     float rotationPitch = 0.0f;
     float rotationYaw = 0.0f;
     float rotationRoll = 0.0f;
+
 };

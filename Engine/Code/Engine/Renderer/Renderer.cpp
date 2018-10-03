@@ -2691,6 +2691,72 @@ void Renderer::SetStructuredBuffer(unsigned int index, StructuredBuffer* buffer)
     _rhi_context->SetStructuredBuffer(index, buffer);
 }
 
+void Renderer::DrawQuad(const Vector3& position /*= Vector3::ZERO*/, const Vector3& halfExtents /*= Vector3::XY_AXIS * 0.5f*/, const Rgba& color /*= Rgba::WHITE*/, const Vector4& texCoords /*= Vector4::ZW_AXIS*/, const Vector3& normalFront /*= Vector3::Z_AXIS*/, const Vector3& worldUp /*= Vector3::Y_AXIS*/) {
+    Vector3 right = MathUtils::CrossProduct(worldUp, normalFront).GetNormalize();
+    Vector3 up = MathUtils::CrossProduct(normalFront, right).GetNormalize();
+    Vector3 left = -right;
+    Vector3 down = -up;
+    Vector3 normalBack = -normalFront;
+    Vector3 v_lb = (position + left + down) * halfExtents;
+    Vector3 v_lt = (position + left + up) * halfExtents;
+    Vector3 v_rt = (position + right + up) * halfExtents;
+    Vector3 v_rb = (position + right + down) * halfExtents;
+    Vector2 uv_lt = Vector2(texCoords.x, texCoords.y);
+    Vector2 uv_lb = Vector2(texCoords.x, texCoords.w);
+    Vector2 uv_rt = Vector2(texCoords.z, texCoords.y);
+    Vector2 uv_rb = Vector2(texCoords.z, texCoords.w);
+
+    std::vector<Vertex3D> vbo{
+         Vertex3D(v_lb, color, uv_lb, normalFront)
+        ,Vertex3D(v_lt, color, uv_lt, normalFront)
+        ,Vertex3D(v_rt, color, uv_rt, normalFront)
+        ,Vertex3D(v_rb, color, uv_rb, normalFront)
+        ,Vertex3D(v_rb, color, uv_rb, normalBack)
+        ,Vertex3D(v_rt, color, uv_rt, normalBack)
+        ,Vertex3D(v_lt, color, uv_lt, normalBack)
+        ,Vertex3D(v_lb, color, uv_lb, normalBack)
+    };
+
+    std::vector<unsigned int> ibo{
+         0 ,1 ,2 ,0 ,2 ,3
+        ,4 ,5 ,6 ,4 ,6 ,7
+    };
+    DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
+}
+
+void Renderer::DrawQuad(const Rgba& frontColor, const Rgba& backColor, const Vector3& position /*= Vector3::ZERO*/, const Vector3& halfExtents /*= Vector3::XY_AXIS * 0.5f*/, const Vector4& texCoords /*= Vector4::ZW_AXIS*/, const Vector3& normalFront /*= Vector3::Z_AXIS*/, const Vector3& worldUp /*= Vector3::Y_AXIS*/) {
+    Vector3 right = MathUtils::CrossProduct(worldUp, normalFront).GetNormalize();
+    Vector3 up = MathUtils::CrossProduct(normalFront, right).GetNormalize();
+    Vector3 left = -right;
+    Vector3 down = -up;
+    Vector3 normalBack = -normalFront;
+    Vector3 v_lb = (position + left + down) * halfExtents;
+    Vector3 v_lt = (position + left + up) * halfExtents;
+    Vector3 v_rt = (position + right + up) * halfExtents;
+    Vector3 v_rb = (position + right + down) * halfExtents;
+    Vector2 uv_lt = Vector2(texCoords.x, texCoords.y);
+    Vector2 uv_lb = Vector2(texCoords.x, texCoords.w);
+    Vector2 uv_rt = Vector2(texCoords.z, texCoords.y);
+    Vector2 uv_rb = Vector2(texCoords.z, texCoords.w);
+
+    std::vector<Vertex3D> vbo{
+         Vertex3D(v_lb, frontColor, uv_lb, normalFront)
+        ,Vertex3D(v_lt, frontColor, uv_lt, normalFront)
+        ,Vertex3D(v_rt, frontColor, uv_rt, normalFront)
+        ,Vertex3D(v_rb, frontColor, uv_rb, normalFront)
+        ,Vertex3D(v_rb, backColor, uv_rb, normalBack)
+        ,Vertex3D(v_rt, backColor, uv_rt, normalBack)
+        ,Vertex3D(v_lt, backColor, uv_lt, normalBack)
+        ,Vertex3D(v_lb, backColor, uv_lb, normalBack)
+    };
+
+    std::vector<unsigned int> ibo{
+         0 ,1 ,2 ,0 ,2 ,3
+        ,4 ,5 ,6 ,4 ,6 ,7
+    };
+    DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
+}
+
 std::size_t Renderer::GetShaderCount() const {
     return _shaders.size();
 }

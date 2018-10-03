@@ -260,6 +260,8 @@ public:
     void SetConstantBuffer(unsigned int index, ConstantBuffer* buffer);
     void SetStructuredBuffer(unsigned int index, StructuredBuffer* buffer);
 
+    void DrawQuad(const Vector3& position = Vector3::ZERO, const Vector3& halfExtents = Vector3::XY_AXIS * 0.5f, const Rgba& color = Rgba::WHITE, const Vector4& texCoords = Vector4::ZW_AXIS, const Vector3& normalFront = Vector3::Z_AXIS, const Vector3& worldUp = Vector3::Y_AXIS);
+    void DrawQuad(const Rgba& frontColor, const Rgba& backColor, const Vector3& position = Vector3::ZERO, const Vector3& halfExtents = Vector3::XY_AXIS * 0.5f, const Vector4& texCoords = Vector4::ZW_AXIS, const Vector3& normalFront = Vector3::Z_AXIS, const Vector3& worldUp = Vector3::Y_AXIS);
     void DrawPoint2D(float pointX, float pointY, const Rgba& color = Rgba::WHITE);
     void DrawPoint2D(const Vector2& point, const Rgba& color = Rgba::WHITE);
     void DrawLine2D(float startX, float startY, float endX, float endY, const Rgba& color = Rgba::WHITE, float thickness = 0.0f);

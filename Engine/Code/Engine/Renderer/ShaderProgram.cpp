@@ -1,5 +1,6 @@
 #include "Engine/Renderer/ShaderProgram.hpp"
 
+#include "Engine/Renderer/DirectX/DX11.hpp"
 #include "Engine/Renderer/InputLayout.hpp"
 
 #include "Engine/RHI/RHIDevice.hpp"
@@ -18,7 +19,7 @@ void ShaderProgram::SetDescription(ShaderProgramDesc&& description) {
     _desc = std::move(description);
 }
 
-std::string ShaderProgram::GetName() const {
+const std::string& ShaderProgram::GetName() const {
     return _desc.name;
 }
 
@@ -78,10 +79,8 @@ ID3D11ComputeShader* ShaderProgram::GetCS() const {
     return _desc.cs;
 }
 
-ShaderProgramDesc::ShaderProgramDesc(ShaderProgramDesc&& other)
-{
-    name = other.name;
-    other.name.clear();
+ShaderProgramDesc::ShaderProgramDesc(ShaderProgramDesc&& other) {
+    name = std::move(other.name);
 
     device = other.device;
     other.device = nullptr;
@@ -122,8 +121,7 @@ ShaderProgramDesc::ShaderProgramDesc(ShaderProgramDesc&& other)
 }
 
 ShaderProgramDesc& ShaderProgramDesc::operator=(ShaderProgramDesc&& other) {
-    name = other.name;
-    other.name.clear();
+    name = std::move(other.name);
 
     device = other.device;
     other.device = nullptr;

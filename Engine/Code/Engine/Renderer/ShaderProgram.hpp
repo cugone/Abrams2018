@@ -41,7 +41,7 @@ public:
     ShaderProgramDesc&& GetDescription();
     void SetDescription(ShaderProgramDesc&& description);
 
-    std::string GetName() const;
+    const std::string& GetName() const;
     RHIDevice* GetParentDevice();
     ID3DBlob* GetVSByteCode() const;
     ID3DBlob* GetHSByteCode() const;

@@ -10,15 +10,22 @@
 
 namespace FileUtils {
 
+//Run only as an asynchronous operation highly recommended.
 Obj::Obj(const std::string& filepath)
     : Obj(std::filesystem::path(filepath))
 {
-    /* DO NOTHING */    
+    /* DO NOTHING */
 }
 
+//Run only as an asynchronous operation highly recommended.
 Obj::Obj(const std::filesystem::path& filepath) {
     auto path_copy = filepath;
     path_copy.make_preferred();
+    if(!Load(filepath)) {
+        std::ostringstream ss;
+        ss << "Obj: " << filepath << " failed to load.";
+        ERROR_AND_DIE(ss.str().c_str());
+    }
 }
 
 //Run only as an asynchronous operation highly recommended.
@@ -53,11 +60,13 @@ bool Obj::Save(const std::string& filepath) {
 }
 
 bool Obj::Save(const std::filesystem::path& filepath) {
+    _is_saving = true;
     std::ostringstream buffer;
     for(auto& v : _verts) {
         buffer << "v " << v.x << ' ' << v.y << ' ' << v.z << '\n';
     }
     for(auto& v : _normals) {
+        v.Normalize();
         buffer << "vn " << v.x << ' ' << v.y << ' ' << v.z << '\n';
     }
     for(auto& v : _tex_coords) {
@@ -112,11 +121,30 @@ bool Obj::Save(const std::filesystem::path& filepath) {
         buffer << '\n';
     }
     buffer.flush();
-    return FileUtils::WriteBufferToFile(buffer.str().data(), buffer.str().size(), filepath.string());
+    if(FileUtils::WriteBufferToFile(buffer.str().data(), buffer.str().size(), filepath.string())) {
+        _is_saved = true;
+        _is_saving = false;
+        return true;
+    }
+    _is_saving = false;
+    _is_saved = false;
+    return false;
 }
 
 bool Obj::IsLoaded() const {
     return _is_loaded;
+}
+
+bool Obj::IsLoading() const {
+    return _is_loading;
+}
+
+bool Obj::IsSaving() const {
+    return _is_saving;
+}
+
+bool Obj::IsSaved() const {
+    return _is_saved;
 }
 
 Obj::~Obj() {
@@ -135,6 +163,16 @@ const std::vector<unsigned int>& Obj::GetIbo() const {
 }
 
 bool Obj::Parse(const std::filesystem::path& filepath) {
+    _verts.clear();
+    _tex_coords.clear();
+    _normals.clear();
+    _vbo.clear();
+    _ibo.clear();
+
+    _is_loaded = false;
+    _is_saving = false;
+    _is_saved = false;
+    _is_loading = true;
     std::vector<unsigned char> buffer{};
     if(FileUtils::ReadBufferFromFile(buffer, filepath.string())) {
         std::stringstream ss{};
@@ -146,6 +184,7 @@ bool Obj::Parse(const std::filesystem::path& filepath) {
             ss.seekp(ss.beg);
             std::string cur_line{};
             std::size_t vert_count{};
+            unsigned long long line_index = 0;
             while(std::getline(ss, cur_line, '\n')) {
                 if(StringUtils::StartsWith(cur_line, "v ")) {
                     ++vert_count;
@@ -157,34 +196,61 @@ bool Obj::Parse(const std::filesystem::path& filepath) {
             _verts.reserve(vert_count);
             _vbo.resize(vert_count);
             while(std::getline(ss, cur_line, '\n')) {
-                if(StringUtils::StartsWith(cur_line, "v ")) {
-                    auto elems = StringUtils::Split(StringUtils::TrimWhitespace(std::string{std::begin(cur_line) + 2, std::end(cur_line)}), ' ');
+                cur_line = cur_line.substr(0, cur_line.find_first_of('#'));
+                if(cur_line.empty()) {
+                    continue;
+                }
+                cur_line = StringUtils::TrimWhitespace(cur_line);
+                if(StringUtils::StartsWith(cur_line, "mtllib ")) {
+                    //TODO: MTL materials!
+                    continue;
+                } else if(StringUtils::StartsWith(cur_line, "v ")) {
+                    auto elems = StringUtils::Split(std::string{std::begin(cur_line) + 2, std::end(cur_line)}, ' ');
                     std::string v_str = {"["};
                     v_str += StringUtils::Join(elems, ',');
+                    switch(elems.size()) {
+                    case 4: /* DO NOTHING */                        break;
+                    case 3: v_str += ",1.0";                         break;
+                    case 2: v_str += ",0.0,1.0";                     break;
+                    case 1: v_str += ",0.0,0.0,1.0";                 break;
+                    default: PrintErrorToDebugger(filepath.string(), "vertex", line_index); return false;
+                    }
                     v_str += "]";
                     Vector4 v(v_str);
                     v.CalcHomogeneous();
                     _verts.emplace_back(v);
                 } else if(StringUtils::StartsWith(cur_line, "vt ")) {
-                    auto elems = StringUtils::Split(StringUtils::TrimWhitespace(std::string{ std::begin(cur_line) + 3, std::end(cur_line) }), ' ');
+                    auto elems = StringUtils::Split(std::string{ std::begin(cur_line) + 3, std::end(cur_line) }, ' ');
                     std::string v_str = { "[" };
                     v_str += StringUtils::Join(elems, ',');
+                    switch(elems.size()) {
+                    case 3: /* DO NOTHING */    break;
+                    case 2: v_str += ",0.0";     break;
+                    case 1: v_str += ",0.0,0.0"; break;
+                    default: PrintErrorToDebugger(filepath.string(), "texture coordinate", line_index); return false;
+                    }
                     v_str += "]";
                     _tex_coords.emplace_back(v_str);
                 } else if(StringUtils::StartsWith(cur_line, "vn ")) {
-                    auto elems = StringUtils::Split(StringUtils::TrimWhitespace(std::string{ std::begin(cur_line) + 3, std::end(cur_line) }), ' ');
+                    auto elems = StringUtils::Split(std::string{ std::begin(cur_line) + 3, std::end(cur_line) }, ' ');
                     std::string v_str = { "[" };
                     v_str += StringUtils::Join(elems, ',');
+                    if(elems.size() != 3) {
+                        PrintErrorToDebugger(filepath.string(), "vertex normal", line_index);
+                        return false;
+                    }
                     v_str += "]";
                     _normals.emplace_back(v_str);
                 } else if(StringUtils::StartsWith(cur_line, "f ")) {
                     if(cur_line.find('-') != std::string::npos) {
                         DebuggerPrintf("OBJ implementation does not support relative reference numbers!\n");
+                        PrintErrorToDebugger(filepath.string(), "face index", line_index);
                         return false;
                     }
-                    auto tris = StringUtils::Split(StringUtils::TrimWhitespace(std::string{ std::begin(cur_line) + 2, std::end(cur_line) }), ' ');
+                    auto tris = StringUtils::Split(std::string{ std::begin(cur_line) + 2, std::end(cur_line) }, ' ');
                     if(tris.size() != 3) {
                         DebuggerPrintf("OBJ implementation does not support non-triangle faces!\n");
+                        PrintErrorToDebugger(filepath.string(), "face triplet", line_index);
                         return false;
                     }
                     for(auto& t : tris) {
@@ -198,8 +264,8 @@ bool Obj::Parse(const std::filesystem::path& filepath) {
                                     if(!elems[0].empty()) {
                                         std::size_t cur_v = std::stoul(elems[0]);
                                         cur_vbo_index = cur_v - 1;
-                                        vertex.position = _verts[cur_v - 1];
-                                        _ibo.push_back(cur_v - 1);
+                                        vertex.position = _verts[cur_vbo_index];
+                                        _ibo.push_back(cur_vbo_index);
                                     }
                                     break;
                                 case 1:
@@ -225,10 +291,18 @@ bool Obj::Parse(const std::filesystem::path& filepath) {
             }
             _ibo.shrink_to_fit();
             _is_loaded = true;
+            _is_loading = false;
             return true;
         }
     }
+    _is_loading = false;
     return false;
+}
+
+void Obj::PrintErrorToDebugger(const std::string& filePath, const std::string& elementType, unsigned long long line_index) const {
+    std::ostringstream error_ss{};
+    error_ss << filePath << '(' << line_index << "): Invalid " << elementType << '\n';
+    DebuggerPrintf(error_ss.str().c_str());
 }
 
 } //End FileUtils

@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <locale>
+#include <numeric>
 #include <sstream>
 
 #include "Engine/Core/Win.hpp"
@@ -43,11 +44,6 @@ const std::string Stringf(const int maxLength, const char* format, ...) {
 }
 
 std::vector<std::string> Split(const std::string& string, char delim /*= ','*/, bool skip_empty /*= true*/) {
-
-    if(string.empty()) {
-        return {};
-    }
-
     std::size_t potential_count = 1 + std::count(string.begin(), string.end(), delim);
     std::vector<std::string> result;
     result.reserve(potential_count);
@@ -68,12 +64,9 @@ std::vector<std::string> Split(const std::string& string, char delim /*= ','*/, 
 }
 
 std::string Join(const std::vector<std::string>& strings, char delim, bool skip_empty /*= true*/) {
-    std::size_t total_size = 0;
-    for(auto& s : strings) {
-        if(s.empty()) continue;
-        total_size += 1 + s.size();
-    }
-    std::string result;
+    auto acc_op = [](const std::size_t& a, const std::string& b) { return a + 1 + b.size(); };
+    std::size_t total_size = std::accumulate(std::begin(strings), std::end(strings), 0u, acc_op);
+    std::string result{};
     result.reserve(total_size);
     for(auto iter = strings.begin(); iter != strings.end(); ++iter) {
         if(skip_empty && (*iter).empty()) continue;
@@ -87,16 +80,13 @@ std::string Join(const std::vector<std::string>& strings, char delim, bool skip_
 }
 
 std::string Join(const std::vector<std::string>& strings, bool skip_empty /*= true*/) {
-    std::size_t total_size = 0;
-    for(auto& s : strings) {
-        if(s.empty()) continue;
-        total_size += s.size();
-    }
+    auto acc_op = [](const std::size_t& a, const std::string& b) { return a + b.size(); };
+    std::size_t total_size = std::accumulate(std::begin(strings), std::end(strings), 0u, acc_op);
     std::string result;
     result.reserve(total_size);
-    for(auto iter = strings.begin(); iter != strings.end(); ++iter) {
-        if(skip_empty && (*iter).empty()) continue;
-        result += (*iter);
+    for(const auto& string : strings) {
+        if(skip_empty && string.empty()) continue;
+        result += string;
     }
     result.shrink_to_fit();
     return result;
@@ -139,8 +129,8 @@ bool EndsWith(const std::string& string, const std::string& end) {
 }
 
 std::string TrimWhitespace(std::string string) {
-    auto first_non_space = string.find_first_not_of(" \n\t\v\f\r");
-    auto last_non_space = string.find_last_not_of(" \n\t\v\f\r");
+    auto first_non_space = string.find_first_not_of(" \r\n\t\v\f");
+    auto last_non_space = string.find_last_not_of(" \r\n\t\v\f");
     return string.substr(first_non_space, last_non_space - first_non_space + 1);
 }
 

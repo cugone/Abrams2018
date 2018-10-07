@@ -322,6 +322,37 @@ T RangeMap(const T& valueToMap, const T& minInputRange, const T& maxInputRange, 
     return (valueToMap - minInputRange) * (maxOutputRange - minOutputRange) / (maxInputRange - minInputRange) + minOutputRange;
 }
 
+template<typename T>
+T Wrap(const T& valueToWrap, const T& minValue, const T& maxValue) {
+    T result = valueToWrap;
+    while(result < minValue) {
+        result += maxValue;
+    }
+    while(maxValue < result) {
+        result -= maxValue;
+    }
+    return result;
+}
+
+template<>
+Vector4 Wrap(const Vector4& valuesToWrap, const Vector4& minValues, const Vector4& maxValues);
+
+template<>
+Vector3 Wrap(const Vector3& valuesToWrap, const Vector3& minValues, const Vector3& maxValues);
+
+template<>
+Vector2 Wrap(const Vector2& valuesToWrap, const Vector2& minValues, const Vector2& maxValues);
+
+
+template<>
+IntVector4 Wrap(const IntVector4& valuesToWrap, const IntVector4& minValues, const IntVector4& maxValues);
+
+template<>
+IntVector3 Wrap(const IntVector3& valuesToWrap, const IntVector3& minValues, const IntVector3& maxValues);
+
+template<>
+IntVector2 Wrap(const IntVector2& valuesToWrap, const IntVector2& minValues, const IntVector2& maxValues);
+
 namespace EasingFunctions {
 
 template<typename T, std::size_t... Is>

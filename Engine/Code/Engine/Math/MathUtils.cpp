@@ -914,4 +914,52 @@ Rgba Interpolate(const Rgba& a, const Rgba& b, float t) {
     return result;
 }
 
+template<>
+Vector4 Wrap(const Vector4& valuesToWrap, const Vector4& minValues, const Vector4& maxValues) {
+    auto x = Wrap(valuesToWrap.x, minValues.x, maxValues.x);
+    auto y = Wrap(valuesToWrap.y, minValues.y, maxValues.y);
+    auto z = Wrap(valuesToWrap.z, minValues.z, maxValues.z);
+    auto w = Wrap(valuesToWrap.w, minValues.w, maxValues.w);
+    return Vector4(x, y, z, w);
+}
+
+template<>
+Vector3 Wrap(const Vector3& valuesToWrap, const Vector3& minValues, const Vector3& maxValues) {
+    auto x = Wrap(valuesToWrap.x, minValues.x, maxValues.x);
+    auto y = Wrap(valuesToWrap.y, minValues.y, maxValues.y);
+    auto z = Wrap(valuesToWrap.z, minValues.z, maxValues.z);
+    return Vector3(x, y, z);
+}
+
+template<>
+Vector2 Wrap(const Vector2& valuesToWrap, const Vector2& minValues, const Vector2& maxValues) {
+    auto x = Wrap(valuesToWrap.x, minValues.x, maxValues.x);
+    auto y = Wrap(valuesToWrap.y, minValues.y, maxValues.y);
+    return Vector2(x, y);
+}
+
+template<>
+IntVector4 Wrap(const IntVector4& valuesToWrap, const IntVector4& minValues, const IntVector4& maxValues) {
+    auto x = Wrap(valuesToWrap.x, minValues.x, maxValues.x);
+    auto y = Wrap(valuesToWrap.y, minValues.y, maxValues.y);
+    auto z = Wrap(valuesToWrap.z, minValues.z, maxValues.z);
+    auto w = Wrap(valuesToWrap.w, minValues.w, maxValues.w);
+    return IntVector4(x, y, z, w);
+}
+
+template<>
+IntVector3 Wrap(const IntVector3& valuesToWrap, const IntVector3& minValues, const IntVector3& maxValues) {
+    auto x = Wrap(valuesToWrap.x, minValues.x, maxValues.x);
+    auto y = Wrap(valuesToWrap.y, minValues.y, maxValues.y);
+    auto z = Wrap(valuesToWrap.z, minValues.z, maxValues.z);
+    return IntVector3(x, y, z);
+}
+
+template<>
+IntVector2 Wrap(const IntVector2& valuesToWrap, const IntVector2& minValues, const IntVector2& maxValues) {
+    auto x = Wrap(valuesToWrap.x, minValues.x, maxValues.x);
+    auto y = Wrap(valuesToWrap.y, minValues.y, maxValues.y);
+    return IntVector2(x, y);
+}
+
 } //End MathUtils

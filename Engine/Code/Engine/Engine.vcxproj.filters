@@ -226,9 +226,6 @@
     <ClCompile Include="Core\FileLogger.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Core\ThreadSafeQueue.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer\SpriteSheet.cpp">
       <Filter>Renderer\Core</Filter>
     </ClCompile>
@@ -294,9 +291,6 @@
     </ClCompile>
     <ClCompile Include="Renderer\Model.cpp">
       <Filter>Renderer\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Mtl.cpp">
-      <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Core\Obj.cpp">
       <Filter>Core</Filter>
@@ -581,9 +575,6 @@
     </ClInclude>
     <ClInclude Include="Renderer\Model.hpp">
       <Filter>Renderer\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Mtl.hpp">
-      <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\Obj.hpp">
       <Filter>Core</Filter>

@@ -101,6 +101,8 @@ struct lighting_buffer_t {
     Vector4 ambient = Vector4::ZERO;
     Vector4 specular_glossy_emissive_factors = Vector4(1.0f, 8.0f, 0.0f, 1.0f);
     Vector4 eye_position = Vector4::ZERO;
+    int useVertexNormals = 0;
+    float padding[3] = {0.0f, 0.0f, 0.0f};
 };
 
 class Renderer {
@@ -196,13 +198,11 @@ public:
     void SetAmbientLight(const Rgba& ambient);
     void SetAmbientLight(const Rgba& color, float intensity);
     void SetSpecGlossEmitFactors(Material* mat);
+    void SetUseVertexNormalsForLighting(bool value);
 
     const light_t& GetLight(unsigned int index) const;
-    void SetPointLight(unsigned int index, const light_t& light);
     void SetPointLight(unsigned int index, const PointLightDesc& desc);
-    void SetDirectionalLight(unsigned int index, const light_t& light);
     void SetDirectionalLight(unsigned int index, const DirectionalLightDesc& desc);
-    void SetSpotlight(unsigned int index, const light_t& light);
     void SetSpotlight(unsigned int index, const SpotLightDesc& desc);
 
     RHIDeviceContext* GetDeviceContext() const;
@@ -291,6 +291,7 @@ public:
     constexpr static unsigned int STRUCTURED_BUFFER_START_INDEX = 64;
     constexpr static unsigned int MAX_LIGHT_COUNT = max_light_count;
 
+    std::vector<ConstantBuffer*> CreateConstantBuffersFromShaderProgram(const ShaderProgram* _shader_program) const;
 protected:
 private:
     void UpdateSystemTime(float deltaSeconds);
@@ -320,6 +321,11 @@ private:
     SpriteSheet* CreateSpriteSheetFromGif(const std::string& filepath);
     AnimatedSprite* CreateAnimatedSpriteFromGif(const std::string& filepath);
 
+    void SetLightAtIndex(unsigned int index, const light_t& light);
+    void SetPointLight(unsigned int index, const light_t& light);
+    void SetDirectionalLight(unsigned int index, const light_t& light);
+    void SetSpotlight(unsigned int index, const light_t& light);
+    
     void CreateAndRegisterDefaultTextures();
     Texture* CreateDefaultTexture();
     Texture* CreateInvalidTexture();

@@ -6,6 +6,7 @@
 #include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/Image.hpp"
 #include "Engine/Core/KerningFont.hpp"
+#include "Engine/Core/Obj.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/Vertex3D.hpp"
 
@@ -163,7 +164,7 @@ void Renderer::Initialize(bool headless /*= false*/) {
 
     _matrix_cb = CreateConstantBuffer(&_matrix_data, sizeof(_matrix_data));
     _time_cb = CreateConstantBuffer(&_time_data, sizeof(_time_data));
-    _lighting_cb = CreateConstantBuffer(&_lighting_cb, sizeof(_lighting_data));
+    _lighting_cb = CreateConstantBuffer(&_lighting_data, sizeof(_lighting_data));
 
     CreateAndRegisterDefaultDepthStencilStates();
     CreateAndRegisterDefaultSamplers();
@@ -545,53 +546,40 @@ void Renderer::SetSpecGlossEmitFactors(Material* mat) {
     SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
 }
 
+void Renderer::SetUseVertexNormalsForLighting(bool value) {
+    if(value) {
+        _lighting_data.useVertexNormals = 1;
+    } else {
+        _lighting_data.useVertexNormals = 0;
+    }
+    _lighting_cb->Update(_rhi_context, &_lighting_data);
+    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
+}
+
 const light_t& Renderer::GetLight(unsigned int index) const {
     return _lighting_data.lights[index];
 }
 
-void Renderer::SetPointLight(unsigned int index, const light_t& light) {
-    _lighting_data.lights[index] = light;
-    _lighting_cb->Update(_rhi_context, &_lighting_data);
-    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
-}
-
 void Renderer::SetPointLight(unsigned int index, const PointLightDesc& desc) {
-    auto& l = _lighting_data.lights[index];
-    l = light_t{};
+    auto l = light_t{};
     l.attenuation = Vector4(desc.attenuation, 0.0f);
     l.specAttenuation = l.attenuation;
     l.position = Vector4(desc.position, 1.0f);
     l.color = Vector4(desc.color.GetRgbAsFloats(), desc.intensity);
-    _lighting_cb->Update(_rhi_context, &_lighting_data);
-    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
-}
-
-void Renderer::SetDirectionalLight(unsigned int index, const light_t& light) {
-    _lighting_data.lights[index] = light;
-    _lighting_cb->Update(_rhi_context, &_lighting_data);
-    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
+    SetPointLight(index, l);
 }
 
 void Renderer::SetDirectionalLight(unsigned int index, const DirectionalLightDesc& desc) {
-    auto& l = _lighting_data.lights[index];
-    l = light_t{};
+    auto l = light_t{};
     l.direction = Vector4(desc.direction, 0.0f);
     l.attenuation = Vector4(desc.attenuation, 1.0f);
     l.specAttenuation = l.attenuation;
     l.color = Vector4(desc.color.GetRgbAsFloats(), desc.intensity);
-    _lighting_cb->Update(_rhi_context, &_lighting_data);
-    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
-}
-
-void Renderer::SetSpotlight(unsigned int index, const light_t& light) {
-    _lighting_data.lights[index] = light;
-    _lighting_cb->Update(_rhi_context, &_lighting_data);
-    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
+    SetDirectionalLight(index, l);
 }
 
 void Renderer::SetSpotlight(unsigned int index, const SpotLightDesc& desc) {
-    auto& l = _lighting_data.lights[index];
-    l = light_t{};
+    auto l = light_t{};
     l.attenuation = Vector4(desc.attenuation, 0.0f);
     l.specAttenuation = l.attenuation;
     l.position = Vector4(desc.position, 1.0f);
@@ -610,8 +598,25 @@ void Renderer::SetSpotlight(unsigned int index, const SpotLightDesc& desc) {
 
     l.innerOuterDotThresholds = Vector4(Vector2(inner_dot_threshold, outer_dot_threshold), Vector2::ZERO);
 
+    SetSpotlight(index, l);
+}
+
+void Renderer::SetLightAtIndex(unsigned int index, const light_t& light) {
+    _lighting_data.lights[index] = light;
     _lighting_cb->Update(_rhi_context, &_lighting_data);
     SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
+}
+
+void Renderer::SetPointLight(unsigned int index, const light_t& light) {
+    SetLightAtIndex(index, light);
+}
+
+void Renderer::SetDirectionalLight(unsigned int index, const light_t& light) {
+    SetLightAtIndex(index, light);
+}
+
+void Renderer::SetSpotlight(unsigned int index, const light_t& light) {
+    SetLightAtIndex(index, light);
 }
 
 AnimatedSprite* Renderer::CreateAnimatedSprite(const std::string& filepath) {
@@ -1082,6 +1087,36 @@ void Renderer::AppendMultiLineTextBuffer(KerningFont* font, const std::string& t
     }
 }
 
+std::vector<ConstantBuffer*> Renderer::CreateConstantBuffersFromShaderProgram(const ShaderProgram* _shader_program) const {
+    const auto vs_cbuffers = _rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetVSByteCode());
+    const auto hs_cbuffers = _rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetHSByteCode());
+    const auto ds_cbuffers = _rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetDSByteCode());
+    const auto gs_cbuffers = _rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetGSByteCode());
+    const auto ps_cbuffers = _rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetPSByteCode());
+    const auto cs_cbuffers = _rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetCSByteCode());
+    const auto sizes = std::vector<std::size_t>{
+        vs_cbuffers.size(),
+        hs_cbuffers.size(),
+        ds_cbuffers.size(),
+        gs_cbuffers.size(),
+        ps_cbuffers.size(),
+        cs_cbuffers.size()
+    };
+    auto cbuffer_count = std::accumulate(std::begin(sizes), std::end(sizes), 0);
+    if(!cbuffer_count) {
+        return {};
+    }
+    auto cbuffers = std::vector<ConstantBuffer*>(cbuffer_count, nullptr);
+    cbuffers.reserve(cbuffer_count);
+    std::copy(std::begin(vs_cbuffers), std::end(vs_cbuffers), std::back_inserter(cbuffers));
+    std::copy(std::begin(hs_cbuffers), std::end(hs_cbuffers), std::back_inserter(cbuffers));
+    std::copy(std::begin(ds_cbuffers), std::end(ds_cbuffers), std::back_inserter(cbuffers));
+    std::copy(std::begin(gs_cbuffers), std::end(gs_cbuffers), std::back_inserter(cbuffers));
+    std::copy(std::begin(ps_cbuffers), std::end(ps_cbuffers), std::back_inserter(cbuffers));
+    std::copy(std::begin(cs_cbuffers), std::end(cs_cbuffers), std::back_inserter(cbuffers));
+    return cbuffers;
+}
+
 void Renderer::CreateAndRegisterDefaultShaderPrograms() {
     auto sp = CreateDefaultShaderProgram();
     RegisterShaderProgram(sp->GetName(), sp);
@@ -1143,6 +1178,8 @@ cbuffer lighting_cb : register(b2) {
     float4 g_lightAmbient;
     float4 g_lightSpecGlossEmitFactors;
     float4 g_lightEyePosition;
+    int g_lightUseVertexNormals;
+    float3 g_lightPadding;
 }
 
 struct vs_in_t {
@@ -1192,8 +1229,11 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     float2 uv = input_pixel.uv;
     float4 albedo = tImage.Sample(sSampler, uv);
     float4 tinted_color = albedo * input_pixel.color;
-
-    float3 normal_as_color = tNormal.Sample(sSampler, uv).rgb;
+    
+    float use_vertex_normals = (float)g_lightUseVertexNormals;
+    float use_normal_map = 1.0f - (float)g_lightUseVertexNormals;
+    
+    float3 normal_as_color = use_normal_map * tNormal.Sample(sSampler, uv).rgb + use_vertex_normals * input_pixel.normal.rgb;
     float3 local_normal = ColorAsNormal(normal_as_color);
     local_normal = normalize(local_normal);
     float3 world_position = input_pixel.world_position;
@@ -1217,6 +1257,8 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
         float4 light_color_intensity = g_Lights[light_index].color;
         float4 light_att = g_Lights[light_index].attenuation;
         float4 light_specAtt = g_Lights[light_index].specAttenuation;
+        float  light_max_att_distance = g_Lights[light_index].attenuationDistances.x;
+        float  light_min_att_distance = g_Lights[light_index].attenuationDistances.y;
         float innerDotThreshold = g_Lights[light_index].innerOuterDotThresholds.x;
         float outerDotThreshold = g_Lights[light_index].innerOuterDotThresholds.y;
         float3 light_forward = normalize(g_Lights[light_index].direction.xyz);
@@ -1227,7 +1269,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
 
         float useDirection = light_att.w;
         float useCalcDirection = 1.0f - light_att.w;
-        direction_to_light = useCalcDirection * (direction_to_light)+useDirection * (-light_forward);
+        direction_to_light = useCalcDirection * (direction_to_light) + useDirection * (-light_forward);
 
         //Calculate spotlight penumbra
         float penumbra_dot = dot(-light_forward, direction_to_light);

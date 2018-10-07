@@ -18,7 +18,6 @@
 #else
 #define TRACK_MEMORY TRACK_MEMORY_BASIC
 #define PROFILE_BUILD
-#define NO_XML_VALIDATION
 #endif
 
 #define MAX_LOGS 3u

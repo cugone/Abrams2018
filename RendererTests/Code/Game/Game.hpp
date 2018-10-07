@@ -10,12 +10,18 @@
 
 class Camera2D;
 class Camera3D;
+class ConstantBuffer;
 
 namespace UI {
     class Canvas;
     class Panel;
     class Label;
 }
+
+struct health_buffer_t {
+    float health_percentage = 0.0f;
+    float PADDING[3] = {0.0f};
+};
 
 class Game {
 public:
@@ -44,11 +50,13 @@ private:
     void DrawObj() const;
 
     FileUtils::Obj _obj{};
-
+    ConstantBuffer* _health_cb = nullptr;
+    health_buffer_t health_data{};
     const float _cameraSpeed = 10.0f;
     const float _camera_move_speed_multiplier = 10.0f;
     Camera2D* _camera2 = nullptr;
     Camera3D* _camera3 = nullptr;
     bool _debug = true;
+    bool _slowmo = false;
     bool _wireframe_mode = false;
 };

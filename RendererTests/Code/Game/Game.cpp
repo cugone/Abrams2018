@@ -11,6 +11,7 @@
 #include "Engine/Renderer/AnimatedSprite.hpp"
 #include "Engine/Renderer/Camera2D.hpp"
 #include "Engine/Renderer/Camera3D.hpp"
+#include "Engine/Renderer/ConstantBuffer.hpp"
 #include "Engine/Renderer/RasterState.hpp"
 #include "Engine/Renderer/SpriteSheet.hpp"
 #include "Engine/Renderer/Texture.hpp"
@@ -19,6 +20,7 @@
 #include "Engine/Renderer/Texture3D.hpp"
 #include "Engine/Renderer/Window.hpp"
 
+#include "Engine/RHI/RHIDeviceContext.hpp"
 #include "Engine/RHI/RHIOutput.hpp"
 
 #include "Engine/UI/UI.hpp"
@@ -37,6 +39,10 @@ Game::Game() {
 }
 
 Game::~Game() {
+
+    delete _health_cb;
+    _health_cb = nullptr;
+
     delete _camera3;
     _camera3 = nullptr;
 
@@ -52,10 +58,13 @@ void Game::Initialize() {
 
 void Game::InitializeData() {
     g_theRenderer->RegisterTexturesFromFolder(std::string{ "Data/Images" });
-    g_theRenderer->RegisterShaderProgramsFromFolder(std::string{"Data/ShaderPrograms"}, "VertexFunction,,,,PixelFunction,,", PipelineStage::Vs | PipelineStage::Ps);
+    //g_theRenderer->RegisterShaderProgramsFromFolder(std::string{"Data/ShaderPrograms"}, "VertexFunction,,,,PixelFunction,,", PipelineStage::Vs | PipelineStage::Ps);
     g_theRenderer->RegisterShadersFromFolder(std::string{ "Data/Shaders" });
     g_theRenderer->RegisterMaterialsFromFolder(std::string{ "Data/Materials" });
     g_theRenderer->RegisterFontsFromFolder(std::string{ "Data/Fonts" });
+
+    _health_cb = g_theRenderer->CreateConstantBuffer(&health_data, sizeof(health_data));
+    _camera3->SetPosition(Vector3(0.0f, 5.0f, -10.0f));
 }
 
 void Game::InitializeUI() {
@@ -72,6 +81,12 @@ void Game::Update(float deltaSeconds) {
         return;
     }
 
+    _slowmo = false;
+    if(g_theInput->IsKeyDown(KeyCode::RCtrl)) {
+        _slowmo = true;
+    }
+
+    g_theRenderer->UpdateGameTime(_slowmo ? deltaSeconds * 0.10f : deltaSeconds);
     UpdateCameraFromKeyboard(deltaSeconds);
     UpdateCameraFromMouse(deltaSeconds);
 
@@ -84,16 +99,33 @@ void Game::Update(float deltaSeconds) {
     }
 
     if(g_theInput->WasKeyJustPressed(KeyCode::L)) {
-        _obj.Load(std::string{"Data/Models/suzanne.obj"});
+        g_theJobSystem->Run(JobType::Generic, [this](void*) {
+            if(!(_obj.IsLoaded() || _obj.IsLoading())) {
+                _obj.Load(std::string{ "Data/Models/suzanne.obj" });
+            }
+        }, nullptr);
+        
     }
 
     if(g_theInput->WasKeyJustPressed(KeyCode::M)) {
-        _obj.Save(std::string{"Data/Models/suzanne_out.obj"});
+        g_theJobSystem->Run(JobType::Generic, [this](void*) {
+            if(!_obj.IsSaving()) {
+                _obj.Save(std::string{ "Data/Models/suzanne_out.obj" });
+            }
+        }, nullptr);
     }
 
     if(g_theInput->WasKeyJustPressed(KeyCode::F3)) {
         _wireframe_mode = !_wireframe_mode;
     }
+
+    if(g_theInput->IsKeyDown(KeyCode::Up)) {
+        health_data.health_percentage += 0.1f * deltaSeconds;
+    } else if(g_theInput->IsKeyDown(KeyCode::Down)) {
+        health_data.health_percentage -= 0.1f * deltaSeconds;
+    }
+    health_data.health_percentage = std::clamp(health_data.health_percentage, 0.0f, 1.0f);
+    _health_cb->Update(g_theRenderer->GetDeviceContext(), &health_data);
 
     _camera2->Update(deltaSeconds);
     _camera3->Update(deltaSeconds);
@@ -135,13 +167,15 @@ void Game::UpdateCameraFromKeyboard(float deltaSeconds) {
     }
 
     if(g_theInput->WasKeyJustPressed(KeyCode::R)) {
-        _camera3->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
+        _camera3->SetPosition(Vector3::ZERO);
         _camera3->SetEulerAngles(Vector3{0.0f, 0.0f, 0.0f});
         _camera2->SetPosition(Vector2::ZERO);
         _camera2->SetRotationDegrees(0.0f);
+        health_data.health_percentage = 0.0f;
     }
 
 }
+
 void Game::UpdateCameraFromMouse(float /*deltaSeconds*/) {
     if(g_theApp->HasFocus()) {
         const auto& window = *(g_theRenderer->GetOutput()->GetWindow());
@@ -170,8 +204,14 @@ void Game::Render() const {
     g_theRenderer->SetProjectionMatrix(_camera3->GetProjectionMatrix());
     g_theRenderer->SetViewMatrix(_camera3->GetViewMatrix());
 
-    g_theRenderer->SetAmbientLight(Rgba::WHITE);
+    g_theRenderer->SetAmbientLight(Rgba::WHITE, 5.0f);
     g_theRenderer->SetLightingEyePosition(_camera3->GetPosition());
+
+    DirectionalLightDesc dl_desc{};
+    dl_desc.color = Rgba::RED;
+    dl_desc.direction = -Vector3::Y_AXIS;
+    dl_desc.intensity = 10.0f;
+    g_theRenderer->SetDirectionalLight(0, dl_desc);
 
     RenderStuff();
 
@@ -187,7 +227,25 @@ void Game::Render() const {
     Vector2 cam_pos2 = Vector2(_camera2->GetPosition());
 
     _camera2->SetupView(view_leftBottom, view_rightTop, view_nearFar, MathUtils::M_16_BY_9_RATIO);
+    g_theRenderer->SetViewMatrix(_camera2->GetViewMatrix());
+    g_theRenderer->SetProjectionMatrix(_camera2->GetProjectionMatrix());
 
+    auto font = g_theRenderer->GetFont("System32");
+    g_theRenderer->SetMaterial(font->GetMaterial());
+    {
+        std::ostringstream ss;
+        ss << "Health" << std::fixed << std::setprecision(1) << std::setw(4) << health_data.health_percentage * 100.0f << '%';
+        ss << "\nPos:" << _camera3->GetPosition();
+        ss << "\nAngles:" << _camera3->GetEulerAngles();
+        ss << "\nLoading: " << std::boolalpha << _obj.IsLoading() << std::noboolalpha;
+        ss << "\nLoaded: " << std::boolalpha << _obj.IsLoaded() << std::noboolalpha;
+        ss << "\nSaving: " << std::boolalpha << _obj.IsSaving() << std::noboolalpha;
+        ss << "\nSaved: " << std::boolalpha << _obj.IsSaved() << std::noboolalpha;
+        ss << "\ntime: " << g_theRenderer->GetGameTime();
+        Matrix4 T = Matrix4::GetIdentity();
+        g_theRenderer->SetModelMatrix(T);
+        g_theRenderer->DrawMultilineText(font, ss.str());
+    }
 }
 
 void Game::RenderStuff() const {
@@ -196,32 +254,6 @@ void Game::RenderStuff() const {
     DrawAxes();
 
     g_theRenderer->EnableDepth();
-
-    Vector3 _spherePos{};
-    _spherePos.x = std::cos(g_theRenderer->GetSystemTime());
-    _spherePos.y = 0.0f;
-    _spherePos.z = std::sin(g_theRenderer->GetSystemTime());
-    _spherePos *= 5.0f;
-
-    Matrix4 T = Matrix4::CreateTranslationMatrix(-Vector3::ONE * 2.5f);
-    Matrix4 R = Matrix4::GetIdentity();
-    Matrix4 S = Matrix4::GetIdentity();
-    Matrix4 billboard = _camera3->CreateBillboardMatrix(R);
-    Matrix4 M = T * billboard * S;
-    g_theRenderer->SetModelMatrix(M);
-    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
-    g_theRenderer->DrawQuad(Rgba::RED, Rgba::BLUE);
-
-    T = Matrix4::CreateTranslationMatrix(Vector3::X_AXIS * 5.0f);
-    R = Matrix4::GetIdentity();
-    S = Matrix4::GetIdentity();
-    Matrix4 r_billboard = _camera3->CreateReverseBillboardMatrix(R);
-    M = T * r_billboard * S;
-    g_theRenderer->SetModelMatrix(M);
-    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
-    g_theRenderer->DrawQuad(Rgba::RED, Rgba::BLUE);
-
-
 }
 
 void Game::EndFrame() {
@@ -332,19 +364,24 @@ void Game::DrawCube() const {
 
 void Game::DrawObj() const {
     if(_obj.IsLoaded()) {
-        g_theRenderer->SetAmbientLight(Rgba::GREY, 0.5f);
-        DirectionalLightDesc dl_desc{};
-        dl_desc.direction = Vector3(-1.0f, -1.0f, 0.0f).GetNormalize();
-        g_theRenderer->SetDirectionalLight(0, dl_desc);
+        g_theRenderer->SetAmbientLight(Rgba::WHITE, 0.25f);
+        SpotLightDesc sl_desc{};
+        sl_desc.color = Rgba::WHITE;
+        sl_desc.direction = _camera3->GetForward();
+        sl_desc.position = _camera3->GetPosition();
+        sl_desc.intensity = 1.0f;
+        sl_desc.inner_outer_anglesDegrees = Vector2{10.0f, 30.0f};
+        g_theRenderer->SetSpotlight(2, sl_desc);
         Matrix4 T = Matrix4::GetIdentity();
         Matrix4 R = Matrix4::GetIdentity();
         Matrix4 S = Matrix4::CreateScaleMatrix(10.0f);
         Matrix4 M = T * R * S;
         g_theRenderer->SetModelMatrix(M);
-        g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__normal"));
+        g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__default"));
         auto raster = _wireframe_mode ? g_theRenderer->GetRasterState("__wireframe")
                                       : g_theRenderer->GetRasterState("__solid");
         g_theRenderer->SetRasterState(raster);
+        g_theRenderer->SetUseVertexNormalsForLighting(true);
         g_theRenderer->DrawIndexed(PrimitiveType::Triangles, _obj.GetVbo(), _obj.GetIbo());
     }
 }

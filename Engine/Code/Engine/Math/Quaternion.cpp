@@ -17,7 +17,7 @@ Quaternion::Quaternion(const Matrix4& mat)
     //From http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
 
     Vector4 diag = mat.GetDiagonal();
-    float trace = diag.x + diag.y + diag.z;
+    float trace = mat.CalculateTrace();
 
     Vector3 row_zero = Vector3(mat.GetIBasis());
     Vector3 row_one = Vector3(mat.GetJBasis());
@@ -26,14 +26,13 @@ Quaternion::Quaternion(const Matrix4& mat)
 
     if(trace > 0.0f) {
 
-        float S = std::sqrt(1.0f + trace);
+        float S = 0.5f / std::sqrt(trace);
 
-        w = 0.5f * S;
+        w = 0.25f / S;
 
-        float t = 0.5f / S;
-        axis.x = (row_two.y - row_one.z)  * t;
-        axis.y = (row_zero.z - row_two.x) * t;
-        axis.z = (row_one.x - row_zero.y) * t;
+        axis.x = (row_two.y - row_one.z)  * S;
+        axis.y = (row_zero.z - row_two.x) * S;
+        axis.z = (row_one.x - row_zero.y) * S;
 
     } else {
 

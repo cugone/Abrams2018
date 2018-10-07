@@ -10,6 +10,7 @@
 // DEBUG STUFF
 #include <dxgidebug.h>
 #include <D3Dcommon.h>
+#include <d3d11sdklayers.h>
 
 // LIBS
 #pragma comment( lib, "d3d11.lib" )

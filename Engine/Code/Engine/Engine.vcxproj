@@ -47,6 +47,7 @@
     <ClCompile Include="Core\KerningFont.cpp" />
     <ClCompile Include="Core\KeyValueParser.cpp" />
     <ClCompile Include="Core\Obj.cpp" />
+    <ClCompile Include="Core\ProfileLogScope.cpp" />
     <ClCompile Include="Core\Profiler.cpp" />
     <ClCompile Include="Core\Rgba.cpp" />
     <ClCompile Include="Core\Riff.cpp" />
@@ -139,6 +140,7 @@
     <ClInclude Include="Core\KerningFont.hpp" />
     <ClInclude Include="Core\KeyValueParser.hpp" />
     <ClInclude Include="Core\Obj.hpp" />
+    <ClInclude Include="Core\ProfileLogScope.hpp" />
     <ClInclude Include="Core\Profiler.hpp" />
     <ClInclude Include="Core\Rgba.hpp" />
     <ClInclude Include="Core\Riff.hpp" />

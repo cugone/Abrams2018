@@ -194,7 +194,7 @@ void Camera3D::SetEulerAnglesDegrees(const Vector3& eulerAnglesDegrees) {
 
 void Camera3D::SetForwardFromTarget(const Vector3& lookAtPosition) {
     Vector3 forward = (lookAtPosition - position).GetNormalize();
-    Vector3 right = MathUtils::CrossProduct(forward, world_up.GetNormalize());
+    Vector3 right = MathUtils::CrossProduct(world_up.GetNormalize(), forward);
     Vector3 up = MathUtils::CrossProduct(forward, right);
     Matrix4 m;
     m.SetIBasis(Vector4(right, 0.0f));

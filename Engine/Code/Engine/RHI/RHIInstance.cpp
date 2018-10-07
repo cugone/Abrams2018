@@ -49,7 +49,7 @@ void RHIInstance::DestroyInstance() {
     }
 }
 
-RHIDevice* RHIInstance::CreateDevice() {
+RHIDevice* RHIInstance::CreateDevice() noexcept {
     return new RHIDevice();
 }
 

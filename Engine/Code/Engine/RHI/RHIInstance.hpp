@@ -12,7 +12,7 @@ public:
     static RHIInstance* CreateInstance();
     static void DestroyInstance();
 
-    RHIDevice* CreateDevice();
+    RHIDevice* CreateDevice() noexcept;
 
 protected:
     RHIInstance();

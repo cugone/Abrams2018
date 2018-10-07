@@ -9,6 +9,9 @@
 #include "Engine/Renderer/RasterState.hpp"
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Sampler.hpp"
+#include "Engine/Renderer/ShaderProgram.hpp"
+
+#include "Engine/RHI/RHIDevice.hpp"
 
 #include <algorithm>
 #include <filesystem>
@@ -131,7 +134,7 @@ bool Shader::LoadFromXml(Renderer* renderer, const XMLElement& element) {
 
     FS::path p(sp_src);
     p.make_preferred();
-    if((_shader_program = _renderer->GetShaderProgram(p.string())) == nullptr) {
+    if(nullptr == (_shader_program = _renderer->GetShaderProgram(p.string()))) {
         if(StringUtils::StartsWith(p.string(), "__")) {
             std::ostringstream ss;
             ss << "Intrinsic ShaderProgram referenced in Shader file \"" << _name << "\" does not already exist.";
@@ -187,6 +190,7 @@ bool Shader::LoadFromXml(Renderer* renderer, const XMLElement& element) {
             }
         }
     }
+    _cbuffers = _renderer->CreateConstantBuffersFromShaderProgram(_shader_program);
     _depth_stencil_state = new DepthStencilState(_renderer->GetDevice(), element);
     _blend_state = new BlendState(_renderer->GetDevice(), element);
 

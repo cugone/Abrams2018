@@ -7,6 +7,7 @@
 #include "Engine/Core/Image.hpp"
 #include "Engine/Core/KerningFont.hpp"
 #include "Engine/Core/Obj.hpp"
+#include "Engine/Core/ProfileLogScope.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/Vertex3D.hpp"
 
@@ -316,27 +317,27 @@ void Renderer::DrawWorldGridXZ(float radius /*= 500.0f*/, float major_gridsize /
     vbo.reserve(4 * static_cast<std::size_t>(std::ceil(length / minor_gridsize)) - static_cast<std::size_t>(major_gridsize));
     //MAJOR LINES
     for(float x = -half_length; x < half_length + 1.0f; x += space_between_majors) {
-        vbo.push_back(Vertex3D(Vector3(x, 0.0f, -half_length), major_color));
-        vbo.push_back(Vertex3D(Vector3(x, 0.0f, half_length), major_color));
+        vbo.emplace_back(Vector3(x, 0.0f, -half_length), major_color);
+        vbo.emplace_back(Vector3(x, 0.0f, half_length), major_color);
     }
     for(float z = -half_length; z < half_length + 1.0f; z += space_between_majors) {
-        vbo.push_back(Vertex3D(Vector3(-half_length, 0.0f, z), major_color));
-        vbo.push_back(Vertex3D(Vector3(half_length, 0.0f, z), major_color));
+        vbo.emplace_back(Vector3(-half_length, 0.0f, z), major_color);
+        vbo.emplace_back(Vector3(half_length, 0.0f, z), major_color);
     }
     //MINOR LINES
     for(float x = -half_length; x < half_length; x += space_between_minors) {
         if(MathUtils::IsEquivalent(std::fmod(x, space_between_majors), 0.0f)) {
             continue;
         }
-        vbo.push_back(Vertex3D(Vector3(x, 0.0f, -half_length), minor_color));
-        vbo.push_back(Vertex3D(Vector3(x, 0.0f, half_length), minor_color));
+        vbo.emplace_back(Vector3(x, 0.0f, -half_length), minor_color);
+        vbo.emplace_back(Vector3(x, 0.0f, half_length), minor_color);
     }
     for(float z = -half_length; z < half_length; z += space_between_minors) {
         if(MathUtils::IsEquivalent(std::fmod(z, space_between_majors), 0.0f)) {
             continue;
         }
-        vbo.push_back(Vertex3D(Vector3(-half_length, 0.0f, z), minor_color));
-        vbo.push_back(Vertex3D(Vector3(half_length, 0.0f, z), minor_color));
+        vbo.emplace_back(Vector3(-half_length, 0.0f, z), minor_color);
+        vbo.emplace_back(Vector3(half_length, 0.0f, z), minor_color);
     }
 
     static std::vector<unsigned int> ibo{};
@@ -363,12 +364,12 @@ void Renderer::DrawWorldGridXY(float radius /*= 500.0f*/, float major_gridsize /
     std::vector<Vertex3D> major_vbo{};
     //MAJOR LINES
     for(float x = -half_length; x < half_length + 1.0f; x += space_between_majors) {
-        major_vbo.push_back(Vertex3D(Vector3(x, -half_length, 0.0f), major_color));
-        major_vbo.push_back(Vertex3D(Vector3(x, half_length, 0.0f), major_color));
+        major_vbo.emplace_back(Vector3(x, -half_length, 0.0f), major_color);
+        major_vbo.emplace_back(Vector3(x, half_length, 0.0f), major_color);
     }
     for(float y = -half_length; y < half_length + 1.0f; y += space_between_majors) {
-        major_vbo.push_back(Vertex3D(Vector3(-half_length, y, 0.0f), major_color));
-        major_vbo.push_back(Vertex3D(Vector3(half_length, y, 0.0f), major_color));
+        major_vbo.emplace_back(Vector3(-half_length, y, 0.0f), major_color);
+        major_vbo.emplace_back(Vector3(half_length, y, 0.0f), major_color);
     }
     bool major_minor_are_same_size = MathUtils::IsEquivalent(major_gridsize, minor_gridsize);
     bool has_minors = !major_minor_are_same_size;
@@ -379,15 +380,15 @@ void Renderer::DrawWorldGridXY(float radius /*= 500.0f*/, float major_gridsize /
             if(MathUtils::IsEquivalent(std::fmod(x, space_between_majors), 0.0f)) {
                 continue;
             }
-            minor_vbo.push_back(Vertex3D(Vector3(x, -half_length, 0.0f), minor_color));
-            minor_vbo.push_back(Vertex3D(Vector3(x, half_length, 0.0f), minor_color));
+            minor_vbo.emplace_back(Vector3(x, -half_length, 0.0f), minor_color);
+            minor_vbo.emplace_back(Vector3(x, half_length, 0.0f), minor_color);
         }
         for(float y = -half_length; y < half_length; y += space_between_minors) {
             if(MathUtils::IsEquivalent(std::fmod(y, space_between_majors), 0.0f)) {
                 continue;
             }
-            minor_vbo.push_back(Vertex3D(Vector3(-half_length, y, 0.0f), minor_color));
-            minor_vbo.push_back(Vertex3D(Vector3(half_length, y, 0.0f), minor_color));
+            minor_vbo.emplace_back(Vector3(-half_length, y, 0.0f), minor_color);
+            minor_vbo.emplace_back(Vector3(half_length, y, 0.0f), minor_color);
         }
     }
 
@@ -451,39 +452,39 @@ void Renderer::DrawDebugSphere(const Rgba& color) {
         float radians = MathUtils::ConvertDegreesToRadians(degrees);
         float pX = std::cos(radians) + centerX;
         float pY = std::sin(radians) + centerY;
-        verts.push_back(Vector3(Vector2(pX, pY), 0.0f));
+        verts.emplace_back(Vector2(pX, pY), 0.0f);
     }
     {
         float radians = MathUtils::ConvertDegreesToRadians(360.0f);
         float pX = std::cos(radians) + centerX;
         float pY = std::sin(radians) + centerY;
-        verts.push_back(Vector3(Vector2(pX, pY), 0.0f));
+        verts.emplace_back(Vector2(pX, pY), 0.0f);
     }
 
     for(float degrees = 0.0f; degrees < 360.0f; degrees += anglePerVertex) {
         float radians = MathUtils::ConvertDegreesToRadians(degrees);
         float pX = std::cos(radians) + centerX;
         float pY = std::sin(radians) + centerY;
-        verts.push_back(Vector3(Vector2(pX, 0.0f), pY));
+        verts.emplace_back(Vector2(pX, 0.0f), pY);
     }
     {
         float radians = MathUtils::ConvertDegreesToRadians(360.0f);
         float pX = std::cos(radians) + centerX;
         float pY = std::sin(radians) + centerY;
-        verts.push_back(Vector3(Vector2(pX, 0.0f), pY));
+        verts.emplace_back(Vector2(pX, 0.0f), pY);
     }
 
     for(float degrees = 0.0f; degrees < 360.0f; degrees += anglePerVertex) {
         float radians = MathUtils::ConvertDegreesToRadians(degrees);
         float pX = std::cos(radians) + centerX;
         float pY = std::sin(radians) + centerY;
-        verts.push_back(Vector3(Vector2(0.0f, pX), pY));
+        verts.emplace_back(Vector2(0.0f, pX), pY);
     }
     {
         float radians = MathUtils::ConvertDegreesToRadians(360.0f);
         float pX = std::cos(radians) + centerX;
         float pY = std::sin(radians) + centerY;
-        verts.push_back(Vector3(Vector2(0.0f, pX), pY));
+        verts.emplace_back(Vector2(0.0f, pX), pY);
     }
     std::vector<Vertex3D> vbo;
     vbo.resize(verts.size());
@@ -671,7 +672,7 @@ SpriteSheet* Renderer::CreateSpriteSheetFromGif(const std::string& filepath) {
         return nullptr;
     }
     Image img(p.string());
-    auto delays = img.GetDelaysIfGif();
+    const auto& delays = img.GetDelaysIfGif();
     auto tex = GetTexture(p.string());
     auto spr = new SpriteSheet(tex, 1, delays.size());
     tex = nullptr;
@@ -730,12 +731,10 @@ void Renderer::DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, Ind
 }
 
 void Renderer::DrawPoint2D(float pointX, float pointY, const Rgba& color /*= Rgba::WHITE*/) {
-    std::vector<Vertex3D> vbo;
-    vbo.clear();
+    std::vector<Vertex3D> vbo{};
     vbo.reserve(1);
-    vbo.push_back(Vertex3D(Vector3(pointX, pointY, 0.0f), color));
-    std::vector<unsigned int> ibo;
-    ibo.clear();
+    vbo.emplace_back(Vector3(pointX, pointY, 0.0f), color);
+    std::vector<unsigned int> ibo{};
     ibo.reserve(1);
     ibo.push_back(0);
     DrawIndexed(PrimitiveType::Points, vbo, ibo);
@@ -833,7 +832,7 @@ void Renderer::DrawCircle2D(const Vector2& center, float radius, const Rgba& col
 void Renderer::DrawFilledCircle2D(const Vector2& center, float radius, const Rgba& color /*= Rgba::WHITE*/) {
 
     int num_sides = 65;
-    std::vector<Vector3> verts;
+    std::vector<Vector3> verts{};
     verts.reserve(num_sides + 1);
     float anglePerVertex = 360.0f / static_cast<float>(num_sides);
     for(float degrees = 0.0f; degrees < 360.0f; degrees += anglePerVertex) {
@@ -845,8 +844,8 @@ void Renderer::DrawFilledCircle2D(const Vector2& center, float radius, const Rgb
 
     std::vector<Vertex3D> vbo;
     vbo.reserve(verts.size());
-    for(std::size_t i = 0; i < verts.size(); ++i) {
-        vbo.emplace_back(verts[i], color);
+    for(const auto& vert : verts) {
+        vbo.emplace_back(vert, color);
     }
 
     std::vector<unsigned int> ibo(num_sides * 3);
@@ -942,7 +941,7 @@ void Renderer::DrawPolygon2D(float centerX, float centerY, float radius, std::si
         float radians = MathUtils::ConvertDegreesToRadians(degrees);
         float pX = radius * std::cos(radians) + centerX;
         float pY = radius * std::sin(radians) + centerY;
-        verts.push_back(Vector3(Vector2(pX, pY), 0.0f));
+        verts.emplace_back(Vector2(pX, pY), 0.0f);
     }
 
     std::vector<Vertex3D> vbo;
@@ -967,17 +966,16 @@ void Renderer::DrawTextLine(KerningFont* font, const std::string& text, const Rg
     if(font == nullptr) {
         return;
     }
-    //Yes, it's inefficient but I need the size later anyway!
-    std::size_t text_size = text.size();
-    if(text_size == 0) {
+    if(text.empty()) {
         return;
     }
 
     float cursor_x = 0.0f;
     float cursor_y = 0.0f;
     float line_top = cursor_y - font->GetCommonDef().base;
-    float texture_w = static_cast<float>(font->GetCommonDef().scale.x);
-    float texture_h = static_cast<float>(font->GetCommonDef().scale.y);
+    auto texture_w = static_cast<float>(font->GetCommonDef().scale.x);
+    auto texture_h = static_cast<float>(font->GetCommonDef().scale.y);
+    std::size_t text_size = text.size();
     std::vector<Vertex3D> vbo;
     vbo.reserve(text_size * 4);
     std::vector<unsigned int> ibo;
@@ -995,10 +993,10 @@ void Renderer::DrawTextLine(KerningFont* font, const std::string& text, const Rg
         float quad_left = cursor_x - current_def.offsets.x;
         float quad_right = quad_left + current_def.dimensions.x;
 
-        vbo.push_back(Vertex3D(Vector3(quad_left, quad_bottom, 0.0f), color, Vector2(char_uvl, char_uvb)));
-        vbo.push_back(Vertex3D(Vector3(quad_left, quad_top, 0.0f), color, Vector2(char_uvl, char_uvt)));
-        vbo.push_back(Vertex3D(Vector3(quad_right, quad_top, 0.0f), color, Vector2(char_uvr, char_uvt)));
-        vbo.push_back(Vertex3D(Vector3(quad_right, quad_bottom, 0.0f), color, Vector2(char_uvr, char_uvb)));
+        vbo.emplace_back(Vector3(quad_left, quad_bottom, 0.0f), color, Vector2(char_uvl, char_uvb));
+        vbo.emplace_back(Vector3(quad_left, quad_top, 0.0f), color, Vector2(char_uvl, char_uvt));
+        vbo.emplace_back(Vector3(quad_right, quad_top, 0.0f), color, Vector2(char_uvr, char_uvt));
+        vbo.emplace_back(Vector3(quad_right, quad_bottom, 0.0f), color, Vector2(char_uvr, char_uvb));
 
         const auto s = static_cast<unsigned int>(vbo.size());
         ibo.push_back(s - 4);
@@ -1047,8 +1045,8 @@ void Renderer::AppendMultiLineTextBuffer(KerningFont* font, const std::string& t
     float cursor_x = start_position.x;
     float cursor_y = start_position.y;
     float line_top = cursor_y - font->GetCommonDef().base;
-    float texture_w = static_cast<float>(font->GetCommonDef().scale.x);
-    float texture_h = static_cast<float>(font->GetCommonDef().scale.y);
+    auto texture_w = static_cast<float>(font->GetCommonDef().scale.x);
+    auto texture_h = static_cast<float>(font->GetCommonDef().scale.y);
     std::size_t text_size = text.size();
     vbo.reserve(text_size * 4);
     ibo.reserve(text_size * 6);
@@ -1065,12 +1063,12 @@ void Renderer::AppendMultiLineTextBuffer(KerningFont* font, const std::string& t
         float quad_left = cursor_x - current_def.offsets.x;
         float quad_right = quad_left + current_def.dimensions.x;
 
-        vbo.push_back(Vertex3D(Vector3(quad_left, quad_bottom, 0.0f), color, Vector2(char_uvl, char_uvb)));
-        vbo.push_back(Vertex3D(Vector3(quad_left, quad_top, 0.0f), color, Vector2(char_uvl, char_uvt)));
-        vbo.push_back(Vertex3D(Vector3(quad_right, quad_top, 0.0f), color, Vector2(char_uvr, char_uvt)));
-        vbo.push_back(Vertex3D(Vector3(quad_right, quad_bottom, 0.0f), color, Vector2(char_uvr, char_uvb)));
+        vbo.emplace_back(Vector3(quad_left, quad_bottom, 0.0f), color, Vector2(char_uvl, char_uvb));
+        vbo.emplace_back(Vector3(quad_left, quad_top, 0.0f), color, Vector2(char_uvl, char_uvt));
+        vbo.emplace_back(Vector3(quad_right, quad_top, 0.0f), color, Vector2(char_uvr, char_uvt));
+        vbo.emplace_back(Vector3(quad_right, quad_bottom, 0.0f), color, Vector2(char_uvr, char_uvb));
 
-        unsigned int s = static_cast<unsigned int>(vbo.size());
+        auto s = static_cast<unsigned int>(vbo.size());
         ibo.push_back(s - 4);
         ibo.push_back(s - 3);
         ibo.push_back(s - 2);
@@ -1257,8 +1255,6 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
         float4 light_color_intensity = g_Lights[light_index].color;
         float4 light_att = g_Lights[light_index].attenuation;
         float4 light_specAtt = g_Lights[light_index].specAttenuation;
-        float  light_max_att_distance = g_Lights[light_index].attenuationDistances.x;
-        float  light_min_att_distance = g_Lights[light_index].attenuationDistances.y;
         float innerDotThreshold = g_Lights[light_index].innerOuterDotThresholds.x;
         float outerDotThreshold = g_Lights[light_index].innerOuterDotThresholds.y;
         float3 light_forward = normalize(g_Lights[light_index].direction.xyz);

@@ -2,6 +2,7 @@
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/FileUtils.hpp"
+#include "Engine/Core/ProfileLogScope.hpp"
 #include "Engine/Core/StringUtils.hpp"
 
 #include <numeric>
@@ -60,6 +61,7 @@ bool Obj::Save(const std::string& filepath) {
 }
 
 bool Obj::Save(const std::filesystem::path& filepath) {
+    PROFILE_LOG_SCOPE_FUNCTION();
     _is_saving = true;
     std::ostringstream buffer;
     for(auto& v : _verts) {
@@ -70,7 +72,7 @@ bool Obj::Save(const std::filesystem::path& filepath) {
         buffer << "vn " << v.x << ' ' << v.y << ' ' << v.z << '\n';
     }
     for(auto& v : _tex_coords) {
-        buffer << "vt " << v.x << ' ' << v.y << '\n';
+        buffer << "vt " << v.x << ' ' << v.y << ' ' << v.z << '\n';
     }
     bool has_vn = !_normals.empty();
     bool has_vt = !_tex_coords.empty();
@@ -163,6 +165,7 @@ const std::vector<unsigned int>& Obj::GetIbo() const {
 }
 
 bool Obj::Parse(const std::filesystem::path& filepath) {
+    PROFILE_LOG_SCOPE_FUNCTION();
     _verts.clear();
     _tex_coords.clear();
     _normals.clear();
@@ -196,13 +199,15 @@ bool Obj::Parse(const std::filesystem::path& filepath) {
             _verts.reserve(vert_count);
             _vbo.resize(vert_count);
             while(std::getline(ss, cur_line, '\n')) {
+                ++line_index;
                 cur_line = cur_line.substr(0, cur_line.find_first_of('#'));
                 if(cur_line.empty()) {
                     continue;
                 }
                 cur_line = StringUtils::TrimWhitespace(cur_line);
                 if(StringUtils::StartsWith(cur_line, "mtllib ")) {
-                    //TODO: MTL materials!
+                    continue;
+                } else if(StringUtils::StartsWith(cur_line, "usemtl ")) {
                     continue;
                 } else if(StringUtils::StartsWith(cur_line, "v ")) {
                     auto elems = StringUtils::Split(std::string{std::begin(cur_line) + 2, std::end(cur_line)}, ' ');
@@ -300,8 +305,11 @@ bool Obj::Parse(const std::filesystem::path& filepath) {
 }
 
 void Obj::PrintErrorToDebugger(const std::string& filePath, const std::string& elementType, unsigned long long line_index) const {
+    namespace FS = std::filesystem;
     std::ostringstream error_ss{};
-    error_ss << filePath << '(' << line_index << "): Invalid " << elementType << '\n';
+    FS::path p(filePath);
+    p.make_preferred();
+    error_ss << FS::absolute(p).string() << '(' << line_index << "): Invalid " << elementType << '\n';
     DebuggerPrintf(error_ss.str().c_str());
 }
 

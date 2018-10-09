@@ -38,6 +38,7 @@ bool Obj::Load(const std::string& filepath) {
 }
 
 bool Obj::Load(const std::filesystem::path& filepath) {
+    PROFILE_LOG_SCOPE_FUNCTION();
     namespace FS = std::filesystem;
     bool not_exist = !FS::exists(filepath);
     std::string valid_extension = ".obj";
@@ -64,11 +65,12 @@ bool Obj::Save(const std::filesystem::path& filepath) {
     PROFILE_LOG_SCOPE_FUNCTION();
     _is_saving = true;
     std::ostringstream buffer;
+    buffer << std::fixed << std::setprecision(6);
     for(auto& v : _verts) {
         buffer << "v " << v.x << ' ' << v.y << ' ' << v.z << '\n';
     }
     for(auto& v : _normals) {
-        v.Normalize();
+        //v.Normalize();
         buffer << "vn " << v.x << ' ' << v.y << ' ' << v.z << '\n';
     }
     for(auto& v : _tex_coords) {
@@ -77,43 +79,48 @@ bool Obj::Save(const std::filesystem::path& filepath) {
     bool has_vn = !_normals.empty();
     bool has_vt = !_tex_coords.empty();
     bool has_neither = !has_vt && !has_vn;
-    for(auto iter = std::begin(_ibo); iter != std::end(_ibo); /* DO NOTHING */) {
-        auto value1 = *iter;
-        ++iter;
-        auto value2 = *iter;
-        ++iter;
-        auto value3 = *iter;
-        ++iter;
+    for(auto iter = std::begin(_face_idxs); iter != std::end(_face_idxs); /* DO NOTHING */) {
+        auto value1 = std::get<0>(*iter);
+        auto value2 = std::get<1>(*iter);
+        auto value3 = std::get<2>(*iter);
         buffer << "f ";
         buffer << (1 + value1);
         if(!has_neither) {
             buffer << '/';
             if(has_vt) {
-                buffer << (1 + value1);
-            }
-            buffer << '/';
-            if(has_vn) {
-                buffer << (1 + value1);
-            }
-        }
-        buffer << ' ';
-        buffer << (1 + value2);
-        if(!has_neither) {
-            buffer << '/';
-            if(has_vt) {
                 buffer << (1 + value2);
             }
             buffer << '/';
             if(has_vn) {
-                buffer << (1 + value2);
-            }
-        }
-        buffer << ' ';
-        buffer << (1 + value3);
-        if(!has_neither) {
-            buffer << '/';
-            if(has_vt) {
                 buffer << (1 + value3);
+            }
+        }
+        ++iter;
+        value1 = std::get<0>(*iter);
+        value2 = std::get<1>(*iter);
+        value3 = std::get<2>(*iter);
+        buffer << ' ';
+        buffer << (1 + value1);
+        if(!has_neither) {
+            buffer << '/';
+            if(has_vt) {
+                buffer << (1 + value2);
+            }
+            buffer << '/';
+            if(has_vn) {
+                buffer << (1 + value3);
+            }
+        }
+        ++iter;
+        value1 = std::get<0>(*iter);
+        value2 = std::get<1>(*iter);
+        value3 = std::get<2>(*iter);
+        buffer << ' ';
+        buffer << (1 + value1);
+        if(!has_neither) {
+            buffer << '/';
+            if(has_vt) {
+                buffer << (1 + value2);
             }
             buffer << '/';
             if(has_vn) {
@@ -121,6 +128,7 @@ bool Obj::Save(const std::filesystem::path& filepath) {
             }
         }
         buffer << '\n';
+        ++iter;
     }
     buffer.flush();
     if(FileUtils::WriteBufferToFile(buffer.str().data(), buffer.str().size(), filepath.string())) {
@@ -171,6 +179,7 @@ bool Obj::Parse(const std::filesystem::path& filepath) {
     _normals.clear();
     _vbo.clear();
     _ibo.clear();
+    _face_idxs.clear();
 
     _is_loaded = false;
     _is_saving = false;
@@ -261,6 +270,7 @@ bool Obj::Parse(const std::filesystem::path& filepath) {
                     for(auto& t : tris) {
                         auto elems = StringUtils::Split(t, '/', false);
                         Vertex3D vertex{};
+                        std::tuple<int, int, int> face{};
                         auto elem_count = elems.size();
                         std::size_t cur_vbo_index = 0;
                         for(auto i = 0u; i < elem_count; ++i) {
@@ -269,26 +279,36 @@ bool Obj::Parse(const std::filesystem::path& filepath) {
                                     if(!elems[0].empty()) {
                                         std::size_t cur_v = std::stoul(elems[0]);
                                         cur_vbo_index = cur_v - 1;
+                                        std::get<0>(face) = cur_vbo_index;
                                         vertex.position = _verts[cur_vbo_index];
                                         _ibo.push_back(cur_vbo_index);
+                                    } else {
+                                        std::get<0>(face) = -1;
                                     }
                                     break;
                                 case 1:
                                     if(!elems[1].empty()) {
                                         std::size_t cur_vt = std::stoul(elems[1]);
+                                        std::get<1>(face) = cur_vt;
                                         vertex.texcoords = Vector2{ _tex_coords[cur_vt - 1] };
+                                    } else {
+                                        std::get<1>(face) = -1;
                                     }
                                     break;
                                 case 2:
                                     if(!elems[2].empty()) {
                                         std::size_t cur_vn = std::stoul(elems[2]);
+                                        std::get<2>(face) = cur_vn - 1;
                                         vertex.normal = _normals[cur_vn - 1];
+                                    } else {
+                                        std::get<2>(face) = -1;
                                     }
                                     break;
                                 default: break;
                             }
                         }
                         _vbo[cur_vbo_index] = vertex;
+                        _face_idxs.push_back(face);
                     }
                 } else {
                     /* DO NOTHING */

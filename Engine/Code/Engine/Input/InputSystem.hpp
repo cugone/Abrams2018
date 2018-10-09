@@ -18,6 +18,8 @@ enum class KeyCode : int {
     ,RButton
     ,Cancel
     ,MButton
+    ,XButton1
+    ,XButton2
     ,Back  /* Also BackSpace */
     ,First_ = Back
     ,Backspace = Back
@@ -26,11 +28,9 @@ enum class KeyCode : int {
     ,Return  /* Also Enter */
     ,Enter = Return
     ,Shift
-    ,Ctrl  /* Also Ctrl */
+    ,Ctrl  /* Also Control */
     ,Menu  /* Also Alt */
-    ,Alt = Menu /* Also LMenu */
-    ,LMenu = Menu  /* Also LAlt*/
-    ,LAlt = LMenu
+    ,Alt = Menu /* Also Menu */
     ,Pause
     ,Capital  /* Also CapsLock */
     ,CAPSLOCK = Capital
@@ -167,6 +167,8 @@ enum class KeyCode : int {
     ,RCtrl = RControl
     ,RMenu  /* Also RAlt */
     ,RAlt = RMenu
+    ,LMenu  /* Also LAlt */
+    ,LAlt = LMenu
     ,Browser_Back
     ,Browser_Forward
     ,Browser_Refresh

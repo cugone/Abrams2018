@@ -29,6 +29,8 @@ unsigned char InputSystem::ConvertKeyCodeToWinVK(const KeyCode& code) {
     case KeyCode::RButton: return VK_RBUTTON;
     case KeyCode::Cancel: return VK_CANCEL;
     case KeyCode::MButton: return VK_MBUTTON;
+    case KeyCode::XButton1: return VK_XBUTTON1;
+    case KeyCode::XButton2: return VK_XBUTTON2;
     case KeyCode::Back: return VK_BACK; /* Also BACKSPACE */
     case KeyCode::Tab: return VK_TAB;
     case KeyCode::Clear: return VK_CLEAR;
@@ -228,6 +230,8 @@ KeyCode InputSystem::ConvertWinVKToKeyCode(unsigned char winVK) {
     case VK_RBUTTON: return KeyCode::RButton;
     case VK_CANCEL: return KeyCode::Cancel;
     case VK_MBUTTON: return KeyCode::MButton;
+    case VK_XBUTTON1: return KeyCode::XButton1;
+    case VK_XBUTTON2: return KeyCode::XButton2;
     case VK_BACK:  return KeyCode::Back;
     case VK_TAB: return KeyCode::Tab;
     case VK_CLEAR: return KeyCode::Clear;
@@ -562,7 +566,7 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
     switch(msg.wmMessageCode) {
         case WindowsSystemMessage::Keyboard_KeyDown:
         {
-            unsigned char key = static_cast<unsigned char>(wp);
+            auto key = static_cast<unsigned char>(wp);
             uint32_t lpBits = lp;
             //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
             //C: repeat count
@@ -572,13 +576,15 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             //X: context code: 0 for KEYDOWN
             //P: previous state 1 for already down
             //T: transition state 0 for KEYDOWN
-            constexpr uint32_t repeat_count_mask = 0b0000'0000'0000'0000'1111'1111'1111'1111; //0x0000FFFF;
-            constexpr uint32_t scan_code_mask = 0b0000'0000'1111'1111'0000'0000'0000'0000; //0x00FF0000;
-            constexpr uint32_t extended_key_mask = 0b0000'0001'0000'0000'0000'0000'0000'0000; //0x01000000;
-            constexpr uint32_t reserved_mask = 0b0001'1110'0000'0000'0000'0000'0000'0000; //0x1E000000;
-            constexpr uint32_t context_code_mask = 0b0010'0000'0000'0000'0000'0000'0000'0000; //0x20000000;
-            constexpr uint32_t previous_state_mask = 0b0100'0000'0000'0000'0000'0000'0000'0000; //0x40000000;
+            constexpr uint32_t repeat_count_mask     = 0b0000'0000'0000'0000'1111'1111'1111'1111; //0x0000FFFF;
+            constexpr uint32_t scan_code_mask        = 0b0000'0000'1111'1111'0000'0000'0000'0000; //0x00FF0000;
+            constexpr uint32_t extended_key_mask     = 0b0000'0001'0000'0000'0000'0000'0000'0000; //0x01000000;
+            constexpr uint32_t reserved_mask         = 0b0001'1110'0000'0000'0000'0000'0000'0000; //0x1E000000;
+            constexpr uint32_t context_code_mask     = 0b0010'0000'0000'0000'0000'0000'0000'0000; //0x20000000;
+            constexpr uint32_t previous_state_mask   = 0b0100'0000'0000'0000'0000'0000'0000'0000; //0x40000000;
             constexpr uint32_t transition_state_mask = 0b1000'0000'0000'0000'0000'0000'0000'0000; //0x80000000;
+            constexpr uint16_t keystate_state_mask = 0b1000'0000'0000'0000;  //0x8000
+            constexpr uint16_t keystate_toggle_mask = 0b0000'0000'0000'0001; //0x0001
             bool is_extended_key = (lpBits & extended_key_mask) != 0;
             auto my_key = ConvertWinVKToKeyCode(key);
             if(my_key == KeyCode::Unknown) {
@@ -586,19 +592,85 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             }
             if(is_extended_key) {
                 switch(my_key) {
-                    case KeyCode::Alt:  my_key = KeyCode::RAlt; break;
-                    case KeyCode::Ctrl: my_key = KeyCode::RCtrl; break;
-                    case KeyCode::Return: my_key = KeyCode::NumPadEnter; break;
-                    case KeyCode::LWin: return true;
-                    case KeyCode::RWin: return true;
+                case KeyCode::Shift:
+                    {
+                    auto left_key = !!(::GetKeyState(VK_LSHIFT) & keystate_state_mask);
+                    auto right_key = !!(::GetKeyState(VK_RSHIFT) & keystate_state_mask);
+                    auto my_leftkey = ConvertWinVKToKeyCode(VK_LSHIFT);
+                    auto my_rightkey = ConvertWinVKToKeyCode(VK_RSHIFT);
+                    my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                    break;
+                    }
+                case KeyCode::Alt:
+                    {
+                        auto left_key = !!(::GetKeyState(VK_LMENU) & keystate_state_mask);
+                        auto right_key = !!(::GetKeyState(VK_RMENU) & keystate_state_mask);;
+                        auto my_leftkey = ConvertWinVKToKeyCode(VK_LMENU);
+                        auto my_rightkey = ConvertWinVKToKeyCode(VK_RMENU);
+                        my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                        break;
+                    }
+                case KeyCode::Ctrl:
+                    {
+                        auto left_key = !!(::GetKeyState(VK_LCONTROL) & keystate_state_mask);;
+                        auto right_key = !!(::GetKeyState(VK_RCONTROL) & keystate_state_mask);;
+                        auto my_leftkey = ConvertWinVKToKeyCode(VK_LCONTROL);
+                        auto my_rightkey = ConvertWinVKToKeyCode(VK_RCONTROL);
+                        my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                        break;
+                    }
+                case KeyCode::Return: my_key = KeyCode::NumPadEnter; break;
+                case KeyCode::LWin:
+                    {
+                        auto left_key = !!(::GetKeyState(VK_LWIN) & keystate_state_mask);;
+                        auto my_leftkey = ConvertWinVKToKeyCode(VK_LWIN);
+                        my_key = left_key ? my_leftkey : KeyCode::Unknown;
+                        break;
+                    }
+                case KeyCode::RWin:
+                    {
+                        auto right_key = !!(::GetKeyState(VK_RWIN) & keystate_state_mask);;
+                        auto my_rightkey = ConvertWinVKToKeyCode(VK_RWIN);
+                        my_key = right_key ? my_rightkey : KeyCode::Unknown;
+                        break;
+                    }
                 }
-                key = ConvertKeyCodeToWinVK(my_key);
             }
+            switch(my_key) {
+            case KeyCode::Shift:
+                {
+                    auto left_key = !!(::GetKeyState(VK_LSHIFT) & keystate_state_mask);;
+                    auto right_key = !!(::GetKeyState(VK_RSHIFT) & keystate_state_mask);;
+                    auto my_leftkey = ConvertWinVKToKeyCode(VK_LSHIFT);
+                    auto my_rightkey = ConvertWinVKToKeyCode(VK_RSHIFT);
+                    my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                    break;
+                }
+            case KeyCode::Ctrl:
+                {
+                    auto left_key = !!(::GetKeyState(VK_LCONTROL) & keystate_state_mask);;
+                    auto right_key = !!(::GetKeyState(VK_RCONTROL) & keystate_state_mask);;
+                    auto my_leftkey = ConvertWinVKToKeyCode(VK_LCONTROL);
+                    auto my_rightkey = ConvertWinVKToKeyCode(VK_RCONTROL);
+                    my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                    break;
+                }
+                case KeyCode::Alt:
+                {
+                    auto left_key = !!(::GetKeyState(VK_LMENU) & keystate_state_mask);;
+                    auto right_key = !!(::GetKeyState(VK_RMENU) & keystate_state_mask);;
+                    auto my_leftkey = ConvertWinVKToKeyCode(VK_LMENU);
+                    auto my_rightkey = ConvertWinVKToKeyCode(VK_RMENU);
+                    my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                    break;
+                }
+            }
+            key = ConvertKeyCodeToWinVK(my_key);
             RegisterKeyDown(key); return true;
         }
         case WindowsSystemMessage::Keyboard_KeyUp:
         {
-            unsigned char key = static_cast<unsigned char>(wp);
+            auto key = static_cast<unsigned char>(wp);
             uint32_t lpBits = lp;
             //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
             //C: repeat count
@@ -615,6 +687,8 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             constexpr uint32_t context_code_mask = 0b0010'0000'0000'0000'0000'0000'0000'0000; //0x20000000;
             constexpr uint32_t previous_state_mask = 0b0100'0000'0000'0000'0000'0000'0000'0000; //0x40000000;
             constexpr uint32_t transition_state_mask = 0b1000'0000'0000'0000'0000'0000'0000'0000; //0x80000000;
+            constexpr uint16_t keystate_state_mask = 0b1000'0000'0000'0000;  //0x8000
+            constexpr uint16_t keystate_toggle_mask = 0b0000'0000'0000'0001; //0x0001
             bool is_extended_key = (lpBits & extended_key_mask) != 0;
             auto my_key = ConvertWinVKToKeyCode(key);
             if(my_key == KeyCode::Unknown) {
@@ -634,7 +708,7 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
         }
         case WindowsSystemMessage::Keyboard_SysKeyDown:
         {
-            unsigned char key = static_cast<unsigned char>(wp);
+            auto key = static_cast<unsigned char>(wp);
             uint32_t lpBits = lp;
             //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
             //C: repeat count
@@ -651,6 +725,8 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             constexpr uint32_t context_code_mask = 0b0010'0000'0000'0000'0000'0000'0000'0000; //0x20000000;
             constexpr uint32_t previous_state_mask = 0b0100'0000'0000'0000'0000'0000'0000'0000; //0x40000000;
             constexpr uint32_t transition_state_mask = 0b1000'0000'0000'0000'0000'0000'0000'0000; //0x80000000;
+            constexpr uint16_t keystate_state_mask = 0b1000'0000'0000'0000;  //0x8000
+            constexpr uint16_t keystate_toggle_mask = 0b0000'0000'0000'0001; //0x0001
             bool is_extended_key = (lpBits & extended_key_mask) != 0;
             auto my_key = ConvertWinVKToKeyCode(key);
             if(my_key == KeyCode::Unknown) {
@@ -658,19 +734,35 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             }
             if(is_extended_key) {
                 switch(my_key) {
-                    case KeyCode::Alt:  my_key = KeyCode::RAlt; break;
-                    case KeyCode::Ctrl: my_key = KeyCode::RCtrl; break;
-                    case KeyCode::Return: my_key = KeyCode::NumPadEnter; break;
-                    case KeyCode::LWin: return true;
-                    case KeyCode::RWin: return true;
+                    case KeyCode::Alt: //Right Alt
+                    {
+                        auto is_key_down = !!(::GetKeyState(key) & keystate_state_mask);;
+                        auto my_rightkey = KeyCode::RAlt;
+                        my_key = is_key_down ? my_rightkey : KeyCode::Unknown;
+                        break;
+                    }
                 }
-                key = ConvertKeyCodeToWinVK(my_key);
             }
+            switch(my_key) {
+                case KeyCode::Alt: //Left Alt
+                {
+                    auto is_key_down = !!(::GetKeyState(VK_LMENU) & keystate_state_mask);;
+                    auto my_leftkey = KeyCode::LAlt;
+                    my_key = is_key_down ? my_leftkey : KeyCode::Unknown;
+                    break;
+                }
+                case KeyCode::F10:
+                {
+                    auto is_key_down = !!(::GetKeyState(VK_F10) & keystate_state_mask);;
+                    my_key = is_key_down ? KeyCode::F10 : KeyCode::Unknown;
+                }
+            }
+            key = ConvertKeyCodeToWinVK(my_key);
             RegisterKeyDown(key); return true;
         }
         case WindowsSystemMessage::Keyboard_SysKeyUp:
         {
-            unsigned char key = static_cast<unsigned char>(wp);
+            auto key = static_cast<unsigned char>(wp);
             uint32_t lpBits = lp;
             //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
             //C: repeat count
@@ -687,6 +779,8 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             constexpr uint32_t context_code_mask = 0b0010'0000'0000'0000'0000'0000'0000'0000; //0x20000000;
             constexpr uint32_t previous_state_mask = 0b0100'0000'0000'0000'0000'0000'0000'0000; //0x40000000;
             constexpr uint32_t transition_state_mask = 0b1000'0000'0000'0000'0000'0000'0000'0000; //0x80000000;
+            constexpr uint16_t keystate_state_mask = 0b1000'0000'0000'0000;  //0x8000
+            constexpr uint16_t keystate_toggle_mask = 0b0000'0000'0000'0001; //0x0001
             bool is_extended_key = (lpBits & extended_key_mask) != 0;
             auto my_key = ConvertWinVKToKeyCode(key);
             if(my_key == KeyCode::Unknown) {
@@ -694,14 +788,30 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             }
             if(is_extended_key) {
                 switch(my_key) {
-                    case KeyCode::Alt:  my_key = KeyCode::RAlt; break;
-                    case KeyCode::Ctrl: my_key = KeyCode::RCtrl; break;
-                    case KeyCode::Return: my_key = KeyCode::NumPadEnter; break;
-                    case KeyCode::LWin: return true;
-                    case KeyCode::RWin: return true;
+                    case KeyCode::Alt: //Right Alt
+                    {
+                        auto is_key_up = !(!!(::GetKeyState(VK_RMENU) & keystate_state_mask));
+                        auto my_rightkey = KeyCode::RAlt;
+                        my_key = is_key_up ? my_rightkey : KeyCode::Unknown;
+                        break;
+                    }
                 }
-                key = ConvertKeyCodeToWinVK(my_key);
             }
+            switch(my_key) {
+                case KeyCode::Alt: //Left Alt
+                {
+                    auto is_key_up = !(!!(::GetKeyState(VK_LMENU) & keystate_state_mask));
+                    auto my_leftkey = KeyCode::LAlt;
+                    my_key = is_key_up ? my_leftkey : KeyCode::Unknown;
+                    break;
+                }
+                case KeyCode::F10:
+                {
+                    auto is_key_up = !(!!(::GetKeyState(VK_F10) & keystate_state_mask));
+                    my_key = is_key_up ? KeyCode::F10 : KeyCode::Unknown;
+                }
+            }
+            key = ConvertKeyCodeToWinVK(my_key);
             RegisterKeyUp(key); return true;
         }
         case WindowsSystemMessage::Mouse_LButtonDown:
@@ -742,7 +852,7 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                 return true;
             }
         }
-        case WindowsSystemMessage::Mouse_MouseMove:
+        case WindowsSystemMessage::Mouse_RButtonDown:
         {
             constexpr uint16_t lbutton_mask = 0b0000'0000'0000'0001; //0x0001
             constexpr uint16_t rbutton_mask = 0b0000'0000'0000'0010; //0x0002
@@ -751,6 +861,134 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             constexpr uint16_t mbutton_mask = 0b0000'0000'0001'0000; //0x0010
             constexpr uint16_t xbutton1_mask = 0b0000'0000'0010'0000; //0x0020
             constexpr uint16_t xbutton2_mask = 0b0000'0000'0100'0000; //0x0040
+            if(wp & rbutton_mask) {
+                unsigned char key = ConvertKeyCodeToWinVK(KeyCode::RButton);
+                RegisterKeyDown(key);
+                POINTS p = MAKEPOINTS(lp);
+                _mouseDelta = _mouseCoords;
+                _mouseCoords = Vector2(p.x, p.y);
+                _mouseDelta = _mouseCoords - _mouseDelta;
+                return true;
+            }
+        }
+        case WindowsSystemMessage::Mouse_RButtonUp:
+        {
+            constexpr uint16_t lbutton_mask = 0b0000'0000'0000'0001; //0x0001
+            constexpr uint16_t rbutton_mask = 0b0000'0000'0000'0010; //0x0002
+            constexpr uint16_t shift_mask = 0b0000'0000'0000'0100; //0x0004
+            constexpr uint16_t ctrl_mask = 0b0000'0000'0000'1000; //0x0008
+            constexpr uint16_t mbutton_mask = 0b0000'0000'0001'0000; //0x0010
+            constexpr uint16_t xbutton1_mask = 0b0000'0000'0010'0000; //0x0020
+            constexpr uint16_t xbutton2_mask = 0b0000'0000'0100'0000; //0x0040
+            if(!(wp & rbutton_mask)) {
+                unsigned char key = ConvertKeyCodeToWinVK(KeyCode::RButton);
+                RegisterKeyUp(key);
+                POINTS p = MAKEPOINTS(lp);
+                _mouseDelta = _mouseCoords;
+                _mouseCoords = Vector2(p.x, p.y);
+                _mouseDelta = _mouseCoords - _mouseDelta;
+                return true;
+            }
+        }
+        case WindowsSystemMessage::Mouse_MButtonDown:
+        {
+            constexpr uint16_t lbutton_mask = 0b0000'0000'0000'0001; //0x0001
+            constexpr uint16_t rbutton_mask = 0b0000'0000'0000'0010; //0x0002
+            constexpr uint16_t shift_mask = 0b0000'0000'0000'0100; //0x0004
+            constexpr uint16_t ctrl_mask = 0b0000'0000'0000'1000; //0x0008
+            constexpr uint16_t mbutton_mask = 0b0000'0000'0001'0000; //0x0010
+            constexpr uint16_t xbutton1_mask = 0b0000'0000'0010'0000; //0x0020
+            constexpr uint16_t xbutton2_mask = 0b0000'0000'0100'0000; //0x0040
+            if(wp & mbutton_mask) {
+                unsigned char key = ConvertKeyCodeToWinVK(KeyCode::MButton);
+                RegisterKeyDown(key);
+                POINTS p = MAKEPOINTS(lp);
+                _mouseDelta = _mouseCoords;
+                _mouseCoords = Vector2(p.x, p.y);
+                _mouseDelta = _mouseCoords - _mouseDelta;
+                return true;
+            }
+        }
+        case WindowsSystemMessage::Mouse_MButtonUp:
+        {
+            constexpr uint16_t lbutton_mask = 0b0000'0000'0000'0001; //0x0001
+            constexpr uint16_t rbutton_mask = 0b0000'0000'0000'0010; //0x0002
+            constexpr uint16_t shift_mask = 0b0000'0000'0000'0100; //0x0004
+            constexpr uint16_t ctrl_mask = 0b0000'0000'0000'1000; //0x0008
+            constexpr uint16_t mbutton_mask = 0b0000'0000'0001'0000; //0x0010
+            constexpr uint16_t xbutton1_mask = 0b0000'0000'0010'0000; //0x0020
+            constexpr uint16_t xbutton2_mask = 0b0000'0000'0100'0000; //0x0040
+            if(!(wp & mbutton_mask)) {
+                unsigned char key = ConvertKeyCodeToWinVK(KeyCode::MButton);
+                RegisterKeyUp(key);
+                POINTS p = MAKEPOINTS(lp);
+                _mouseDelta = _mouseCoords;
+                _mouseCoords = Vector2(p.x, p.y);
+                _mouseDelta = _mouseCoords - _mouseDelta;
+                return true;
+            }
+        }
+        case WindowsSystemMessage::Mouse_XButtonDown:
+        {
+            constexpr uint16_t lbutton_mask = 0b0000'0000'0000'0001; //0x0001
+            constexpr uint16_t rbutton_mask = 0b0000'0000'0000'0010; //0x0002
+            constexpr uint16_t shift_mask = 0b0000'0000'0000'0100; //0x0004
+            constexpr uint16_t ctrl_mask = 0b0000'0000'0000'1000; //0x0008
+            constexpr uint16_t mbutton_mask = 0b0000'0000'0001'0000; //0x0010
+            constexpr uint16_t xbutton1_down_mask = 0b0000'0000'0010'0000; //0x0020
+            constexpr uint16_t xbutton2_down_mask = 0b0000'0000'0100'0000; //0x0040
+            constexpr uint16_t xbutton1_mask = 0b0000'0001; //0x0001
+            constexpr uint16_t xbutton2_mask = 0b0000'0010; //0x0002
+            auto buttons = GET_XBUTTON_WPARAM(wp);
+            unsigned char key = ConvertKeyCodeToWinVK(KeyCode::XButton1);
+            if(buttons & xbutton1_mask) {
+                key = ConvertKeyCodeToWinVK(KeyCode::XButton1);
+            }
+            if(buttons & xbutton2_mask) {
+                key = ConvertKeyCodeToWinVK(KeyCode::XButton2);
+            }
+            RegisterKeyDown(key);
+            POINTS p = MAKEPOINTS(lp);
+            _mouseDelta = _mouseCoords;
+            _mouseCoords = Vector2(p.x, p.y);
+            _mouseDelta = _mouseCoords - _mouseDelta;
+            return true;
+        }
+        case WindowsSystemMessage::Mouse_XButtonUp:
+        {
+            constexpr uint16_t lbutton_mask = 0b0000'0000'0000'0001; //0x0001
+            constexpr uint16_t rbutton_mask = 0b0000'0000'0000'0010; //0x0002
+            constexpr uint16_t shift_mask = 0b0000'0000'0000'0100; //0x0004
+            constexpr uint16_t ctrl_mask = 0b0000'0000'0000'1000; //0x0008
+            constexpr uint16_t mbutton_mask = 0b0000'0000'0001'0000; //0x0010
+            constexpr uint16_t xbutton1_down_mask = 0b0000'0000'0010'0000; //0x0020
+            constexpr uint16_t xbutton2_down_mask = 0b0000'0000'0100'0000; //0x0040
+            constexpr uint16_t xbutton1_mask = 0b0000'0001; //0x0001
+            constexpr uint16_t xbutton2_mask = 0b0000'0010; //0x0002
+            auto buttons = GET_XBUTTON_WPARAM(wp);
+            unsigned char key = 0;
+            if(buttons & xbutton1_mask) {
+                key = ConvertKeyCodeToWinVK(KeyCode::XButton1);
+            }
+            if(buttons & xbutton2_mask) {
+                key = ConvertKeyCodeToWinVK(KeyCode::XButton2);
+            }
+            RegisterKeyUp(key);
+            POINTS p = MAKEPOINTS(lp);
+            _mouseDelta = _mouseCoords;
+            _mouseCoords = Vector2(p.x, p.y);
+            _mouseDelta = _mouseCoords - _mouseDelta;
+            return true;
+        }
+        case WindowsSystemMessage::Mouse_MouseMove:
+        {
+            constexpr uint16_t lbutton_mask = 0b0000'0000'0000'0001; //0x0001
+            constexpr uint16_t rbutton_mask = 0b0000'0000'0000'0010; //0x0002
+            constexpr uint16_t shift_mask = 0b0000'0000'0000'0100; //0x0004
+            constexpr uint16_t ctrl_mask = 0b0000'0000'0000'1000; //0x0008
+            constexpr uint16_t mbutton_mask = 0b0000'0000'0001'0000; //0x0010
+            constexpr uint16_t xbutton1_down_mask = 0b0000'0000'0010'0000; //0x0020
+            constexpr uint16_t xbutton2_down_mask = 0b0000'0000'0100'0000; //0x0040
             POINTS p = MAKEPOINTS(lp);
             _mouseDelta = _mouseCoords;
             _mouseCoords = Vector2(p.x, p.y);
@@ -765,8 +1003,8 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             constexpr uint16_t shift_mask = 0b0000'0000'0000'0100; //0x0004
             constexpr uint16_t ctrl_mask = 0b0000'0000'0000'1000; //0x0008
             constexpr uint16_t mbutton_mask = 0b0000'0000'0001'0000; //0x0010
-            constexpr uint16_t xbutton1_mask = 0b0000'0000'0010'0000; //0x0020
-            constexpr uint16_t xbutton2_mask = 0b0000'0000'0100'0000; //0x0040
+            constexpr uint16_t xbutton1_down_mask = 0b0000'0000'0010'0000; //0x0020
+            constexpr uint16_t xbutton2_down_mask = 0b0000'0000'0100'0000; //0x0040
             POINTS p = MAKEPOINTS(lp);
             _mouseDelta = _mouseCoords;
             _mouseCoords = Vector2(p.x, p.y);
@@ -774,7 +1012,6 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             _mouseWheelPosition = GET_WHEEL_DELTA_WPARAM(wp);
             return true;
         }
-
     }
     return false;
 }

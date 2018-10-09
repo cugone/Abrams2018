@@ -16,12 +16,17 @@ private:
     std::string _scope_name{};
     ProfileTimePoint _time_at_creation{};
 
-    decltype(auto) NowAsProfileTimePoint() const noexcept;
+    decltype(auto) Now() const noexcept;
 };
 
-#if !defined PROFILE_LOG_SCOPE && !defined PROFILE_LOG_SCOPE_FUNCTION
+#if defined PROFILE_LOG_SCOPE || defined PROFILE_LOG_SCOPE_FUNCTION
+#undef PROFILE_LOG_SCOPE
+#undef PROFILE_LOG_SCOPE_FUNCTION
+#endif
+#ifdef PROFILE_BUILD
 #define PROFILE_LOG_SCOPE(tag_str) ProfileLogScope __pscope_##__LINE__##(tag_str)
 #define PROFILE_LOG_SCOPE_FUNCTION() PROFILE_LOG_SCOPE(__FUNCTION__)
-#define PROFILE_LOG_SCOPE_ONCE(tag_str) static ProfileLogScope __pscope_once_##__LINE__##(tag_str)
-#define PROFILE_LOG_SCOPE_FUNCTION_ONCE() PROFILE_LOG_SCOPE_ONCE(__FUNCTION__)
+#else
+#define PROFILE_LOG_SCOPE(tag_str) 
+#define PROFILE_LOG_SCOPE_FUNCTION()
 #endif

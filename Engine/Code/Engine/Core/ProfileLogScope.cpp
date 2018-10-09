@@ -5,19 +5,19 @@
 #include <iomanip>
 #include <sstream>
 
-decltype(auto) ProfileLogScope::NowAsProfileTimePoint() const noexcept {
+decltype(auto) ProfileLogScope::Now() const noexcept {
     return std::chrono::time_point_cast<ProfileTimePoint::duration>(ProfileTimePoint::clock::now());
 }
 
 ProfileLogScope::ProfileLogScope(const std::string& scopeName)
     : _scope_name(scopeName)
-    , _time_at_creation(NowAsProfileTimePoint())
+    , _time_at_creation(Now())
 {
 
 }
 
 ProfileLogScope::~ProfileLogScope() {
-    auto now = NowAsProfileTimePoint();
+    auto now = Now();
     auto elapsedTime = (now - _time_at_creation).count();
     std::ostringstream ss;
     ss << "ProfileLogScope " << _scope_name << " took " << elapsedTime << " time units.\n";

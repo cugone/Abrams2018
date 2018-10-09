@@ -1,5 +1,6 @@
 #include "Engine/Core/ProfileLogScope.hpp"
 
+#include "Engine/Core/BuildConfig.cpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 
 #include <iomanip>

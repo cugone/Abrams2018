@@ -1,11 +1,12 @@
 #pragma once
 
+#include "Engine/Core/BuildConfig.cpp"
 #include "Engine/Core/TimeUtils.hpp"
 
 #include <chrono>
 #include <string>
 
-using ProfileTimePoint = std::chrono::time_point<std::chrono::high_resolution_clock, std::chrono::microseconds>;
+using ProfileTimePoint = std::chrono::time_point<std::chrono::high_resolution_clock, std::chrono::milliseconds>;
 
 class ProfileLogScope {
 public:

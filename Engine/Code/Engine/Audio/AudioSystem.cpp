@@ -1,6 +1,6 @@
 #include "Engine/Audio/AudioSystem.hpp"
 
-#include "Engine/Core/BuildConfig.cpp"
+#include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/FileUtils.hpp"
 
 #include "Engine/Audio/Wav.hpp"

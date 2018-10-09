@@ -1,6 +1,6 @@
 #include "Engine/Renderer/RasterState.hpp"
 
-#include "Engine/Core/BuildConfig.cpp"
+#include "Engine/Core/BuildConfig.hpp"
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
 

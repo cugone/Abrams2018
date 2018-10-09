@@ -1,7 +1,7 @@
 #include "Engine/Core/Console.hpp"
 
 #include "Engine/Core/ArgumentParser.hpp"
-#include "Engine/Core/BuildConfig.cpp"
+#include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/Image.hpp"
 #include "Engine/Core/KerningFont.hpp"

@@ -1,6 +1,6 @@
 #include "Engine/RHI/RHIDevice.hpp"
 
-#include "Engine/Core/BuildConfig.cpp"
+#include "Engine/Core/BuildConfig.hpp"
 
 #include "Engine/Core/EngineBase.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"

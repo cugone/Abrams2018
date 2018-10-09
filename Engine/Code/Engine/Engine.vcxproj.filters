@@ -136,9 +136,6 @@
     <ClCompile Include="RHI\RHITypes.cpp">
       <Filter>RHI</Filter>
     </ClCompile>
-    <ClCompile Include="Core\BuildConfig.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="Core\ErrorWarningAssert.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -302,6 +299,9 @@
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Core\ProfileLogScope.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\BuildConfig.hpp">
       <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,7 +1,7 @@
 #include "Engine/Renderer/Texture2D.hpp"
 
 
-#include "Engine/Core/BuildConfig.cpp"
+#include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 
 #include "Engine/Renderer/DirectX/DX11.hpp"

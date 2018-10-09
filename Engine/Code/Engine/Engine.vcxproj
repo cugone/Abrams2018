@@ -49,7 +49,7 @@
     <ClCompile Include="Audio\AudioSystem.cpp" />
     <ClCompile Include="Audio\Wav.cpp" />
     <ClCompile Include="Core\ArgumentParser.cpp" />
-    <ClCompile Include="Core\BuildConfig.cpp" />
+    <ClCompile Include="Core\BuildConfig.hpp" />
     <ClCompile Include="Core\Config.cpp" />
     <ClCompile Include="Core\Console.cpp" />
     <ClCompile Include="Core\DataUtils.cpp" />

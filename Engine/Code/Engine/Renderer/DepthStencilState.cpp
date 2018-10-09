@@ -1,6 +1,6 @@
 #include "Engine/Renderer/DepthStencilState.hpp"
 
-#include "Engine/Core/BuildConfig.cpp"
+#include "Engine/Core/BuildConfig.hpp"
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
 

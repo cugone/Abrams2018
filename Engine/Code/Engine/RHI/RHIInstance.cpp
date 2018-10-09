@@ -1,6 +1,6 @@
 #include "Engine/RHI/RHIInstance.hpp"
 
-#include "Engine/Core/BuildConfig.cpp"
+#include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 
 #include "Engine/Renderer/Window.hpp"

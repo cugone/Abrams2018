@@ -1,6 +1,6 @@
 #include "Engine/Renderer/Texture1D.hpp"
 
-#include "Engine/Core/BuildConfig.cpp"
+#include "Engine/Core/BuildConfig.hpp"
 
 #include "Engine/Renderer/DirectX/DX11.hpp"
 

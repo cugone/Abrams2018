@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/BuildConfig.cpp"
+#include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/TimeUtils.hpp"
 
 #include <chrono>

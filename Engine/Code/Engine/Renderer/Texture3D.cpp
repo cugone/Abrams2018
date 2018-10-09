@@ -1,6 +1,6 @@
 #include "Engine/Renderer/Texture3D.hpp"
 
-#include "Engine/Core/BuildConfig.cpp"
+#include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Renderer/DirectX/DX11.hpp"
 
 Texture3D::Texture3D(RHIDevice* device, ID3D11Texture3D* dxTexture)

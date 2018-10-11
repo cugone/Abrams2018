@@ -6,7 +6,7 @@
 #include "Engine/RHI/RHIDeviceContext.hpp"
 
 
-StructuredBuffer::StructuredBuffer(RHIDevice* owner, const buffer_t& buffer, std::size_t element_size, std::size_t element_count, const BufferUsage& usage, const BufferBindUsage& bindUsage)
+StructuredBuffer::StructuredBuffer(const RHIDevice* owner, const buffer_t& buffer, std::size_t element_size, std::size_t element_count, const BufferUsage& usage, const BufferBindUsage& bindUsage)
     : Buffer<void*>()
     , _element_count(element_count)
     , _element_size(element_size)

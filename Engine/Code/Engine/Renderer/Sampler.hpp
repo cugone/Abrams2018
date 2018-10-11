@@ -27,14 +27,14 @@ struct SamplerDesc {
 
 class Sampler {
 public:
-    explicit Sampler(RHIDevice* device, const SamplerDesc& desc);
-    explicit Sampler(RHIDevice* device, const XMLElement& element);
+    explicit Sampler(const RHIDevice* device, const SamplerDesc& desc);
+    explicit Sampler(const RHIDevice* device, const XMLElement& element);
     ~Sampler();
     ID3D11SamplerState* GetDxSampler() const;
     void SetDebugName([[maybe_unused]] const std::string& name) const noexcept;
 protected:
 private:
-    bool CreateSamplerState(RHIDevice* device, const SamplerDesc& desc = SamplerDesc());
+    bool CreateSamplerState(const RHIDevice* device, const SamplerDesc& desc = SamplerDesc());
 
     SamplerDesc _desc{};
     ID3D11SamplerState* _dx_state = nullptr;

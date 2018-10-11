@@ -23,7 +23,7 @@ const std::string& ShaderProgram::GetName() const {
     return _desc.name;
 }
 
-RHIDevice* ShaderProgram::GetParentDevice() {
+const RHIDevice* ShaderProgram::GetParentDevice() const {
     return _desc.device;
 }
 

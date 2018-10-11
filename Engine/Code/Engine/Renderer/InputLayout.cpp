@@ -6,7 +6,7 @@
 
 #include "Engine/RHI/RHIDevice.hpp"
 
-InputLayout::InputLayout(RHIDevice* parent_device)
+InputLayout::InputLayout(const RHIDevice* parent_device)
 : _parent_device(parent_device)
 {
     /* DO NOTHING */

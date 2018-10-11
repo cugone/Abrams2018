@@ -11,7 +11,7 @@
 RHIInstance* RHIInstance::_instance = nullptr;
 IDXGIDebug* RHIInstance::_debuggerInstance = nullptr;
 
-RHIInstance* RHIInstance::CreateInstance() {
+RHIInstance* const RHIInstance::CreateInstance() {
     if(_instance) {
         return _instance;
     }
@@ -49,12 +49,8 @@ void RHIInstance::DestroyInstance() {
     }
 }
 
-RHIDevice* RHIInstance::CreateDevice() noexcept {
+RHIDevice* RHIInstance::CreateDevice() const noexcept {
     return new RHIDevice();
-}
-
-RHIInstance::RHIInstance() {
-    /* DO NOTHING */
 }
 
 RHIInstance::~RHIInstance() {

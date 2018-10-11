@@ -14,12 +14,12 @@ void Sampler::SetDebugName([[maybe_unused]] const std::string& name) const noexc
 #endif
 }
 
-Sampler::Sampler(RHIDevice* device, const XMLElement& element)
+Sampler::Sampler(const RHIDevice* device, const XMLElement& element)
     : Sampler(device, SamplerDesc{ element }) {
     /* DO NOTHING */
 }
 
-Sampler::Sampler(RHIDevice* device, const SamplerDesc& desc) {
+Sampler::Sampler(const RHIDevice* device, const SamplerDesc& desc) {
     if(!CreateSamplerState(device, desc)) {
         if(_dx_state) {
             _dx_state->Release();
@@ -40,7 +40,7 @@ ID3D11SamplerState* Sampler::GetDxSampler() const {
     return _dx_state;
 }
 
-bool Sampler::CreateSamplerState(RHIDevice* device, const SamplerDesc& desc /*= SamplerDesc()*/) {
+bool Sampler::CreateSamplerState(const RHIDevice* device, const SamplerDesc& desc /*= SamplerDesc()*/) {
 
     D3D11_SAMPLER_DESC dx_desc{};
 

@@ -11,7 +11,7 @@ class RHIDeviceContext;
 
 class StructuredBuffer : public Buffer<void*> {
 public:
-    StructuredBuffer(RHIDevice* owner, const buffer_t& buffer, std::size_t element_size, std::size_t element_count, const BufferUsage& usage, const BufferBindUsage& bindUsage);
+    StructuredBuffer(const RHIDevice* owner, const buffer_t& buffer, std::size_t element_size, std::size_t element_count, const BufferUsage& usage, const BufferBindUsage& bindUsage);
     virtual ~StructuredBuffer();
 
     void Update(RHIDeviceContext* context, const buffer_t& buffer);

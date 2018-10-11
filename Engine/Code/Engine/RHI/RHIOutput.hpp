@@ -11,7 +11,7 @@ struct IDXGISwapChain;
 
 class RHIOutput {
 public:
-    RHIOutput(RHIDevice* parent, Window* wnd, IDXGISwapChain* swapchain);
+    RHIOutput(const RHIDevice* parent, Window* wnd, IDXGISwapChain* swapchain);
 
     ~RHIOutput();
 
@@ -34,7 +34,7 @@ protected:
     void CreateBackbuffer();
     void ResetBackbuffer();
     Window * _window = nullptr;
-    RHIDevice* _parent_device = nullptr;
+    const RHIDevice* _parent_device = nullptr;
     Texture* _back_buffer = nullptr;
     IDXGISwapChain* _dxgi_swapchain = nullptr;
 private:

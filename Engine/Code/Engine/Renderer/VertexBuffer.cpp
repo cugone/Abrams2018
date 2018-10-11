@@ -6,7 +6,7 @@
 #include "Engine/RHI/RHIDeviceContext.hpp"
 
 
-VertexBuffer::VertexBuffer(RHIDevice* owner, const buffer_t& buffer, const BufferUsage& usage, const BufferBindUsage& bindUsage)
+VertexBuffer::VertexBuffer(const RHIDevice* owner, const buffer_t& buffer, const BufferUsage& usage, const BufferBindUsage& bindUsage)
     : ArrayBuffer<Vertex3D>() {
     D3D11_BUFFER_DESC buffer_desc = {};
     buffer_desc.Usage = BufferUsageToD3DUsage(usage);

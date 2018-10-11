@@ -16,13 +16,13 @@ void DepthStencilState::SetDebugName([[maybe_unused]] const std::string& name) c
 #endif
 }
 
-DepthStencilState::DepthStencilState(RHIDevice* device, const XMLElement& element)
+DepthStencilState::DepthStencilState(const RHIDevice* device, const XMLElement& element)
 : DepthStencilState(device, DepthStencilDesc{ element })
 {
     /* DO NOTHING */
 }
 
-DepthStencilState::DepthStencilState(RHIDevice* device, const DepthStencilDesc& desc)
+DepthStencilState::DepthStencilState(const RHIDevice* device, const DepthStencilDesc& desc)
     : _desc(desc)
 {
     if(!CreateDepthStencilState(device, desc)) {
@@ -49,7 +49,7 @@ DepthStencilDesc DepthStencilState::GetDesc() const {
     return _desc;
 }
 
-bool DepthStencilState::CreateDepthStencilState(RHIDevice* device, const DepthStencilDesc& desc /*= DepthStencilDesc{}*/) {
+bool DepthStencilState::CreateDepthStencilState(const RHIDevice* device, const DepthStencilDesc& desc /*= DepthStencilDesc{}*/) {
     D3D11_DEPTH_STENCIL_DESC dx_desc;
     dx_desc.DepthEnable = desc.depth_enabled ? TRUE : FALSE;
     dx_desc.DepthWriteMask = desc.depth_write ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;

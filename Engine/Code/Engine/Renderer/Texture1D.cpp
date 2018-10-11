@@ -4,7 +4,7 @@
 
 #include "Engine/Renderer/DirectX/DX11.hpp"
 
-Texture1D::Texture1D(RHIDevice* device, ID3D11Texture1D* dxTexture)
+Texture1D::Texture1D(const RHIDevice* device, ID3D11Texture1D* dxTexture)
     : Texture(device)
     , _dx_tex(dxTexture)
 {

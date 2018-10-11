@@ -11,7 +11,7 @@ class RHIDeviceContext;
 
 class IndexBuffer : public ArrayBuffer<unsigned int> {
 public:
-    IndexBuffer(RHIDevice* owner, const buffer_t& buffer, const BufferUsage& usage, const BufferBindUsage& bindUsage);
+    IndexBuffer(const RHIDevice* owner, const buffer_t& buffer, const BufferUsage& usage, const BufferBindUsage& bindUsage);
     virtual ~IndexBuffer();
 
     void Update(RHIDeviceContext* context, const buffer_t& buffer);

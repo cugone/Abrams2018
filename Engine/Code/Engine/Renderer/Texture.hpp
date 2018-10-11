@@ -13,7 +13,7 @@ struct ID3D11UnorderedAccessView;
 
 class Texture {
 public:
-    Texture(RHIDevice* device) noexcept;
+    Texture(const RHIDevice* device) noexcept;
     Texture(Texture&& r_other) noexcept;
     Texture(const Texture& other) noexcept = delete;
     Texture& operator=(const Texture& rhs) noexcept = delete;
@@ -34,7 +34,7 @@ public:
     virtual void SetDebugName([[maybe_unused]] const std::string& name) const noexcept = 0;
 
 protected:
-    RHIDevice* _device = nullptr;
+    const RHIDevice* _device = nullptr;
     IntVector3 _dimensions = IntVector3::ZERO;
     ID3D11DepthStencilView* _dsv = nullptr;
     ID3D11RenderTargetView* _rtv = nullptr;

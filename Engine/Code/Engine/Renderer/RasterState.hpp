@@ -23,8 +23,8 @@ struct RasterDesc {
 
 class RasterState {
 public:
-    RasterState(RHIDevice* device, const RasterDesc& desc);
-    RasterState(RHIDevice* device, const XMLElement& element);
+    RasterState(const RHIDevice* device, const RasterDesc& desc);
+    RasterState(const RHIDevice* device, const XMLElement& element);
     ~RasterState();
 
     const RasterDesc& GetDesc() const;
@@ -32,7 +32,7 @@ public:
 
     void SetDebugName([[maybe_unused]] const std::string& name) const noexcept;
 protected:
-    bool CreateRasterState(RHIDevice* device, const RasterDesc& raster_desc = RasterDesc{});
+    bool CreateRasterState(const RHIDevice* device, const RasterDesc& raster_desc = RasterDesc{});
 private:
     RasterDesc _desc{};
     ID3D11RasterizerState* _dx_state;

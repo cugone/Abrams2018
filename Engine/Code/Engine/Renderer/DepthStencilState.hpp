@@ -28,15 +28,15 @@ struct DepthStencilDesc {
 
 class DepthStencilState {
 public:
-    explicit DepthStencilState(RHIDevice* device, const DepthStencilDesc& desc);
-    explicit DepthStencilState(RHIDevice* device, const XMLElement& element);
+    explicit DepthStencilState(const RHIDevice* device, const DepthStencilDesc& desc);
+    explicit DepthStencilState(const RHIDevice* device, const XMLElement& element);
     ~DepthStencilState();
     ID3D11DepthStencilState* GetDxDepthStencilState() const;
     DepthStencilDesc GetDesc() const;
     void SetDebugName([[maybe_unused]] const std::string& name) const noexcept;
 protected:
 private:
-    bool CreateDepthStencilState(RHIDevice* device, const DepthStencilDesc& desc = DepthStencilDesc{});
+    bool CreateDepthStencilState(const RHIDevice* device, const DepthStencilDesc& desc = DepthStencilDesc{});
 
     DepthStencilDesc _desc{};
     ID3D11DepthStencilState* _dx_state = nullptr;

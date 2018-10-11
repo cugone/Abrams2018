@@ -8,7 +8,7 @@ struct ID3D11Texture2D;
 
 class TextureArray2D : public Texture {
 public:
-    TextureArray2D(RHIDevice* device, ID3D11Texture2D* dxTexture);
+    TextureArray2D(const RHIDevice* device, ID3D11Texture2D* dxTexture);
     TextureArray2D(TextureArray2D&& r_other) noexcept;
     TextureArray2D(const TextureArray2D& other) noexcept = delete;
     TextureArray2D& operator=(const TextureArray2D& rhs) noexcept = delete;
@@ -21,5 +21,5 @@ public:
 protected:
 private:
     ID3D11Texture2D* _dx_tex = nullptr;
-    void SetDeviceAndTexture(RHIDevice* device, ID3D11Texture2D* texture) noexcept;
+    void SetDeviceAndTexture(const RHIDevice* device, ID3D11Texture2D* texture) noexcept;
 };

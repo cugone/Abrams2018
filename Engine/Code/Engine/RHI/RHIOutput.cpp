@@ -18,7 +18,7 @@
 
 #include <sstream>
 
-RHIOutput::RHIOutput(RHIDevice* parent, Window* wnd, IDXGISwapChain* swapchain)
+RHIOutput::RHIOutput(const RHIDevice* parent, Window* wnd, IDXGISwapChain* swapchain)
     : _parent_device(parent)
     , _window(wnd)
     , _dxgi_swapchain(swapchain)
@@ -29,8 +29,10 @@ RHIOutput::RHIOutput(RHIDevice* parent, Window* wnd, IDXGISwapChain* swapchain)
 RHIOutput::~RHIOutput() {
     _parent_device = nullptr;
 
-    _dxgi_swapchain->Release();
-    _dxgi_swapchain = nullptr;
+    if(_dxgi_swapchain) {
+        _dxgi_swapchain->Release();
+        _dxgi_swapchain = nullptr;
+    }
 
     delete _back_buffer;
     _back_buffer = nullptr;

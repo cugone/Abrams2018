@@ -18,7 +18,7 @@
 #include "Engine/Renderer/Texture.hpp"
 #include "Engine/Renderer/VertexBuffer.hpp"
 
-RHIDeviceContext::RHIDeviceContext(RHIDevice* parentDevice, ID3D11DeviceContext* deviceContext)
+RHIDeviceContext::RHIDeviceContext(const RHIDevice* parentDevice, ID3D11DeviceContext* deviceContext)
     : _device(parentDevice)
     , _dx_context(deviceContext)
 {
@@ -158,7 +158,7 @@ void RHIDeviceContext::DrawIndexed(std::size_t vertexCount, std::size_t startVer
     _dx_context->DrawIndexed(static_cast<unsigned int>(vertexCount), static_cast<unsigned int>(startVertex), static_cast<int>(baseVertexLocation));
 }
 
-RHIDevice* RHIDeviceContext::GetParentDevice() const {
+const RHIDevice* RHIDeviceContext::GetParentDevice() const {
     return _device;
 }
 

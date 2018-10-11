@@ -9,12 +9,12 @@
 #include <locale>
 #include <string>
 
-bool BlendState::CreateBlendState(RHIDevice* device, BlendDesc render_target /*= BlendDesc()*/) {
+bool BlendState::CreateBlendState(const RHIDevice* device, BlendDesc render_target /*= BlendDesc()*/) {
     const std::vector<BlendDesc> targets{ 1, render_target };
     return CreateBlendState(device, targets);
 }
 
-bool BlendState::CreateBlendState(RHIDevice* device, const std::vector<BlendDesc>& render_targets /*= {BlendDesc()}*/) {
+bool BlendState::CreateBlendState(const RHIDevice* device, const std::vector<BlendDesc>& render_targets /*= {BlendDesc()}*/) {
     D3D11_BLEND_DESC desc{};
     desc.AlphaToCoverageEnable = this->_alpha_to_coverage_enable;
     desc.IndependentBlendEnable = this->_independant_blend_enable;
@@ -36,7 +36,7 @@ bool BlendState::CreateBlendState(RHIDevice* device, const std::vector<BlendDesc
     return SUCCEEDED(hr);
 }
 
-BlendState::BlendState(RHIDevice* device, const XMLElement& element) {
+BlendState::BlendState(const RHIDevice* device, const XMLElement& element) {
     if(auto xml_blends = element.FirstChildElement("blends")) {
         DataUtils::ValidateXmlElement(*xml_blends, "blends", "blend", "", "", "alphacoverage,independantblend");
         this->_alpha_to_coverage_enable = DataUtils::ParseXmlAttribute(element, "alphacoverage", this->_alpha_to_coverage_enable);
@@ -57,13 +57,13 @@ BlendState::BlendState(RHIDevice* device, const XMLElement& element) {
     }
 }
 
-BlendState::BlendState(RHIDevice* device, const BlendDesc& desc /*= BlendDesc{}*/, bool alphaCoverage /*= false*/)
+BlendState::BlendState(const RHIDevice* device, const BlendDesc& desc /*= BlendDesc{}*/, bool alphaCoverage /*= false*/)
     : BlendState(device, std::vector<BlendDesc>{1, desc}, alphaCoverage, false)
 {
     /* DO NOTHING */
 }
 
-BlendState::BlendState(RHIDevice* device, const std::vector<BlendDesc>& descs /*= std::vector<BlendDesc>{}*/, bool alphaCoverage /*= false*/, bool independantBlend /*= false*/)
+BlendState::BlendState(const RHIDevice* device, const std::vector<BlendDesc>& descs /*= std::vector<BlendDesc>{}*/, bool alphaCoverage /*= false*/, bool independantBlend /*= false*/)
     : _alpha_to_coverage_enable(alphaCoverage)
     , _independant_blend_enable(independantBlend)
     , _descs{ descs }

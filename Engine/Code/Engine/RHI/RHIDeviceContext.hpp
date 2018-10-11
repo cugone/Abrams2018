@@ -26,7 +26,7 @@ enum class PrimitiveType : unsigned int;
 
 class RHIDeviceContext {
 public:
-    RHIDeviceContext(RHIDevice* parentDevice, ID3D11DeviceContext* deviceContext);
+    RHIDeviceContext(const RHIDevice* parentDevice, ID3D11DeviceContext* deviceContext);
     ~RHIDeviceContext();
 
     void ClearState();
@@ -45,7 +45,7 @@ public:
     void Draw(std::size_t vertexCount, std::size_t startVertex = 0);
     void DrawIndexed(std::size_t vertexCount, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0);
 
-    RHIDevice* GetParentDevice() const;
+    const RHIDevice* GetParentDevice() const;
     ID3D11DeviceContext* GetDxContext();
 
     void UnbindAllShaderResources();
@@ -63,7 +63,7 @@ private:
 
     static constexpr unsigned int STRUCTURED_BUFFER_OFFSET = 64;
 
-    RHIDevice* _device = nullptr;
+    const RHIDevice* _device = nullptr;
     ID3D11DeviceContext* _dx_context = nullptr;
 
     friend class Renderer;

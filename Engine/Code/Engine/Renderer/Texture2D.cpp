@@ -8,7 +8,7 @@
 
 #include "Engine/RHI/RHIDevice.hpp"
 
-Texture2D::Texture2D(RHIDevice* device, ID3D11Texture2D* dxTexture)
+Texture2D::Texture2D(const RHIDevice* device, ID3D11Texture2D* dxTexture)
     : Texture(device)
     , _dx_tex(dxTexture)
 {
@@ -43,7 +43,7 @@ Texture2D& Texture2D::operator=(Texture2D&& rhs) noexcept {
     return *this;
 }
 
-void Texture2D::SetDeviceAndTexture(RHIDevice* device, ID3D11Texture2D* texture) noexcept {
+void Texture2D::SetDeviceAndTexture(const RHIDevice* device, ID3D11Texture2D* texture) noexcept {
 
     _device = device;
     _dx_tex = texture;

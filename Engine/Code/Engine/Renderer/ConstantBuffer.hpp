@@ -11,7 +11,7 @@ class RHIDeviceContext;
 
 class ConstantBuffer : public Buffer<void*> {
 public:
-    ConstantBuffer(RHIDevice* owner, const buffer_t& buffer, const std::size_t& buffer_size, const BufferUsage& usage, const BufferBindUsage& bindUsage);
+    ConstantBuffer(const RHIDevice* owner, const buffer_t& buffer, const std::size_t& buffer_size, const BufferUsage& usage, const BufferBindUsage& bindUsage);
     virtual ~ConstantBuffer();
 
     void Update(RHIDeviceContext* context, const buffer_t& buffer);

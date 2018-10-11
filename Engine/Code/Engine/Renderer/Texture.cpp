@@ -2,7 +2,7 @@
 
 #include "Engine/Renderer/DirectX/DX11.hpp"
 
-Texture::Texture(RHIDevice* device) noexcept
+Texture::Texture(const RHIDevice* device) noexcept
     : _device(device)
 {
     /* DO NOTHING */

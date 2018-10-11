@@ -26,15 +26,15 @@ struct BlendDesc {
 
 class BlendState {
 public:
-    explicit BlendState(RHIDevice* device, const XMLElement& element);
-    explicit BlendState(RHIDevice* device, const BlendDesc& desc = BlendDesc{}, bool alphaCoverage = false);
-    explicit BlendState(RHIDevice* device, const std::vector<BlendDesc>& descs = std::vector<BlendDesc>{}, bool alphaCoverage = false, bool independantBlend = false);
+    explicit BlendState(const RHIDevice* device, const XMLElement& element);
+    explicit BlendState(const RHIDevice* device, const BlendDesc& desc = BlendDesc{}, bool alphaCoverage = false);
+    explicit BlendState(const RHIDevice* device, const std::vector<BlendDesc>& descs = std::vector<BlendDesc>{}, bool alphaCoverage = false, bool independantBlend = false);
     ~BlendState();
 
     ID3D11BlendState* GetDxBlendState();
 protected:
-    bool CreateBlendState(RHIDevice* device, BlendDesc render_target = BlendDesc{});
-    bool CreateBlendState(RHIDevice* device, const std::vector<BlendDesc>& render_targets = { BlendDesc{} });
+    bool CreateBlendState(const RHIDevice* device, BlendDesc render_target = BlendDesc{});
+    bool CreateBlendState(const RHIDevice* device, const std::vector<BlendDesc>& render_targets = { BlendDesc{} });
 private:
     bool _alpha_to_coverage_enable = false;
     bool _independant_blend_enable = false;

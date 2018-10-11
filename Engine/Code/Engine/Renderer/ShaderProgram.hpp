@@ -7,7 +7,7 @@ class RHIDevice;
 
 struct ShaderProgramDesc {
     std::string name{ "UNNAMED SHADER PROGRAM" };
-    RHIDevice* device         = nullptr;
+    const RHIDevice* device   = nullptr;
     ID3D11VertexShader* vs    = nullptr;
     ID3D11PixelShader* ps     = nullptr;
     ID3DBlob* vs_bytecode     = nullptr;
@@ -42,7 +42,7 @@ public:
     void SetDescription(ShaderProgramDesc&& description);
 
     const std::string& GetName() const;
-    RHIDevice* GetParentDevice();
+    const RHIDevice* GetParentDevice() const;
     ID3DBlob* GetVSByteCode() const;
     ID3DBlob* GetHSByteCode() const;
     ID3DBlob* GetDSByteCode() const;

@@ -6,7 +6,7 @@
 #include "Engine/RHI/RHIDeviceContext.hpp"
 
 
-IndexBuffer::IndexBuffer(RHIDevice* owner, const buffer_t& buffer, const BufferUsage& usage, const BufferBindUsage& bindUsage)
+IndexBuffer::IndexBuffer(const RHIDevice* owner, const buffer_t& buffer, const BufferUsage& usage, const BufferBindUsage& bindUsage)
     : ArrayBuffer<unsigned int>() {
     D3D11_BUFFER_DESC buffer_desc = {};
     buffer_desc.Usage = BufferUsageToD3DUsage(usage);

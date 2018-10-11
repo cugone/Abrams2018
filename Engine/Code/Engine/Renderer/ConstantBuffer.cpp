@@ -7,7 +7,7 @@
 
 #include <sstream>
 
-ConstantBuffer::ConstantBuffer(RHIDevice* owner, const buffer_t& buffer, const std::size_t& buffer_size, const BufferUsage& usage, const BufferBindUsage& bindUsage)
+ConstantBuffer::ConstantBuffer(const RHIDevice* owner, const buffer_t& buffer, const std::size_t& buffer_size, const BufferUsage& usage, const BufferBindUsage& bindUsage)
     : Buffer<void*>()
     , _buffer_size(buffer_size)
 {

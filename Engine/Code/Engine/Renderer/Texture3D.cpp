@@ -3,7 +3,7 @@
 #include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Renderer/DirectX/DX11.hpp"
 
-Texture3D::Texture3D(RHIDevice* device, ID3D11Texture3D* dxTexture)
+Texture3D::Texture3D(const RHIDevice* device, ID3D11Texture3D* dxTexture)
     : Texture(device)
     , _dx_tex(dxTexture)
 {

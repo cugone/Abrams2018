@@ -18,13 +18,13 @@ void RasterState::SetDebugName([[maybe_unused]] const std::string& name) const n
 #endif
 }
 
-RasterState::RasterState(RHIDevice* device, const XMLElement& element)
+RasterState::RasterState(const RHIDevice* device, const XMLElement& element)
     : RasterState(device, RasterDesc{element})
 {
     /* DO NOTHING */
 }
 
-RasterState::RasterState(RHIDevice* device, const RasterDesc& desc)
+RasterState::RasterState(const RHIDevice* device, const RasterDesc& desc)
     : _desc(desc)
 {
     if(!CreateRasterState(device, _desc)) {
@@ -51,7 +51,7 @@ ID3D11RasterizerState* RasterState::GetDxRasterState() {
     return _dx_state;
 }
 
-bool RasterState::CreateRasterState(RHIDevice* device, const RasterDesc& raster_desc /*= RasterDesc()*/) {
+bool RasterState::CreateRasterState(const RHIDevice* device, const RasterDesc& raster_desc /*= RasterDesc()*/) {
 
     D3D11_RASTERIZER_DESC desc{};
 

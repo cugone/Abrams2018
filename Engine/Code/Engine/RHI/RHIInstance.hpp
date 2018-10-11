@@ -9,13 +9,13 @@ struct IDXGIDebug;
 
 class RHIInstance {
 public:
-    static RHIInstance* CreateInstance();
+    static RHIInstance* const CreateInstance();
     static void DestroyInstance();
 
-    RHIDevice* CreateDevice() noexcept;
+    RHIDevice* CreateDevice() const noexcept;
 
 protected:
-    RHIInstance();
+    RHIInstance() = default;
     ~RHIInstance();
 
 private:

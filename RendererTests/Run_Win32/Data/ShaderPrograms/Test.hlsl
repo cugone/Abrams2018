@@ -5,6 +5,10 @@ cbuffer matrix_cb : register(b0) {
     float4x4 g_PROJECTION;
 };
 
+cbuffer health_cb : register(b3) {
+    float4 g_test;
+};
+
 
 struct vs_in_t {
     float3 position : POSITION;
@@ -45,5 +49,5 @@ ps_in_t VertexFunction(vs_in_t input_vertex) {
 
 float4 PixelFunction(ps_in_t input_pixel) : SV_Target0{
     float4 albedo = tImage.Sample(sSampler, input_pixel.uv);
-    return albedo * input_pixel.color;
+    return albedo * input_pixel.color * g_test.x;
 }

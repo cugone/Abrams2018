@@ -6,7 +6,7 @@
 
 #include "Engine/RHI/RHITypes.hpp"
 
-std::size_t Window::_refCount = 0;
+std::size_t Window::_refCount{};
 
 Window::Window() {
     if(_refCount == 0) {

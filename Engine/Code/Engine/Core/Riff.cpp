@@ -103,7 +103,7 @@ void Riff::ShowRiffChunkHeaders() {
 #endif
 }
 
-Riff::RiffChunk* Riff::GetNextChunk() const {
+Riff::RiffChunk* Riff::GetNextChunk() {
     if(_current_chunk == _chunks.end()) {
         return nullptr;
     }

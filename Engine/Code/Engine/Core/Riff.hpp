@@ -42,7 +42,7 @@ public:
     Riff() = default;
     ~Riff();
 
-    RiffChunk* GetNextChunk() const;
+    RiffChunk* GetNextChunk();
     unsigned int Load(const std::string& filename);
     unsigned int Load(const std::vector<unsigned char>& data);
 protected:
@@ -52,7 +52,7 @@ private:
 
     void ShowRiffChunkHeaders();
     std::vector<std::unique_ptr<RiffChunk>> _chunks{};
-    mutable decltype(_chunks)::iterator _current_chunk{};
+    decltype(_chunks)::iterator _current_chunk{};
 
     friend class Wav;
 };

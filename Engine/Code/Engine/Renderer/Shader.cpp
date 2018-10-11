@@ -47,6 +47,13 @@ Shader::~Shader() {
     _renderer = nullptr;
     _sampler = nullptr;
     _raster_state = nullptr;
+    for(auto& cbuffer : _cbuffers) {
+        delete cbuffer;
+        cbuffer = nullptr;
+    }
+    _cbuffers.clear();
+    _cbuffers.shrink_to_fit();
+
     if(_blend_state) {
         delete _blend_state;
         _blend_state = nullptr;

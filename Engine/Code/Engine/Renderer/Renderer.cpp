@@ -229,19 +229,19 @@ float Renderer::GetSystemTime() const {
     return _time_data.system_time;
 }
 
-ConstantBuffer* Renderer::CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) {
+ConstantBuffer* Renderer::CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) const {
     return _rhi_device->CreateConstantBuffer(buffer, buffer_size, BufferUsage::Dynamic, BufferBindUsage::Constant_Buffer);
 }
 
-VertexBuffer* Renderer::CreateVertexBuffer(const VertexBuffer::buffer_t& vbo) {
+VertexBuffer* Renderer::CreateVertexBuffer(const VertexBuffer::buffer_t& vbo) const {
     return _rhi_device->CreateVertexBuffer(vbo, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer);
 }
 
-IndexBuffer* Renderer::CreateIndexBuffer(const IndexBuffer::buffer_t& ibo) {
+IndexBuffer* Renderer::CreateIndexBuffer(const IndexBuffer::buffer_t& ibo) const {
     return _rhi_device->CreateIndexBuffer(ibo, BufferUsage::Dynamic, BufferBindUsage::Index_Buffer);
 }
 
-StructuredBuffer* Renderer::CreateStructuredBuffer(const StructuredBuffer::buffer_t& sbo, std::size_t element_size, std::size_t element_count) {
+StructuredBuffer* Renderer::CreateStructuredBuffer(const StructuredBuffer::buffer_t& sbo, std::size_t element_size, std::size_t element_count) const {
     return _rhi_device->CreateStructuredBuffer(sbo, element_size, element_count, BufferUsage::Static, BufferBindUsage::Shader_Resource);
 }
 
@@ -1104,7 +1104,7 @@ std::vector<ConstantBuffer*> Renderer::CreateConstantBuffersFromShaderProgram(co
     if(!cbuffer_count) {
         return {};
     }
-    auto cbuffers = std::vector<ConstantBuffer*>(cbuffer_count, nullptr);
+    auto cbuffers = std::vector<ConstantBuffer*>{};
     cbuffers.reserve(cbuffer_count);
     std::copy(std::begin(vs_cbuffers), std::end(vs_cbuffers), std::back_inserter(cbuffers));
     std::copy(std::begin(hs_cbuffers), std::end(hs_cbuffers), std::back_inserter(cbuffers));
@@ -1112,6 +1112,7 @@ std::vector<ConstantBuffer*> Renderer::CreateConstantBuffersFromShaderProgram(co
     std::copy(std::begin(gs_cbuffers), std::end(gs_cbuffers), std::back_inserter(cbuffers));
     std::copy(std::begin(ps_cbuffers), std::end(ps_cbuffers), std::back_inserter(cbuffers));
     std::copy(std::begin(cs_cbuffers), std::end(cs_cbuffers), std::back_inserter(cbuffers));
+    cbuffers.shrink_to_fit();
     return cbuffers;
 }
 
@@ -2507,7 +2508,7 @@ RHIDeviceContext* Renderer::GetDeviceContext() const {
     return _rhi_context;
 }
 
-RHIDevice* Renderer::GetDevice() const {
+const RHIDevice* Renderer::GetDevice() const {
     return _rhi_device;
 }
 
@@ -2526,7 +2527,7 @@ ShaderProgram* Renderer::GetShaderProgram(const std::string& nameOrFile) {
     return found_iter->second;
 }
 
-ShaderProgram* Renderer::CreateShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPointList, const PipelineStage& target) {
+ShaderProgram* Renderer::CreateShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPointList, const PipelineStage& target) const {
     bool requested_retry = false;
     do {
         ShaderProgram* sp = nullptr;
@@ -2963,7 +2964,7 @@ void Renderer::SetTexture(Texture* texture, unsigned int registerIndex /*= 0*/) 
     _rhi_context->SetTexture(registerIndex, _current_target);
 }
 
-Texture* Renderer::CreateDepthStencil(RHIDevice* owner, const IntVector2& dimensions) {
+Texture* Renderer::CreateDepthStencil(const RHIDevice* owner, const IntVector2& dimensions) {
 
     ID3D11Texture2D* dx_resource = nullptr;
 
@@ -2987,7 +2988,7 @@ Texture* Renderer::CreateDepthStencil(RHIDevice* owner, const IntVector2& dimens
     return nullptr;
 }
 
-Texture* Renderer::CreateRenderableDepthStencil(RHIDevice* owner, const IntVector2& dimensions) {
+Texture* Renderer::CreateRenderableDepthStencil(const RHIDevice* owner, const IntVector2& dimensions) {
 
     ID3D11Texture2D* dx_resource = nullptr;
 

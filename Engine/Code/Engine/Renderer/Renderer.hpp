@@ -122,10 +122,10 @@ public:
     float GetGameTime() const;
     float GetSystemTime() const;
 
-    VertexBuffer* CreateVertexBuffer(const VertexBuffer::buffer_t& vbo);
-    IndexBuffer* CreateIndexBuffer(const IndexBuffer::buffer_t& ibo);
-    ConstantBuffer* CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size);
-    StructuredBuffer* CreateStructuredBuffer(const StructuredBuffer::buffer_t& sbo, std::size_t element_size, std::size_t element_count);
+    VertexBuffer* CreateVertexBuffer(const VertexBuffer::buffer_t& vbo) const;
+    IndexBuffer* CreateIndexBuffer(const IndexBuffer::buffer_t& ibo) const;
+    ConstantBuffer* CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) const;
+    StructuredBuffer* CreateStructuredBuffer(const StructuredBuffer::buffer_t& sbo, std::size_t element_size, std::size_t element_count) const;
 
     Texture* CreateOrGetTexture(const std::string& filepath, const IntVector3& dimensions);
     void RegisterTexturesFromFolder(const std::string& folderpath, bool recursive = false);
@@ -134,8 +134,8 @@ public:
 
     Texture* GetTexture(const std::string& nameOrFile);
 
-    Texture* CreateDepthStencil(RHIDevice* owner, const IntVector2& dimensions);
-    Texture* CreateRenderableDepthStencil(RHIDevice* owner, const IntVector2& dimensions);
+    Texture* CreateDepthStencil(const RHIDevice* owner, const IntVector2& dimensions);
+    Texture* CreateRenderableDepthStencil(const RHIDevice* owner, const IntVector2& dimensions);
 
     void SetDepthStencilState(DepthStencilState* depthstencil);
     DepthStencilState* GetDepthStencilState(const std::string& name);
@@ -206,11 +206,11 @@ public:
     void SetSpotlight(unsigned int index, const SpotLightDesc& desc);
 
     RHIDeviceContext* GetDeviceContext() const;
-    RHIDevice* GetDevice() const;
+    const RHIDevice* GetDevice() const;
     RHIOutput* GetOutput() const;
 
     ShaderProgram* GetShaderProgram(const std::string& nameOrFile);
-    ShaderProgram* CreateShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPointList, const PipelineStage& target);
+    ShaderProgram* CreateShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPointList, const PipelineStage& target) const;
     void CreateAndRegisterShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPointList, const PipelineStage& target);
     void RegisterShaderProgramsFromFolder(const std::string& folderpath, const std::string& entrypoint, const PipelineStage& target, bool recursive = false);
     void CreateAndRegisterRasterStateFromRasterDescription(const std::string& name, const RasterDesc& desc);

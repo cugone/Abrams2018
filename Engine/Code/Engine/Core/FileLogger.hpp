@@ -15,10 +15,9 @@ class JobSystem;
 
 class FileLogger {
 public:
-    FileLogger() = default;
+    FileLogger(JobSystem& jobSystem, const std::string& logName);
     ~FileLogger();
 
-    void Initialize(JobSystem& jobSystem, const std::string& log_name);
     void Shutdown();
     void Log(const std::string& msg);
     void LogLine(const std::string& msg);
@@ -39,6 +38,8 @@ public:
 
 protected:
 private:
+    void Initialize(JobSystem& jobSystem, const std::string& log_name);
+
     void InsertTimeStamp(std::stringstream& msg);
     void InsertTag(std::stringstream& msg, const std::string& tag);
     void InsertMessage(std::stringstream& msg, const std::string& messageLiteral);

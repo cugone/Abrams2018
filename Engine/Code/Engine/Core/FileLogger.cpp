@@ -14,6 +14,10 @@
 #include <filesystem>
 #include <iostream>
 
+FileLogger::FileLogger(JobSystem& jobSystem, const std::string& logName) {
+    Initialize(jobSystem, logName);
+}
+
 FileLogger::~FileLogger() {
     Shutdown();
     _job_system = nullptr;

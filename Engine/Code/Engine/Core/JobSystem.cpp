@@ -93,17 +93,22 @@ bool JobConsumer::HasJobs() const {
     return false;
 }
 
+JobSystem::JobSystem(int genericCount, std::size_t categoryCount, std::condition_variable* mainJobSignal)
+: _main_job_signal(mainJobSignal)
+{
+    Initialize(genericCount, categoryCount);
+}
+
 JobSystem::~JobSystem() {
     Shutdown();
 }
 
-void JobSystem::Initialize(int genericCount, std::size_t categoryCount, std::condition_variable* mainJobSignal) {
-    int core_count = static_cast<int>(std::thread::hardware_concurrency());
+void JobSystem::Initialize(int genericCount, std::size_t categoryCount) {
+    auto core_count = static_cast<int>(std::thread::hardware_concurrency());
     if(genericCount <= 0) {
         core_count += genericCount;
     }
     --core_count;
-    _main_job_signal = mainJobSignal;
     _queues.resize(categoryCount);
     _signals.resize(categoryCount);
     _threads.resize(core_count);
@@ -240,6 +245,10 @@ bool JobSystem::IsRunning() {
 
 void JobSystem::SetIsRunning(bool value /*= true*/) {
     _is_running = value;
+}
+
+std::condition_variable* JobSystem::GetMainJobSignal() const {
+    return _main_job_signal;
 }
 
 Job::Job(JobSystem& jobSystem)

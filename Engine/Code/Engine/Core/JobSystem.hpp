@@ -67,10 +67,9 @@ private:
 
 class JobSystem {
 public:
-    JobSystem() = default;
+    JobSystem(int genericCount, std::size_t categoryCount, std::condition_variable* mainJobSignal);
     ~JobSystem();
 
-    void Initialize(int genericCount, std::size_t categoryCount, std::condition_variable* mainJobSignal);
     void BeginFrame();
     void Shutdown();
 
@@ -84,8 +83,11 @@ public:
     void WaitAndRelease(Job* job);
     bool IsRunning();
     void SetIsRunning(bool value = true);
+
+    std::condition_variable* GetMainJobSignal() const;
 protected:
 private:
+    void Initialize(int genericCount, std::size_t categoryCount);
     void MainStep();
     void GenericJobWorker(std::condition_variable* signal);
 

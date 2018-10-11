@@ -3,17 +3,23 @@
 #include "Engine/Core/EngineSubsystem.hpp"
 
 #include <condition_variable>
+#include <memory>
 
+class Config;
+class Console;
+class Game;
+class InputSystem;
 class JobSystem;
+class Renderer;
 
 class App : public EngineSubsystem {
 public:
-    App(JobSystem& jobSystem, std::condition_variable* mainJobSignal);
-    ~App();
+    App(JobSystem& jobSystem);
+    virtual ~App();
 
     bool IsQuitting() const;
     void SetIsQuitting(bool quit);
-    void Initialize();
+    void Initialize() override;
 
     void RunFrame();
     bool HasFocus() const;
@@ -33,6 +39,10 @@ private:
     bool _isQuitting = false;
     bool _current_focus = true;
     bool _previous_focus = false;
-    std::condition_variable* _main_job_signal = nullptr;
     JobSystem* _job_system = nullptr;
+    std::unique_ptr<Config> _theConfig{};
+    std::unique_ptr<Renderer> _theRenderer{};
+    std::unique_ptr<InputSystem> _theInputSystem{};
+    std::unique_ptr<Console> _theConsole{};
+    std::unique_ptr<Game> _theGame{};
 };

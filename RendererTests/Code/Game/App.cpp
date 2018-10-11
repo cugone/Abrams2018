@@ -30,31 +30,28 @@ bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     return false;
 }
 
-App::App(JobSystem& jobSystem, std::condition_variable* mainJobSignal)
+App::App(JobSystem& jobSystem)
     : EngineSubsystem()
-    , _main_job_signal(mainJobSignal)
     , _job_system(&jobSystem)
+    , _theConfig(std::make_unique<Config>())
+    , _theRenderer{std::make_unique<Renderer>(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT))}
+    , _theInputSystem{std::make_unique<InputSystem>()}
+    , _theConsole{std::make_unique<Console>(_theRenderer.get())}
+    , _theGame{std::make_unique<Game>()}
 {
-    g_theRenderer = new Renderer(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
-    g_theInput = new InputSystem();
-    g_theConsole = new Console(g_theRenderer);
-    g_theGame = new Game();
+    g_theConfig = _theConfig.get();
+    g_theRenderer = _theRenderer.get();
+    g_theInput = _theInputSystem.get();
+    g_theConsole = _theConsole.get();
+    g_theGame = _theGame.get();
 }
 
 App::~App() {
-    delete g_theGame;
     g_theGame = nullptr;
-
-    delete g_theConsole;
     g_theConsole = nullptr;
-
-    delete g_theInput;
     g_theInput = nullptr;
-    
-    delete g_theRenderer;
     g_theRenderer = nullptr;
-
-    _main_job_signal = nullptr;
+    g_theConfig = nullptr;
 }
 
 bool App::IsQuitting() const {

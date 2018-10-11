@@ -249,6 +249,7 @@ void Game::Render() const {
 }
 
 void Game::RenderStuff() const {
+    DrawCube();
     DrawObj();
     DrawWorldGrid();
     DrawAxes();

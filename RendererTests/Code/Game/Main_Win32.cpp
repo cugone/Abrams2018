@@ -1,5 +1,3 @@
-#include <memory>
-#include <sstream>
 
 #include "Engine/Core/ArgumentParser.hpp"
 #include "Engine/Core/KeyValueParser.hpp"
@@ -12,42 +10,60 @@
 #include "Engine/RHI/RHIOutput.hpp"
 
 #include "Game/GameCommon.hpp"
+#include "Game/GameConfig.hpp"
 
+#include <sstream>
 
 void Initialize(HINSTANCE hInstance, LPSTR lpCmdLine, int nShowCmd);
-void Shutdown();
+void MainLoop();
 void RunMessagePump();
+void Shutdown();
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int nShowCmd) {
 
     Initialize(hInstance, lpCmdLine, nShowCmd);
-    if(!g_theApp->applet_mode) {
-        while(!g_theApp->IsQuitting()) {
-            ::Sleep(0);
-            RunMessagePump();
-            g_theApp->RunFrame();
-        }
-    }
+    MainLoop();
     Shutdown();
     return 0;
 }
 
-void Initialize(HINSTANCE /*hInstance*/, LPSTR /*lpCmdLine*/, int /*nShowCmd*/) {
-    g_theJobSystem = new JobSystem();
-    g_theFileLogger = new FileLogger();
+void Initialize(HINSTANCE /*hInstance*/, LPSTR lpCmdLine, int /*nShowCmd*/) {
 
-    std::condition_variable* cv = new std::condition_variable;
-    g_theApp = new App(*g_theJobSystem, cv);
+
+
+    std::ostringstream ss_cmdLine{};
+    KeyValueParser kvp{ lpCmdLine };
+    Config cmdLine{ std::move(kvp) };
+    cmdLine.PrintConfigs(ss_cmdLine);
+    cmdLine.GetValue("vsync", GRAPHICS_OPTION_VSYNC);
+    cmdLine.GetValue("width", GRAPHICS_OPTION_WINDOW_WIDTH);
+    cmdLine.GetValue("height", GRAPHICS_OPTION_WINDOW_HEIGHT);
+    std::string logName{"game"};
+    cmdLine.GetValue("log", logName);
+    g_theJobSystem = std::make_unique<JobSystem>(-1, static_cast<std::size_t>(JobType::Max), new std::condition_variable);
+    g_theFileLogger = std::make_unique<FileLogger>(*g_theJobSystem, logName);
+    g_theApp = std::make_unique<App>(*g_theJobSystem);
 
     g_theConsole->SetNextHandler(g_theInput);
-    g_theInput->SetNextHandler(g_theApp);
-    g_theApp->SetNextHandler(nullptr);
+    g_theInput->SetNextHandler(g_theApp.get());
 
     g_theSubsystemHead = g_theConsole;
 
-    g_theJobSystem->Initialize(-1, static_cast<std::size_t>(JobType::Max), cv);
-    g_theFileLogger->Initialize(*g_theJobSystem, "game");
+    g_theFileLogger->LogLineAndFlush("---COMMAND LINE PARAMETERS---");
+    g_theFileLogger->LogLineAndFlush(ss_cmdLine.str());
+    g_theFileLogger->LogLineAndFlush("---COMMAND LINE PARAMETERS---");
     g_theApp->Initialize();
+}
+
+void MainLoop() {
+    if(g_theApp->applet_mode) {
+        return;
+    }
+    while(!g_theApp->IsQuitting()) {
+        ::Sleep(0);
+        RunMessagePump();
+        g_theApp->RunFrame();
+    }
 }
 
 void RunMessagePump() {
@@ -68,12 +84,6 @@ void RunMessagePump() {
 }
 
 void Shutdown() {
-    g_theSubsystemHead = g_theApp;
-    delete g_theApp;
-    g_theApp = nullptr;
-    g_theSubsystemHead = nullptr;
-    delete g_theFileLogger;
-    g_theFileLogger = nullptr;
-    delete g_theJobSystem;
-    g_theJobSystem = nullptr;
+    //Required due to WinProc needing to destroy window
+    g_theSubsystemHead = g_theApp.get();
 }

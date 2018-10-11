@@ -139,6 +139,6 @@ public:
     static WindowsSystemMessage GetWindowsSystemMessageFromUintMessage(unsigned int wmMessage);
     void SetNextHandler(EngineSubsystem* next_handler);
 protected:
-    EngineSubsystem* _next_subsystem = nullptr;
 private:
+    EngineSubsystem* _next_subsystem = nullptr;
 };

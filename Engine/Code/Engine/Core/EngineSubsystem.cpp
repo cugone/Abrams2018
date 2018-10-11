@@ -3,7 +3,7 @@
 #include "Engine/Core/Win.hpp"
 
 EngineSubsystem::~EngineSubsystem() {
-    /* DO NOTHING */
+    _next_subsystem = nullptr;
 }
 
 bool EngineSubsystem::ProcessSystemMessage(const EngineMessage& msg) {

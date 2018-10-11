@@ -49,7 +49,7 @@ D3D_FEATURE_LEVEL RHIDevice::GetFeatureLevel() const {
     return _dx_highestSupportedFeatureLevel;
 }
 
-ID3D11Device* RHIDevice::GetDxDevice() {
+ID3D11Device* RHIDevice::GetDxDevice() const {
     return _dx_device;
 }
 
@@ -57,30 +57,24 @@ bool RHIDevice::IsAllowTearingSupported() const {
     return _allow_tearing_supported;
 }
 
-VertexBuffer* RHIDevice::CreateVertexBuffer(const VertexBuffer::buffer_t& vbo, const BufferUsage& usage, const BufferBindUsage& bindusage) {
-    auto vb = new VertexBuffer(this, vbo, usage, bindusage);
-    return vb;
+VertexBuffer* RHIDevice::CreateVertexBuffer(const VertexBuffer::buffer_t& vbo, const BufferUsage& usage, const BufferBindUsage& bindusage) const {
+    return new VertexBuffer(this, vbo, usage, bindusage);
 }
 
-IndexBuffer* RHIDevice::CreateIndexBuffer(const IndexBuffer::buffer_t& ibo, const BufferUsage& usage, const BufferBindUsage& bindusage) {
-    auto ib = new IndexBuffer(this, ibo, usage, bindusage);
-    return ib;
-
+IndexBuffer* RHIDevice::CreateIndexBuffer(const IndexBuffer::buffer_t& ibo, const BufferUsage& usage, const BufferBindUsage& bindusage) const {
+    return new IndexBuffer(this, ibo, usage, bindusage);
 }
 
-InputLayout* RHIDevice::CreateInputLayout() {
-    auto il = new InputLayout(this);
-    return il;
+InputLayout* RHIDevice::CreateInputLayout() const {
+    return new InputLayout(this);
 }
 
-StructuredBuffer* RHIDevice::CreateStructuredBuffer(const StructuredBuffer::buffer_t& buffer, std::size_t element_size, std::size_t element_count, const BufferUsage& usage, const BufferBindUsage& bindUsage) {
-    auto sb = new StructuredBuffer(this, buffer, element_size, element_count, usage, bindUsage);
-    return sb;
+StructuredBuffer* RHIDevice::CreateStructuredBuffer(const StructuredBuffer::buffer_t& buffer, std::size_t element_size, std::size_t element_count, const BufferUsage& usage, const BufferBindUsage& bindUsage) const {
+    return new StructuredBuffer(this, buffer, element_size, element_count, usage, bindUsage);
 }
 
-ConstantBuffer* RHIDevice::CreateConstantBuffer(const ConstantBuffer::buffer_t& buffer, std::size_t buffer_size, const BufferUsage& usage, const BufferBindUsage& bindUsage) {
-    auto cb = new ConstantBuffer(this, buffer, buffer_size, usage, bindUsage);
-    return cb;
+ConstantBuffer* RHIDevice::CreateConstantBuffer(const ConstantBuffer::buffer_t& buffer, std::size_t buffer_size, const BufferUsage& usage, const BufferBindUsage& bindUsage) const {
+    return new ConstantBuffer(this, buffer, buffer_size, usage, bindUsage);
 }
 
 RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
@@ -242,7 +236,11 @@ std::vector<ConstantBuffer*> RHIDevice::CreateConstantBuffersUsingReflection(ID3
     if(FAILED(cbufferReflection.GetDesc(&shader_desc))) {
         return {};
     }
+    if(!shader_desc.ConstantBuffers) {
+        return{};
+    }
     std::vector<ConstantBuffer*> result{};
+    result.reserve(shader_desc.ConstantBuffers);
     for(auto resource_idx = 0u; resource_idx < shader_desc.BoundResources; ++resource_idx) {
         D3D11_SHADER_INPUT_BIND_DESC input_desc{};
         if(FAILED(cbufferReflection.GetResourceBindingDesc(resource_idx, &input_desc))) {
@@ -254,48 +252,54 @@ std::vector<ConstantBuffer*> RHIDevice::CreateConstantBuffersUsingReflection(ID3
         if(input_desc.BindPoint < Renderer::CONSTANT_BUFFER_START_INDEX) {
             continue;
         }
-        ID3D11ShaderReflectionConstantBuffer* reflected_cbuffer = nullptr;
-        if(nullptr == (reflected_cbuffer = cbufferReflection.GetConstantBufferByIndex(input_desc.BindPoint))) {
-            continue;
-        }
-        D3D11_SHADER_BUFFER_DESC buffer_desc{};
-        auto bd_result = reflected_cbuffer->GetDesc(&buffer_desc);
-        if(FAILED(bd_result)) {
-            continue;
-        }
-        if(buffer_desc.Type != D3D_CBUFFER_TYPE::D3D11_CT_CBUFFER) {
-            continue;
-        }
-        std::size_t cbuffer_size = 0u;
-        std::vector<std::size_t> var_offsets{};
-        for(auto variable_idx = 0u; buffer_desc.Variables; ++variable_idx) {
-            ID3D11ShaderReflectionVariable* reflected_variable = nullptr;
-            if(nullptr == (reflected_variable = reflected_cbuffer->GetVariableByIndex(variable_idx))) {
+        for(auto cbuffer_idx = 0u; cbuffer_idx < shader_desc.ConstantBuffers; ++cbuffer_idx) {
+            ID3D11ShaderReflectionConstantBuffer* reflected_cbuffer = nullptr;
+            if(nullptr == (reflected_cbuffer = cbufferReflection.GetConstantBufferByIndex(cbuffer_idx))) {
                 continue;
             }
-            D3D11_SHADER_VARIABLE_DESC variable_desc{};
-            if(FAILED(reflected_variable->GetDesc(&variable_desc))) {
+            D3D11_SHADER_BUFFER_DESC buffer_desc{};
+            if(FAILED(reflected_cbuffer->GetDesc(&buffer_desc))) {
                 continue;
             }
-            std::size_t variable_size = variable_desc.Size;
-            std::size_t offset = variable_desc.StartOffset;
-            if(auto shader_reflection_type = reflected_variable->GetType()) {
-                D3D11_SHADER_TYPE_DESC type_desc{};
-                if(FAILED(shader_reflection_type->GetDesc(&type_desc))) {
+            if(buffer_desc.Type != D3D_CBUFFER_TYPE::D3D11_CT_CBUFFER) {
+                continue;
+            }
+            std::string buffer_name{ buffer_desc.Name };
+            std::string input_name{ input_desc.Name };
+            if(buffer_name != input_desc.Name) {
+                continue;
+            }
+            std::size_t cbuffer_size = 0u;
+            std::vector<std::size_t> var_offsets{};
+            for(auto variable_idx = 0u; variable_idx < buffer_desc.Variables; ++variable_idx) {
+                ID3D11ShaderReflectionVariable* reflected_variable = nullptr;
+                if(nullptr == (reflected_variable = reflected_cbuffer->GetVariableByIndex(variable_idx))) {
                     continue;
                 }
-                cbuffer_size += variable_size;
-                var_offsets.push_back(offset);
+                D3D11_SHADER_VARIABLE_DESC variable_desc{};
+                if(FAILED(reflected_variable->GetDesc(&variable_desc))) {
+                    continue;
+                }
+                std::size_t variable_size = variable_desc.Size;
+                std::size_t offset = variable_desc.StartOffset;
+                if(auto shader_reflection_type = reflected_variable->GetType()) {
+                    D3D11_SHADER_TYPE_DESC type_desc{};
+                    if(FAILED(shader_reflection_type->GetDesc(&type_desc))) {
+                        continue;
+                    }
+                    cbuffer_size += variable_size;
+                    var_offsets.push_back(offset);
+                }
             }
+            std::vector<std::byte> cbuffer_memory{};
+            cbuffer_memory.resize(cbuffer_size);
+            result.push_back(CreateConstantBuffer(cbuffer_memory.data(), cbuffer_memory.size(), BufferUsage::Dynamic, BufferBindUsage::Constant_Buffer));
         }
-        std::vector<std::byte> cbuffer_memory{};
-        cbuffer_memory.resize(cbuffer_size);
-        return {};
     }
     return result;
 }
 
-InputLayout* RHIDevice::CreateInputLayoutFromByteCode(ID3DBlob* bytecode) {
+InputLayout* RHIDevice::CreateInputLayoutFromByteCode(ID3DBlob* bytecode) const {
     ID3D11ShaderReflection* vertexReflection = nullptr;
     if(FAILED(::D3DReflect(bytecode->GetBufferPointer(), bytecode->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&vertexReflection))) {
         return nullptr;
@@ -306,7 +310,7 @@ InputLayout* RHIDevice::CreateInputLayoutFromByteCode(ID3DBlob* bytecode) {
     return il;
 }
 
-ShaderProgram* RHIDevice::CreateShaderProgramFromHlslString(const std::string& name, const std::string& hlslString, const std::string& entryPointList, InputLayout* inputLayout, const PipelineStage& target) {
+ShaderProgram* RHIDevice::CreateShaderProgramFromHlslString(const std::string& name, const std::string& hlslString, const std::string& entryPointList, InputLayout* inputLayout, const PipelineStage& target) const {
     bool uses_vs_stage = static_cast<unsigned char>(target & PipelineStage::Vs) != 0;
     bool uses_hs_stage = static_cast<unsigned char>(target & PipelineStage::Hs) != 0;
     bool uses_ds_stage = static_cast<unsigned char>(target & PipelineStage::Ds) != 0;
@@ -403,7 +407,7 @@ ShaderProgram* RHIDevice::CreateShaderProgramFromHlslString(const std::string& n
     return new_sp;
 }
 
-ShaderProgram* RHIDevice::CreateShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPoint, const PipelineStage& target) {
+ShaderProgram* RHIDevice::CreateShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPoint, const PipelineStage& target) const {
     bool retry_requested = false;
     do {
         std::string source{};
@@ -420,7 +424,7 @@ ShaderProgram* RHIDevice::CreateShaderProgramFromHlslFile(const std::string& fil
     ERROR_AND_DIE("Unrecoverable error. Cannot continue with malformed shader file.");
 }
 
-ID3DBlob* RHIDevice::CompileShader(const std::string& name, const void*  sourceCode, std::size_t sourceCodeSize, const std::string& entryPoint, const PipelineStage& target) {
+ID3DBlob* RHIDevice::CompileShader(const std::string& name, const void*  sourceCode, std::size_t sourceCodeSize, const std::string& entryPoint, const PipelineStage& target) const {
     unsigned int compile_options = 0;
 #ifdef RENDER_DEBUG
     compile_options |= D3DCOMPILE_DEBUG;

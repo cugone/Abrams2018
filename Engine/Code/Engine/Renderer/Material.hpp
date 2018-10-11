@@ -27,8 +27,8 @@ private:
     void AddTextureSlots(std::size_t count);
     void AddTextureSlot();
 
-    constexpr static unsigned int CUSTOM_TEXTURE_INDEX_OFFSET = 6;
-    constexpr static unsigned int MAX_CUSTOM_TEXTURE_COUNT = 58;
+    constexpr static std::size_t CUSTOM_TEXTURE_INDEX_OFFSET = 6u;
+    constexpr static std::size_t MAX_CUSTOM_TEXTURE_COUNT = 58u;
     float _specularIntensity = 1.0f;
     float _specularPower = 8.0f;
     float _emissiveFactor = 0.0f;

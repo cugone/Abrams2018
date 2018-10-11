@@ -64,8 +64,8 @@ std::vector<std::string> Split(const std::string& string, char delim /*= ','*/, 
 }
 
 std::string Join(const std::vector<std::string>& strings, char delim, bool skip_empty /*= true*/) {
-    auto acc_op = [](const std::size_t& a, const std::string& b) { return a + 1 + b.size(); };
-    std::size_t total_size = std::accumulate(std::begin(strings), std::end(strings), 0u, acc_op);
+    auto acc_op = [](const std::size_t& a, const std::string& b)->std::size_t { return a + static_cast<std::size_t>(1u) + b.size(); };
+    auto total_size = std::accumulate(std::begin(strings), std::end(strings), static_cast<std::size_t>(0u), acc_op);
     std::string result{};
     result.reserve(total_size);
     for(auto iter = strings.begin(); iter != strings.end(); ++iter) {

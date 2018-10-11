@@ -567,7 +567,7 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
         case WindowsSystemMessage::Keyboard_KeyDown:
         {
             auto key = static_cast<unsigned char>(wp);
-            uint32_t lpBits = lp;
+            uint32_t lpBits = static_cast<uint32_t>(lp & 0xFFFFFFFFu);
             //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
             //C: repeat count
             //S: scan code
@@ -671,7 +671,7 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
         case WindowsSystemMessage::Keyboard_KeyUp:
         {
             auto key = static_cast<unsigned char>(wp);
-            uint32_t lpBits = lp;
+            uint32_t lpBits = static_cast<uint32_t>(lp & 0xFFFFFFFFu);
             //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
             //C: repeat count
             //S: scan code
@@ -709,7 +709,7 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
         case WindowsSystemMessage::Keyboard_SysKeyDown:
         {
             auto key = static_cast<unsigned char>(wp);
-            uint32_t lpBits = lp;
+            uint32_t lpBits = static_cast<uint32_t>(lp & 0xFFFFFFFFu);
             //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
             //C: repeat count
             //S: scan code
@@ -763,7 +763,7 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
         case WindowsSystemMessage::Keyboard_SysKeyUp:
         {
             auto key = static_cast<unsigned char>(wp);
-            uint32_t lpBits = lp;
+            uint32_t lpBits = static_cast<uint32_t>(lp & 0xFFFFFFFFu);
             //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
             //C: repeat count
             //S: scan code

@@ -72,7 +72,7 @@ Console::Console(Renderer* renderer)
     select_all.cmd = IDM_SELECTALL;
 
     std::vector<ACCEL> accelerators = { copy, paste, cut, select_all };
-    hAcceleratorTable = ::CreateAcceleratorTableA(accelerators.data(), accelerators.size());
+    hAcceleratorTable = ::CreateAcceleratorTableA(accelerators.data(), static_cast<int>(accelerators.size()));
 }
 
 Console::~Console() {

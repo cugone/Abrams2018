@@ -27,31 +27,19 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpC
     return 0;
 }
 
-void Initialize(HINSTANCE /*hInstance*/, LPSTR lpCmdLine, int /*nShowCmd*/) {
+void Initialize(HINSTANCE /*hInstance*/, LPSTR /*lpCmdLine*/, int /*nShowCmd*/) {
 
-
-
-    std::ostringstream ss_cmdLine{};
-    KeyValueParser kvp{ lpCmdLine };
-    Config cmdLine{ std::move(kvp) };
-    cmdLine.PrintConfigs(ss_cmdLine);
-    cmdLine.GetValue("vsync", GRAPHICS_OPTION_VSYNC);
-    cmdLine.GetValue("width", GRAPHICS_OPTION_WINDOW_WIDTH);
-    cmdLine.GetValue("height", GRAPHICS_OPTION_WINDOW_HEIGHT);
-    std::string logName{"game"};
-    cmdLine.GetValue("log", logName);
-    g_theJobSystem = std::make_unique<JobSystem>(-1, static_cast<std::size_t>(JobType::Max), new std::condition_variable);
-    g_theFileLogger = std::make_unique<FileLogger>(*g_theJobSystem, logName);
-    g_theApp = std::make_unique<App>(*g_theJobSystem);
-
+    {
+        std::unique_ptr<JobSystem> jobSystem = std::make_unique<JobSystem>(-1, static_cast<std::size_t>(JobType::Max), new std::condition_variable);
+        std::unique_ptr<FileLogger> fileLogger = std::make_unique<FileLogger>(*jobSystem, "game");
+        g_theApp = new App(std::move(jobSystem), std::move(fileLogger));
+    }
     g_theConsole->SetNextHandler(g_theInput);
-    g_theInput->SetNextHandler(g_theApp.get());
+    g_theInput->SetNextHandler(g_theApp);
+    g_theApp->SetNextHandler(nullptr);
 
     g_theSubsystemHead = g_theConsole;
 
-    g_theFileLogger->LogLineAndFlush("---COMMAND LINE PARAMETERS---");
-    g_theFileLogger->LogLineAndFlush(ss_cmdLine.str());
-    g_theFileLogger->LogLineAndFlush("---COMMAND LINE PARAMETERS---");
     g_theApp->Initialize();
 }
 
@@ -84,6 +72,8 @@ void RunMessagePump() {
 }
 
 void Shutdown() {
-    //Required due to WinProc needing to destroy window
-    g_theSubsystemHead = g_theApp.get();
+    //Required due to WinProc needing to post destroy window message.
+    g_theSubsystemHead = g_theApp;
+    delete g_theApp;
+    g_theApp = nullptr;
 }

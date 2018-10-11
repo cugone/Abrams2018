@@ -394,8 +394,8 @@ void Renderer::DrawWorldGridXY(float radius /*= 500.0f*/, float major_gridsize /
 
     std::vector<unsigned int> ibo{};
     ibo.resize(major_vbo.size() + minor_vbo.size());
-    std::iota(std::begin(ibo), std::begin(ibo) + major_vbo.size(), 0);
-    std::iota(std::begin(ibo) + major_vbo.size(), std::begin(ibo) + major_vbo.size() + minor_vbo.size(), major_vbo.size());
+    std::iota(std::begin(ibo), std::begin(ibo) + major_vbo.size(), 0u);
+    std::iota(std::begin(ibo) + major_vbo.size(), std::begin(ibo) + major_vbo.size() + minor_vbo.size(), static_cast<unsigned int>(major_vbo.size()));
 
     SetModelMatrix(Matrix4::GetIdentity());
     SetMaterial(GetMaterial("__unlit"));
@@ -674,7 +674,7 @@ SpriteSheet* Renderer::CreateSpriteSheetFromGif(const std::string& filepath) {
     Image img(p.string());
     const auto& delays = img.GetDelaysIfGif();
     auto tex = GetTexture(p.string());
-    auto spr = new SpriteSheet(tex, 1, delays.size());
+    auto spr = new SpriteSheet(tex, 1, static_cast<int>(delays.size()));
     tex = nullptr;
     return spr;
 }
@@ -689,12 +689,12 @@ AnimatedSprite* Renderer::CreateAnimatedSpriteFromGif(const std::string& filepat
     Image img(p.string());
     auto delays = img.GetDelaysIfGif();
     auto tex = GetTexture(p.string());
-    auto spr = new SpriteSheet(tex, 1, delays.size());
+    auto spr = new SpriteSheet(tex, 1, static_cast<int>(delays.size()));
     float duration_sum = 0.0f;
     for(auto i : delays) {
         duration_sum += (i * 0.001f);
     }
-    auto anim = new AnimatedSprite(*this, spr, duration_sum, 0, delays.size());
+    auto anim = new AnimatedSprite(*this, spr, duration_sum, 0, static_cast<int>(delays.size()));
     tinyxml2::XMLDocument doc;
     std::ostringstream ss;
     ss << R"("<material name="__Gif_)" << p.stem().string() << R"("><shader src="__2D" /><textures><diffuse src=")" << p.string() << R"(" /></textures></material>)";
@@ -953,7 +953,7 @@ void Renderer::DrawPolygon2D(float centerX, float centerY, float radius, std::si
     std::vector<unsigned int> ibo;
     ibo.resize(numSides + 1);
     for(std::size_t i = 0; i < ibo.size(); ++i) {
-        ibo[i] = i % numSides;
+        ibo[i] = static_cast<unsigned int>(i % numSides);
     }
     DrawIndexed(PrimitiveType::LinesStrip, vbo, ibo);
 }
@@ -1100,7 +1100,7 @@ std::vector<ConstantBuffer*> Renderer::CreateConstantBuffersFromShaderProgram(co
         ps_cbuffers.size(),
         cs_cbuffers.size()
     };
-    auto cbuffer_count = std::accumulate(std::begin(sizes), std::end(sizes), 0);
+    auto cbuffer_count = std::accumulate(std::begin(sizes), std::end(sizes), static_cast<std::size_t>(0u));
     if(!cbuffer_count) {
         return {};
     }
@@ -1114,6 +1114,38 @@ std::vector<ConstantBuffer*> Renderer::CreateConstantBuffersFromShaderProgram(co
     std::copy(std::begin(cs_cbuffers), std::end(cs_cbuffers), std::back_inserter(cbuffers));
     cbuffers.shrink_to_fit();
     return cbuffers;
+}
+
+void Renderer::SetWinProc(const std::function<bool(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)>& windowProcedure) {
+    if(auto output = GetOutput()) {
+        if(auto window = output->GetWindow()) {
+            window->custom_message_handler = windowProcedure;
+        }
+    }
+}
+
+void Renderer::SetFullscreen() {
+    if(auto output = GetOutput()) {
+        if(auto window = output->GetWindow()) {
+            window->SetDisplayMode(RHIOutputMode::Fullscreen_Window);
+        }
+    }
+}
+
+void Renderer::SetWindowed() {
+    if(auto output = GetOutput()) {
+        if(auto window = output->GetWindow()) {
+            window->SetDisplayMode(RHIOutputMode::Windowed);
+        }
+    }
+}
+
+void Renderer::SetBorderlessWindowed() {
+    if(auto output = GetOutput()) {
+        if(auto window = output->GetWindow()) {
+            window->SetDisplayMode(RHIOutputMode::Borderless);
+        }
+    }
 }
 
 void Renderer::CreateAndRegisterDefaultShaderPrograms() {
@@ -2008,6 +2040,14 @@ void Renderer::UnbindAllConstantBuffers() {
     }
 }
 
+void Renderer::SetWindowTitle(const std::string& newTitle) {
+    if(auto output = GetOutput()) {
+        if(auto window = output->GetWindow()) {
+            window->SetTitle(newTitle);
+        }
+    }
+}
+
 void Renderer::RegisterDepthStencilState(const std::string& name, DepthStencilState* depthstencil) {
     if(depthstencil == nullptr) {
         return;
@@ -2847,7 +2887,7 @@ void Renderer::SetViewports(const std::vector<AABB3>& viewports) {
         dxViewports[i].MinDepth = viewports[i].mins.z;
         dxViewports[i].MaxDepth = viewports[i].maxs.z;
     }
-    _rhi_context->GetDxContext()->RSSetViewports(dxViewports.size(), dxViewports.data());
+    _rhi_context->GetDxContext()->RSSetViewports(static_cast<unsigned int>(dxViewports.size()), dxViewports.data());
 }
 
 void Renderer::SetScissor(unsigned int x, unsigned int y, unsigned int width, unsigned int height) {
@@ -2874,7 +2914,7 @@ void Renderer::SetScissors(const std::vector<AABB2>& scissors) {
         dxScissors[i].right  = static_cast<long>(scissors[i].maxs.x);
         dxScissors[i].bottom = static_cast<long>(scissors[i].maxs.y);
     }
-    _rhi_context->GetDxContext()->RSSetScissorRects(dxScissors.size(), dxScissors.data());
+    _rhi_context->GetDxContext()->RSSetScissorRects(static_cast<unsigned int>(dxScissors.size()), dxScissors.data());
 }
 
 void Renderer::SetViewportAsPercent(float /*x*/, float /*y*/, float /*w*/, float /*h*/) {

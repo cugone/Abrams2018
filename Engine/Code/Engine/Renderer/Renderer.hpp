@@ -122,6 +122,11 @@ public:
     float GetGameTime() const;
     float GetSystemTime() const;
 
+    void SetFullscreen();
+    void SetWindowed();
+    void SetBorderlessWindowed();
+    void SetWindowTitle(const std::string& newTitle);
+
     VertexBuffer* CreateVertexBuffer(const VertexBuffer::buffer_t& vbo) const;
     IndexBuffer* CreateIndexBuffer(const IndexBuffer::buffer_t& ibo) const;
     ConstantBuffer* CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) const;
@@ -292,6 +297,8 @@ public:
     constexpr static unsigned int MAX_LIGHT_COUNT = max_light_count;
 
     std::vector<ConstantBuffer*> CreateConstantBuffersFromShaderProgram(const ShaderProgram* _shader_program) const;
+
+    void SetWinProc(const std::function<bool(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) >& windowProcedure);
 protected:
 private:
     void UpdateSystemTime(float deltaSeconds);
@@ -411,4 +418,5 @@ private:
     std::map<std::string, KerningFont*> _fonts = {};
     bool _vsync = false;
     friend class Shader;
+
 };

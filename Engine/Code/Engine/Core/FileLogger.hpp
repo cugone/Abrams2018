@@ -51,7 +51,7 @@ private:
     void DoCopyLog();
     void CopyLog(void* user_data);
     void FinalizeLog();
-    std::mutex _cs{};
+    mutable std::mutex _cs{};
     std::ofstream _stream{};
     std::string _current_log_path{};
     decltype(std::cout.rdbuf()) _old_cout{};

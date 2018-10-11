@@ -30,23 +30,37 @@ bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     return false;
 }
 
-App::App(JobSystem& jobSystem)
+App::App(std::unique_ptr<JobSystem>&& jobSystem, std::unique_ptr<FileLogger>&& fileLogger)
     : EngineSubsystem()
-    , _job_system(&jobSystem)
+    , _theJobSystem(std::move(jobSystem))
+    , _theFileLogger(std::move(fileLogger))
     , _theConfig(std::make_unique<Config>())
     , _theRenderer{std::make_unique<Renderer>(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT))}
     , _theInputSystem{std::make_unique<InputSystem>()}
     , _theConsole{std::make_unique<Console>(_theRenderer.get())}
     , _theGame{std::make_unique<Game>()}
 {
+    g_theJobSystem = _theJobSystem.get();
+    g_theFileLogger = _theFileLogger.get();
     g_theConfig = _theConfig.get();
     g_theRenderer = _theRenderer.get();
     g_theInput = _theInputSystem.get();
     g_theConsole = _theConsole.get();
     g_theGame = _theGame.get();
+
 }
 
 App::~App() {
+    _theGame.reset();
+    _theConsole.reset();
+    _theInputSystem.reset();
+    _theRenderer.reset();
+    _theConfig.reset();
+    _theFileLogger.reset();
+    _theJobSystem.reset();
+
+    g_theJobSystem = nullptr;
+    g_theFileLogger = nullptr;
     g_theGame = nullptr;
     g_theConsole = nullptr;
     g_theInput = nullptr;
@@ -63,23 +77,16 @@ void App::SetIsQuitting(bool quit) {
 }
 
 void App::Initialize() {
+
     FileUtils::CreateFolders("Data/");
     g_theRenderer->Initialize(applet_mode);
     if(applet_mode) {
         return;
     }
     g_theRenderer->SetVSync(GRAPHICS_OPTION_VSYNC);
-    if(g_theRenderer->GetOutput()) {
-        Window* window = g_theRenderer->GetOutput()->GetWindow();
-        if(window) {
-            window->custom_message_handler = WindowProc;
-            window->SetTitle("Test Title");
-            bool is_fullscreen = false;
-            if(is_fullscreen) {
-                window->SetDisplayMode(RHIOutputMode::Fullscreen_Window);
-            }
-        }
-    }
+    g_theRenderer->SetWindowTitle("Test Title");
+    g_theRenderer->SetWinProc(WindowProc);
+    g_theRenderer->SetFullscreen();
     g_theInput->Initialize();
     g_theConsole->Initialize();
     g_theGame->Initialize();
@@ -170,7 +177,7 @@ bool App::ProcessSystemMessage(const EngineMessage& msg) {
 }
 
 void App::BeginFrame() {
-    _job_system->BeginFrame();
+    g_theJobSystem->BeginFrame();
     g_theInput->BeginFrame();
     g_theConsole->BeginFrame();
     g_theGame->BeginFrame();

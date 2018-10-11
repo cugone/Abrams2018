@@ -9,14 +9,12 @@
 #include "Game/App.hpp"
 #include "Game/Game.hpp"
 
-#include <memory>
-
 extern Renderer* g_theRenderer;
 extern Game* g_theGame;
 extern InputSystem* g_theInput;
 extern Console* g_theConsole;
 extern Config* g_theConfig;
 extern EngineSubsystem* g_theSubsystemHead;
-extern std::unique_ptr<App> g_theApp;
-extern std::unique_ptr<JobSystem> g_theJobSystem;
-extern std::unique_ptr<FileLogger> g_theFileLogger;
+extern App* g_theApp;
+extern JobSystem* g_theJobSystem;
+extern FileLogger* g_theFileLogger;

@@ -16,8 +16,6 @@ protected:
 private:
     std::string _scope_name{};
     ProfileTimePoint _time_at_creation{};
-
-    decltype(auto) Now() const noexcept;
 };
 
 #if defined PROFILE_LOG_SCOPE || defined PROFILE_LOG_SCOPE_FUNCTION

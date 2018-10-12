@@ -8,13 +8,19 @@ using FPMilliseconds = std::chrono::duration<float, std::milli>;
 
 namespace TimeUtils {
 
+template<typename Duration = std::chrono::duration<double>
+        , typename Clock = std::chrono::high_resolution_clock>
+decltype(auto) Now() noexcept {
+    return std::chrono::time_point_cast<Duration>(Clock::now());
+}
+
 //Get the elapsed time between calls (defaults to double-precision seconds)
 template<typename Duration = std::chrono::duration<double>
         , typename Clock = std::chrono::high_resolution_clock>
-decltype(auto) GetCurrentTimeElapsed() {
+decltype(auto) GetCurrentTimeElapsed() noexcept {
     using namespace std::chrono;
-    static auto initial_now = time_point_cast<Duration>(Clock::now());
-    auto now = time_point_cast<Duration>(Clock::now());
+    static auto initial_now = Now<Duration,Clock>();
+    auto now = Now<Duration,Clock>();
     return (now - initial_now).count();
 }
 

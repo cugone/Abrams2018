@@ -270,7 +270,7 @@ bool Obj::Parse(const std::filesystem::path& filepath) {
                     for(auto& t : tris) {
                         auto elems = StringUtils::Split(t, '/', false);
                         Vertex3D vertex{};
-                        std::tuple<int, int, int> face{};
+                        decltype(_face_idxs)::value_type face{};
                         auto elem_count = elems.size();
                         std::size_t cur_vbo_index = 0;
                         for(auto i = 0u; i < elem_count; ++i) {
@@ -281,9 +281,9 @@ bool Obj::Parse(const std::filesystem::path& filepath) {
                                         cur_vbo_index = cur_v - 1;
                                         std::get<0>(face) = cur_vbo_index;
                                         vertex.position = _verts[cur_vbo_index];
-                                        _ibo.push_back(cur_vbo_index);
+                                        _ibo.push_back(static_cast<unsigned int>(cur_vbo_index));
                                     } else {
-                                        std::get<0>(face) = -1;
+                                        std::get<0>(face) = static_cast<std::size_t>(-1);
                                     }
                                     break;
                                 case 1:
@@ -292,7 +292,7 @@ bool Obj::Parse(const std::filesystem::path& filepath) {
                                         std::get<1>(face) = cur_vt;
                                         vertex.texcoords = Vector2{ _tex_coords[cur_vt - 1] };
                                     } else {
-                                        std::get<1>(face) = -1;
+                                        std::get<1>(face) = static_cast<std::size_t>(-1);
                                     }
                                     break;
                                 case 2:
@@ -301,14 +301,14 @@ bool Obj::Parse(const std::filesystem::path& filepath) {
                                         std::get<2>(face) = cur_vn - 1;
                                         vertex.normal = _normals[cur_vn - 1];
                                     } else {
-                                        std::get<2>(face) = -1;
+                                        std::get<2>(face) = static_cast<std::size_t>(-1);
                                     }
                                     break;
                                 default: break;
                             }
                         }
                         _vbo[cur_vbo_index] = vertex;
-                        _face_idxs.push_back(face);
+                        _face_idxs.emplace_back(face);
                     }
                 } else {
                     /* DO NOTHING */

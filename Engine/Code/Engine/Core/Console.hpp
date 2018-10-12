@@ -56,11 +56,11 @@ private:
     void PushEntrylineToOutputBuffer();
     void PushEntrylineToBuffer();
     void ClearEntryLine();
-    void MoveCursorLeft(int distance = 1);
-    void MoveCursorRight(int distance = 1);
+    void MoveCursorLeft(std::string::difference_type distance = 1);
+    void MoveCursorRight(std::string::difference_type distance = 1);
     void MoveCursorToEnd();
     void MoveCursorToFront();
-    void UpdateSelectedRange(int distance);
+    void UpdateSelectedRange(std::string::difference_type distance);
 
     bool HandleLeftKey();
     bool HandleRightKey();

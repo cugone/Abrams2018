@@ -122,8 +122,8 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
         case WindowsSystemMessage::Keyboard_KeyDown:
         {
             _non_rendering_char = false;
-            unsigned char key = static_cast<unsigned char>(wp);
-            uint32_t lpBits = lp;
+            auto key = static_cast<unsigned char>(wp);
+            auto lpBits = static_cast<uint32_t>(lp & 0xFFFFFFFFu);
             //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
             //C: repeat count
             //S: scan code
@@ -210,7 +210,7 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
                 return false;
             }
             _entryline_changed = false;
-            unsigned char char_code = static_cast<unsigned char>(wp);
+            auto char_code = static_cast<unsigned char>(wp);
             //uint32_t lpBits = lp;
             //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
             //C: repeat count
@@ -240,8 +240,8 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
                 return false;
             }
             _entryline_changed = false;
-            unsigned char char_code = static_cast<unsigned char>(wp);
-            uint32_t lpBits = lp;
+            auto char_code = static_cast<unsigned char>(wp);
+            auto lpBits = static_cast<uint32_t>(lp & 0xFFFFFFFFu);
             //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
             //C: repeat count
             //S: scan code
@@ -529,7 +529,7 @@ void Console::ClearEntryLine() {
     _selection_position = std::begin(_entryline);
 }
 
-void Console::MoveCursorLeft(int distance /*= 1*/) {
+void Console::MoveCursorLeft(std::string::difference_type distance /*= 1*/) {
     if(_cursor_position != _entryline.begin()) {
         if(!_highlight_mode) {
             if(std::distance(std::cbegin(_entryline), _cursor_position) > distance) {
@@ -544,7 +544,7 @@ void Console::MoveCursorLeft(int distance /*= 1*/) {
     }
 }
 
-void Console::MoveCursorRight(int distance /*= 1*/) {
+void Console::MoveCursorRight(std::string::difference_type distance /*= 1*/) {
     if(_cursor_position != _entryline.end()) {
         if(!_highlight_mode) {
             if(distance < std::distance(_cursor_position, std::cend(_entryline))) {
@@ -567,7 +567,7 @@ void Console::MoveCursorToFront() {
     MoveCursorLeft(_entryline.size() + 1);
 }
 
-void Console::UpdateSelectedRange(int distance) {
+void Console::UpdateSelectedRange(std::string::difference_type distance) {
     if(distance > 0) {
         auto distance_from_end = std::distance(_cursor_position, std::cend(_entryline));
         if(distance_from_end > std::abs(distance)) {

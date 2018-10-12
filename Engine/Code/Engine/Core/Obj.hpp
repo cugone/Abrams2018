@@ -47,7 +47,7 @@ namespace FileUtils {
         std::vector<Vector3> _verts{};
         std::vector<Vector3> _tex_coords{};
         std::vector<Vector3> _normals{};
-        std::vector<std::tuple<int, int, int>> _face_idxs{};
+        std::vector<std::tuple<std::size_t, std::size_t, std::size_t>> _face_idxs{};
         std::atomic_bool _is_loaded = false;
         std::atomic_bool _is_loading = false;
         std::atomic_bool _is_saving = false;

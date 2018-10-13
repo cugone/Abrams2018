@@ -3,7 +3,7 @@
 #include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
-
+#include "Engine/Core/ProfileLogScope.hpp"
 #include "Engine/Math/MathUtils.hpp"
 
 #include <algorithm>
@@ -12,13 +12,15 @@
 
 namespace DataUtils {
 
-void ValidateXmlElement([[maybe_unused]] const XMLElement& element,
-                        [[maybe_unused]] const std::string& name,
-                        [[maybe_unused]] const std::string& requiredChildElements,
-                        [[maybe_unused]] const std::string& requiredAttributes,
-                        [[maybe_unused]] const std::string& optionalChildElements /*= std::string("")*/,
-                        [[maybe_unused]] const std::string& optionalAttributes /*= std::string("")*/) {
-#if !defined(NO_XML_VALIDATION)
+void ValidateXmlElement(const XMLElement& element,
+                        const std::string& name,
+                        const std::string& requiredChildElements,
+                        const std::string& requiredAttributes,
+                        const std::string& optionalChildElements /*= std::string("")*/,
+                        const std::string& optionalAttributes /*= std::string("")*/) {
+
+    PROFILE_LOG_SCOPE_FUNCTION();
+
     if(name.empty()) {
         std::ostringstream err_ss;
         err_ss << "Element validation failed. Element name is required.";
@@ -136,7 +138,6 @@ void ValidateXmlElement([[maybe_unused]] const XMLElement& element,
         ERROR_RECOVERABLE(err_ss.str().c_str());
     }
 #endif //#if _DEBUG
-#endif //#if !NO_XML_VALIDATION
 }
 
 void IterateAllAttributes(const XMLElement& element, const std::function<void(const XMLAttribute&)>& callback /*= [](const XMLAttribute&) { / * DO NOTHING * / }*/) {

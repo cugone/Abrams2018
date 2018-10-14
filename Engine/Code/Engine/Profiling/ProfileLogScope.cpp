@@ -1,4 +1,4 @@
-#include "Engine/Core/ProfileLogScope.hpp"
+#include "Engine/Profiling/ProfileLogScope.hpp"
 
 #include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"

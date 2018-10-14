@@ -2,8 +2,9 @@
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/FileUtils.hpp"
-#include "Engine/Core/ProfileLogScope.hpp"
 #include "Engine/Core/StringUtils.hpp"
+
+#include "Engine/Profiling/ProfileLogScope.hpp"
 
 #include <numeric>
 #include <string>

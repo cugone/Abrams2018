@@ -301,12 +301,6 @@
     <ClCompile Include="Core\BuildConfig.hpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Core\ProfileLogScope.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Profiler.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="Profiling\ProfileLogScope.cpp">
       <Filter>Profiling</Filter>
     </ClCompile>
@@ -595,12 +589,6 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\KeyValueParser.hpp">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\ProfileLogScope.hpp">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Profiler.hpp">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Profiling\ProfileLogScope.hpp">

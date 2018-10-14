@@ -3,8 +3,9 @@
 #include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
-#include "Engine/Core/ProfileLogScope.hpp"
 #include "Engine/Math/MathUtils.hpp"
+
+#include "Engine/Profiling/ProfileLogScope.hpp"
 
 #include <algorithm>
 #include <sstream>

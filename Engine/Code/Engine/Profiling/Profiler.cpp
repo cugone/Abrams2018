@@ -1,4 +1,4 @@
-#include "Engine/Core/Profiler.hpp"
+#include "Engine/Profiling/Profiler.hpp"
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
 

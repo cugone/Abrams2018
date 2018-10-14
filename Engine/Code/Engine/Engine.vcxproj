@@ -103,6 +103,7 @@
     <ClCompile Include="Networking\NetUtils.cpp" />
     <ClCompile Include="Profiling\ProfileLogScope.cpp" />
     <ClCompile Include="Profiling\Profiler.cpp" />
+    <ClCompile Include="Profiling\StackTrace.cpp" />
     <ClCompile Include="Renderer\AnimatedSprite.cpp" />
     <ClCompile Include="Renderer\ArrayBuffer.cpp" />
     <ClCompile Include="Renderer\BlendState.cpp" />
@@ -199,6 +200,7 @@
     <ClInclude Include="Networking\NetUtils.hpp" />
     <ClInclude Include="Profiling\ProfileLogScope.hpp" />
     <ClInclude Include="Profiling\Profiler.hpp" />
+    <ClInclude Include="Profiling\StackTrace.hpp" />
     <ClInclude Include="Renderer\AnimatedSprite.hpp" />
     <ClInclude Include="Renderer\ArrayBuffer.hpp" />
     <ClInclude Include="Renderer\BlendState.hpp" />

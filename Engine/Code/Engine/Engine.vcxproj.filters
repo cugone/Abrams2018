@@ -307,6 +307,9 @@
     <ClCompile Include="Profiling\Profiler.cpp">
       <Filter>Profiling</Filter>
     </ClCompile>
+    <ClCompile Include="Profiling\StackTrace.cpp">
+      <Filter>Profiling</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -595,6 +598,9 @@
       <Filter>Profiling</Filter>
     </ClInclude>
     <ClInclude Include="Profiling\Profiler.hpp">
+      <Filter>Profiling</Filter>
+    </ClInclude>
+    <ClInclude Include="Profiling\StackTrace.hpp">
       <Filter>Profiling</Filter>
     </ClInclude>
   </ItemGroup>

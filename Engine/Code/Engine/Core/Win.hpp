@@ -5,11 +5,6 @@
 #include <windows.h>
 #include <windowsx.h>
 
-#ifdef PROFILE_BUILD
-#include <DbgHelp.h>
-#pragma comment(lib, "dbghelp.lib")
-#endif
-
 #ifdef NETWORKING
 #include <WinSock2.h>
 #include <WS2tcpip.h>

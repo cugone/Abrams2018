@@ -81,7 +81,7 @@ std::string Join(const std::vector<std::string>& strings, char delim, bool skip_
 
 std::string Join(const std::vector<std::string>& strings, bool skip_empty /*= true*/) {
     auto acc_op = [](const std::size_t& a, const std::string& b) { return a + b.size(); };
-    std::size_t total_size = std::accumulate(std::begin(strings), std::end(strings), 0u, acc_op);
+    std::size_t total_size = std::accumulate(std::begin(strings), std::end(strings), static_cast<std::size_t>(0u), acc_op);
     std::string result;
     result.reserve(total_size);
     for(const auto& string : strings) {
@@ -106,7 +106,11 @@ std::string ConvertUnicodeToMultiByte(const std::wstring& unicode_string) {
     char* buf = nullptr;
     auto buf_size = ::WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, unicode_string.data(), -1, buf, 0, nullptr, nullptr);
     std::string mb_string;
+    buf = new char[buf_size * sizeof(char)];
+    buf_size = ::WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, unicode_string.data(), -1, buf, buf_size, nullptr, nullptr);
     mb_string.assign(buf, buf_size);
+    delete[] buf;
+    buf = nullptr;
     return mb_string;
 }
 
@@ -114,7 +118,11 @@ std::wstring ConvertMultiByteToUnicode(const std::string& multi_byte_string) {
     wchar_t* buf = nullptr;
     auto buf_size = ::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, multi_byte_string.data(), -1, buf, 0);
     std::wstring unicode_string;
+    buf = new wchar_t[buf_size * sizeof(wchar_t)];
+    buf_size = ::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, multi_byte_string.data(), -1, buf, buf_size);
     unicode_string.assign(buf, buf_size);
+    delete[] buf;
+    buf = nullptr;
     return unicode_string;
 }
 

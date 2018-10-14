@@ -159,6 +159,8 @@ void StackTrace::Initialize() {
         ++idx;
     }
     return idx;
+#else
+    return 0;
 #endif
 }
 

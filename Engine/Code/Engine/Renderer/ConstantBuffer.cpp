@@ -25,7 +25,7 @@ ConstantBuffer::ConstantBuffer(const RHIDevice* owner, const buffer_t& buffer, c
     buffer_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
     buffer_desc.CPUAccessFlags = CPUAccessFlagFromUsage(usage);
     buffer_desc.StructureByteStride = 0;
-    buffer_desc.ByteWidth = _buffer_size;
+    buffer_desc.ByteWidth = static_cast<unsigned int>(_buffer_size);
     //MiscFlags are unused.
 
     D3D11_SUBRESOURCE_DATA init_data = {};

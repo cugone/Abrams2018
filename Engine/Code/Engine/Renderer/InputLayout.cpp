@@ -31,7 +31,7 @@ void InputLayout::AddElement(std::size_t memberByteOffset, const ImageFormat& fo
     e_desc.SemanticName = semantic;
     e_desc.SemanticIndex = 0;
     e_desc.InputSlot = inputSlot;
-    e_desc.AlignedByteOffset = memberByteOffset;
+    e_desc.AlignedByteOffset = static_cast<unsigned int>(memberByteOffset);
     _elements.push_back(e_desc);
 }
 
@@ -46,7 +46,7 @@ void InputLayout::CreateInputLayout(void* byte_code, std::size_t byte_code_lengt
         _dx_input_layout = nullptr;
     }
     auto dx_device = _parent_device->GetDxDevice();
-    HRESULT hr = dx_device->CreateInputLayout(_elements.data(), _elements.size(), byte_code, byte_code_length, &_dx_input_layout);
+    HRESULT hr = dx_device->CreateInputLayout(_elements.data(), static_cast<unsigned int>(_elements.size()), byte_code, byte_code_length, &_dx_input_layout);
     bool succeeded = SUCCEEDED(hr);
     GUARANTEE_OR_DIE(succeeded, "Create Input Layout failed.");
 }

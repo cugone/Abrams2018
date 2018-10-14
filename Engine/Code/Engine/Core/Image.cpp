@@ -25,11 +25,11 @@ Image::Image(const std::string& filePath)
     if(FileUtils::ReadBufferFromFile(buf, fp.string())) {
         m_isGif = (buf[0] == 'G' && buf[1] == 'I' && buf[2] == 'F' && buf[3] == '8' && (buf[4] == '9' || buf[4] == '7') && buf[5] == 'a');
         if(!m_isGif) {
-            m_texelBytes = stbi_load_from_memory(buf.data(), buf.size(), &m_dimensions.x, &m_dimensions.y, &m_bytesPerTexel, 4);
+            m_texelBytes = stbi_load_from_memory(buf.data(), static_cast<int>(buf.size()), &m_dimensions.x, &m_dimensions.y, &m_bytesPerTexel, 4);
         } else {
             int depth = 0;
             int* delays = nullptr;
-            m_texelBytes = stbi_load_gif_from_memory(buf.data(), buf.size(), &delays, &m_dimensions.x, &m_dimensions.y, &depth, &m_bytesPerTexel, 4);
+            m_texelBytes = stbi_load_gif_from_memory(buf.data(), static_cast<int>(buf.size()), &delays, &m_dimensions.x, &m_dimensions.y, &depth, &m_bytesPerTexel, 4);
             m_gifDelays.resize(depth);
             for(int i = 0; i < depth; ++i) {
                 m_gifDelays[i] = delays[i];
@@ -216,12 +216,12 @@ Image* Image::CreateImageFromFileBuffer(const std::vector<unsigned char>& data) 
     Image* result = new Image;
     int comp = 0;
     int req_comp = 4;
-    result->m_texelBytes = stbi_load_from_memory(data.data(), data.size(), &result->m_dimensions.x, &result->m_dimensions.y, &comp, req_comp);
+    result->m_texelBytes = stbi_load_from_memory(data.data(), static_cast<int>(data.size()), &result->m_dimensions.x, &result->m_dimensions.y, &comp, req_comp);
     result->m_bytesPerTexel = comp;
     result->m_memload = false;
     result->m_isGif = data.size() > 6 ? (data[0] == 'G' && data[1] == 'I' && data[2] == 'F' && data[3] == '8' && (data[4] == '9' || data[4] == '7') && data[5] == 'a') : false;
     if(!result->m_isGif) {
-        result->m_texelBytes = stbi_load_from_memory(data.data(), data.size(), &result->m_dimensions.x, &result->m_dimensions.y, &result->m_bytesPerTexel, 4);
+        result->m_texelBytes = stbi_load_from_memory(data.data(), static_cast<int>(data.size()), &result->m_dimensions.x, &result->m_dimensions.y, &result->m_bytesPerTexel, 4);
         if(result->m_texelBytes == nullptr) {
             delete result;
             return nullptr;
@@ -229,7 +229,7 @@ Image* Image::CreateImageFromFileBuffer(const std::vector<unsigned char>& data) 
     } else {
         int depth = 0;
         int* delays = nullptr;
-        result->m_texelBytes = stbi_load_gif_from_memory(data.data(), data.size(), &delays, &result->m_dimensions.x, &result->m_dimensions.y, &depth, &result->m_bytesPerTexel, 4);
+        result->m_texelBytes = stbi_load_gif_from_memory(data.data(), static_cast<int>(data.size()), &delays, &result->m_dimensions.x, &result->m_dimensions.y, &depth, &result->m_bytesPerTexel, 4);
         if(result->m_texelBytes == nullptr) {
             delete result;
             return nullptr;

@@ -34,7 +34,7 @@ StructuredBuffer::StructuredBuffer(const RHIDevice* owner, const buffer_t& buffe
     srv_desc.Format = DXGI_FORMAT_UNKNOWN;
     srv_desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
     srv_desc.Buffer.ElementOffset = 0U;
-    srv_desc.Buffer.NumElements = element_count;
+    srv_desc.Buffer.NumElements = static_cast<unsigned int>(element_count);
 
     hr = owner->GetDxDevice()->CreateShaderResourceView(_dx_buffer, &srv_desc, &dx_srv);
     succeeded = SUCCEEDED(hr);

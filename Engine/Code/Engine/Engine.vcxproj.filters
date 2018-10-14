@@ -298,14 +298,20 @@
     <ClCompile Include="Core\KeyValueParser.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Profiler.cpp">
+    <ClCompile Include="Core\BuildConfig.hpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Core\ProfileLogScope.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Core\BuildConfig.hpp">
+    <ClCompile Include="Core\Profiler.cpp">
       <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Profiling\ProfileLogScope.cpp">
+      <Filter>Profiling</Filter>
+    </ClCompile>
+    <ClCompile Include="Profiling\Profiler.cpp">
+      <Filter>Profiling</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -591,11 +597,17 @@
     <ClInclude Include="Core\KeyValueParser.hpp">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="Core\ProfileLogScope.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
     <ClInclude Include="Core\Profiler.hpp">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Core\ProfileLogScope.hpp">
-      <Filter>Core</Filter>
+    <ClInclude Include="Profiling\ProfileLogScope.hpp">
+      <Filter>Profiling</Filter>
+    </ClInclude>
+    <ClInclude Include="Profiling\Profiler.hpp">
+      <Filter>Profiling</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

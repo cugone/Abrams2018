@@ -20,6 +20,11 @@
 
 #define MAX_LOGS 3u
 
+#define TOKEN_PASTE_SIMPLE(x,y) x##y
+#define TOKEN_PASTE(x,y) TOKEN_PASTE_SIMPLE(x,y)
+#define TOKEN_STRINGIZE_SIMPLE(x) #x
+#define TOKEN_STRINGIZE(x) TOKEN_STRINGIZE_SIMPLE(x)
+
 #ifdef _WIN64
     #ifndef PLATFORM_WINDOWS
         #define PLATFORM_WINDOWS

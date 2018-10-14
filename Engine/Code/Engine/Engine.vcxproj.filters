@@ -35,6 +35,9 @@
     <Filter Include="Networking">
       <UniqueIdentifier>{5b92a416-0a32-4dce-abea-a56660a892da}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Profiling">
+      <UniqueIdentifier>{d2bb5a78-3449-4cb3-895e-903e8efbb1fb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">

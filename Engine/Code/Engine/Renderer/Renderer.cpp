@@ -7,7 +7,6 @@
 #include "Engine/Core/Image.hpp"
 #include "Engine/Core/KerningFont.hpp"
 #include "Engine/Core/Obj.hpp"
-#include "Engine/Core/ProfileLogScope.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/Vertex3D.hpp"
 
@@ -15,6 +14,8 @@
 #include "Engine/Math/Frustum.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Vector2.hpp"
+
+#include "Engine/Profiling/ProfileLogScope.hpp"
 
 #include "Engine/RHI/RHIInstance.hpp"
 #include "Engine/RHI/RHIDevice.hpp"

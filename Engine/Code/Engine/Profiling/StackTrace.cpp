@@ -50,7 +50,7 @@ std::shared_mutex StackTrace::_cs{};
 std::atomic_bool StackTrace::_did_init = false;
 
 StackTrace::StackTrace()
-    : StackTrace(0ul, 30ul)
+    : StackTrace(1ul, 30ul)
 {
     /* DO NOTHING */
 }
@@ -59,10 +59,14 @@ StackTrace::StackTrace([[maybe_unused]]unsigned long framesToSkip,
                        [[maybe_unused]]unsigned long framesToCapture) {
 #ifdef PROFILE_BUILD
     if(!GetRefs()) {
-        IncrementRefs();
         Initialize();
     }
-    unsigned long count = ::CaptureStackBackTrace(framesToSkip, framesToCapture, _frames, &_hash);
+    IncrementRefs();
+    unsigned long count = ::CaptureStackBackTrace(1ul + framesToSkip, framesToCapture, _frames, &_hash);
+    if(!count) {
+        DebuggerPrintf("StackTrace unavailable. All frames were skipped. \n");
+        return;
+    }
     _frame_count = (std::min)(count, MAX_FRAMES_PER_CALLSTACK);
     
     callstack_line_t lines[MAX_CALLSTACK_LINES];

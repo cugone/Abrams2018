@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Core/BuildConfig.hpp"
+
 #include <atomic>
 #include <shared_mutex>
 #include <vector>
@@ -9,7 +11,7 @@ class FileLogger;
 
 class StackTrace final {
 public:
-    explicit StackTrace();
+    StackTrace();
 	StackTrace([[maybe_unused]]unsigned long framesToSkip,
                [[maybe_unused]]unsigned long framesToCapture);
     ~StackTrace();
@@ -35,3 +37,11 @@ private:
     static std::atomic_uint64_t _refs;
     static std::atomic_bool _did_init;
 };
+
+#ifdef PROFILE_BUILD
+#undef LOCAL_STACKTRACE
+#define LOCAL_STACKTRACE {static StackTrace st;}
+#else
+#undef LOCAL_STACKTRACE
+#define LOCAL_STACKTRACE
+#endif

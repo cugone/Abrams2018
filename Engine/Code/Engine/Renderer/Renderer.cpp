@@ -970,7 +970,7 @@ void Renderer::DrawTextLine(KerningFont* font, const std::string& text, const Rg
     if(text.empty()) {
         return;
     }
-
+    SetMaterial(font->GetMaterial());
     float cursor_x = 0.0f;
     float cursor_y = 0.0f;
     float line_top = cursor_y - font->GetCommonDef().base;

@@ -20,8 +20,6 @@ void ValidateXmlElement(const XMLElement& element,
                         const std::string& optionalChildElements /*= std::string("")*/,
                         const std::string& optionalAttributes /*= std::string("")*/) {
 
-    PROFILE_LOG_SCOPE_FUNCTION();
-
     if(name.empty()) {
         std::ostringstream err_ss;
         err_ss << "Element validation failed. Element name is required.";

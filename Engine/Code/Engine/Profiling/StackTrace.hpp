@@ -23,9 +23,6 @@ private:
 
     static void Initialize();
     static void Shutdown();
-    static std::atomic_uint64_t GetRefs();
-    static void IncrementRefs();
-    static void DecrementRefs();
     [[maybe_unused]] static uint32_t GetLines([[maybe_unused]]StackTrace* st,
                           [[maybe_unused]]callstack_line_t* lines,
                           [[maybe_unused]]unsigned long max_lines);

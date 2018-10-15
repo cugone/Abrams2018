@@ -58,10 +58,10 @@ StackTrace::StackTrace()
 StackTrace::StackTrace([[maybe_unused]]unsigned long framesToSkip,
                        [[maybe_unused]]unsigned long framesToCapture) {
 #ifdef PROFILE_BUILD
-    if(!GetRefs()) {
+    if(!_refs) {
         Initialize();
     }
-    IncrementRefs();
+    ++_refs;
     unsigned long count = ::CaptureStackBackTrace(1ul + framesToSkip, framesToCapture, _frames, &_hash);
     if(!count) {
         DebuggerPrintf("StackTrace unavailable. All frames were skipped. \n");
@@ -84,8 +84,8 @@ StackTrace::StackTrace([[maybe_unused]]unsigned long framesToSkip,
 
 StackTrace::~StackTrace() {
 #ifdef PROFILE_BUILD
-    DecrementRefs();
-    if(!GetRefs()) {
+    --_refs;
+    if(!_refs) {
         Shutdown();
     }
 #endif
@@ -113,7 +113,7 @@ void StackTrace::Initialize() {
         }
     }
     if(!_did_init) {
-        DecrementRefs();
+        --_refs;
         Shutdown();
         ERROR_AND_DIE("Could not initialize StackTrace!\n");
     }
@@ -193,24 +193,4 @@ bool StackTrace::operator==(const StackTrace& rhs) {
 
 bool StackTrace::operator<(const StackTrace& rhs) {
     return _hash < rhs._hash;
-}
-
-std::atomic_uint64_t StackTrace::GetRefs() {
-    uint64_t ref_count = 0;
-    {
-        std::scoped_lock<std::shared_mutex> _lock(_cs);
-        ref_count = _refs;
-    }
-    return ref_count;
-}
-
-void StackTrace::IncrementRefs() {
-    std::scoped_lock<std::shared_mutex> _lock(_cs);
-    ++_refs;
-}
-
-void StackTrace::DecrementRefs() {
-    if(GetRefs()) {
-        --_refs;
-    }
 }

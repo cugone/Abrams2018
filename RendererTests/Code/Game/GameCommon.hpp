@@ -4,8 +4,9 @@
 #include "Engine/Core/Console.hpp"
 #include "Engine/Core/FileLogger.hpp"
 #include "Engine/Core/JobSystem.hpp"
-#include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Input/InputSystem.hpp"
+#include "Engine/Profiling/Profiler.hpp"
+#include "Engine/Renderer/Renderer.hpp"
 #include "Game/App.hpp"
 #include "Game/Game.hpp"
 
@@ -18,3 +19,4 @@ extern EngineSubsystem* g_theSubsystemHead;
 extern App* g_theApp;
 extern JobSystem* g_theJobSystem;
 extern FileLogger* g_theFileLogger;
+extern Profiler* g_theProfiler;

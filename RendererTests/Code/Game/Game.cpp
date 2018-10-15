@@ -8,8 +8,6 @@
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/IntVector2.hpp"
 
-#include "Engine/Profiling/StackTrace.hpp"
-
 #include "Engine/Renderer/AnimatedSprite.hpp"
 #include "Engine/Renderer/Camera2D.hpp"
 #include "Engine/Renderer/Camera3D.hpp"
@@ -24,6 +22,8 @@
 
 #include "Engine/RHI/RHIDeviceContext.hpp"
 #include "Engine/RHI/RHIOutput.hpp"
+
+#include "Engine/Profiling/Profiler.hpp"
 
 #include "Engine/UI/UI.hpp"
 
@@ -59,9 +59,6 @@ void Game::Initialize() {
 }
 
 void Game::InitializeData() {
-    {
-        StackTrace st;
-    }
     g_theRenderer->RegisterTexturesFromFolder(std::string{ "Data/Images" });
     g_theRenderer->RegisterShadersFromFolder(std::string{ "Data/Shaders" });
     g_theRenderer->RegisterMaterialsFromFolder(std::string{ "Data/Materials" });

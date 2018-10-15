@@ -86,7 +86,7 @@ public:
     virtual ~AudioSystem();
     virtual void Initialize() override;
     virtual void BeginFrame() override;
-    virtual void Update(float deltaSeconds) override;
+    virtual void Update(float) override;
     virtual void Render() const override;
     virtual void EndFrame() override;
     virtual bool ProcessSystemMessage(const EngineMessage& msg) override;

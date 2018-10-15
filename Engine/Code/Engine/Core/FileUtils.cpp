@@ -140,34 +140,9 @@ void IterateFileInFolders(const std::filesystem::path& folderpath, const std::st
     }
     auto validExtensions = StringUtils::Split(StringUtils::ToLowerCase(validExtensionList));
     if(!recursive) {
-        for(auto iter = FS::directory_iterator{ preferred_folderpath }; iter != FS::directory_iterator{}; ++iter) {
-            auto cur_path = iter->path();
-            auto my_extension = StringUtils::ToLowerCase(cur_path.extension().string());
-            auto valid_file_by_extension = std::find(std::begin(validExtensions), std::end(validExtensions), my_extension) != std::end(validExtensions);
-            if(validExtensions.empty() == false) {
-                if(valid_file_by_extension) {
-                    callback(cur_path);
-                }
-            } else {
-                callback(cur_path);
-            }
-        }
+        detail::IterateFileInFolders_helper<FS::directory_iterator>(preferred_folderpath, validExtensions, callback);
     } else {
-        for(auto iter = FS::recursive_directory_iterator{ preferred_folderpath }; iter != FS::recursive_directory_iterator{}; ++iter) {
-            auto cur_path = iter->path();
-            if(FS::is_directory(cur_path)) {
-                continue;
-            }
-            auto my_extension = StringUtils::ToLowerCase(cur_path.extension().string());
-            auto valid_file_by_extension = std::find(std::begin(validExtensions), std::end(validExtensions), my_extension) != std::end(validExtensions);
-            if(validExtensions.empty() == false) {
-                if(valid_file_by_extension) {
-                    callback(cur_path);
-                }
-            } else {
-                callback(cur_path);
-            }
-        }
+        detail::IterateFileInFolders_helper<FS::recursive_directory_iterator>(preferred_folderpath, validExtensions, callback);
     }
 }
 
@@ -180,16 +155,16 @@ int CountFilesInFolders(const std::filesystem::path& folderpath, const std::stri
 
 void FileUtils::RemoveExceptMostRecentFiles(const std::filesystem::path& folderpath, int mostRecentCountToKeep) {
     namespace FS = std::filesystem;
-    namespace Chrono = std::chrono;
-    using Clock = Chrono::steady_clock;
-    auto now = Clock::now();
     if(mostRecentCountToKeep < CountFilesInFolders(folderpath)) {
         std::vector<FS::path> paths{};
         auto add_path_cb = [&paths](const FS::path& p) { paths.push_back(p); };
         IterateFileInFolders(folderpath, std::string{}, add_path_cb, false);
         auto sort_pred = [](const FS::path& a, const FS::path& b) { return FS::last_write_time(a) > FS::last_write_time(b); };
         std::sort(std::begin(paths), std::end(paths), sort_pred);
-        paths.erase(std::begin(paths), std::begin(paths) + mostRecentCountToKeep);
+        if(mostRecentCountToKeep > 0) {
+            auto erase_end = std::begin(paths) + mostRecentCountToKeep;
+            paths.erase(std::begin(paths), erase_end);
+        }
         for(auto& p : paths) {
             FS::remove(p);
         }

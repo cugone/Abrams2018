@@ -123,8 +123,8 @@ void FileLogger::Initialize(JobSystem& jobSystem, const std::string& log_name) {
     p.make_preferred();
     _current_log_path = p.string();
     FileUtils::CreateFolders(folder_p.string());
-    if(FS::exists(log_str)) {
-        FS::remove(log_str);
+    if(FS::exists(p)) {
+        FS::remove(p);
     }
     FileUtils::RemoveExceptMostRecentFiles(folder_p, MAX_LOGS);
     _is_running = true;
@@ -221,7 +221,9 @@ void FileLogger::LogTagLine(const std::string& tag, const std::string& msg) {
 }
 
 void FileLogger::InsertTimeStamp(std::stringstream& msg) {
-    msg << "[" << TimeUtils::GetDateTimeStampFromNow(true) << "]";
+    TimeUtils::DateTimeStampOptions opts{};
+    opts.use_separator = true;
+    msg << "[" << TimeUtils::GetDateTimeStampFromNow(opts) << "]";
 }
 
 void FileLogger::InsertTag(std::stringstream& msg, const std::string& tag) {

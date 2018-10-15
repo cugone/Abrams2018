@@ -9,7 +9,7 @@ using FPMilliseconds = std::chrono::duration<float, std::milli>;
 namespace TimeUtils {
 
 template<typename Duration = std::chrono::duration<double>
-        , typename Clock = std::chrono::high_resolution_clock>
+    , typename Clock = std::chrono::high_resolution_clock>
 decltype(auto) Now() noexcept {
     return std::chrono::time_point_cast<Duration>(Clock::now());
 }
@@ -24,8 +24,14 @@ decltype(auto) GetCurrentTimeElapsed() noexcept {
     return (now - initial_now).count();
 }
 
-std::string GetDateTimeStampFromNow(bool use_separator = false, bool use_24_hour_clock = true, bool include_ms = true);
-std::string GetTimeStampFromNow(bool use_separator = false, bool use_24_hour_clock = true, bool include_ms = true);
-std::string GetDateStampFromNow(bool use_separator = false);
+struct DateTimeStampOptions {
+    bool use_separator = false;
+    bool use_24_hour_clock = true;
+    bool include_milliseconds = true;
+};
 
-}
+std::string GetDateTimeStampFromNow(const DateTimeStampOptions& options = DateTimeStampOptions{});
+std::string GetTimeStampFromNow(const DateTimeStampOptions& options = DateTimeStampOptions{});
+std::string GetDateStampFromNow(const DateTimeStampOptions& options = DateTimeStampOptions{});
+
+} //End TimeUtils

@@ -5,6 +5,8 @@
 #define TRACK_MEMORY_BASIC (0)
 #define TRACK_MEMORY_VERBOSE (1)
 
+#define UNUSED(x) (void)(x)
+
 #ifdef _DEBUG
     #define TRACK_MEMORY TRACK_MEMORY_VERBOSE
     #define AUDIO_DEBUG

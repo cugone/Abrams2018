@@ -21,8 +21,8 @@ void RemoveExceptMostRecentFiles(const std::filesystem::path& folderpath, int mo
 namespace detail {
     template<typename DirectoryIteratorType>
     void IterateFileInFolders_helper(const std::filesystem::path& preferred_folderpath, const std::vector<std::string>& validExtensions, const std::function<void(const std::filesystem::path&)>& callback) {
-        for(auto iter = DirectoryIteratorType{ preferred_folderpath }; iter != DirectoryIteratorType{}; ++iter) {
-            auto cur_path = iter->path();
+        std::for_each(DirectoryIteratorType{ preferred_folderpath }, DirectoryIteratorType{}, [&validExtensions, &callback](const std::filesystem::directory_entry& cur_directory) {
+            auto cur_path = cur_directory.path();
             auto my_extension = StringUtils::ToLowerCase(cur_path.extension().string());
             auto valid_file_by_extension = std::find(std::begin(validExtensions), std::end(validExtensions), my_extension) != std::end(validExtensions);
             if(validExtensions.empty() == false) {
@@ -32,7 +32,7 @@ namespace detail {
             } else {
                 callback(cur_path);
             }
-        }
+        });
     }
 } //End detail
 

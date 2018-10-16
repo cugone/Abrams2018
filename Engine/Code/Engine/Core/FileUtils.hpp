@@ -23,15 +23,15 @@ namespace detail {
     void IterateFileInFolders(const std::filesystem::path& preferred_folderpath, const std::vector<std::string>& validExtensions, const std::function<void(const std::filesystem::path&)>& callback) {
         if(validExtensions.empty()) {
             std::for_each(DirectoryIteratorType{ preferred_folderpath }, DirectoryIteratorType{},
-                [&callback](const std::filesystem::directory_entry& cur_directory) {
-                    const auto& cur_path = cur_directory.path();
+                [&callback](const std::filesystem::directory_entry& entry) {
+                    const auto& cur_path = entry.path();
                     callback(cur_path);
                 });
             return;
         }
         std::for_each(DirectoryIteratorType{ preferred_folderpath }, DirectoryIteratorType{},
-            [&validExtensions, &callback](const std::filesystem::directory_entry& cur_directory) {
-                const auto& cur_path = cur_directory.path();
+            [&validExtensions, &callback](const std::filesystem::directory_entry& entry) {
+                const auto& cur_path = entry.path();
                 std::string my_extension = StringUtils::ToLowerCase(cur_path.extension().string());
                 bool valid_file_by_extension = std::find(std::begin(validExtensions), std::end(validExtensions), my_extension) != std::end(validExtensions);
                 if(valid_file_by_extension) {

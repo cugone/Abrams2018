@@ -128,7 +128,7 @@ std::filesystem::path GetExePath() {
     return result;
 }
 
-void IterateFileInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, const std::function<void(const std::filesystem::path&)>& callback /*= [](const std::filesystem::path& p) { (void*)p; }*/, bool recursive /*= false*/) {
+void IterateFilesInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, const std::function<void(const std::filesystem::path&)>& callback /*= [](const std::filesystem::path& p) { (void*)p; }*/, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
     auto preferred_folderpath = folderpath;
     preferred_folderpath.make_preferred();
@@ -140,16 +140,17 @@ void IterateFileInFolders(const std::filesystem::path& folderpath, const std::st
     }
     auto validExtensions = StringUtils::Split(StringUtils::ToLowerCase(validExtensionList));
     if(!recursive) {
-        detail::IterateFileInFolders_helper<FS::directory_iterator>(preferred_folderpath, validExtensions, callback);
+        detail::IterateFileInFolders<FS::directory_iterator>(preferred_folderpath, validExtensions, callback);
     } else {
-        detail::IterateFileInFolders_helper<FS::recursive_directory_iterator>(preferred_folderpath, validExtensions, callback);
+        detail::IterateFileInFolders<FS::recursive_directory_iterator>(preferred_folderpath, validExtensions, callback);
     }
 }
 
 int CountFilesInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, bool recursive /*= false*/) {
+    namespace FS = std::filesystem;
     int count = 0;
-    auto cb = [&count](const std::filesystem::path& /*p*/)->void { ++count; };
-    IterateFileInFolders(folderpath, validExtensionList, cb, recursive);
+    auto cb = [&count](const FS::path& /*p*/)->void { ++count; };
+    IterateFilesInFolders(folderpath, validExtensionList, cb, recursive);
     return count;
 }
 
@@ -158,7 +159,7 @@ void FileUtils::RemoveExceptMostRecentFiles(const std::filesystem::path& folderp
     if(mostRecentCountToKeep < CountFilesInFolders(folderpath)) {
         std::vector<FS::path> paths{};
         auto add_path_cb = [&paths](const FS::path& p) { paths.push_back(p); };
-        IterateFileInFolders(folderpath, std::string{}, add_path_cb, false);
+        IterateFilesInFolders(folderpath, std::string{}, add_path_cb, false);
         auto sort_pred = [](const FS::path& a, const FS::path& b) { return FS::last_write_time(a) > FS::last_write_time(b); };
         std::sort(std::begin(paths), std::end(paths), sort_pred);
         if(mostRecentCountToKeep > 0) {

@@ -4,8 +4,6 @@
 #include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/TimeUtils.hpp"
 
-#include "Engine/Profiling/Profiler.hpp"
-
 #include "Engine/Math/MathUtils.hpp"
 
 #include "Engine/Renderer/Renderer.hpp"
@@ -41,7 +39,6 @@ App::App(std::unique_ptr<JobSystem>&& jobSystem, std::unique_ptr<FileLogger>&& f
     , _theInputSystem{std::make_unique<InputSystem>()}
     , _theConsole{std::make_unique<Console>(_theRenderer.get())}
     , _theGame{std::make_unique<Game>()}
-    , _theProfiler{std::make_unique<Profiler>(_theRenderer.get(), _theConsole.get(), _theFileLogger.get())}
 {
     g_theJobSystem = _theJobSystem.get();
     g_theFileLogger = _theFileLogger.get();
@@ -50,11 +47,9 @@ App::App(std::unique_ptr<JobSystem>&& jobSystem, std::unique_ptr<FileLogger>&& f
     g_theInput = _theInputSystem.get();
     g_theConsole = _theConsole.get();
     g_theGame = _theGame.get();
-    g_theProfiler = _theProfiler.get();
 }
 
 App::~App() {
-    _theProfiler.reset();
     _theGame.reset();
     _theConsole.reset();
     _theInputSystem.reset();
@@ -70,7 +65,6 @@ App::~App() {
     g_theInput = nullptr;
     g_theRenderer = nullptr;
     g_theConfig = nullptr;
-    g_theProfiler = nullptr;
 
 }
 
@@ -95,7 +89,6 @@ void App::Initialize() {
     g_theRenderer->SetFullscreen();
     g_theInput->Initialize();
     g_theConsole->Initialize();
-    g_theProfiler->Initialize();
     g_theGame->Initialize();
 
     Console::Command quit{};
@@ -187,7 +180,6 @@ void App::BeginFrame() {
     g_theConsole->BeginFrame();
     g_theGame->BeginFrame();
     g_theRenderer->BeginFrame();
-    g_theProfiler->BeginFrame();
 }
 
 void App::Update(float deltaSeconds) {
@@ -195,12 +187,10 @@ void App::Update(float deltaSeconds) {
     g_theConsole->Update(deltaSeconds);
     g_theGame->Update(deltaSeconds);
     g_theRenderer->Update(deltaSeconds);
-    g_theProfiler->Update(deltaSeconds);
 }
 
 void App::Render() const {
     g_theGame->Render();
-    g_theProfiler->Render();
     g_theConsole->Render();
     g_theInput->Render();
     g_theRenderer->Render();
@@ -210,7 +200,6 @@ void App::EndFrame() {
     g_theGame->EndFrame();
     g_theConsole->EndFrame();
     g_theInput->EndFrame();
-    g_theProfiler->EndFrame();
     g_theRenderer->EndFrame();
 }
 

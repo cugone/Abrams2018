@@ -23,7 +23,6 @@
 #include "Engine/RHI/RHIDeviceContext.hpp"
 #include "Engine/RHI/RHIOutput.hpp"
 
-#include "Engine/Profiling/Profiler.hpp"
 #include "Engine/Profiling/ProfileLogScope.hpp"
 
 #include "Engine/UI/UI.hpp"
@@ -55,14 +54,11 @@ Game::~Game() {
 }
 
 void Game::Initialize() {
-    PROFILE_FUNCTION_START(g_theProfiler);
     InitializeData();
     InitializeUI();
-    PROFILE_FUNCTION_END(g_theProfiler);
 }
 
 void Game::InitializeData() {
-    PROFILE_FUNCTION_START(g_theProfiler);
     g_theRenderer->RegisterTexturesFromFolder(std::string{ "Data/Images" });
     g_theRenderer->RegisterShadersFromFolder(std::string{ "Data/Shaders" });
     g_theRenderer->RegisterMaterialsFromFolder(std::string{ "Data/Materials" });
@@ -70,21 +66,17 @@ void Game::InitializeData() {
 
     _health_cb = g_theRenderer->CreateConstantBuffer(&health_data, sizeof(health_data));
     _camera3->SetPosition(Vector3(0.0f, 5.0f, -10.0f));
-    PROFILE_FUNCTION_END(g_theProfiler);
 }
 
 void Game::InitializeUI() {
-    PROFILE_FUNCTION_START(g_theProfiler);
-    PROFILE_FUNCTION_END(g_theProfiler);
+    /* DO NOTHING */
 }
 
 void Game::BeginFrame() {
-    PROFILE_FUNCTION_START(g_theProfiler);
-    PROFILE_FUNCTION_END(g_theProfiler);
+    /* DO NOTHING */
 }
 
 void Game::Update(float deltaSeconds) {
-    PROFILE_FUNCTION_START(g_theProfiler);
     if(g_theInput->WasKeyJustPressed(KeyCode::Esc)) {
         g_theApp->SetIsQuitting(true);
         return;
@@ -139,11 +131,9 @@ void Game::Update(float deltaSeconds) {
     _camera2->Update(deltaSeconds);
     _camera3->Update(deltaSeconds);
 
-    PROFILE_FUNCTION_END(g_theProfiler);
 }
 
 void Game::UpdateCameraFromKeyboard(float deltaSeconds) {
-    PROFILE_FUNCTION_START(g_theProfiler);
     bool is_fast = false;
     if(g_theInput->IsKeyDown(KeyCode::Shift)) {
         is_fast = true;
@@ -183,11 +173,9 @@ void Game::UpdateCameraFromKeyboard(float deltaSeconds) {
         _camera2->SetRotationDegrees(0.0f);
         health_data.health_percentage = 0.0f;
     }
-    PROFILE_FUNCTION_END(g_theProfiler);
 }
 
 void Game::UpdateCameraFromMouse(float /*deltaSeconds*/) {
-    PROFILE_FUNCTION_START(g_theProfiler);
     if(g_theApp->HasFocus()) {
         const auto& window = *(g_theRenderer->GetOutput()->GetWindow());
         auto mouse_pos = g_theInput->GetCursorWindowPosition(window);
@@ -198,11 +186,9 @@ void Game::UpdateCameraFromMouse(float /*deltaSeconds*/) {
         Vector3 angles = Vector3{ _camera3->GetPitchDegrees() - moved_y, _camera3->GetYawDegrees() - moved_x, _camera3->GetRollDegrees() };
         _camera3->SetEulerAnglesDegrees(angles);
     }
-    PROFILE_FUNCTION_END(g_theProfiler);
 }
 
 void Game::Render() const {
-    PROFILE_FUNCTION_START(g_theProfiler);
     g_theRenderer->SetRenderTarget();
     g_theRenderer->ClearColor(Rgba::BLACK);
     g_theRenderer->ClearDepthStencilBuffer();
@@ -259,23 +245,19 @@ void Game::Render() const {
         g_theRenderer->SetModelMatrix(T);
         g_theRenderer->DrawMultilineText(font, ss.str());
     }
-    PROFILE_FUNCTION_END(g_theProfiler);
 }
 
 void Game::RenderStuff() const {
-    PROFILE_FUNCTION_START(g_theProfiler);
     DrawCube();
     DrawObj();
     DrawWorldGrid();
     DrawAxes();
 
     g_theRenderer->EnableDepth();
-    PROFILE_FUNCTION_END(g_theProfiler);
 }
 
 void Game::EndFrame() {
-    PROFILE_FUNCTION_START(g_theProfiler);
-    PROFILE_FUNCTION_END(g_theProfiler);
+    /* DO NOTHING */
 }
 
 struct generate_image_job_t {
@@ -312,25 +294,20 @@ void Game::GenerateImageData(void* data) {
 }
 
 void Game::DrawWorldGrid() const {
-    PROFILE_FUNCTION_START(g_theProfiler);
     if(!_debug) {
         return;
     }
     g_theRenderer->DrawWorldGridXZ();
-    PROFILE_FUNCTION_END(g_theProfiler);
 }
 
 void Game::DrawAxes() const {
-    PROFILE_FUNCTION_START(g_theProfiler);
     if(!_debug) {
         return;
     }
     g_theRenderer->DrawAxes();
-    PROFILE_FUNCTION_END(g_theProfiler);
 }
 
 void Game::DrawCube() const {
-    PROFILE_FUNCTION_START(g_theProfiler);
     auto aabb2 = AABB2::ZERO_TO_ONE;
     auto mins = aabb2.mins;
     auto maxs = aabb2.maxs;
@@ -383,11 +360,9 @@ void Game::DrawCube() const {
     g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
     g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
     g_theRenderer->DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
-    PROFILE_FUNCTION_END(g_theProfiler);
 }
 
 void Game::DrawObj() const {
-    PROFILE_FUNCTION_START(g_theProfiler);
     if(_obj.IsLoaded()) {
         g_theRenderer->SetAmbientLight(Rgba::WHITE, 0.25f);
         SpotLightDesc sl_desc{};
@@ -409,5 +384,4 @@ void Game::DrawObj() const {
         g_theRenderer->SetUseVertexNormalsForLighting(true);
         g_theRenderer->DrawIndexed(PrimitiveType::Triangles, _obj.GetVbo(), _obj.GetIbo());
     }
-    PROFILE_FUNCTION_END(g_theProfiler);
 }

@@ -9,4 +9,3 @@ EngineSubsystem* g_theSubsystemHead = nullptr;
 App* g_theApp = nullptr;
 JobSystem* g_theJobSystem = nullptr;
 FileLogger* g_theFileLogger = nullptr;
-Profiler* g_theProfiler = nullptr;

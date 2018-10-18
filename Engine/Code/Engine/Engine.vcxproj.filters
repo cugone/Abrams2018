@@ -304,9 +304,6 @@
     <ClCompile Include="Profiling\ProfileLogScope.cpp">
       <Filter>Profiling</Filter>
     </ClCompile>
-    <ClCompile Include="Profiling\Profiler.cpp">
-      <Filter>Profiling</Filter>
-    </ClCompile>
     <ClCompile Include="Profiling\StackTrace.cpp">
       <Filter>Profiling</Filter>
     </ClCompile>
@@ -595,9 +592,6 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Profiling\ProfileLogScope.hpp">
-      <Filter>Profiling</Filter>
-    </ClInclude>
-    <ClInclude Include="Profiling\Profiler.hpp">
       <Filter>Profiling</Filter>
     </ClInclude>
     <ClInclude Include="Profiling\StackTrace.hpp">

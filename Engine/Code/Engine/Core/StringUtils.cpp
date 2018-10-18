@@ -108,7 +108,7 @@ std::string ConvertUnicodeToMultiByte(const std::wstring& unicode_string) {
     std::string mb_string;
     buf = new char[buf_size * sizeof(char)];
     buf_size = ::WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, unicode_string.data(), -1, buf, buf_size, nullptr, nullptr);
-    mb_string.assign(buf, buf_size);
+    mb_string.assign(buf, buf_size - 1);
     delete[] buf;
     buf = nullptr;
     return mb_string;
@@ -120,7 +120,7 @@ std::wstring ConvertMultiByteToUnicode(const std::string& multi_byte_string) {
     std::wstring unicode_string;
     buf = new wchar_t[buf_size * sizeof(wchar_t)];
     buf_size = ::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, multi_byte_string.data(), -1, buf, buf_size);
-    unicode_string.assign(buf, buf_size);
+    unicode_string.assign(buf, buf_size - 1);
     delete[] buf;
     buf = nullptr;
     return unicode_string;

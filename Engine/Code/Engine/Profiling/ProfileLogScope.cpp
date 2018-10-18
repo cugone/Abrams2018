@@ -18,7 +18,7 @@ ProfileLogScope::~ProfileLogScope() noexcept {
     auto now = TimeUtils::Now<ProfileTimePoint::duration, ProfileTimePoint::clock>();
     auto elapsedTime = (now - _time_at_creation).count();
     std::ostringstream ss;
-    ss << "ProfileLogScope " << _scope_name << " took " << elapsedTime << " ms.\n";
+    ss << "ProfileLogScope " << _scope_name << " took " << std::fixed << std::setprecision(2) << elapsedTime << " ms.\n";
     DebuggerPrintf(ss.str().c_str());
 }
 

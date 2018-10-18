@@ -7,14 +7,14 @@
 #include <iomanip>
 #include <sstream>
 
-ProfileLogScope::ProfileLogScope(const std::string& scopeName)
+ProfileLogScope::ProfileLogScope(const std::string& scopeName) noexcept
     : _scope_name(scopeName)
     , _time_at_creation(TimeUtils::Now<ProfileTimePoint::duration, ProfileTimePoint::clock>())
 {
     /* DO NOTHING */
 }
 
-ProfileLogScope::~ProfileLogScope() {
+ProfileLogScope::~ProfileLogScope() noexcept {
     auto now = TimeUtils::Now<ProfileTimePoint::duration, ProfileTimePoint::clock>();
     auto elapsedTime = (now - _time_at_creation).count();
     std::ostringstream ss;

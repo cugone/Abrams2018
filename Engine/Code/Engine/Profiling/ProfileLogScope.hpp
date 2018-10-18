@@ -9,11 +9,17 @@
 
 class ProfileLogScope {
 public:
-	ProfileLogScope(const std::string& scopeName);
-    ~ProfileLogScope();
+    explicit ProfileLogScope(const std::string& scopeName) noexcept;
+    ~ProfileLogScope() noexcept;
+
+    ProfileLogScope() = delete;
+    ProfileLogScope(const ProfileLogScope&) = delete;
+    ProfileLogScope(ProfileLogScope&&) = delete;
+    ProfileLogScope& operator=(const ProfileLogScope&) = delete;
+    ProfileLogScope& operator=(ProfileLogScope&&) = delete;
 protected:
 private:
-    using ProfileTimePoint = std::chrono::time_point<std::chrono::high_resolution_clock, std::chrono::milliseconds>;
+    using ProfileTimePoint = std::chrono::time_point<std::chrono::high_resolution_clock, FPMilliseconds>;
 
     std::string _scope_name{};
     ProfileTimePoint _time_at_creation{};

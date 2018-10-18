@@ -5,6 +5,8 @@
 
 using FPSeconds = std::chrono::duration<float>;
 using FPMilliseconds = std::chrono::duration<float, std::milli>;
+using FPMicroseconds = std::chrono::duration<float, std::micro>;
+using FPNanoseconds = std::chrono::duration<float, std::nano>;
 
 namespace TimeUtils {
 

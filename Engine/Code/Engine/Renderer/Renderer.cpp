@@ -3041,7 +3041,7 @@ Texture* Renderer::CreateRenderableDepthStencil(const RHIDevice* owner, const In
     descDepth.Format = ImageFormatToDxgiFormat(ImageFormat::R32_Typeless);
     descDepth.SampleDesc.Count = 1;
     descDepth.SampleDesc.Quality = 0;
-    descDepth.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
+    descDepth.Usage = BufferUsageToD3DUsage(BufferUsage::Default);
     descDepth.BindFlags = BufferBindUsageToD3DBindFlags(BufferBindUsage::Depth_Stencil | BufferBindUsage::Shader_Resource);
     descDepth.CPUAccessFlags = 0;
     descDepth.MiscFlags = 0;

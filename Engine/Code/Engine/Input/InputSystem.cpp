@@ -1021,7 +1021,6 @@ void InputSystem::Initialize() {
     std::ostringstream ss;
     ss << _connected_controller_count << " Xbox controllers detected!\n";
     DebuggerPrintf(ss.str().c_str());
-    _connection_poll.SetSeconds(1.0f);
 }
 
 void InputSystem::BeginFrame() {

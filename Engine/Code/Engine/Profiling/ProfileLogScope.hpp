@@ -6,7 +6,6 @@
 #include <chrono>
 #include <string>
 
-using ProfileTimePoint = std::chrono::time_point<std::chrono::high_resolution_clock, std::chrono::milliseconds>;
 
 class ProfileLogScope {
 public:
@@ -14,6 +13,8 @@ public:
     ~ProfileLogScope();
 protected:
 private:
+    using ProfileTimePoint = std::chrono::time_point<std::chrono::high_resolution_clock, std::chrono::milliseconds>;
+
     std::string _scope_name{};
     ProfileTimePoint _time_at_creation{};
 };

@@ -15,10 +15,10 @@ ProfileLogScope::ProfileLogScope(const std::string& scopeName)
 }
 
 ProfileLogScope::~ProfileLogScope() {
-    auto now = TimeUtils::Now();
+    auto now = TimeUtils::Now<ProfileTimePoint::duration, ProfileTimePoint::clock>();
     auto elapsedTime = (now - _time_at_creation).count();
     std::ostringstream ss;
-    ss << "ProfileLogScope " << _scope_name << " took " << elapsedTime << " time units.\n";
+    ss << "ProfileLogScope " << _scope_name << " took " << elapsedTime << " ms.\n";
     DebuggerPrintf(ss.str().c_str());
 }
 

@@ -334,7 +334,7 @@ private:
     std::bitset<(std::size_t)KeyCode::Max> _currentKeys{};
     Vector2 _mouseCoords = Vector2::ZERO;
     Vector2 _mouseDelta = Vector2::ZERO;
-    Stopwatch _connection_poll{};
+    Stopwatch _connection_poll = Stopwatch(FPSeconds(1.0f));
     int _mouseWheelPosition = 0;
     int _connected_controller_count = 0;
 };

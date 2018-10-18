@@ -41,7 +41,7 @@ App::App(std::unique_ptr<JobSystem>&& jobSystem, std::unique_ptr<FileLogger>&& f
     , _theInputSystem{std::make_unique<InputSystem>()}
     , _theConsole{std::make_unique<Console>(_theRenderer.get())}
     , _theGame{std::make_unique<Game>()}
-    , _theProfiler{std::make_unique<Profiler>(_theRenderer.get(), _theConsole.get())}
+    , _theProfiler{std::make_unique<Profiler>(_theRenderer.get(), _theConsole.get(), _theFileLogger.get())}
 {
     g_theJobSystem = _theJobSystem.get();
     g_theFileLogger = _theFileLogger.get();
@@ -210,7 +210,7 @@ void App::EndFrame() {
     g_theGame->EndFrame();
     g_theConsole->EndFrame();
     g_theInput->EndFrame();
-    g_theRenderer->EndFrame();
     g_theProfiler->EndFrame();
+    g_theRenderer->EndFrame();
 }
 

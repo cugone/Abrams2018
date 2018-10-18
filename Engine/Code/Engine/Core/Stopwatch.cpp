@@ -1,14 +1,23 @@
 #include "Engine/Core/Stopwatch.hpp"
 
-void Stopwatch::SetSeconds(float seconds) {
-    auto fpsecs = FPSeconds{ seconds };
-    interval_time = fpsecs;
+Stopwatch::Stopwatch(float frequency)
+    : Stopwatch(FPSeconds(1.0f / frequency))
+{
+    /* DO NOTHING */
+}
+
+Stopwatch::Stopwatch(const FPSeconds& seconds) {
+    SetSeconds(seconds);
+}
+
+void Stopwatch::SetSeconds(const FPSeconds& seconds) {
+    interval_time = seconds;
     target_time = FPSeconds{ TimeUtils::GetCurrentTimeElapsed<FPSeconds, std::chrono::steady_clock>()
-        + fpsecs.count() };
+        + seconds.count() };
 }
 
 void Stopwatch::SetFrequency(float hz) {
-    SetSeconds(1.0f / hz);
+    SetSeconds(FPSeconds(1.0f / hz));
 }
 
 bool Stopwatch::Check() {

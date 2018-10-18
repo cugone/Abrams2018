@@ -2,9 +2,14 @@
 
 #include "Engine/Core/TimeUtils.hpp"
 
+#include <chrono>
+#include <ratio>
+
 class Stopwatch {
 public:
-    void SetSeconds(float seconds);
+    explicit Stopwatch(const FPSeconds& seconds);
+    explicit Stopwatch(float frequency);
+    void SetSeconds(const FPSeconds& seconds);
     void SetFrequency(float hz);
     bool Check();
     bool CheckAndDecrement();

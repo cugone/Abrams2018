@@ -125,7 +125,7 @@ private:
     decltype(_entryline_buffer)::const_iterator _current_history_position{};
     int _default_blink_rate = 3;
     int _blink_rate = _default_blink_rate;
-    Stopwatch _cursor_timer{};
+    Stopwatch _cursor_timer = Stopwatch(static_cast<float>(_blink_rate));
     uint8_t _show_cursor             : 1;
     uint8_t _is_open                 : 1;
     uint8_t _highlight_mode          : 1;

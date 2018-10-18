@@ -5,6 +5,8 @@
 #include "Engine/Core/Rgba.hpp"
 #include "Engine/Core/Stopwatch.hpp"
 
+#include "Engine/Core/Vertex3D.hpp"
+
 #include <set>
 #include <string>
 #include <vector>
@@ -18,6 +20,7 @@ class ProfilerReport;
 
 struct profiler_node_t;
 struct profiler_data_t;
+struct profiler_frame_t;
 
 enum class ProfilerReportType {
     Flat,
@@ -26,8 +29,7 @@ enum class ProfilerReportType {
 
 class Profiler : public EngineSubsystem {
 public:
-    Profiler(Renderer* renderer, Console* console);
-    Profiler(Renderer* renderer, Console* console, const std::string& tag_str);
+    Profiler(Renderer* renderer, Console* console, FileLogger* logger);
     virtual ~Profiler();
 
     virtual void Initialize() override;
@@ -39,11 +41,13 @@ public:
     virtual bool ProcessSystemMessage(const EngineMessage& msg) override;
     void Push(const std::string& tag_str);
     void Pop();
+    void PopAll();
 
     profiler_node_t* GetPreviousFrame() const;
     profiler_node_t* GetPreviousFrame(const std::string& root_tag) const;
-    void SetReportType(const ProfilerReportType& type);
-    void SetLastReport(ProfilerReport* report);
+
+    ProfilerReportType report_type = ProfilerReportType::Flat;
+
 protected:
 private:
     bool IsOpen() const;
@@ -61,10 +65,13 @@ private:
     void DoSnapshot();
     void DoFlatReport();
     void DoTreeReport();
+    void DoFlatLog();
+    void DoTreeLog();
 
     void FreeOldTrees();
-    void DeleteTree(profiler_node_t*& head);
+    void DeleteTree(profiler_node_t*& node);
 
+    void SortByTagName();
 
     Vector2 SetupViewFromCamera() const;
     void DrawBackground(const Vector2& view_half_extents) const;
@@ -72,15 +79,14 @@ private:
 
     Renderer* _renderer = nullptr;
     Console* _console = nullptr;
+    FileLogger* _logger = nullptr;
     Camera2D* _camera = nullptr;
 
     profiler_node_t* _activeNode = nullptr;
     std::vector<profiler_node_t*> _completedList{};
 
-    ProfilerReport* _last_report = nullptr;
-
-    Stopwatch _updateTimer{};
-    ProfilerReportType _report_type = ProfilerReportType::Flat;
+    ProfilerReport* _report = nullptr;
+    Stopwatch _updateTimer = Stopwatch(FPSeconds(2.0f));
 
     uint8_t _is_running: 1;
     uint8_t _is_open: 1;
@@ -100,27 +106,33 @@ public:
     explicit ProfilerReport(const Profiler* parent, profiler_node_t* frame, const ProfilerReportType& type = ProfilerReportType::Flat);
     ~ProfilerReport();
 
-    void CreateTreeView();
-    void CreateFlatView();
+    void CreateView();
     void SortByTotalTime();
-    void Render(Renderer* renderer) const;
+    void Render(Renderer* renderer, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo) const;
     void Log(FileLogger* logger) const;
 
+    int CalculateHeight() const;
 protected:
 private:
+    void AppendFrame(profiler_node_t* frame);
+    void CreateTreeView();
+    void CreateFlatView();
+
     void LogHeader(FileLogger* logger) const;
-    void LogRow(FileLogger* logger, const  profiler_data_t* row) const;
-    std::string CreateHeader() const;
+    void LogRow(FileLogger* logger, const profiler_data_t& row) const;
+    static std::string CreateHeader();
+    static void RenderHeader(Renderer* renderer, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo);
+
     std::string CreateFlatReportString() const;
     std::string CreateTreeReportString() const;
 
-    Rgba CalculateRowColor(const profiler_data_t* row) const;
+    Rgba CalculateRowColor(const profiler_data_t& row) const;
 
     const Profiler* _parent = nullptr;
     profiler_node_t* _current_frame = nullptr;
     ProfilerReportType _report_type = ProfilerReportType::Flat;
-    std::vector<profiler_data_t*> _report{};
-    std::set<profiler_data_t*> _report_flat{};
+    std::vector<profiler_data_t> _report{};
+    std::set<profiler_data_t> _report_flat{};
     friend class Profiler;
 };
 
@@ -138,10 +150,6 @@ if((profiler_ptr)) { \
 #define PROFILE_FUNCTION_END(profiler_ptr) \
 if((profiler_ptr)) { \
     (profiler_ptr)->Pop(); \
-    ProfilerReport TOKEN_PASTE(__preport_, __LINE__)((profiler_ptr), (profiler_ptr)->GetPreviousFrame()); \
-    ProfilerReport* pr = new ProfilerReport((profiler_ptr), (profiler_ptr)->GetPreviousFrame()); \
-    pr->CreateFlatView(); \
-    (profiler_ptr)->SetLastReport(pr); \
 }
 
 #else

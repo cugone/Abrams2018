@@ -663,7 +663,6 @@ void Console::PasteText(const std::string& text, std::string::const_iterator loc
 
 void Console::Initialize() {
     _camera = new Camera2D;
-    _cursor_timer.SetFrequency(static_cast<float>(_blink_rate));
     RegisterDefaultCommands();
     RegisterDefaultFont();
 }

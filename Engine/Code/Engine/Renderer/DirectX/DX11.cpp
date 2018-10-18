@@ -326,6 +326,7 @@ StencilOperation StencilOperationFromString(std::string str) {
 
 D3D11_USAGE BufferUsageToD3DUsage(const BufferUsage& usage) {
     switch(usage) {
+        case BufferUsage::Default: return D3D11_USAGE_DEFAULT;
         case BufferUsage::Gpu: return D3D11_USAGE_DEFAULT;
         case BufferUsage::Static: return D3D11_USAGE_IMMUTABLE;
         case BufferUsage::Dynamic: return D3D11_USAGE_DYNAMIC;

@@ -225,7 +225,8 @@ enum class PrimitiveType : unsigned int {
 };
 
 enum class BufferUsage : unsigned int {
-    Gpu
+    Default
+    , Gpu
     , Static
     , Dynamic
     , Staging

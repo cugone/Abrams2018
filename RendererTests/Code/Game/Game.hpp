@@ -11,6 +11,7 @@
 class Camera2D;
 class Camera3D;
 class ConstantBuffer;
+class Texture;
 
 namespace UI {
     class Canvas;
@@ -49,7 +50,10 @@ private:
     void DrawCube() const;
     void DrawObj() const;
 
+    UI::Canvas* _canvas = nullptr;
     FileUtils::Obj _obj{};
+    Texture* _offscreenUiTexture = nullptr;
+    Texture* _testDepthStencil = nullptr;
     ConstantBuffer* _health_cb = nullptr;
     health_buffer_t health_data{};
     const float _cameraSpeed = 10.0f;

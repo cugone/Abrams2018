@@ -42,6 +42,9 @@ Game::Game() {
 
 Game::~Game() {
 
+    delete _canvas;
+    _canvas = nullptr;
+
     delete _health_cb;
     _health_cb = nullptr;
 
@@ -66,10 +69,30 @@ void Game::InitializeData() {
 
     _health_cb = g_theRenderer->CreateConstantBuffer(&health_data, sizeof(health_data));
     _camera3->SetPosition(Vector3(0.0f, 5.0f, -10.0f));
+    {
+        auto dims = g_theRenderer->GetOutput()->GetDimensions();
+        auto width = dims.x;
+        auto height = dims.y;
+        std::vector<Rgba> data{};
+        data.resize(width * height);
+        std::fill(std::begin(data), std::end(data), Rgba::GREEN);
+        _offscreenUiTexture = g_theRenderer->Create2DTextureFromMemory(data, width, height, BufferUsage::Static, BufferBindUsage::Shader_Resource);
+        g_theRenderer->RegisterTexture("__OffscreenUiTexture", _offscreenUiTexture);
+    }
+
+    {
+        auto dims3 = _offscreenUiTexture->GetDimensions();
+        auto dims2 = IntVector2(dims3.x, dims3.y);
+        _testDepthStencil = g_theRenderer->CreateDepthStencil(g_theRenderer->GetDevice(), dims2);
+        g_theRenderer->RegisterTexture("__TestDepthStencil", _testDepthStencil);
+    }
+
 }
 
 void Game::InitializeUI() {
-    /* DO NOTHING */
+    auto dims = g_theRenderer->GetOutput()->GetDimensions();
+    auto smallest_dimension = static_cast<float>(dims.x < dims.y ? dims.x : dims.y);
+    _canvas = new UI::Canvas(*g_theRenderer, _offscreenUiTexture, _testDepthStencil, smallest_dimension);
 }
 
 void Game::BeginFrame() {
@@ -130,6 +153,8 @@ void Game::Update(float deltaSeconds) {
 
     _camera2->Update(deltaSeconds);
     _camera3->Update(deltaSeconds);
+
+    _canvas->Update(deltaSeconds);
 
 }
 
@@ -224,6 +249,11 @@ void Game::Render() const {
     Vector2 view_rightTop = Vector2(view_half_width, -view_half_height);
     Vector2 view_nearFar = Vector2(0.0f, 1.0f);
     Vector2 cam_pos2 = Vector2(_camera2->GetPosition());
+
+    _canvas->Render(g_theRenderer);
+    if(_debug) {
+        _canvas->DebugRender(g_theRenderer);
+    }
 
     _camera2->SetupView(view_leftBottom, view_rightTop, view_nearFar, MathUtils::M_16_BY_9_RATIO);
     g_theRenderer->SetViewMatrix(_camera2->GetViewMatrix());
@@ -384,4 +414,5 @@ void Game::DrawObj() const {
         g_theRenderer->SetUseVertexNormalsForLighting(true);
         g_theRenderer->DrawIndexed(PrimitiveType::Triangles, _obj.GetVbo(), _obj.GetIbo());
     }
+
 }

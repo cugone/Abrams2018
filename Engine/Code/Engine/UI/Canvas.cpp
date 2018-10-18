@@ -13,10 +13,11 @@
 
 namespace UI {
 
-Canvas::Canvas(Renderer& renderer, Texture* target_texture, float reference_resolution)
+Canvas::Canvas(Renderer& renderer, Texture* target_texture, Texture* target_depthstencil, float reference_resolution)
     : Element()
     , _renderer(&renderer)
     , _target_texture(target_texture)
+    , _target_depthstencil(target_depthstencil)
     , _reference_resolution(reference_resolution)
 {
     if(!_target_texture) {
@@ -44,9 +45,20 @@ void Canvas::Update(float deltaSeconds) {
 }
 
 void Canvas::Render(Renderer* renderer) const {
-    renderer->SetRenderTarget(_target_texture);
+    renderer->SetRenderTarget(_target_texture, _target_depthstencil);
+    renderer->ClearColor(Rgba::BLACK);
+    renderer->ClearDepthStencilBuffer();
     SetupMVPFromTargetAndCamera(renderer);
     RenderChildren(renderer);
+    renderer->SetRenderTarget();
+    renderer->SetMaterial(renderer->GetMaterial("__2D"));
+    renderer->SetTexture(_target_texture);
+    auto dims = _target_texture->GetDimensions();
+    auto width = static_cast<float>(dims.x);
+    auto height = static_cast<float>(dims.y);
+    auto dims2 = Vector2(width, height);
+    renderer->SetModelMatrix(Matrix4::CreateScaleMatrix(dims2));
+    renderer->DrawQuad();
 }
 
 void Canvas::SetupMVPFromTargetAndCamera(Renderer* renderer) const {
@@ -64,8 +76,10 @@ void Canvas::SetupMVPFromTargetAndCamera(Renderer* renderer) const {
 }
 
 void Canvas::DebugRender(Renderer* renderer) const {
+    renderer->SetRenderTarget(_target_texture);
     SetupMVPFromTargetAndCamera(renderer);
     DebugRenderBottomUp(renderer);
+    renderer->SetRenderTarget();
 }
 
 const Camera2D* Canvas::GetUICamera() const {

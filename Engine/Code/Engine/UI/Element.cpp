@@ -253,6 +253,7 @@ void Element::DebugRenderPivot(Renderer* renderer) const {
     auto pivot_translation = GetPivot();
     auto pivot_translation_matrix = Matrix4::CreateTranslationMatrix(pivot_translation);
     Matrix4 pivot_mat = world_transform * pivot_translation_matrix * pivot_scale_matrix;
+    renderer->SetMaterial(renderer->GetMaterial("__2D"));
     renderer->SetModelMatrix(pivot_mat);
     renderer->DrawX2D(_pivot_color);
 }

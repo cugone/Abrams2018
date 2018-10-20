@@ -11,7 +11,7 @@ namespace UI {
 class Canvas : public UI::Element {
 public:
     Canvas(Renderer& renderer, Texture* target_texture, Texture* target_depthstencil, float reference_resolution);
-    virtual ~Canvas();
+    virtual ~Canvas() = default;
     virtual void Update(float deltaSeconds) override;
     virtual void Render(Renderer* renderer) const override;
     void SetupMVPFromTargetAndCamera(Renderer* renderer) const;

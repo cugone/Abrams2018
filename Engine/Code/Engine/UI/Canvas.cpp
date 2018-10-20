@@ -36,10 +36,6 @@ Canvas::Canvas(Renderer& renderer, Texture* target_texture, Texture* target_dept
     _camera = new Camera2D;
 }
 
-Canvas::~Canvas() {
-    _target_texture = nullptr;
-}
-
 void Canvas::Update(float deltaSeconds) {
     UpdateChildren(deltaSeconds);
 }

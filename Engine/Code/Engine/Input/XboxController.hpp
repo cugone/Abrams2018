@@ -12,7 +12,7 @@
 class XboxController {
 public:
     enum class Button : unsigned char {
-        First_
+        First_ /* Internal use only. */
         , A = First_
         , B
         , X
@@ -27,8 +27,8 @@ public:
         , RightThumb
         , RightBumper
         , LeftBumper
-        , Last_
-        , Max = Last_
+        , Last_ /* Internal use only. */
+        , Max = Last_ /* Internal use only. */
     };
 
     enum class Motor {

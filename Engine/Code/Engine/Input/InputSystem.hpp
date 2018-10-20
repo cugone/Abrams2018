@@ -1,42 +1,45 @@
 #pragma once
 #include "Engine/Input/XboxController.hpp"
 
-#include <array>
-#include <bitset>
-
 #include "Engine/Core/EngineSubsystem.hpp"
 #include "Engine/Core/Stopwatch.hpp"
 
 #include "Engine/Math/AABB2.hpp"
+#include "Engine/Math/IntVector2.hpp"
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"
+
+#include <array>
+#include <bitset>
 
 class Window;
 
 enum class KeyCode : int {
-    LButton
-    ,RButton
-    ,Cancel
-    ,MButton
-    ,XButton1
-    ,XButton2
-    ,Back  /* Also BackSpace */
-    ,First_ = Back
-    ,Backspace = Back
+    FirstMouseButton_ /* Internal use only. */
+    ,LButton = FirstMouseButton_ /* Left Mouse Button */
+    ,RButton /* Right Mouse Button */
+    ,Cancel /* Control-break processing */
+    ,MButton /* Middle Mouse Button */
+    ,XButton1 /* Xtra Mouse Button 1 */
+    ,XButton2 /* Xtra Mouse Button 2 */
+    ,LastMouseButton_ /* Internal use only. */
+    ,First_ /* Internal use only. */
+    ,Back = First_  /* Also Backspace */
+    ,Backspace = Back /* Also Back */
     ,Tab
     ,Clear
     ,Return  /* Also Enter */
     ,Enter = Return
-    ,Shift
-    ,Ctrl  /* Also Control */
-    ,Menu  /* Also Alt */
-    ,Alt = Menu /* Also Menu */
+    ,Shift /* either RShift or LShift */
+    ,Ctrl  /* either RCtrl or LCtrl */
+    ,Menu  /* either RMenu or LMenu, Also Alt */
+    ,Alt = Menu /* either RAlt or LAlt, Also Menu */
     ,Pause
     ,Capital  /* Also CapsLock */
-    ,CAPSLOCK = Capital
+    ,CapsLock = Capital
     ,Kana
     ,Hangul  /* Also Hangeul */
-    ,Hangeul = Hangul
+    ,Hangeul = Hangul /* Also Hangul */
     ,Junja
     ,Final
     ,Hanja
@@ -51,9 +54,9 @@ enum class KeyCode : int {
     ,Spacebar = Space
     ,Prior  /* Also PageUp */
     ,PageUp = Prior
-    ,Next  /* Also PageDown  PageDn */
-    ,PageDown = Next
-    ,PageDn = Next
+    ,Next  /* Also PageDown and PageDn */
+    ,PageDown = Next /* Also PageDn or Next */
+    ,PageDn = Next /* Also PageDown or Next */
     ,End
     ,Home
     ,Left
@@ -64,21 +67,21 @@ enum class KeyCode : int {
     ,Print
     ,Execute
     ,Snapshot  /* Also PrintScreen */
-    ,PrintScreen = Snapshot
+    ,PrintScreen = Snapshot /* Also Snapshot */
     ,Insert
     ,Delete  /* Also Del */
-    ,Del = Delete
+    ,Del = Delete /* Also Delete */
     ,Help
-    ,Numeric0
-    ,Numeric1
-    ,Numeric2
-    ,Numeric3
-    ,Numeric4
-    ,Numeric5
-    ,Numeric6
-    ,Numeric7
-    ,Numeric8
-    ,Numeric9
+    ,Numeric0 /* Number key above keyboard */
+    ,Numeric1 /* Number key above keyboard */
+    ,Numeric2 /* Number key above keyboard */
+    ,Numeric3 /* Number key above keyboard */
+    ,Numeric4 /* Number key above keyboard */
+    ,Numeric5 /* Number key above keyboard */
+    ,Numeric6 /* Number key above keyboard */
+    ,Numeric7 /* Number key above keyboard */
+    ,Numeric8 /* Number key above keyboard */
+    ,Numeric9 /* Number key above keyboard */
     ,A
     ,B
     ,C
@@ -122,7 +125,7 @@ enum class KeyCode : int {
     ,Multiply
     ,Add
     ,Separator  /* Also NumPadEnter */
-    ,NumPadEnter = Separator
+    ,NumPadEnter = Separator /* Also Separator */
     ,Subtract
     ,Decimal
     ,Divide
@@ -152,7 +155,7 @@ enum class KeyCode : int {
     ,F24
     ,NumLock
     ,Scroll  /* Also ScrollLock */
-    ,ScrollLock = Scroll
+    ,ScrollLock = Scroll /* Also Scroll */
     ,Oem_Nec_Equal
     ,Oem_Fj_Jisho
     ,Oem_Fj_Masshou
@@ -162,13 +165,13 @@ enum class KeyCode : int {
     ,LShift
     ,RShift
     ,LControl  /* Also LCtrl */
-    ,LCtrl = LControl
+    ,LCtrl = LControl /* Also LControl */
     ,RControl  /* Also RCtrl */
-    ,RCtrl = RControl
+    ,RCtrl = RControl /* Also RControl */
     ,RMenu  /* Also RAlt */
-    ,RAlt = RMenu
+    ,RAlt = RMenu /* Also RMenu */
     ,LMenu  /* Also LAlt */
-    ,LAlt = LMenu
+    ,LAlt = LMenu /* Also LMenu */
     ,Browser_Back
     ,Browser_Forward
     ,Browser_Refresh
@@ -186,24 +189,25 @@ enum class KeyCode : int {
     ,Launch_Mail
     ,Launch_Media_Select
     ,Launch_App1
-    ,LAUNCH_APP2
-    ,Oem_1  /* ;: */
-    ,SEMICOLON = Oem_1
-    ,Oem_Plus  /* =+ */
-    ,Equals = Oem_Plus
-    ,Oem_Comma  /* ,< */
-    ,Comma = Oem_Comma
-    ,Oem_Minus  /* -_ */
-    ,Minus = Oem_Minus
-    ,Oem_Period /* .> */
-    ,Period = Oem_Period
-    ,Oem_2 /* /? */
-    ,ForwardSlash = Oem_2
-    ,FSlash = Oem_2
-    ,Oem_3 /* `~ */
-    ,Backquote = Oem_3
-    ,Tilde = Oem_3
-    ,Gamepad_A
+    ,Launch_App2
+    ,Oem_1  /* Key ;: */
+    ,Semicolon = Oem_1 /* Key ;: */
+    ,Oem_Plus  /* Key =+ */
+    ,Equals = Oem_Plus /* Key =+ */
+    ,Oem_Comma  /* Key ,< */
+    ,Comma = Oem_Comma /* Key ,< */
+    ,Oem_Minus  /* Key -_ */
+    ,Minus = Oem_Minus /* Key -_ */
+    ,Oem_Period /* Key .> */
+    ,Period = Oem_Period /* Key .> */
+    ,Oem_2 /* Key /? */
+    ,ForwardSlash = Oem_2 /* Key /?, Also FSlash */
+    ,FSlash = Oem_2 /* Key /?, Also ForwardSlash */
+    ,Oem_3 /* Key `~ */
+    ,Backquote = Oem_3 /* Key `~, Also Tilde */
+    ,Tilde = Oem_3 /* Key `~, Also Backquote */
+    ,Gamepad_First_ /* Internal use only. */
+    ,Gamepad_A = Gamepad_First_
     ,Gamepad_B
     ,Gamepad_X
     ,Gamepad_Y
@@ -227,17 +231,18 @@ enum class KeyCode : int {
     ,Gamepad_Right_Thumbstick_Down
     ,Gamepad_Right_Thumbstick_Right
     ,Gamepad_Right_Thumbstick_Left
-    ,Oem_4  /* [{ */
-    ,LeftBracket = Oem_4
-    ,LBracket = Oem_4
-    ,Oem_5  /* \| */
-    ,Backslash = Oem_5
-    ,Oem_6  /* ]} */
-    ,RightBracket = Oem_6
-    ,RBracket = Oem_6
-    ,Oem_7  /* '" */
-    ,Apostrophe = Oem_7
-    ,SingleQuote = Oem_7
+    ,Gamepad_Last_ /* Internal use only. */
+    ,Oem_4 /* Key [{ */
+    ,LeftBracket = Oem_4 /* Key [{, Also LBracket */
+    ,LBracket = Oem_4 /* Key [{, Also LeftBracket */
+    ,Oem_5 /* Key \|, Also Backslash */
+    ,Backslash = Oem_5 /* Key \| */
+    ,Oem_6 /* Key ]} */
+    ,RightBracket = Oem_6 /* Key ]}, Also RBracket */
+    ,RBracket = Oem_6 /* Key ]}, Also RightBracket */
+    ,Oem_7 /* Key '" */
+    ,Apostrophe = Oem_7 /* Key '", Also Apostrophe */
+    ,SingleQuote = Oem_7 /* Key '", Also SingleQuote */
     ,Oem_8  /* misc. unknown */
     ,Oem_Ax
     ,Oem_102  /* RT 102's "<>" or "\|" */
@@ -268,9 +273,9 @@ enum class KeyCode : int {
     ,NoName
     ,Pa1
     ,Oem_Clear
-    ,Last_
-    ,Unknown = 0xFF
-    ,Max
+    ,Last_ /* Internal use only */
+    ,Unknown = 0xFF /* A manufacturer-specific key was pressed. */
+    ,Max /* Internal use only */
 };
 
 KeyCode& operator++(KeyCode& keycode);
@@ -299,6 +304,8 @@ public:
     bool WasKeyJustReleased(const KeyCode& key) const;
     bool WasMouseWheelJustScrolledUp() const;
     bool WasMouseWheelJustScrolledDown() const;
+    bool WasMouseWheelJustScrolledLeft() const;
+    bool WasMouseWheelJustScrolledRight() const;
 
     std::size_t GetConnectedControllerCount() const;
     bool IsAnyControllerConnected() const;
@@ -321,6 +328,11 @@ public:
     int GetMouseWheelPosition() const;
     int GetMouseWheelPositionNormalized() const;
 
+    int GetMouseWheelHorizontalPosition() const;
+    int GetMouseWheelHorizontalPositionNormalized() const;
+
+    IntVector2 GetMouseWheelPositionAsIntVector2() const;
+
 protected:
 private:
 
@@ -336,5 +348,6 @@ private:
     Vector2 _mouseDelta = Vector2::ZERO;
     Stopwatch _connection_poll = Stopwatch(FPSeconds(1.0f));
     int _mouseWheelPosition = 0;
+    int _mouseWheelHPosition = 0;
     int _connected_controller_count = 0;
 };

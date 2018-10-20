@@ -65,7 +65,7 @@ unsigned char InputSystem::ConvertKeyCodeToWinVK(const KeyCode& code) {
     case KeyCode::Execute: return VK_EXECUTE;
     case KeyCode::Snapshot: return VK_SNAPSHOT; /* Also PRINTSCREEN */
     case KeyCode::Insert: return VK_INSERT;
-    case KeyCode::Delete: return VK_DELETE; /* I wanted to use DELETE here but I couldn't because FUCK MACROS */
+    case KeyCode::Delete: return VK_DELETE;
     case KeyCode::Help: return VK_HELP;
     case KeyCode::Numeric0: return '0';
     case KeyCode::Numeric1: return '1';
@@ -177,7 +177,7 @@ unsigned char InputSystem::ConvertKeyCodeToWinVK(const KeyCode& code) {
     case KeyCode::Launch_Mail: return VK_LAUNCH_MAIL;
     case KeyCode::Launch_Media_Select: return VK_LAUNCH_MEDIA_SELECT;
     case KeyCode::Launch_App1: return VK_LAUNCH_APP1;
-    case KeyCode::LAUNCH_APP2: return VK_LAUNCH_APP2;
+    case KeyCode::Launch_App2: return VK_LAUNCH_APP2;
     case KeyCode::Oem_1: return VK_OEM_1; /* ;: */
     case KeyCode::Oem_Plus: return VK_OEM_PLUS; /* =+ */
     case KeyCode::Oem_Comma: return VK_OEM_COMMA; /* ,< */
@@ -379,8 +379,8 @@ KeyCode InputSystem::ConvertWinVKToKeyCode(unsigned char winVK) {
     case VK_LAUNCH_MAIL:  return KeyCode::Launch_Mail;
     case VK_LAUNCH_MEDIA_SELECT:  return KeyCode::Launch_Media_Select;
     case VK_LAUNCH_APP1:  return KeyCode::Launch_App1;
-    case VK_LAUNCH_APP2:  return KeyCode::LAUNCH_APP2;
-    case VK_OEM_1: return KeyCode::SEMICOLON;
+    case VK_LAUNCH_APP2:  return KeyCode::Launch_App2;
+    case VK_OEM_1: return KeyCode::Semicolon;
     case VK_OEM_PLUS: return KeyCode::Equals;
     case VK_OEM_COMMA: return KeyCode::Comma;
     case VK_OEM_MINUS: return KeyCode::Minus;
@@ -548,6 +548,21 @@ int InputSystem::GetMouseWheelPositionNormalized() const {
     return 0;
 }
 
+int InputSystem::GetMouseWheelHorizontalPosition() const {
+    return _mouseWheelHPosition;
+}
+
+int InputSystem::GetMouseWheelHorizontalPositionNormalized() const {
+    if(_mouseWheelHPosition) {
+        return _mouseWheelHPosition / std::abs(_mouseWheelHPosition);
+    }
+    return 0;
+}
+
+IntVector2 InputSystem::GetMouseWheelPositionAsIntVector2() const {
+    return IntVector2{_mouseWheelHPosition, _mouseWheelPosition};
+}
+
 void InputSystem::RegisterKeyDown(unsigned char keyIndex) {
     auto kc = ConvertWinVKToKeyCode(keyIndex);
     _currentKeys[(std::size_t)kc] = true;
@@ -598,7 +613,11 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                     auto right_key = !!(::GetKeyState(VK_RSHIFT) & keystate_state_mask);
                     auto my_leftkey = ConvertWinVKToKeyCode(VK_LSHIFT);
                     auto my_rightkey = ConvertWinVKToKeyCode(VK_RSHIFT);
+                    auto shift_key = ConvertKeyCodeToWinVK(my_key);
                     my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                    if(my_key != KeyCode::Unknown) {
+                        RegisterKeyDown(shift_key);
+                    }
                     break;
                     }
                 case KeyCode::Alt:
@@ -607,7 +626,11 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                         auto right_key = !!(::GetKeyState(VK_RMENU) & keystate_state_mask);;
                         auto my_leftkey = ConvertWinVKToKeyCode(VK_LMENU);
                         auto my_rightkey = ConvertWinVKToKeyCode(VK_RMENU);
+                        auto alt_key = ConvertKeyCodeToWinVK(my_key);
                         my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                        if(my_key != KeyCode::Unknown) {
+                            RegisterKeyDown(alt_key);
+                        }
                         break;
                     }
                 case KeyCode::Ctrl:
@@ -616,7 +639,11 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                         auto right_key = !!(::GetKeyState(VK_RCONTROL) & keystate_state_mask);;
                         auto my_leftkey = ConvertWinVKToKeyCode(VK_LCONTROL);
                         auto my_rightkey = ConvertWinVKToKeyCode(VK_RCONTROL);
+                        auto ctrl_key = ConvertKeyCodeToWinVK(my_key);
                         my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                        if(my_key != KeyCode::Unknown) {
+                            RegisterKeyDown(ctrl_key);
+                        }
                         break;
                     }
                 case KeyCode::Return: my_key = KeyCode::NumPadEnter; break;
@@ -643,7 +670,11 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                     auto right_key = !!(::GetKeyState(VK_RSHIFT) & keystate_state_mask);;
                     auto my_leftkey = ConvertWinVKToKeyCode(VK_LSHIFT);
                     auto my_rightkey = ConvertWinVKToKeyCode(VK_RSHIFT);
+                    auto shift_key = ConvertKeyCodeToWinVK(my_key);
                     my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                    if(my_key != KeyCode::Unknown) {
+                        RegisterKeyDown(shift_key);
+                    }
                     break;
                 }
             case KeyCode::Ctrl:
@@ -652,7 +683,11 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                     auto right_key = !!(::GetKeyState(VK_RCONTROL) & keystate_state_mask);;
                     auto my_leftkey = ConvertWinVKToKeyCode(VK_LCONTROL);
                     auto my_rightkey = ConvertWinVKToKeyCode(VK_RCONTROL);
+                    auto ctrl_key = ConvertKeyCodeToWinVK(my_key);
                     my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                    if(my_key != KeyCode::Unknown) {
+                        RegisterKeyDown(ctrl_key);
+                    }
                     break;
                 }
                 case KeyCode::Alt:
@@ -661,7 +696,11 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                     auto right_key = !!(::GetKeyState(VK_RMENU) & keystate_state_mask);;
                     auto my_leftkey = ConvertWinVKToKeyCode(VK_LMENU);
                     auto my_rightkey = ConvertWinVKToKeyCode(VK_RMENU);
+                    auto alt_key = ConvertKeyCodeToWinVK(my_key);
                     my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                    if(my_key != KeyCode::Unknown) {
+                        RegisterKeyDown(alt_key);
+                    }
                     break;
                 }
             }
@@ -696,7 +735,19 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             }
             if(is_extended_key) {
                 switch(my_key) {
-                    case KeyCode::Alt:  my_key = KeyCode::RAlt; break;
+                    case KeyCode::Alt:
+                    {
+                        auto left_key = !!(::GetKeyState(VK_LMENU) & keystate_state_mask);
+                        auto right_key = !!(::GetKeyState(VK_RMENU) & keystate_state_mask);;
+                        auto my_leftkey = ConvertWinVKToKeyCode(VK_LMENU);
+                        auto my_rightkey = ConvertWinVKToKeyCode(VK_RMENU);
+                        auto alt_key = ConvertKeyCodeToWinVK(my_key);
+                        my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                        if(my_key != KeyCode::Unknown) {
+                            RegisterKeyUp(alt_key);
+                        }
+                        break;
+                    }
                     case KeyCode::Ctrl: my_key = KeyCode::RCtrl; break;
                     case KeyCode::Return: my_key = KeyCode::NumPadEnter; break;
                     case KeyCode::LWin: return true;
@@ -738,7 +789,11 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                     {
                         auto is_key_down = !!(::GetKeyState(key) & keystate_state_mask);;
                         auto my_rightkey = KeyCode::RAlt;
+                        auto alt_key = ConvertKeyCodeToWinVK(KeyCode::Alt);
                         my_key = is_key_down ? my_rightkey : KeyCode::Unknown;
+                        if(my_key != KeyCode::Unknown) {
+                            RegisterKeyDown(alt_key);
+                        }
                         break;
                     }
                 }
@@ -748,7 +803,11 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                 {
                     auto is_key_down = !!(::GetKeyState(VK_LMENU) & keystate_state_mask);;
                     auto my_leftkey = KeyCode::LAlt;
+                    auto alt_key = ConvertKeyCodeToWinVK(KeyCode::Alt);
                     my_key = is_key_down ? my_leftkey : KeyCode::Unknown;
+                    if(my_key != KeyCode::Unknown) {
+                        RegisterKeyDown(alt_key);
+                    }
                     break;
                 }
                 case KeyCode::F10:
@@ -792,7 +851,11 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                     {
                         auto is_key_up = !(!!(::GetKeyState(VK_RMENU) & keystate_state_mask));
                         auto my_rightkey = KeyCode::RAlt;
+                        auto alt_key = ConvertKeyCodeToWinVK(KeyCode::Alt);
                         my_key = is_key_up ? my_rightkey : KeyCode::Unknown;
+                        if(my_key != KeyCode::Unknown) {
+                            RegisterKeyUp(alt_key);
+                        }
                         break;
                     }
                 }
@@ -802,7 +865,12 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                 {
                     auto is_key_up = !(!!(::GetKeyState(VK_LMENU) & keystate_state_mask));
                     auto my_leftkey = KeyCode::LAlt;
+                    auto alt_key = ConvertKeyCodeToWinVK(KeyCode::Alt);
                     my_key = is_key_up ? my_leftkey : KeyCode::Unknown;
+                    if(my_key != KeyCode::Unknown) {
+                        RegisterKeyUp(alt_key);
+                    }
+
                     break;
                 }
                 case KeyCode::F10:
@@ -1012,6 +1080,23 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             _mouseWheelPosition = GET_WHEEL_DELTA_WPARAM(wp);
             return true;
         }
+        case WindowsSystemMessage::Mouse_MouseHWheel:
+        {
+            constexpr uint16_t wheeldelta_mask = 0b1111'1111'0000'0000; //FF00
+            constexpr uint16_t lbutton_mask = 0b0000'0000'0000'0001; //0x0001
+            constexpr uint16_t rbutton_mask = 0b0000'0000'0000'0010; //0x0002
+            constexpr uint16_t shift_mask = 0b0000'0000'0000'0100; //0x0004
+            constexpr uint16_t ctrl_mask = 0b0000'0000'0000'1000; //0x0008
+            constexpr uint16_t mbutton_mask = 0b0000'0000'0001'0000; //0x0010
+            constexpr uint16_t xbutton1_down_mask = 0b0000'0000'0010'0000; //0x0020
+            constexpr uint16_t xbutton2_down_mask = 0b0000'0000'0100'0000; //0x0040
+            POINTS p = MAKEPOINTS(lp);
+            _mouseDelta = _mouseCoords;
+            _mouseCoords = Vector2(p.x, p.y);
+            _mouseDelta = _mouseCoords - _mouseDelta;
+            _mouseWheelHPosition = GET_WHEEL_DELTA_WPARAM(wp);
+            return true;
+        }
     }
     return false;
 }
@@ -1043,6 +1128,7 @@ void InputSystem::Render() const {
 void InputSystem::EndFrame() {
     _previousKeys = _currentKeys;
     _mouseWheelPosition = 0;
+    _mouseWheelHPosition = 0;
 }
 
 bool InputSystem::WasAnyKeyPressed() const {
@@ -1085,6 +1171,14 @@ bool InputSystem::WasMouseWheelJustScrolledUp() const {
 
 bool InputSystem::WasMouseWheelJustScrolledDown() const {
     return GetMouseWheelPositionNormalized() < 0;
+}
+
+bool InputSystem::WasMouseWheelJustScrolledLeft() const {
+    return GetMouseWheelHorizontalPositionNormalized() < 0;
+}
+
+bool InputSystem::WasMouseWheelJustScrolledRight() const {
+    return GetMouseWheelHorizontalPositionNormalized() > 0;
 }
 
 std::size_t InputSystem::GetConnectedControllerCount() const {

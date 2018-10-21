@@ -1,13 +1,16 @@
 #include "Engine/Core/Rgba.hpp"
 
 #include "Engine/Core/StringUtils.hpp"
+
 #include "Engine/Math/MathUtils.hpp"
+
+#include "Engine/Profiling/ProfileLogScope.hpp"
 
 const Rgba Rgba::WHITE(255, 255, 255, 255);
 const Rgba Rgba::BLACK(0, 0, 0, 255);
 const Rgba Rgba::RED(255, 0, 0, 255);
 const Rgba Rgba::GREEN(0, 255, 0, 255);
-const Rgba Rgba::FORESTGREEN(34, 139, 34, 255);
+const Rgba Rgba::FOREST_GREEN(34, 139, 34, 255);
 const Rgba Rgba::BLUE(0, 0, 255, 255);
 const Rgba Rgba::NAVY_BLUE(0, 0, 128, 255);
 const Rgba Rgba::CYAN(0, 255, 255, 255);
@@ -35,6 +38,15 @@ Rgba Rgba::Random() {
                 , static_cast<unsigned char>(MathUtils::GetRandomIntLessThan(256))
                 , static_cast<unsigned char>(MathUtils::GetRandomIntLessThan(256))
                 ,255);
+}
+
+Rgba Rgba::RandomGreyscale() {
+    auto r = static_cast<unsigned char>(MathUtils::GetRandomIntLessThan(256));
+    return Rgba(r, r, r, 255);
+}
+
+Rgba Rgba::RandomGrayscale() {
+    return RandomGreyscale();
 }
 
 Rgba Rgba::RandomWithAlpha() {
@@ -156,11 +168,65 @@ void Rgba::SetRGBFromRawValue(unsigned long value) {
 }
 
 void Rgba::SetValueFromName(std::string name) {
+    name = StringUtils::ToUpperCase(name);
+    if(name == "WHITE") {
+        SetFromRawValue(Rgba::WHITE.GetAsRawValue());
+    } else if(name == "BLACK") {
+        SetFromRawValue(Rgba::BLACK.GetAsRawValue());
+    } else if(name == "RED") {
+        SetFromRawValue(Rgba::RED.GetAsRawValue());
+    } else if(name == "GREEN") {
+        SetFromRawValue(Rgba::GREEN.GetAsRawValue());
+    } else if(name == "FOREST_GREEN") {
+        SetFromRawValue(Rgba::FOREST_GREEN.GetAsRawValue());
+    } else if(name == "NAVY_BLUE") {
+        SetFromRawValue(Rgba::NAVY_BLUE.GetAsRawValue());
+    } else if(name == "CYAN") {
+        SetFromRawValue(Rgba::CYAN.GetAsRawValue());
+    } else if(name == "YELLOW") {
+        SetFromRawValue(Rgba::YELLOW.GetAsRawValue());
+    } else if(name == "MAGENTA") {
+        SetFromRawValue(Rgba::MAGENTA.GetAsRawValue());
+    } else if(name == "ORANGE") {
+        SetFromRawValue(Rgba::ORANGE.GetAsRawValue());
+    } else if(name == "GREY") {
+        SetFromRawValue(Rgba::GREY.GetAsRawValue());
+    } else if(name == "GRAY") {
+        SetFromRawValue(Rgba::GRAY.GetAsRawValue());
+    } else if(name == "LIGHT_GREY") {
+        SetFromRawValue(Rgba::LIGHT_GREY.GetAsRawValue());
+    } else if(name == "LIGHT_GRAY") {
+        SetFromRawValue(Rgba::LIGHT_GRAY.GetAsRawValue());
+    } else if(name == "DARK_GREY") {
+        SetFromRawValue(Rgba::DARK_GREY.GetAsRawValue());
+    } else if(name == "DARK_GRAY") {
+        SetFromRawValue(Rgba::DARK_GRAY.GetAsRawValue());
+    } else if(name == "OLIVE") {
+        SetFromRawValue(Rgba::OLIVE.GetAsRawValue());
+    } else if(name == "SKY_BLUE") {
+        SetFromRawValue(Rgba::SKY_BLUE.GetAsRawValue());
+    } else if(name == "LIME") {
+        SetFromRawValue(Rgba::LIME.GetAsRawValue());
+    } else if(name == "TEAL") {
+        SetFromRawValue(Rgba::TEAL.GetAsRawValue());
+    } else if(name == "TURQUOISE") {
+        SetFromRawValue(Rgba::TURQUOISE.GetAsRawValue());
+    } else if(name == "PERIWINKLE") {
+        SetFromRawValue(Rgba::PERIWINKLE.GetAsRawValue());
+    } else if(name == "NORMAL_Z") {
+        SetFromRawValue(Rgba::NORMAL_Z.GetAsRawValue());
+    } else if(name == "NOALPHA") {
+        SetFromRawValue(Rgba::NOALPHA.GetAsRawValue());
+    }
 
 }
 
 bool Rgba::IsRgbEqual(const Rgba& rhs) const {
     return r == rhs.r && g == rhs.g && b == rhs.b;
+}
+
+bool Rgba::operator<(const Rgba& rhs) const {
+    return GetAsRawValue() < rhs.GetAsRawValue();
 }
 
 bool Rgba::operator!=(const Rgba& rhs) const {

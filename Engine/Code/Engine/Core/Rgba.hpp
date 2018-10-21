@@ -13,7 +13,7 @@ public:
     static const Rgba BLACK;
     static const Rgba RED;
     static const Rgba GREEN;
-    static const Rgba FORESTGREEN;
+    static const Rgba FOREST_GREEN;
     static const Rgba BLUE;
     static const Rgba NAVY_BLUE;
     static const Rgba CYAN;
@@ -37,6 +37,8 @@ public:
     static const Rgba NOALPHA;
 
     static Rgba Random();
+    static Rgba RandomGreyscale();
+    static Rgba RandomGrayscale();
     static Rgba RandomWithAlpha();
 
     Rgba() = default;
@@ -65,6 +67,7 @@ public:
     bool IsRgbEqual(const Rgba& rhs) const;
     bool operator==(const Rgba& rhs) const;
     bool operator!=(const Rgba& rhs) const;
+    bool operator<(const Rgba& rhs) const;
 
     unsigned char r = 255;
     unsigned char g = 255;

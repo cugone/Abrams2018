@@ -261,7 +261,7 @@ Job::~Job() {
     delete user_data;
 }
 
-void Job::DependsOn(Job* dependency) {
+void Job::DependencyOf(Job* dependency) {
     this->DependentOn(dependency);
 }
 

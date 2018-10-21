@@ -40,7 +40,7 @@ public:
     std::function<void(void*)> work_cb;
     void* user_data;
 
-    void DependsOn(Job* dependency);
+    void DependencyOf(Job* dependency);
     void DependentOn(Job* parent);
     void OnDependancyFinished();
     void OnFinish();

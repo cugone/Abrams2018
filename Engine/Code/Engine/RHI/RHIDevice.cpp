@@ -149,7 +149,7 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
                 D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
             };
             D3D11_INFO_QUEUE_FILTER filter{};
-            filter.DenyList.NumIDs = hidden.size();
+            filter.DenyList.NumIDs = static_cast<unsigned int>(hidden.size());
             filter.DenyList.pIDList = hidden.data();
             _dx_infoqueue->AddStorageFilterEntries(&filter);
             _dx_infoqueue->Release();

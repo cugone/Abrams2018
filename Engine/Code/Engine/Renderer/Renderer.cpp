@@ -115,9 +115,7 @@ Renderer::~Renderer() {
     delete _temp_ibo;
     _temp_ibo = nullptr;
 
-    delete _default_depthstencil;
     _default_depthstencil = nullptr;
-
     _current_depthstencil_state = nullptr;
     _current_raster_state = nullptr;
     _current_sampler = nullptr;
@@ -175,13 +173,18 @@ void Renderer::Initialize(bool headless /*= false*/) {
     CreateAndRegisterDefaultShaderPrograms();
     CreateAndRegisterDefaultShaders();
     CreateAndRegisterDefaultMaterials();
+    CreateAndRegisterDefaultDepthStencil();
 
-    _default_depthstencil = CreateDepthStencil(_rhi_device, _window_dimensions);
-    _default_depthstencil->SetDebugName("__default_depthstencil");
     SetDepthStencilState(GetDepthStencilState("__default"));
     SetRasterState(GetRasterState("__solid"));
     SetSampler(GetSampler("__default"));
     _current_material = nullptr; //User must explicitly set to avoid defaulting to full lighting material.
+}
+
+void Renderer::CreateAndRegisterDefaultDepthStencil() {
+    _default_depthstencil = CreateDepthStencil(_rhi_device, _window_dimensions);
+    _default_depthstencil->SetDebugName("__default_depthstencil");
+    RegisterTexture("__default_depthstencil", _default_depthstencil);
 }
 
 void Renderer::BeginFrame() {

@@ -112,6 +112,7 @@ public:
     ~Renderer();
 
     void Initialize(bool headless = false);
+
     void BeginFrame();
     void Update(float deltaSeconds);
     void Render() const;
@@ -342,6 +343,7 @@ private:
     Texture* CreateDefaultSpecularTexture();
     Texture* CreateDefaultOcclusionTexture();
     Texture* CreateDefaultEmissiveTexture();
+    void CreateAndRegisterDefaultDepthStencil();
 
     void CreateAndRegisterDefaultShaderPrograms();
     ShaderProgram* CreateDefaultShaderProgram();

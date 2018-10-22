@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <utility>
 
 class Vector2;
 
@@ -52,16 +53,11 @@ public:
     bool operator==(const IntVector2& rhs)const;
     bool operator!=(const IntVector2& rhs)const;
 
-    bool operator<(const IntVector2& rhs)const;
-    bool operator>=(const IntVector2& rhs)const;
-    bool operator<=(const IntVector2& rhs)const;
-    bool operator>(const IntVector2& rhs)const;
-
     friend std::ostream& operator<<(std::ostream& out_stream, const IntVector2& v);
     friend std::istream& operator>>(std::istream& in_stream, IntVector2& v);
 
     void SetXY(int newX, int newY);
-    void GetXY(int& out_x, int& out_y);
+    std::pair<int, int> GetXY() const;
 
     int x = 0;
     int y = 0;

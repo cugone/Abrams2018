@@ -72,22 +72,6 @@ IntVector2& IntVector2::operator-=(const IntVector2& rhs) {
     return *this;
 }
 
-bool IntVector2::operator<(const IntVector2& rhs) const {
-    return (x < rhs.x) && (y < rhs.y);
-}
-
-bool IntVector2::operator>=(const IntVector2& rhs) const {
-    return !(*this < rhs);
-}
-
-bool IntVector2::operator>(const IntVector2& lhs) const {
-    return (lhs < *this);
-}
-
-bool IntVector2::operator<=(const IntVector2& lhs) const {
-    return !(lhs > *this);
-}
-
 std::ostream& operator<<(std::ostream& out_stream, const IntVector2& v) {
     out_stream << '[' << v.x << ',' << v.y << ']';
     return out_stream;
@@ -181,9 +165,8 @@ void IntVector2::SetXY(int newX, int newY) {
     y = newY;
 }
 
-void IntVector2::GetXY(int& out_x, int& out_y) {
-    out_x = x;
-    out_y = y;
+std::pair<int,int> IntVector2::GetXY() const {
+    return std::make_pair(x, y);
 }
 
 bool IntVector2::operator!=(const IntVector2& rhs) const {

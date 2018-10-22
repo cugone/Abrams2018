@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <tuple>
 
 class IntVector2;
 class Vector2;
@@ -38,11 +39,11 @@ public:
     IntVector3& operator=(const IntVector3& rhs) = default;
     IntVector3& operator=(IntVector3&& rhs) = default;
 
-    bool operator==(const IntVector3& rhs);
-    bool operator!=(const IntVector3& rhs);
+    bool operator==(const IntVector3& rhs) const;
+    bool operator!=(const IntVector3& rhs) const;
 
     void SetXYZ(int newX, int newY, int newZ);
-    void GetXYZ(int& out_x, int& out_y, int& out_z);
+    std::tuple<int,int,int> GetXYZ() const;
 
     int x = 0;
     int y = 0;

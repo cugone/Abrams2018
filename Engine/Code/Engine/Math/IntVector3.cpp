@@ -1,13 +1,13 @@
 #include "Engine/Math/IntVector3.hpp"
 
-#include <cmath>
-#include <sstream>
-
 #include "Engine/Core/StringUtils.hpp"
 
 #include "Engine/Math/IntVector2.hpp"
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"
+
+#include <cmath>
+#include <sstream>
 
 const IntVector3 IntVector3::ZERO(0, 0, 0);
 const IntVector3 IntVector3::ONE(1, 1, 1);
@@ -80,16 +80,14 @@ void IntVector3::SetXYZ(int newX, int newY, int newZ) {
     z = newZ;
 }
 
-void IntVector3::GetXYZ(int& out_x, int& out_y, int& out_z) {
-    out_x = x;
-    out_y = y;
-    out_z = z;
+std::tuple<int,int,int> IntVector3::GetXYZ() const {
+    return std::make_tuple(x, y, z);
 }
 
-bool IntVector3::operator!=(const IntVector3& rhs) {
+bool IntVector3::operator!=(const IntVector3& rhs) const {
     return !(*this == rhs);
 }
 
-bool IntVector3::operator==(const IntVector3& rhs) {
+bool IntVector3::operator==(const IntVector3& rhs) const {
     return x == rhs.x && y == rhs.y && z == rhs.z;
 }

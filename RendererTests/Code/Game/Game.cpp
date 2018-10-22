@@ -5,8 +5,9 @@
 #include "Engine/Core/KerningFont.hpp"
 #include "Engine/Core/Rgba.hpp"
 
-#include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/IntVector2.hpp"
+#include "Engine/Math/MathUtils.hpp"
+#include "Engine/Math/Noise.hpp"
 
 #include "Engine/Renderer/AnimatedSprite.hpp"
 #include "Engine/Renderer/Camera2D.hpp"
@@ -42,9 +43,6 @@ Game::Game() {
 
 Game::~Game() {
 
-    delete _canvas;
-    _canvas = nullptr;
-
     delete _health_cb;
     _health_cb = nullptr;
 
@@ -75,8 +73,8 @@ void Game::InitializeData() {
         auto height = dims.y;
         std::vector<Rgba> data{};
         data.resize(width * height);
-        std::fill(std::begin(data), std::end(data), Rgba::GREEN);
-        _offscreenUiTexture = g_theRenderer->Create2DTextureFromMemory(data, width, height, BufferUsage::Static, BufferBindUsage::Shader_Resource);
+        std::fill(std::begin(data), std::end(data), Rgba::NOALPHA);
+        _offscreenUiTexture = g_theRenderer->Create2DTextureFromMemory(data, width, height, BufferUsage::Gpu, BufferBindUsage::Render_Target | BufferBindUsage::Shader_Resource);
         g_theRenderer->RegisterTexture("__OffscreenUiTexture", _offscreenUiTexture);
     }
 
@@ -90,9 +88,7 @@ void Game::InitializeData() {
 }
 
 void Game::InitializeUI() {
-    auto dims = g_theRenderer->GetOutput()->GetDimensions();
-    auto smallest_dimension = static_cast<float>(dims.x < dims.y ? dims.x : dims.y);
-    _canvas = new UI::Canvas(*g_theRenderer, _offscreenUiTexture, _testDepthStencil, smallest_dimension);
+    /* DO NOTHING */
 }
 
 void Game::BeginFrame() {
@@ -120,6 +116,10 @@ void Game::Update(float deltaSeconds) {
 
     if(g_theInput->WasKeyJustPressed(KeyCode::F2)) {
         DoExport();
+    }
+
+    if(g_theInput->WasKeyJustPressed(KeyCode::F4)) {
+        MathUtils::SetRandomEngineSeed(1729);
     }
 
     if(g_theInput->WasKeyJustPressed(KeyCode::L)) {
@@ -154,17 +154,17 @@ void Game::Update(float deltaSeconds) {
     _camera2->Update(deltaSeconds);
     _camera3->Update(deltaSeconds);
 
-    _canvas->Update(deltaSeconds);
-
 }
 
 void Game::UpdateCameraFromKeyboard(float deltaSeconds) {
-    bool is_fast = false;
-    if(g_theInput->IsKeyDown(KeyCode::Shift)) {
-        is_fast = true;
+    float camera_move_speed = 0.0f;
+    {
+        bool is_fast = false;
+        if(g_theInput->IsKeyDown(KeyCode::Shift)) {
+            is_fast = true;
+        }
+        camera_move_speed = _cameraSpeed * deltaSeconds * (is_fast ? _camera_move_speed_multiplier : 1.0f);
     }
-
-    float camera_move_speed = _cameraSpeed * deltaSeconds * (is_fast ? _camera_move_speed_multiplier : 1.0f);
     if(g_theInput->IsKeyDown(KeyCode::W)) {
         _camera3->Translate(_camera3->GetForward() * camera_move_speed);
     } else if(g_theInput->IsKeyDown(KeyCode::S)) {
@@ -200,8 +200,16 @@ void Game::UpdateCameraFromKeyboard(float deltaSeconds) {
     }
 }
 
-void Game::UpdateCameraFromMouse(float /*deltaSeconds*/) {
+void Game::UpdateCameraFromMouse(float deltaSeconds) {
     if(g_theApp->HasFocus()) {
+        float camera_move_speed = 0.0f;
+        {
+            bool is_fast = false;
+            if(g_theInput->IsKeyDown(KeyCode::Shift)) {
+                is_fast = true;
+            }
+            camera_move_speed = _cameraSpeed * deltaSeconds * (is_fast ? _camera_move_speed_multiplier : 1.0f);
+        }
         const auto& window = *(g_theRenderer->GetOutput()->GetWindow());
         auto mouse_pos = g_theInput->GetCursorWindowPosition(window);
         g_theInput->SetCursorToWindowCenter(window);
@@ -210,6 +218,12 @@ void Game::UpdateCameraFromMouse(float /*deltaSeconds*/) {
         auto moved_y = mouse_delta_pos.y;
         Vector3 angles = Vector3{ _camera3->GetPitchDegrees() - moved_y, _camera3->GetYawDegrees() - moved_x, _camera3->GetRollDegrees() };
         _camera3->SetEulerAnglesDegrees(angles);
+        if(g_theInput->WasMouseWheelJustScrolledLeft()) {
+            _camera3->Translate(-_camera3->GetRight() * camera_move_speed);
+        }
+        if(g_theInput->WasMouseWheelJustScrolledRight()) {
+            _camera3->Translate(_camera3->GetRight() * camera_move_speed);
+        }
     }
 }
 
@@ -250,18 +264,13 @@ void Game::Render() const {
     Vector2 view_nearFar = Vector2(0.0f, 1.0f);
     Vector2 cam_pos2 = Vector2(_camera2->GetPosition());
 
-    _canvas->Render(g_theRenderer);
-    if(_debug) {
-        _canvas->DebugRender(g_theRenderer);
-    }
-
     _camera2->SetupView(view_leftBottom, view_rightTop, view_nearFar, MathUtils::M_16_BY_9_RATIO);
     g_theRenderer->SetViewMatrix(_camera2->GetViewMatrix());
     g_theRenderer->SetProjectionMatrix(_camera2->GetProjectionMatrix());
 
-    auto font = g_theRenderer->GetFont("System32");
-    g_theRenderer->SetMaterial(font->GetMaterial());
     {
+        auto font = g_theRenderer->GetFont("System32");
+        g_theRenderer->SetMaterial(font->GetMaterial());
         std::ostringstream ss;
         ss << "Health" << std::fixed << std::setprecision(1) << std::setw(4) << health_data.health_percentage * 100.0f << '%';
         ss << "\nPos:" << _camera3->GetPosition();
@@ -271,6 +280,11 @@ void Game::Render() const {
         ss << "\nSaving: " << std::boolalpha << _obj.IsSaving() << std::noboolalpha;
         ss << "\nSaved: " << std::boolalpha << _obj.IsSaved() << std::noboolalpha;
         ss << "\ntime: " << g_theRenderer->GetGameTime();
+        ss << "\nMWPos: " << "[";
+        ss << g_theInput->GetMouseWheelHorizontalPosition();
+        ss << ", ";
+        ss << g_theInput->GetMouseWheelPosition();
+        ss << "]";
         Matrix4 T = Matrix4::GetIdentity();
         g_theRenderer->SetModelMatrix(T);
         g_theRenderer->DrawMultilineText(font, ss.str());
@@ -291,36 +305,63 @@ void Game::EndFrame() {
 }
 
 struct generate_image_job_t {
-    Image* img = nullptr;
     unsigned int width = 0;
     unsigned int height = 0;
+};
+
+struct export_image_job_t {
+    Image* img = nullptr;
     std::string filepath{};
 };
 
 void Game::DoExport() {
-    auto job_data = new generate_image_job_t;
-    static int index = 0;
-    job_data->width = 1600;
-    job_data->height = 900;
-    std::filesystem::path p("Data/Images/Test_");
-    p += std::to_string(index++);
-    p += ".png";
-    p.make_preferred();
-    job_data->filepath = p.string();
-    g_theJobSystem->Run(JobType::Generic, [this](void* user_data) { this->GenerateImageData(user_data); }, job_data);
+    auto generate_job_data = new generate_image_job_t;
+    generate_job_data->width = 1600;
+    generate_job_data->height = 900;
+    g_theJobSystem->Run(JobType::Generic, [this](void* user_data) { this->GenerateImageData(user_data); }, generate_job_data);
 }
 
 void Game::GenerateImageData(void* data) {
     auto width = ((generate_image_job_t*)data)->width;
     auto height = ((generate_image_job_t*)data)->height;
     std::vector<Rgba> img_data;
-    img_data.resize(width * height);
-    std::generate(std::begin(img_data), std::end(img_data), Rgba::Random);
+    std::vector<float> img_rdata;
+    img_rdata.resize(width * height);
+    img_data.reserve(width * height);
+    float x = 0.0f;
+    float y = 0.0f;
+    unsigned int pseed = MathUtils::GetRandomIntLessThan(256);
+    std::transform(std::begin(img_rdata), std::end(img_rdata), std::begin(img_rdata),
+    [&x, &y, &pseed, &width, &height](float) {
+        if(width < x) {
+            x = 0.0f;
+            y += 0.01f;
+        } else {
+            x += 0.01f;
+        }
+        if(height < y) {
+            y = 0.0f;
+        }
+        return MathUtils::Compute2dPerlinNoise(x, y, 1.0f, 1u, 0.5f, 2.0f, true, pseed);
+    });
+    std::for_each(std::begin(img_rdata), std::end(img_rdata), [&](float& r) { Rgba c; c.SetAsFloats(r, r, r, 1.0f); img_data.emplace_back(c); });
+    auto export_job_data = new export_image_job_t;
     Image* img = new Image(img_data, width, height);
-    ((generate_image_job_t*)data)->img = img;
-    auto image = ((generate_image_job_t*)data)->img;
-    auto filepath = ((generate_image_job_t*)data)->filepath;
+    export_job_data->img = img;
+    std::filesystem::path p("Data/Images/Test_");
+    static int index = 0;
+    p += std::to_string(index++);
+    p += ".png";
+    p.make_preferred();
+    export_job_data->filepath = p.string();
+    g_theJobSystem->Run(JobType::Generic, [this](void* user_data) { this->ExportImageData(user_data); }, export_job_data);
+}
+
+void Game::ExportImageData(void* data) {
+    auto image = ((export_image_job_t*)data)->img;
+    auto filepath = ((export_image_job_t*)data)->filepath;
     image->Export(filepath);
+    delete image;
 }
 
 void Game::DrawWorldGrid() const {

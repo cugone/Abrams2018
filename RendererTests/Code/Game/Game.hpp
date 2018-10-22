@@ -45,12 +45,12 @@ private:
     void UpdateCameraFromMouse(float deltaSeconds);
     void DoExport();
     void GenerateImageData(void* data);
+    void ExportImageData(void* data);
     void DrawWorldGrid() const;
     void DrawAxes() const;
     void DrawCube() const;
     void DrawObj() const;
 
-    UI::Canvas* _canvas = nullptr;
     FileUtils::Obj _obj{};
     Texture* _offscreenUiTexture = nullptr;
     Texture* _testDepthStencil = nullptr;

@@ -67,23 +67,6 @@ void Game::InitializeData() {
 
     _health_cb = g_theRenderer->CreateConstantBuffer(&health_data, sizeof(health_data));
     _camera3->SetPosition(Vector3(0.0f, 5.0f, -10.0f));
-    {
-        auto dims = g_theRenderer->GetOutput()->GetDimensions();
-        auto width = dims.x;
-        auto height = dims.y;
-        std::vector<Rgba> data{};
-        data.resize(width * height);
-        std::fill(std::begin(data), std::end(data), Rgba::NOALPHA);
-        _offscreenUiTexture = g_theRenderer->Create2DTextureFromMemory(data, width, height, BufferUsage::Gpu, BufferBindUsage::Render_Target | BufferBindUsage::Shader_Resource);
-        g_theRenderer->RegisterTexture("__OffscreenUiTexture", _offscreenUiTexture);
-    }
-
-    {
-        auto dims3 = _offscreenUiTexture->GetDimensions();
-        auto dims2 = IntVector2(dims3.x, dims3.y);
-        _testDepthStencil = g_theRenderer->CreateDepthStencil(g_theRenderer->GetDevice(), dims2);
-        g_theRenderer->RegisterTexture("__TestDepthStencil", _testDepthStencil);
-    }
 
 }
 

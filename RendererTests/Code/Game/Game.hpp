@@ -52,8 +52,6 @@ private:
     void DrawObj() const;
 
     FileUtils::Obj _obj{};
-    Texture* _offscreenUiTexture = nullptr;
-    Texture* _testDepthStencil = nullptr;
     ConstantBuffer* _health_cb = nullptr;
     health_buffer_t health_data{};
     const float _cameraSpeed = 10.0f;

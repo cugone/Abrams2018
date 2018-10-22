@@ -325,26 +325,9 @@ void Game::GenerateImageData(void* data) {
     auto width = ((generate_image_job_t*)data)->width;
     auto height = ((generate_image_job_t*)data)->height;
     std::vector<Rgba> img_data;
-    std::vector<float> img_rdata;
-    img_rdata.resize(width * height);
-    img_data.reserve(width * height);
-    float x = 0.0f;
-    float y = 0.0f;
-    unsigned int pseed = MathUtils::GetRandomIntLessThan(256);
-    std::transform(std::begin(img_rdata), std::end(img_rdata), std::begin(img_rdata),
-    [&x, &y, &pseed, &width, &height](float) {
-        if(width < x) {
-            x = 0.0f;
-            y += 0.01f;
-        } else {
-            x += 0.01f;
-        }
-        if(height < y) {
-            y = 0.0f;
-        }
-        return MathUtils::Compute2dPerlinNoise(x, y, 1.0f, 1u, 0.5f, 2.0f, true, pseed);
-    });
-    std::for_each(std::begin(img_rdata), std::end(img_rdata), [&](float& r) { Rgba c; c.SetAsFloats(r, r, r, 1.0f); img_data.emplace_back(c); });
+    img_data.resize(width * height);
+    std::generate(std::begin(img_data), std::end(img_data), Rgba::Random);
+
     auto export_job_data = new export_image_job_t;
     Image* img = new Image(img_data, width, height);
     export_job_data->img = img;

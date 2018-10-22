@@ -140,11 +140,8 @@ void IntVector4::SetXYZW(int newX, int newY, int newZ, int newW) {
     w = newW;
 }
 
-void IntVector4::GetXYZW(int& out_x, int& out_y, int& out_z, int& out_w) {
-    out_x = x;
-    out_y = y;
-    out_z = z;
-    out_w = w;
+std::tuple<int,int,int,int> IntVector4::GetXYZW() const {
+    return std::make_tuple(x, y, z, w);
 }
 
 bool IntVector4::operator!=(const IntVector4& rhs) {

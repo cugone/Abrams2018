@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <tuple>
 
 class IntVector2;
 class IntVector3;
@@ -61,7 +62,7 @@ public:
     bool operator!=(const IntVector4& rhs);
 
     void SetXYZW(int newX, int newY, int newZ, int newW);
-    void GetXYZW(int& out_x, int& out_y, int& out_z, int& out_w);
+    std::tuple<int,int,int,int> GetXYZW() const;
 
     int x = 0;
     int y = 0;

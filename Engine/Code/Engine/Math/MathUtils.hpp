@@ -355,38 +355,41 @@ IntVector2 Wrap(const IntVector2& valuesToWrap, const IntVector2& minValues, con
 
 namespace EasingFunctions {
 
+template<std::size_t N, typename T>
+T SmoothStart(const T& t) {
+    static_assert(std::is_floating_point_v<T>, "SmoothStart requires T to be non-integral.");
+    static_assert(N > 0, "SmoothStart requires value of N to be non-negative and non-zero.");
+    return detail::SmoothStart_helper(t, std::make_index_sequence<N>{});
+}
+
+
+template<std::size_t N, typename T>
+T SmoothStop(const T& t) {
+    static_assert(std::is_floating_point_v<T>, "SmoothStop requires T to be non-integral.");
+    static_assert(N > 0, "SmoothStop requires value of N to be non-negative and non-zero.");
+    return detail::SmoothStop_helper(t, std::make_index_sequence<N>{});
+}
+
+template<std::size_t N, typename T>
+T SmoothStep(const T& t) {
+    static_assert(std::is_floating_point_v<T>, "SmoothStop requires T to be non-integral.");
+    static_assert(N > 0, "SmoothStop requires value of N to be non-negative and non-zero.");
+    return Interpolate(SmoothStart<N>(t), SmoothStop<N>(t), 0.5f);
+}
+
+namespace detail {
+
 template<typename T, std::size_t... Is>
 T SmoothStart_helper(const T& t, std::index_sequence<Is...>) {
     return (((void)Is, t) * ...);
 }
-
-template<std::size_t N, typename T>
-T SmoothStart(const T& t) {
-    static_assert(std::is_floating_point_v<T>, "SmoothStart requires T to be non-integral.");
-    static_assert(N > 0, "SmoothStart requires value of  to be non-negative and non-zero.");
-    return SmoothStart_helper(t, std::make_index_sequence<N>{});
-}
-
 
 template<typename T, std::size_t... Is>
 T SmoothStop_helper(const T& t, std::index_sequence<Is...>) {
     return (((void)Is, (1.0f - t)) * ...);
 }
 
-template<std::size_t N, typename T>
-T SmoothStop(const T& t) {
-    static_assert(std::is_floating_point_v<T>, "SmoothStop requires T to be non-integral.");
-    static_assert(N > 0, "SmoothStop requires value of  to be non-negative and non-zero.");
-    return SmoothStop_helper(t, std::make_index_sequence<N>{});
-}
-
-template<std::size_t N, typename T>
-T SmoothStep(const T& t) {
-    static_assert(std::is_floating_point_v<T>, "SmoothStop requires T to be non-integral.");
-    static_assert(N > 0, "SmoothStop requires value of  to be non-negative and non-zero.");
-    return Interpolate(SmoothStart<N>(t), SmoothStop<N>(t), 0.5f);
-}
-
+}//detail
 
 } //End EasingFunctions
 

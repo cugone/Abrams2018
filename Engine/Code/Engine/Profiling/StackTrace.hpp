@@ -17,7 +17,6 @@ public:
     ~StackTrace();
     bool operator==(const StackTrace& rhs);
     bool operator!=(const StackTrace& rhs);
-    bool operator<(const StackTrace& rhs);
 protected:
 private:
 

@@ -190,7 +190,3 @@ bool StackTrace::operator!=(const StackTrace& rhs) {
 bool StackTrace::operator==(const StackTrace& rhs) {
     return _hash == rhs._hash;
 }
-
-bool StackTrace::operator<(const StackTrace& rhs) {
-    return _hash < rhs._hash;
-}

@@ -14,7 +14,7 @@
 
 void RasterState::SetDebugName([[maybe_unused]] const std::string& name) const noexcept {
 #ifdef RENDER_DEBUG
-    _dx_state->SetPrivateData(WKPDID_D3DDebugObjectName, name.size(), name.data());
+    _dx_state->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<unsigned int>(name.size()), name.data());
 #endif
 }
 

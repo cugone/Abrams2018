@@ -123,9 +123,11 @@ public:
     float GetGameTime() const;
     float GetSystemTime() const;
 
-    void SetFullscreen();
-    void SetWindowed();
-    void SetBorderlessWindowed();
+    void SetFullscreen(bool isFullscreen);
+    void SetBorderless(bool isBorderless);
+    void SetFullscreenMode();
+    void SetWindowedMode();
+    void SetBorderlessWindowedMode();
     void SetWindowTitle(const std::string& newTitle);
 
     VertexBuffer* CreateVertexBuffer(const VertexBuffer::buffer_t& vbo) const;

@@ -1128,7 +1128,26 @@ void Renderer::SetWinProc(const std::function<bool(HWND hwnd, UINT msg, WPARAM w
     }
 }
 
-void Renderer::SetFullscreen() {
+void Renderer::SetFullscreen(bool isFullscreen) {
+    if(isFullscreen) {
+        SetFullscreenMode();
+    } else {
+        SetWindowedMode();
+    }
+}
+
+void Renderer::SetBorderless(bool isBorderless) {
+    if(_current_outputMode == RHIOutputMode::Fullscreen_Window) {
+        return;
+    }
+    if(isBorderless) {
+        SetBorderlessWindowedMode();
+    } else {
+        SetWindowedMode();
+    }
+}
+
+void Renderer::SetFullscreenMode() {
     if(auto output = GetOutput()) {
         if(auto window = output->GetWindow()) {
             window->SetDisplayMode(RHIOutputMode::Fullscreen_Window);
@@ -1136,7 +1155,7 @@ void Renderer::SetFullscreen() {
     }
 }
 
-void Renderer::SetWindowed() {
+void Renderer::SetWindowedMode() {
     if(auto output = GetOutput()) {
         if(auto window = output->GetWindow()) {
             window->SetDisplayMode(RHIOutputMode::Windowed);
@@ -1144,7 +1163,7 @@ void Renderer::SetWindowed() {
     }
 }
 
-void Renderer::SetBorderlessWindowed() {
+void Renderer::SetBorderlessWindowedMode() {
     if(auto output = GetOutput()) {
         if(auto window = output->GetWindow()) {
             window->SetDisplayMode(RHIOutputMode::Borderless);

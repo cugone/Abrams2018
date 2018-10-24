@@ -77,7 +77,6 @@ void App::SetIsQuitting(bool quit) {
 }
 
 void App::Initialize() {
-
     FileUtils::CreateFolders("Data/");
     g_theRenderer->Initialize(applet_mode);
     if(applet_mode) {
@@ -86,7 +85,7 @@ void App::Initialize() {
     g_theRenderer->SetVSync(GRAPHICS_OPTION_VSYNC);
     g_theRenderer->SetWindowTitle("Test Title");
     g_theRenderer->SetWinProc(WindowProc);
-    g_theRenderer->SetFullscreen();
+    g_theRenderer->SetFullscreen(GRAPHICS_OPTION_FULLSCREEN);
     g_theInput->Initialize();
     g_theConsole->Initialize();
     g_theGame->Initialize();
@@ -102,7 +101,6 @@ void App::Initialize() {
 
 void App::RunFrame() {
     BeginFrame();
-
     static float previousFrameTime = TimeUtils::GetCurrentTimeElapsed<FPSeconds>();
     float currentFrameTime = TimeUtils::GetCurrentTimeElapsed<FPSeconds>();
     float deltaSeconds = currentFrameTime - previousFrameTime;

@@ -2,14 +2,13 @@
 
 #include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
-#include "Engine/Core/FileLogger.hpp"
 #include "Engine/Core/Win.hpp"
 
 #include <algorithm>
 #include <functional>
 #include <iostream>
 #include <ostream>
-#include <new>
+#include <sstream>
 
 #ifdef PROFILE_BUILD
 #include <DbgHelp.h>
@@ -20,13 +19,6 @@ static constexpr auto MAX_CALLSTACK_STR_LENGTH = 2048u;
 static constexpr auto MAX_SYMBOL_NAME_LENGTH = 128u;
 static constexpr auto MAX_DEPTH = 128u;
 static constexpr auto SYMBOL_INFO_SIZE = sizeof(SYMBOL_INFO);
-
-struct callstack_line_t {
-    char filename[MAX_CALLSTACK_STR_LENGTH];
-    char function_name[MAX_CALLSTACK_STR_LENGTH];
-    uint32_t line{};
-    uint32_t offset{};
-};
 
 using SymSetOptions_t = bool(__stdcall *)(DWORD SymOptions);
 using SymInitialize_t = bool(__stdcall *)(HANDLE hProcess, PCSTR UserSearchPath, BOOL fInvadeProcess);
@@ -45,9 +37,9 @@ static SymCleanup_t LSymCleanup;
 
 #endif
 
-std::atomic_uint64_t StackTrace::_refs = 0;
+std::atomic_uint64_t StackTrace::_refs(0);
 std::shared_mutex StackTrace::_cs{};
-std::atomic_bool StackTrace::_did_init = false;
+std::atomic_bool StackTrace::_did_init(false);
 
 StackTrace::StackTrace()
     : StackTrace(1ul, 30ul)
@@ -62,20 +54,22 @@ StackTrace::StackTrace([[maybe_unused]]unsigned long framesToSkip,
         Initialize();
     }
     ++_refs;
-    unsigned long count = ::CaptureStackBackTrace(1ul + framesToSkip, framesToCapture, _frames, &_hash);
+    unsigned long count = ::CaptureStackBackTrace(1ul + framesToSkip, framesToCapture, _frames, &hash);
     if(!count) {
-        DebuggerPrintf("StackTrace unavailable. All frames were skipped. \n");
+        DebuggerPrintf("StackTrace unavailable. All frames were skipped.\n");
         return;
     }
     _frame_count = (std::min)(count, MAX_FRAMES_PER_CALLSTACK);
     
-    callstack_line_t lines[MAX_CALLSTACK_LINES];
-    const auto line_count = GetLines(this, lines, MAX_CALLSTACK_LINES);
-    char line_buffer[MAX_CALLSTACK_STR_LENGTH];
-    for(uint32_t i = 0u; i < line_count; ++i) {
-        ::sprintf_s(line_buffer, MAX_CALLSTACK_STR_LENGTH, "\t%s(%u): %s\n",
-                    lines[i].filename, lines[i].line, lines[i].function_name);
-        DebuggerPrintf(line_buffer);
+    std::vector<callstack_line_t> lines = GetLines(this, MAX_CALLSTACK_LINES);
+    if(lines.empty()) {
+        DebuggerPrintf("StackTrace unavailable. No stack to trace.\n");
+        return;
+    }
+    for(const auto& line : lines) {
+        std::ostringstream ss;
+        ss << '\t' << line.filename << '(' << line.line << "): " << line.function_name << '\n';
+        DebuggerPrintf(ss.str().c_str());
     }
 #else
     DebuggerPrintf("StackTrace unavailable. Attempting to call StackTrace in non-profile build. \n");
@@ -124,19 +118,18 @@ void StackTrace::Initialize() {
 #endif
 }
 
-[[maybe_unused]] uint32_t StackTrace::GetLines([[maybe_unused]]StackTrace* st,
-                                               [[maybe_unused]]callstack_line_t* lines,
+[[maybe_unused]] std::vector<StackTrace::callstack_line_t> StackTrace::GetLines([[maybe_unused]]StackTrace* st,
                                                [[maybe_unused]]unsigned long max_lines) {
 #ifdef PROFILE_BUILD
     IMAGEHLP_LINE64 line_info{};
     DWORD line_offset = 0;
     line_info.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
-    uint32_t count = std::min(max_lines, st->_frame_count);
-    uint32_t idx = 0;
 
-    for(uint32_t i = 0; i < count; ++i) {
-        callstack_line_t* line = &(lines[idx]);
-        DWORD64 ptr = reinterpret_cast<DWORD64>(st->_frames[i]);
+    uint32_t count = std::min(max_lines, st->_frame_count);
+    std::vector<callstack_line_t> lines(count);
+    std::size_t i = 0;
+    for(auto& line : lines) {
+        DWORD64 ptr = reinterpret_cast<DWORD64>(st->_frames[i++]);
         bool got_addr = false;
         {
             std::scoped_lock<std::shared_mutex> _lock(_cs);
@@ -145,26 +138,25 @@ void StackTrace::Initialize() {
         if(!got_addr) {
             continue;
         }
-        ::strcpy_s(line->function_name, MAX_CALLSTACK_STR_LENGTH, symbol->Name);
+        line.function_name = std::string(symbol->Name, symbol->Name + symbol->NameLen);
         bool got_line = false;
         {
             std::scoped_lock<std::shared_mutex> _lock(_cs);
             got_line = LSymGetLineFromAddr64(process, ptr, &line_offset, &line_info);
         }
         if(got_line) {
-            line->line = line_info.LineNumber;
-            line->offset = line_offset;
-            ::strcpy_s(line->filename, MAX_CALLSTACK_STR_LENGTH, line_info.FileName);
+            line.line = line_info.LineNumber;
+            line.offset = line_offset;
+            line.filename = std::string(line_info.FileName ? line_info.FileName : "");
         } else {
-            line->line = 0;
-            line->offset = 0;
-            ::strcpy_s(line->filename, MAX_CALLSTACK_STR_LENGTH, "N/A");
+            line.line = 0;
+            line.offset = 0;
+            line.filename = "N/A";
         }
-        ++idx;
     }
-    return idx;
+    return lines;
 #else
-    return 0;
+    return {};
 #endif
 }
 
@@ -188,5 +180,5 @@ bool StackTrace::operator!=(const StackTrace& rhs) {
 }
 
 bool StackTrace::operator==(const StackTrace& rhs) {
-    return _hash == rhs._hash;
+    return hash == rhs.hash;
 }

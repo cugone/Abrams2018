@@ -33,8 +33,7 @@ Window::Window(const IntVector2& position, const IntVector2& dimensions) {
 
     RECT desktopRect;
     HWND desktopHwnd = ::GetDesktopWindow();
-    GetClientRect(desktopHwnd, &desktopRect);
-    ::GetClipCursor(&_initialClippingArea);
+    ::GetClientRect(desktopHwnd, &desktopRect);
 
     RECT r;
     r.left = position.x;
@@ -43,9 +42,11 @@ Window::Window(const IntVector2& position, const IntVector2& dimensions) {
     r.bottom = r.top + dimensions.y;
     ::AdjustWindowRectEx(&r, _styleFlags, _hasMenu, _styleFlagsEx);
 
+    ::GetClipCursor(&_initialClippingArea);
 }
 
 Window::~Window() {
+    ::ClipCursor(&_initialClippingArea);
     Close();
     if(_refCount != 0) {
         --_refCount;
@@ -148,6 +149,9 @@ const RHIOutputMode& Window::GetDisplayMode() const {
 }
 
 void Window::SetDisplayMode(const RHIOutputMode& display_mode) {
+    if(display_mode == _currentDisplayMode) {
+        return;
+    }
     _currentDisplayMode = display_mode;
     RECT r;
     r.top = _positionY;

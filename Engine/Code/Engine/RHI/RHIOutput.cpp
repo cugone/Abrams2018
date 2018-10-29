@@ -18,7 +18,7 @@
 
 #include <sstream>
 
-RHIOutput::RHIOutput(const RHIDevice* parent, Window* wnd, IDXGISwapChain* swapchain)
+RHIOutput::RHIOutput(const RHIDevice* parent, Window* wnd, IDXGISwapChain4* swapchain)
     : _parent_device(parent)
     , _window(wnd)
     , _dxgi_swapchain(swapchain)
@@ -91,7 +91,23 @@ void RHIOutput::SetDimensions(const IntVector2& clientSize) {
 }
 
 void RHIOutput::Present(bool vsync) {
-    _dxgi_swapchain->Present(vsync ? 1 : 0, 0);
+    //_dxgi_swapchain->Present(vsync ? 1 : 0, 0);
+    DXGI_PRESENT_PARAMETERS present_params{};
+    present_params.DirtyRectsCount = 0;
+    present_params.pDirtyRects = nullptr;
+    present_params.pScrollOffset = nullptr;
+    present_params.pScrollRect = nullptr;
+    bool should_tear = _parent_device->IsAllowTearingSupported();
+    bool is_vsync_off = !vsync;
+    bool use_no_sync_interval = should_tear && is_vsync_off;
+    auto hr_present = _dxgi_swapchain->Present1(use_no_sync_interval ? 0 : 1, should_tear ? DXGI_PRESENT_ALLOW_TEARING : 0, &present_params);
+    #ifdef RENDER_DEBUG
+    std::ostringstream ss;
+    ss << "Present call failed: " << hr_present;
+    GUARANTEE_RECOVERABLE(SUCCEEDED(hr_present), ss.str().c_str());
+    #else
+    GUARANTEE_RECOVERABLE(SUCCEEDED(hr_present), "Present call failed.");
+    #endif
 }
 
 void RHIOutput::CreateBackbuffer() {

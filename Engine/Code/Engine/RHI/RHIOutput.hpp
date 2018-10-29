@@ -7,11 +7,11 @@ class RHIDevice;
 class Texture;
 class IntVector2;
 class Rgba;
-struct IDXGISwapChain;
+struct IDXGISwapChain4;
 
 class RHIOutput {
 public:
-    RHIOutput(const RHIDevice* parent, Window* wnd, IDXGISwapChain* swapchain);
+    RHIOutput(const RHIDevice* parent, Window* wnd, IDXGISwapChain4* swapchain);
 
     ~RHIOutput();
 
@@ -36,7 +36,7 @@ protected:
     Window * _window = nullptr;
     const RHIDevice* _parent_device = nullptr;
     Texture* _back_buffer = nullptr;
-    IDXGISwapChain* _dxgi_swapchain = nullptr;
+    IDXGISwapChain4* _dxgi_swapchain = nullptr;
 private:
 
 };

@@ -21,8 +21,8 @@ class RasterState;
 class BlendState;
 class Material;
 
-enum class BufferType : unsigned int;
-enum class PrimitiveType : unsigned int;
+enum class BufferType : uint8_t;
+enum class PrimitiveType : uint32_t;
 
 class RHIDeviceContext {
 public:

@@ -17,40 +17,42 @@ RHIOutputMode operator++(RHIOutputMode& mode, int) {
     return result;
 }
 
-BufferBindUsage operator|(const BufferBindUsage& a, const BufferBindUsage& b) {
+BufferBindUsage& operator|=(BufferBindUsage& a, const BufferBindUsage& b) {
     using underlying = std::underlying_type_t<BufferBindUsage>;
     auto underlying_a = static_cast<underlying>(a);
     auto underlying_b = static_cast<underlying>(b);
-    return static_cast<BufferBindUsage>(underlying_a | underlying_b);
+    a = static_cast<BufferBindUsage>(underlying_a | underlying_b);
+    return a;
 }
 
-BufferBindUsage operator&(const BufferBindUsage& a, const BufferBindUsage& b) {
+BufferBindUsage operator|(BufferBindUsage a, const BufferBindUsage& b) {
+    a |= b;
+    return a;
+}
+
+BufferBindUsage& operator&=(BufferBindUsage& a, const BufferBindUsage& b) {
     using underlying = std::underlying_type_t<BufferBindUsage>;
     auto underlying_a = static_cast<underlying>(a);
     auto underlying_b = static_cast<underlying>(b);
-    return static_cast<BufferBindUsage>(underlying_a & underlying_b);
+    a = static_cast<BufferBindUsage>(underlying_a & underlying_b);
+    return a;
 }
 
-PipelineStage operator|(const PipelineStage& a, const PipelineStage& b) {
-    using underlying = std::underlying_type_t<PipelineStage>;
-    auto underlying_a = static_cast<underlying>(a);
-    auto underlying_b = static_cast<underlying>(b);
-    return static_cast<PipelineStage>(underlying_a | underlying_b);
+BufferBindUsage operator&(BufferBindUsage a, const BufferBindUsage& b) {
+    a &= b;
+    return a;
 }
-
-PipelineStage operator&(const PipelineStage& a, const PipelineStage& b) {
-    using underlying = std::underlying_type_t<PipelineStage>;
-    auto underlying_a = static_cast<underlying>(a);
-    auto underlying_b = static_cast<underlying>(b);
-    return static_cast<PipelineStage>(underlying_a & underlying_b);
-}
-
 
 PipelineStage& operator|=(PipelineStage& a, const PipelineStage& b) {
     using underlying = std::underlying_type_t<PipelineStage>;
     auto underlying_a = static_cast<underlying>(a);
     auto underlying_b = static_cast<underlying>(b);
     a = static_cast<PipelineStage>(underlying_a | underlying_b);
+    return a;
+}
+
+PipelineStage operator|(PipelineStage a, const PipelineStage& b) {
+    a |= b;
     return a;
 }
 
@@ -62,35 +64,18 @@ PipelineStage& operator&=(PipelineStage& a, const PipelineStage& b) {
     return a;
 }
 
-BlendColorWriteEnable operator~(const BlendColorWriteEnable& a) {
+PipelineStage operator&(PipelineStage a, const PipelineStage& b) {
+    a &= b;
+    return a;
+}
+
+BlendColorWriteEnable operator~(BlendColorWriteEnable a) {
     using underlying = std::underlying_type_t<BlendColorWriteEnable>;
     auto underlying_a = static_cast<underlying>(a);
     return static_cast<BlendColorWriteEnable>(~underlying_a);
 }
 
-BlendColorWriteEnable operator&(const BlendColorWriteEnable& a, const BlendColorWriteEnable& b) {
-    using underlying = std::underlying_type_t<BlendColorWriteEnable>;
-    auto underlying_a = static_cast<underlying>(a);
-    auto underlying_b = static_cast<underlying>(b);
-    return static_cast<BlendColorWriteEnable>(underlying_a & underlying_b);
-}
-
-BlendColorWriteEnable operator|(const BlendColorWriteEnable& a, const BlendColorWriteEnable& b) {
-    using underlying = std::underlying_type_t<BlendColorWriteEnable>;
-    auto underlying_a = static_cast<underlying>(a);
-    auto underlying_b = static_cast<underlying>(b);
-    return static_cast<BlendColorWriteEnable>(underlying_a | underlying_b);
-}
-
-BlendColorWriteEnable operator^(const BlendColorWriteEnable& a, const BlendColorWriteEnable& b) {
-    using underlying = std::underlying_type_t<BlendColorWriteEnable>;
-    auto underlying_a = static_cast<underlying>(a);
-    auto underlying_b = static_cast<underlying>(b);
-    return static_cast<BlendColorWriteEnable>(underlying_a ^ underlying_b);
-}
-
 BlendColorWriteEnable& operator&=(BlendColorWriteEnable& a, const BlendColorWriteEnable& b) {
-
     using underlying = std::underlying_type_t<BlendColorWriteEnable>;
     auto underlying_a = static_cast<underlying>(a);
     auto underlying_b = static_cast<underlying>(b);
@@ -98,8 +83,12 @@ BlendColorWriteEnable& operator&=(BlendColorWriteEnable& a, const BlendColorWrit
     return a;
 }
 
-BlendColorWriteEnable& operator|=(BlendColorWriteEnable& a, const BlendColorWriteEnable& b) {
+BlendColorWriteEnable operator&(BlendColorWriteEnable a, const BlendColorWriteEnable& b) {
+    a &= b;
+    return a;
+}
 
+BlendColorWriteEnable& operator|=(BlendColorWriteEnable& a, const BlendColorWriteEnable& b) {
     using underlying = std::underlying_type_t<BlendColorWriteEnable>;
     auto underlying_a = static_cast<underlying>(a);
     auto underlying_b = static_cast<underlying>(b);
@@ -107,13 +96,24 @@ BlendColorWriteEnable& operator|=(BlendColorWriteEnable& a, const BlendColorWrit
     return a;
 }
 
-BlendColorWriteEnable& operator^=(BlendColorWriteEnable& a, const BlendColorWriteEnable& b) {
+BlendColorWriteEnable operator|(BlendColorWriteEnable a, const BlendColorWriteEnable& b) {
+    a |= b;
+    return a;
+}
 
+BlendColorWriteEnable& operator^=(BlendColorWriteEnable& a, const BlendColorWriteEnable& b) {
     using underlying = std::underlying_type_t<BlendColorWriteEnable>;
     auto underlying_a = static_cast<underlying>(a);
     auto underlying_b = static_cast<underlying>(b);
     a = static_cast<BlendColorWriteEnable>(underlying_a ^ underlying_b);
     return a;
+}
+
+BlendColorWriteEnable operator^(BlendColorWriteEnable a, const BlendColorWriteEnable& b) {
+    using underlying = std::underlying_type_t<BlendColorWriteEnable>;
+    auto underlying_a = static_cast<underlying>(a);
+    auto underlying_b = static_cast<underlying>(b);
+    return static_cast<BlendColorWriteEnable>(underlying_a ^ underlying_b);
 }
 
 ResourceMiscFlag operator|(const ResourceMiscFlag& a, const ResourceMiscFlag& b) {

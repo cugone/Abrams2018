@@ -1,8 +1,9 @@
 #pragma once
 
 #include <type_traits>
+#include <cstdint>
 
-enum class RHIOutputMode : unsigned int {
+enum class RHIOutputMode : uint8_t {
     First_
     , Windowed = First_
     , Borderless
@@ -13,7 +14,7 @@ enum class RHIOutputMode : unsigned int {
 RHIOutputMode& operator++(RHIOutputMode& mode);
 RHIOutputMode operator++(RHIOutputMode& mode, int);
 
-enum class BufferType : unsigned int {
+enum class BufferType : uint8_t {
     None
     , Vertex
     , Index
@@ -22,7 +23,7 @@ enum class BufferType : unsigned int {
     , ReadWrite
 };
 
-enum class PipelineStage : unsigned char {
+enum class PipelineStage : uint8_t {
     None  = 0b00000000
     , Vs  = 0b00000001
     , Hs  = 0b00000010
@@ -33,10 +34,10 @@ enum class PipelineStage : unsigned char {
     , All = Vs | Hs | Ds | Gs | Ps | Cs
 };
 
-PipelineStage operator|(const PipelineStage& a, const PipelineStage& b);
-PipelineStage operator&(const PipelineStage& a, const PipelineStage& b);
 PipelineStage& operator|=(PipelineStage& a, const PipelineStage& b);
+PipelineStage operator|(PipelineStage a, const PipelineStage& b);
 PipelineStage& operator&=(PipelineStage& a, const PipelineStage& b);
+PipelineStage operator&(PipelineStage a, const PipelineStage& b);
 
 enum class ComparisonFunction {
     Never
@@ -179,7 +180,7 @@ enum class ImageFormat : unsigned int {
     , B4G4R4A4_UNorm
 };
 
-enum class PrimitiveType : unsigned int {
+enum class PrimitiveType : uint32_t {
     None
     , Points
     , Lines
@@ -232,7 +233,7 @@ enum class BufferUsage : unsigned int {
     , Staging
 };
 
-enum class BufferBindUsage : unsigned int {
+enum class BufferBindUsage : uint32_t {
     Vertex_Buffer = 0x001
     , Index_Buffer = 0x002
     , Constant_Buffer = 0x004
@@ -245,8 +246,10 @@ enum class BufferBindUsage : unsigned int {
     , Video_Encoder = 0x200
 };
 
-BufferBindUsage operator|(const BufferBindUsage& a, const BufferBindUsage& b);
-BufferBindUsage operator&(const BufferBindUsage& a, const BufferBindUsage& b);
+BufferBindUsage& operator&=(BufferBindUsage& a, const BufferBindUsage& b);
+BufferBindUsage& operator|=(BufferBindUsage& a, const BufferBindUsage& b);
+BufferBindUsage operator&(BufferBindUsage a, const BufferBindUsage& b);
+BufferBindUsage operator|(BufferBindUsage a, const BufferBindUsage& b);
 
 enum class FilterMode {
     Point
@@ -306,10 +309,10 @@ enum class BlendColorWriteEnable : unsigned char {
     , All = 0x0F
 };
 
-BlendColorWriteEnable operator~(const BlendColorWriteEnable& a);
-BlendColorWriteEnable operator|(const BlendColorWriteEnable& a, const BlendColorWriteEnable& b);
-BlendColorWriteEnable operator&(const BlendColorWriteEnable& a, const BlendColorWriteEnable& b);
-BlendColorWriteEnable operator^(const BlendColorWriteEnable& a, const BlendColorWriteEnable& b);
+BlendColorWriteEnable operator~(BlendColorWriteEnable a);
+BlendColorWriteEnable operator|(BlendColorWriteEnable a, const BlendColorWriteEnable& b);
+BlendColorWriteEnable operator&(BlendColorWriteEnable a, const BlendColorWriteEnable& b);
+BlendColorWriteEnable operator^(BlendColorWriteEnable a, const BlendColorWriteEnable& b);
 BlendColorWriteEnable& operator&=(BlendColorWriteEnable& a, const BlendColorWriteEnable& b);
 BlendColorWriteEnable& operator|=(BlendColorWriteEnable& a, const BlendColorWriteEnable& b);
 BlendColorWriteEnable& operator^=(BlendColorWriteEnable& a, const BlendColorWriteEnable& b);

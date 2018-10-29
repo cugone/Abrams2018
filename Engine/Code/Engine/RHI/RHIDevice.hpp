@@ -38,7 +38,7 @@ public:
 
 
     D3D_FEATURE_LEVEL GetFeatureLevel() const;
-    ID3D11Device* GetDxDevice() const;
+    ID3D11Device5* GetDxDevice() const;
     bool IsAllowTearingSupported() const;
 
     ShaderProgram* CreateShaderProgramFromHlslString(const std::string& name, const std::string& hlslString, const std::string& entryPoint, InputLayout* inputLayout, const PipelineStage& target) const;
@@ -53,12 +53,12 @@ private:
     std::vector<ConstantBuffer*> CreateConstantBuffersUsingReflection(ID3D11ShaderReflection& cbufferReflection) const;
     InputLayout* CreateInputLayoutFromByteCode(ID3DBlob* bytecode) const;
 
-    bool QueryForAllowTearingSupport(IDXGIFactory5* dxgi_factory);
+    bool QueryForAllowTearingSupport(IDXGIFactory6* dxgi_factory);
     void GetPrimaryDisplayModeDescriptions(IDXGIAdapter4* dxgi_adapter, std::vector<DXGI_MODE_DESC1>& descriptions);
     DXGI_MODE_DESC1 GetDisplayModeMatchingDimensions(const std::vector<DXGI_MODE_DESC1>& descriptions, unsigned int w, unsigned int h);
 
     RHIDeviceContext* _immediate_context = nullptr;
-    ID3D11Device* _dx_device = nullptr;
+    ID3D11Device5* _dx_device = nullptr;
     D3D_FEATURE_LEVEL _dx_highestSupportedFeatureLevel{};
     bool _allow_tearing_supported = false;
 

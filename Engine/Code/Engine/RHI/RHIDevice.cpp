@@ -16,6 +16,7 @@
 #include "Engine/Renderer/ShaderProgram.hpp"
 #include "Engine/Renderer/Window.hpp"
 
+#include <array>
 #include <sstream>
 
 RHIDevice::~RHIDevice() {
@@ -49,7 +50,7 @@ D3D_FEATURE_LEVEL RHIDevice::GetFeatureLevel() const {
     return _dx_highestSupportedFeatureLevel;
 }
 
-ID3D11Device* RHIDevice::GetDxDevice() const {
+ID3D11Device5* RHIDevice::GetDxDevice() const {
     return _dx_device;
 }
 
@@ -85,56 +86,89 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
 
     window->Open();
 
-    ID3D11Device* dx_device = nullptr;
+    IDXGIFactory6* dxgi_factory = nullptr;
+    {
+        #ifdef RENDER_DEBUG
+        auto hr_factory = ::CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, __uuidof(IDXGIFactory6), reinterpret_cast<void**>(&dxgi_factory));
+        #else
+        auto hr_factory = ::CreateDXGIFactory2(0, __uuidof(IDXGIFactory6), reinterpret_cast<void**>(&dxgi_factory));
+        #endif
+        GUARANTEE_OR_DIE(SUCCEEDED(hr_factory), "Failed to create DXGIFactory6 from CreateDXGIFactory2.");
+
+        auto hr_mwa = dxgi_factory->MakeWindowAssociation(window->GetWindowHandle(), DXGI_MWA_NO_ALT_ENTER);
+        GUARANTEE_OR_DIE(SUCCEEDED(hr_mwa), "Failed to restrict Alt+Enter usage.");
+    }
+
+    IDXGIAdapter4* dxgi_adapter = nullptr;
+    {
+        auto hr_adapter = dxgi_factory->EnumAdapterByGpuPreference(0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, __uuidof(IDXGIAdapter4), reinterpret_cast<void**>(&dxgi_adapter));
+        GUARANTEE_OR_DIE(SUCCEEDED(hr_adapter), "Failed to create DXGIAdapter4 from DXGIFactory::EnumAdapterByGpuPreference.");
+    }
+
+    ID3D11Device5* dx_device = nullptr;
     ID3D11DeviceContext* dx_context = nullptr;
     D3D_FEATURE_LEVEL supported_feature_level = {};
 
     unsigned int device_flags = 0U;
-#ifdef RENDER_DEBUG
+    #ifdef RENDER_DEBUG
     device_flags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
+    #endif
+    std::array<D3D_FEATURE_LEVEL, 7> feature_levels{
+        D3D_FEATURE_LEVEL_11_1,
+        D3D_FEATURE_LEVEL_11_0,
+        D3D_FEATURE_LEVEL_10_1,
+        D3D_FEATURE_LEVEL_10_0,
+        D3D_FEATURE_LEVEL_9_3,
+        D3D_FEATURE_LEVEL_9_2,
+        D3D_FEATURE_LEVEL_9_1,
+    };
 
-    DXGI_SWAP_CHAIN_DESC swap_chain_desc = {};
-    swap_chain_desc.BufferCount = 1;
-    swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swap_chain_desc.OutputWindow = window->GetWindowHandle();
-    swap_chain_desc.Windowed = TRUE;
-    swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-    swap_chain_desc.SampleDesc.Count = 1;
-    swap_chain_desc.SampleDesc.Quality = 0;
-    swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    swap_chain_desc.BufferDesc.Width = window->GetDimensions().x;
-    swap_chain_desc.BufferDesc.Height = window->GetDimensions().y;
-
-    IDXGISwapChain* dxgi_swapChain = nullptr;
-    HRESULT hr_swapchain = ::D3D11CreateDeviceAndSwapChain(nullptr
-                                                          ,D3D_DRIVER_TYPE_HARDWARE
-                                                          , nullptr
-                                                          ,device_flags
-                                                          ,nullptr
-                                                          ,0
-                                                          ,D3D11_SDK_VERSION
-                                                          ,&swap_chain_desc
-                                                          ,&dxgi_swapChain
-                                                          ,&dx_device
-                                                          ,&supported_feature_level
-                                                          ,&dx_context
-                                                         );
-
+    {
+        auto hr_device = ::D3D11CreateDevice(dxgi_adapter
+            , D3D_DRIVER_TYPE_UNKNOWN
+            , nullptr
+            , device_flags
+            , feature_levels.data()
+            , static_cast<unsigned int>(feature_levels.size())
+            , D3D11_SDK_VERSION
+            , reinterpret_cast<ID3D11Device**>(&dx_device)
+            , &supported_feature_level
+            , &dx_context);
+        GUARANTEE_OR_DIE(SUCCEEDED(hr_device), "Failed to create device.");
+    }
+    _dx_device = dx_device;
     _dx_highestSupportedFeatureLevel = supported_feature_level;
     _immediate_context = new RHIDeviceContext(this, dx_context);
 
-    bool swapchain_create_failed = FAILED(hr_swapchain);
-    if(swapchain_create_failed) {
-        delete _immediate_context;
-        _immediate_context = nullptr;
-        delete window;
-        window = nullptr;
-        ERROR_AND_DIE("Could not create swap chain.");
-    }
-    _dx_device = dx_device;
+    DXGI_SWAP_CHAIN_DESC1 swap_chain_desc{};
+    auto window_dims = window->GetDimensions();
+    auto width = static_cast<unsigned int>(window_dims.x);
+    auto height = static_cast<unsigned int>(window_dims.y);
+    swap_chain_desc.Width = width;
+    swap_chain_desc.Height = height;
+    swap_chain_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    swap_chain_desc.Stereo = FALSE;
+    swap_chain_desc.SampleDesc.Count = 1;
+    swap_chain_desc.SampleDesc.Quality = 0;
+    swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    swap_chain_desc.BufferCount = 2;
+    swap_chain_desc.Scaling = DXGI_SCALING_STRETCH;
+    swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+    swap_chain_desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+    swap_chain_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
-#if defined(RENDER_DEBUG)
+    IDXGISwapChain4* dxgi_swap_chain = nullptr;
+    {
+    auto hr_createsc4hwnd = dxgi_factory->CreateSwapChainForHwnd(dx_device
+        , window->GetWindowHandle()
+        , &swap_chain_desc
+        , nullptr
+        , nullptr
+        , reinterpret_cast<IDXGISwapChain1**>(&dxgi_swap_chain));
+    GUARANTEE_OR_DIE(SUCCEEDED(hr_createsc4hwnd), "Failed to create swap chain.");
+    }
+
+#ifdef RENDER_DEBUG
     ID3D11Debug* _dx_debug = nullptr;
     if(SUCCEEDED(_dx_device->QueryInterface(__uuidof(ID3D11Debug), (void**)&_dx_debug))) {
         ID3D11InfoQueue* _dx_infoqueue = nullptr;
@@ -160,12 +194,10 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
     }
 #endif
 
-    RHIOutput* rhi_output = new RHIOutput(this, window, dxgi_swapChain);
-    return rhi_output;
-
+    return new RHIOutput(this, window, dxgi_swap_chain);
 }
 
-bool RHIDevice::QueryForAllowTearingSupport(IDXGIFactory5* dxgi_factory) {
+bool RHIDevice::QueryForAllowTearingSupport(IDXGIFactory6* dxgi_factory) {
     BOOL allow_tearing = {};
     HRESULT hr_cfs = dxgi_factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allow_tearing, sizeof(allow_tearing));
     bool cfs_call_succeeded = SUCCEEDED(hr_cfs);
@@ -178,11 +210,11 @@ bool RHIDevice::QueryForAllowTearingSupport(IDXGIFactory5* dxgi_factory) {
 void RHIDevice::GetPrimaryDisplayModeDescriptions(IDXGIAdapter4* dxgi_adapter, std::vector<DXGI_MODE_DESC1>& descriptions) {
     descriptions.clear();
     descriptions.shrink_to_fit();
-    IDXGIOutput1* primary_output = nullptr;
-    std::vector<IDXGIOutput1*> outputs;
+    IDXGIOutput6* primary_output = nullptr;
+    std::vector<IDXGIOutput6*> outputs;
     {
     unsigned int i = 0;
-    IDXGIOutput1* cur_output = nullptr;
+    IDXGIOutput6* cur_output = nullptr;
     while(dxgi_adapter->EnumOutputs(i, (IDXGIOutput**)(&cur_output)) != DXGI_ERROR_NOT_FOUND) {
         outputs.push_back(cur_output);
         ++i;

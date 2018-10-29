@@ -3,18 +3,18 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
 
-constexpr const bitfield_t MIP_MASK_BITS = 0b0000'0001;
-constexpr const bitfield_t MAG_MASK_BITS = 0b0000'0010;
-constexpr const bitfield_t MIN_MASK_BITS = 0b0000'0100;
-constexpr const bitfield_t COMPARISON_MASK_BITS = 0b0000'1000;
-constexpr const bitfield_t MINIMUM_MASK_BITS = 0b0001'0000;
-constexpr const bitfield_t MAXIMUM_MASK_BITS = 0b0010'0000;
-constexpr const bitfield_t ANISOTROPIC_MASK_BITS = 0b0100'0000;
+constexpr const bitfield8_t MIP_MASK_BITS = 0b0000'0001;
+constexpr const bitfield8_t MAG_MASK_BITS = 0b0000'0010;
+constexpr const bitfield8_t MIN_MASK_BITS = 0b0000'0100;
+constexpr const bitfield8_t COMPARISON_MASK_BITS = 0b0000'1000;
+constexpr const bitfield8_t MINIMUM_MASK_BITS = 0b0001'0000;
+constexpr const bitfield8_t MAXIMUM_MASK_BITS = 0b0010'0000;
+constexpr const bitfield8_t ANISOTROPIC_MASK_BITS = 0b0100'0000;
 
 //Dragons be here!! Look at your own risk!
 D3D11_FILTER FilterModeToD3DFilter(const FilterMode& minFilterMode, const FilterMode& magFilterMode, const FilterMode& mipFilterMode, const FilterComparisonMode& minMaxComparison) {
 
-    const bitfield_t filter_mask = GetFilterMaskFromModes(minFilterMode, magFilterMode, mipFilterMode, minMaxComparison);
+    bitfield8_t filter_mask = GetFilterMaskFromModes(minFilterMode, magFilterMode, mipFilterMode, minMaxComparison);
 
     //Any anisotropic setting overrides all others.
     if((filter_mask & ANISOTROPIC_MASK_BITS) == ANISOTROPIC_MASK_BITS) {
@@ -117,8 +117,8 @@ D3D11_FILTER FilterModeToD3DFilter(const FilterMode& minFilterMode, const Filter
 }
 
 //Dragons be here!! Look at your own risk!
-bitfield_t GetFilterMaskFromModes(const FilterMode& minFilterMode, const FilterMode& magFilterMode, const FilterMode& mipFilterMode, const FilterComparisonMode& minMaxComparison) {
-    bitfield_t result = 0;
+bitfield8_t GetFilterMaskFromModes(const FilterMode& minFilterMode, const FilterMode& magFilterMode, const FilterMode& mipFilterMode, const FilterComparisonMode& minMaxComparison) {
+    bitfield8_t result = 0;
 
     switch(minMaxComparison) {
         case FilterComparisonMode::None:
@@ -821,14 +821,14 @@ std::string PipelineStageToString(const PipelineStage& stage) {
     }
 }
 
-PipelineStage PipelineStageFromString(const std::string& stage) {
-    auto stage_lower = StringUtils::ToLowerCase(stage);
-    if(stage_lower == std::string{})       return PipelineStage::None;
-    else if(stage_lower == std::string{"vs"}) return PipelineStage::Vs;
-    else if(stage_lower == std::string{"hs"}) return PipelineStage::Hs;
-    else if(stage_lower == std::string{"ds"}) return PipelineStage::Ds;
-    else if(stage_lower == std::string{"gs"}) return PipelineStage::Gs;
-    else if(stage_lower == std::string{"ps"}) return PipelineStage::Ps;
-    else if(stage_lower == std::string{"cs"}) return PipelineStage::Cs;
+PipelineStage PipelineStageFromString(std::string stage) {
+    stage = StringUtils::ToLowerCase(stage);
+    if(stage.empty())                   return PipelineStage::None;
+    else if(stage == std::string{"vs"}) return PipelineStage::Vs;
+    else if(stage == std::string{"hs"}) return PipelineStage::Hs;
+    else if(stage == std::string{"ds"}) return PipelineStage::Ds;
+    else if(stage == std::string{"gs"}) return PipelineStage::Gs;
+    else if(stage == std::string{"ps"}) return PipelineStage::Ps;
+    else if(stage == std::string{"cs"}) return PipelineStage::Cs;
     else return PipelineStage::None;
 }

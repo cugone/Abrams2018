@@ -4,7 +4,7 @@
 #define INITGUID
 #endif
 
-#include <d3d11.h>
+#include <d3d11_4.h>
 #include <dxgi1_6.h>
 
 // DEBUG STUFF
@@ -26,8 +26,11 @@
 #include <string>
 #include <cstdint>
 
-using bitfield_t = std::uint8_t;
-bitfield_t GetFilterMaskFromModes(const FilterMode& minFilterMode, const FilterMode& magFilterMode, const FilterMode& mipFilterMode, const FilterComparisonMode& minMaxComparison);
+using bitfield8_t = std::uint8_t;
+using bitfield16_t = std::uint16_t;
+using bitfield32_t = std::uint32_t;
+using bitfield64_t = std::uint64_t;
+bitfield8_t GetFilterMaskFromModes(const FilterMode& minFilterMode, const FilterMode& magFilterMode, const FilterMode& mipFilterMode, const FilterComparisonMode& minMaxComparison);
 
 D3D11_FILTER FilterModeToD3DFilter(const FilterMode& minFilterMode, const FilterMode& magFilterMode, const FilterMode& mipFilterMode, const FilterComparisonMode& minMaxComparison);
 FilterMode FilterModeFromString(const char* str);
@@ -73,4 +76,4 @@ CullMode CullModeFromString(std::string str);
 D3D11_RESOURCE_MISC_FLAG ResourceMiscFlagToD3DMiscFlag(const ResourceMiscFlag& flags);
 
 std::string PipelineStageToString(const PipelineStage& stage);
-PipelineStage PipelineStageFromString(const std::string& stage);
+PipelineStage PipelineStageFromString(std::string stage);

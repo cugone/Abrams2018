@@ -183,8 +183,12 @@ void Renderer::Initialize(bool headless /*= false*/) {
 
 void Renderer::CreateAndRegisterDefaultDepthStencil() {
     _default_depthstencil = CreateDepthStencil(_rhi_device, _window_dimensions);
-    _default_depthstencil->SetDebugName("__default_depthstencil");
-    RegisterTexture("__default_depthstencil", _default_depthstencil);
+    if(_default_depthstencil) {
+        _default_depthstencil->SetDebugName("__default_depthstencil");
+        RegisterTexture("__default_depthstencil", _default_depthstencil);
+    } else {
+        ERROR_AND_DIE("Default depthstencil failed to create.");
+    }
 }
 
 void Renderer::BeginFrame() {
@@ -3043,9 +3047,8 @@ Texture* Renderer::CreateDepthStencil(const RHIDevice* owner, const IntVector2& 
     descDepth.BindFlags = BufferBindUsageToD3DBindFlags(BufferBindUsage::Depth_Stencil);
     descDepth.CPUAccessFlags = 0;
     descDepth.MiscFlags = 0;
-    HRESULT texture_hr = owner->GetDxDevice()->CreateTexture2D(&descDepth, nullptr, &dx_resource);
-    bool texture_creation_succeeded = SUCCEEDED(texture_hr);
-    if(texture_creation_succeeded) {
+    auto hr_texture = owner->GetDxDevice()->CreateTexture2D(&descDepth, nullptr, &dx_resource);
+    if(SUCCEEDED(hr_texture)) {
         return new Texture2D(owner, dx_resource);
     }
     return nullptr;

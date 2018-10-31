@@ -3,6 +3,9 @@
 #include "Engine/Core/Event.hpp"
 #include "Engine/Core/Obj.hpp"
 
+#include "Engine/Math/AABB2.hpp"
+#include "Engine/Math/AABB3.hpp"
+
 #include "Engine/UI/Types.hpp"
 
 #include <functional>
@@ -49,13 +52,13 @@ private:
     void DrawWorldGrid() const;
     void DrawAxes() const;
     void DrawCube() const;
-    void DrawObj() const;
 
-    FileUtils::Obj _obj{};
+    UI::Canvas* _canvas = nullptr;
     ConstantBuffer* _health_cb = nullptr;
     health_buffer_t health_data{};
     const float _cameraSpeed = 10.0f;
     const float _camera_move_speed_multiplier = 10.0f;
+    AABB2 _aabb2{};
     Camera2D* _camera2 = nullptr;
     Camera3D* _camera3 = nullptr;
     bool _debug = true;

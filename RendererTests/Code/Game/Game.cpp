@@ -39,9 +39,13 @@
 Game::Game() {
     _camera2 = new Camera2D;
     _camera3 = new Camera3D;
+    _aabb2.mins = Vector2{-100.0f, -100.0f};
+    _aabb2.maxs = Vector2{100.0f, 100.0f};
 }
 
 Game::~Game() {
+    delete _canvas;
+    _canvas = nullptr;
 
     delete _health_cb;
     _health_cb = nullptr;
@@ -71,7 +75,17 @@ void Game::InitializeData() {
 }
 
 void Game::InitializeUI() {
-    /* DO NOTHING */
+    auto reference_resolution = (std::min)(static_cast<float>(g_theRenderer->GetOutput()->GetDimensions().x), static_cast<float>(g_theRenderer->GetOutput()->GetDimensions().y));
+    auto ref_res_uint = static_cast<unsigned int>(reference_resolution);
+    auto ref_res_area = ref_res_uint * ref_res_uint;
+    std::vector<Rgba> data(ref_res_area, Rgba::WHITE);
+    auto ui_target_texture = g_theRenderer->Create2DTextureFromMemory(data, ref_res_uint, ref_res_uint, BufferUsage::Default, BufferBindUsage::Render_Target);
+    auto ui_target_depthstencil = g_theRenderer->CreateRenderableDepthStencil(g_theRenderer->GetDevice(), IntVector2(ref_res_uint, ref_res_uint));
+    ui_target_texture->SetDebugName("__ui_target");
+    ui_target_depthstencil->SetDebugName("__ui_depth");
+    g_theRenderer->RegisterTexture("__ui_target", ui_target_texture);
+    g_theRenderer->RegisterTexture("__ui_depth", ui_target_depthstencil);
+    _canvas = new UI::Canvas(*g_theRenderer, ui_target_texture, ui_target_depthstencil, reference_resolution);
 }
 
 void Game::BeginFrame() {
@@ -105,23 +119,6 @@ void Game::Update(float deltaSeconds) {
         MathUtils::SetRandomEngineSeed(1729);
     }
 
-    if(g_theInput->WasKeyJustPressed(KeyCode::L)) {
-        g_theJobSystem->Run(JobType::Generic, [this](void*) {
-            if(!(_obj.IsLoaded() || _obj.IsLoading())) {
-                _obj.Load(std::string{ "Data/Models/suzanne.obj" });
-            }
-        }, nullptr);
-        
-    }
-
-    if(g_theInput->WasKeyJustPressed(KeyCode::M)) {
-        g_theJobSystem->Run(JobType::Generic, [this](void*) {
-            if(!_obj.IsSaving()) {
-                _obj.Save(std::string{ "Data/Models/suzanne_out.obj" });
-            }
-        }, nullptr);
-    }
-
     if(g_theInput->WasKeyJustPressed(KeyCode::F3)) {
         _wireframe_mode = !_wireframe_mode;
     }
@@ -137,6 +134,7 @@ void Game::Update(float deltaSeconds) {
     _camera2->Update(deltaSeconds);
     _camera3->Update(deltaSeconds);
 
+    _canvas->Update(deltaSeconds);
 }
 
 void Game::UpdateCameraFromKeyboard(float deltaSeconds) {
@@ -251,36 +249,24 @@ void Game::Render() const {
     g_theRenderer->SetViewMatrix(_camera2->GetViewMatrix());
     g_theRenderer->SetProjectionMatrix(_camera2->GetProjectionMatrix());
 
-    {
-        auto font = g_theRenderer->GetFont("System32");
-        g_theRenderer->SetMaterial(font->GetMaterial());
-        std::ostringstream ss;
-        ss << "Health" << std::fixed << std::setprecision(1) << std::setw(4) << health_data.health_percentage * 100.0f << '%';
-        ss << "\nPos:" << _camera3->GetPosition();
-        ss << "\nAngles:" << _camera3->GetEulerAngles();
-        ss << "\nLoading: " << std::boolalpha << _obj.IsLoading() << std::noboolalpha;
-        ss << "\nLoaded: " << std::boolalpha << _obj.IsLoaded() << std::noboolalpha;
-        ss << "\nSaving: " << std::boolalpha << _obj.IsSaving() << std::noboolalpha;
-        ss << "\nSaved: " << std::boolalpha << _obj.IsSaved() << std::noboolalpha;
-        ss << "\ntime: " << g_theRenderer->GetGameTime();
-        ss << "\nMWPos: " << "[";
-        ss << g_theInput->GetMouseWheelHorizontalPosition();
-        ss << ", ";
-        ss << g_theInput->GetMouseWheelPosition();
-        ss << "]";
-        Matrix4 T = Matrix4::GetIdentity();
-        g_theRenderer->SetModelMatrix(T);
-        g_theRenderer->DrawMultilineText(font, ss.str());
+    g_theRenderer->SetModelMatrix(Matrix4::CreateScaleMatrix(_aabb2.CalcDimensions()));
+    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__unlit"));
+    g_theRenderer->DrawAABB2(Rgba::CYAN, Rgba::NOALPHA);
+
+    _canvas->Render(g_theRenderer);
+    if(_debug) {
+        _canvas->DebugRender(g_theRenderer);
     }
+
 }
 
 void Game::RenderStuff() const {
     DrawCube();
-    DrawObj();
-    DrawWorldGrid();
-    DrawAxes();
+    //DrawObj();
+    //DrawWorldGrid();
+    //DrawAxes();
 
-    g_theRenderer->EnableDepth();
+    //g_theRenderer->EnableDepth();
 }
 
 void Game::EndFrame() {
@@ -397,29 +383,4 @@ void Game::DrawCube() const {
     g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
     g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
     g_theRenderer->DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
-}
-
-void Game::DrawObj() const {
-    if(_obj.IsLoaded()) {
-        g_theRenderer->SetAmbientLight(Rgba::WHITE, 0.25f);
-        SpotLightDesc sl_desc{};
-        sl_desc.color = Rgba::WHITE;
-        sl_desc.direction = _camera3->GetForward();
-        sl_desc.position = _camera3->GetPosition();
-        sl_desc.intensity = 1.0f;
-        sl_desc.inner_outer_anglesDegrees = Vector2{10.0f, 30.0f};
-        g_theRenderer->SetSpotlight(2, sl_desc);
-        Matrix4 T = Matrix4::GetIdentity();
-        Matrix4 R = Matrix4::GetIdentity();
-        Matrix4 S = Matrix4::CreateScaleMatrix(10.0f);
-        Matrix4 M = T * R * S;
-        g_theRenderer->SetModelMatrix(M);
-        g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__default"));
-        auto raster = _wireframe_mode ? g_theRenderer->GetRasterState("__wireframe")
-                                      : g_theRenderer->GetRasterState("__solid");
-        g_theRenderer->SetRasterState(raster);
-        g_theRenderer->SetUseVertexNormalsForLighting(true);
-        g_theRenderer->DrawIndexed(PrimitiveType::Triangles, _obj.GetVbo(), _obj.GetIbo());
-    }
-
 }

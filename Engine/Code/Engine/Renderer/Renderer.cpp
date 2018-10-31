@@ -444,6 +444,9 @@ void Renderer::DrawAxes(float maxlength /*= 1000.0f*/, bool disable_unit_depth /
         DisableDepth();
     }
     DrawIndexed(PrimitiveType::Lines, vbo, ibo, 6, 6);
+    if(disable_unit_depth) {
+        EnableDepth();
+    }
 }
 
 void Renderer::DrawDebugSphere(const Rgba& color) {
@@ -865,7 +868,7 @@ void Renderer::DrawFilledCircle2D(const Vector2& center, float radius, const Rgb
     DrawIndexed(PrimitiveType::TriangleStrip, vbo, ibo);
 }
 
-void Renderer::DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents /*= Vector2(0.5f, 0.5f)*/) {
+void Renderer::DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents /*= Vector2::ZERO*/) {
     Vector2 lt_inner(bounds.mins.x, bounds.mins.y);
     Vector2 lb_inner(bounds.mins.x, bounds.maxs.y);
     Vector2 rt_inner(bounds.maxs.x, bounds.mins.y);
@@ -901,15 +904,18 @@ void Renderer::DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba&
         1, 6, 7,
         1, 7, 2,
     };
-
-    DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
+    if(edgeHalfExtents == Vector2::ZERO) {
+        DrawIndexed(PrimitiveType::Lines, vbo, ibo, ibo.size() - 6, 6);
+    } else {
+        DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
+    }
 }
 
 void Renderer::DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor) {
     AABB2 bounds;
     bounds.mins = Vector2(-0.5f, -0.5f);
     bounds.maxs = Vector2(0.5f, 0.5f);
-    Vector2 edge_half_extents = Vector2(0.5f, 0.5f);
+    Vector2 edge_half_extents = Vector2::ZERO;
     DrawAABB2(bounds, edgeColor, fillColor, edge_half_extents);
 }
 

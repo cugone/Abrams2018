@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-bool operator<(const DisplayDesc& a, const DisplayDesc& b) {
+bool DisplayDescLTComparator::operator()(const DisplayDesc& a, const DisplayDesc& b) const noexcept {
     if(a.width < b.width) {
         return true;
     }
@@ -15,9 +15,36 @@ bool operator<(const DisplayDesc& a, const DisplayDesc& b) {
     if(b.height < a.height) {
         return false;
     }
+    if(a.refreshRateHz < b.refreshRateHz) {
+        return true;
+    }
+    if(b.refreshRateHz < a.refreshRateHz) {
+        return false;
+    }
     return false;
 }
 
+bool DisplayDescGTComparator::operator()(const DisplayDesc& a, const DisplayDesc& b) const noexcept {
+    if(a.width < b.width) {
+        return false;
+    }
+    if(b.width < a.width) {
+        return true;
+    }
+    if(a.height < b.height) {
+        return false;
+    }
+    if(b.height < a.height) {
+        return true;
+    }
+    if(a.refreshRateHz < b.refreshRateHz) {
+        return false;
+    }
+    if(b.refreshRateHz < a.refreshRateHz) {
+        return true;
+    }
+    return false;
+}
 RHIOutputMode& operator++(RHIOutputMode& mode) {
     using underlying = std::underlying_type_t<RHIOutputMode>;
     mode = static_cast<RHIOutputMode>(static_cast<underlying>(mode) + 1);

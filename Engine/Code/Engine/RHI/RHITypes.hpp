@@ -8,9 +8,16 @@
 struct DisplayDesc {
     unsigned int width = 0u;
     unsigned int height = 0u;
+    unsigned int refreshRateHz = 0u;
 };
 
-bool operator<(const DisplayDesc& a, const DisplayDesc& b);
+struct DisplayDescLTComparator {
+    bool operator()(const DisplayDesc& a, const DisplayDesc& b) const noexcept;
+};
+
+struct DisplayDescGTComparator {
+    bool operator()(const DisplayDesc& a, const DisplayDesc& b) const noexcept;
+};
 
 enum class RHIOutputMode : uint8_t {
     First_

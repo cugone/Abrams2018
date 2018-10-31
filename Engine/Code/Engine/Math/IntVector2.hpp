@@ -4,6 +4,7 @@
 #include <utility>
 
 class Vector2;
+class IntVector3;
 
 class IntVector2 {
 public:
@@ -23,6 +24,7 @@ public:
 
     explicit IntVector2(int initialX, int initialY);
     explicit IntVector2(const Vector2& v2);
+    explicit IntVector2(const IntVector3& iv3);
     explicit IntVector2(const std::string& value);
 
     IntVector2& operator=(const IntVector2& rhs) = default;

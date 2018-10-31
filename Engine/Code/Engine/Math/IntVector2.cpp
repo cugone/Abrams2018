@@ -2,6 +2,7 @@
 
 #include "Engine/Core/StringUtils.hpp"
 
+#include "Engine/Math/IntVector3.hpp"
 #include "Engine/Math/Vector2.hpp"
 
 #include <cmath>
@@ -24,6 +25,13 @@ IntVector2::IntVector2(int initialX, int initialY)
 IntVector2::IntVector2(const Vector2& v2)
     : x(static_cast<int>(std::floor(v2.x)))
     , y(static_cast<int>(std::floor(v2.y)))
+{
+    /* DO NOTHING */
+}
+
+IntVector2::IntVector2(const IntVector3& iv3)
+    : x(iv3.x)
+    , y(iv3.y)
 {
     /* DO NOTHING */
 }

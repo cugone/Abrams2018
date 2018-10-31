@@ -50,7 +50,7 @@ public:
     ID3DBlob* CompileShader(const std::string& name, const void*  sourceCode, std::size_t sourceCodeSize, const std::string& entryPoint, const PipelineStage& target) const;
     std::vector<ConstantBuffer*> CreateConstantBuffersFromByteCode(ID3DBlob* bytecode) const;
 
-    std::set<DisplayDesc> displayModes{};
+    std::set<DisplayDesc, DisplayDescGTComparator> displayModes{};
 
 private:
     RHIOutput* CreateOutputFromWindow(Window*& window);
@@ -59,7 +59,9 @@ private:
     InputLayout* CreateInputLayoutFromByteCode(ID3DBlob* bytecode) const;
 
     bool QueryForAllowTearingSupport(IDXGIFactory6* dxgi_factory) const;
-    void GetPrimaryDisplayModeDescriptions(IDXGIAdapter4* dxgi_adapter, std::set<DisplayDesc>& descriptions) const;
+    std::vector<OutputInfo> GetOutputsFromAdapter(const AdapterInfo& a) const noexcept;
+    void GetPrimaryDisplayModeDescriptions(const AdapterInfo& adapter, decltype(displayModes)& descriptions) const;
+    void GetDisplayModeDescriptions(const AdapterInfo& adapter, const OutputInfo& output, decltype(displayModes)& descriptions) const;
     DisplayDesc GetDisplayModeMatchingDimensions(const std::vector<DisplayDesc>& descriptions, unsigned int w, unsigned int h);
 
     RHIDeviceContext* _immediate_context = nullptr;

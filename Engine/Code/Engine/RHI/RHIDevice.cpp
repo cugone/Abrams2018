@@ -103,16 +103,28 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
 
     std::vector<AdapterInfo> adapters{};
     {
-        unsigned int i = 0u;
         IDXGIAdapter4* cur_adapter = nullptr;
-        while(SUCCEEDED(dxgi_factory->EnumAdapterByGpuPreference(i++, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, __uuidof(IDXGIAdapter4), reinterpret_cast<void**>(&cur_adapter)))) {
+        for(unsigned int i = 0u;
+            SUCCEEDED(dxgi_factory->EnumAdapterByGpuPreference(
+                        i,
+                        DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
+                        __uuidof(IDXGIAdapter4),
+                        reinterpret_cast<void**>(&cur_adapter)
+                        )
+                     );
+            ++i) {
             AdapterInfo cur_info{};
             cur_info.adapter = cur_adapter;
             cur_adapter->GetDesc3(&cur_info.desc);
             adapters.push_back(cur_info);
         }
     }
-
+    if(adapters.empty()) {
+        window->Close();
+        delete window;
+        DebuggerPrintf("No graphics cards installed!");
+        return nullptr;
+    }
     ID3D11Device5* dx_device = nullptr;
     ID3D11DeviceContext* dx_context = nullptr;
     D3D_FEATURE_LEVEL supported_feature_level = {};
@@ -132,8 +144,9 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
     };
 
     {
-        auto hr_device = ::D3D11CreateDevice(adapters.back().adapter
-            , D3D_DRIVER_TYPE_UNKNOWN
+        bool has_adapter = std::begin(adapters)->adapter != nullptr;
+        auto hr_device = ::D3D11CreateDevice(has_adapter ? std::begin(adapters)->adapter : nullptr
+            , has_adapter ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE
             , nullptr
             , device_flags
             , feature_levels.data()
@@ -177,7 +190,14 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
     }
     _allow_tearing_supported = QueryForAllowTearingSupport(dxgi_factory);
     for(auto& a : adapters) {
-        GetPrimaryDisplayModeDescriptions(a.adapter, displayModes);
+        auto&& outputs = GetOutputsFromAdapter(a);
+        for(const auto& o : outputs) {
+            GetDisplayModeDescriptions(a, o, displayModes);
+        }
+        for(auto& o : outputs) {
+            o.output->Release();
+            o.output = nullptr;
+        }
     }
     for(auto& info : adapters) {
         info.adapter->Release();
@@ -224,49 +244,55 @@ bool RHIDevice::QueryForAllowTearingSupport(IDXGIFactory6* dxgi_factory) const {
     return false;
 }
 
-void RHIDevice::GetPrimaryDisplayModeDescriptions(IDXGIAdapter4* dxgi_adapter, std::set<DisplayDesc>& descriptions) const {
-    IDXGIOutput6* primary_output = nullptr;
+std::vector<OutputInfo> RHIDevice::GetOutputsFromAdapter(const AdapterInfo& a) const noexcept {
+    if(!a.adapter) {
+        return{};
+    }
     std::vector<OutputInfo> outputs{};
-    {
-        unsigned int i = 0u;
-        IDXGIOutput6* cur_output = nullptr;
-        while(dxgi_adapter->EnumOutputs(i, reinterpret_cast<IDXGIOutput**>(&cur_output)) != DXGI_ERROR_NOT_FOUND) {
-            OutputInfo cur_info{};
-            cur_info.output = cur_output;
-            cur_output->GetDesc1(&cur_info.desc);
-            outputs.push_back(cur_info);
-            ++i;
-        }
+    unsigned int i = 0u;
+    IDXGIOutput6* cur_output = nullptr;
+    while(a.adapter->EnumOutputs(i++, reinterpret_cast<IDXGIOutput**>(&cur_output)) != DXGI_ERROR_NOT_FOUND) {
+        OutputInfo cur_info{};
+        cur_info.output = cur_output;
+        cur_output->GetDesc1(&cur_info.desc);
+        outputs.push_back(cur_info);
     }
-    if(!outputs.empty()) {
-        primary_output = outputs[0].output;
-    }
+    return std::move(outputs);
+}
 
-    if(!primary_output) {
+void RHIDevice::GetPrimaryDisplayModeDescriptions(const AdapterInfo& adapter, decltype(displayModes)& descriptions) const {
+    auto&& outputs = GetOutputsFromAdapter(adapter);
+    if(outputs.empty()) {
         return;
     }
+    GetDisplayModeDescriptions(adapter, outputs.front(), descriptions);
+    outputs.clear();
+    outputs.shrink_to_fit();
+}
 
+void RHIDevice::GetDisplayModeDescriptions(const AdapterInfo& adapter, const OutputInfo& output, decltype(displayModes)& descriptions) const {
+    if(!adapter.adapter) {
+        return;
+    }
+    if(!output.output) {
+        return;
+    }
     unsigned int display_count = 0u;
     unsigned int display_mode_flags = DXGI_ENUM_MODES_SCALING | DXGI_ENUM_MODES_INTERLACED | DXGI_ENUM_MODES_STEREO | DXGI_ENUM_MODES_DISABLED_STEREO;
-    primary_output->GetDisplayModeList1(DXGI_FORMAT_R8G8B8A8_UNORM, display_mode_flags, &display_count, nullptr);
+    output.output->GetDisplayModeList1(DXGI_FORMAT_R8G8B8A8_UNORM, display_mode_flags, &display_count, nullptr);
     if(display_count == 0) {
         return;
     }
     std::vector<DXGI_MODE_DESC1> dxgi_descriptions(static_cast<std::size_t>(display_count), DXGI_MODE_DESC1{});
-    primary_output->GetDisplayModeList1(DXGI_FORMAT_R8G8B8A8_UNORM, display_mode_flags, &display_count, dxgi_descriptions.data());
+    output.output->GetDisplayModeList1(DXGI_FORMAT_R8G8B8A8_UNORM, display_mode_flags, &display_count, dxgi_descriptions.data());
 
     for(const auto& dxgi_desc : dxgi_descriptions) {
         DisplayDesc display{};
         display.width = dxgi_desc.Width;
         display.height = dxgi_desc.Height;
+        display.refreshRateHz = dxgi_desc.RefreshRate.Numerator / dxgi_desc.RefreshRate.Denominator;
         descriptions.insert(display);
     }
-    for(auto& output : outputs) {
-        output.output->Release();
-        output.output = nullptr;
-    }
-    outputs.clear();
-    outputs.shrink_to_fit();
 }
 
 DisplayDesc RHIDevice::GetDisplayModeMatchingDimensions(const std::vector<DisplayDesc>& descriptions, unsigned int w, unsigned int h) {

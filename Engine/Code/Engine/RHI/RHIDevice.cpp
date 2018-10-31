@@ -7,6 +7,8 @@
 #include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/StringUtils.hpp"
 
+#include "Engine/Math/MathUtils.hpp"
+
 #include "Engine/RHI/RHIOutput.hpp"
 #include "Engine/RHI/RHIDeviceContext.hpp"
 
@@ -99,10 +101,16 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
         GUARANTEE_OR_DIE(SUCCEEDED(hr_mwa), "Failed to restrict Alt+Enter usage.");
     }
 
-    IDXGIAdapter4* dxgi_adapter = nullptr;
+    std::vector<AdapterInfo> adapters{};
     {
-        auto hr_adapter = dxgi_factory->EnumAdapterByGpuPreference(0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, __uuidof(IDXGIAdapter4), reinterpret_cast<void**>(&dxgi_adapter));
-        GUARANTEE_OR_DIE(SUCCEEDED(hr_adapter), "Failed to create DXGIAdapter4 from DXGIFactory::EnumAdapterByGpuPreference.");
+        unsigned int i = 0u;
+        IDXGIAdapter4* cur_adapter = nullptr;
+        while(SUCCEEDED(dxgi_factory->EnumAdapterByGpuPreference(i++, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, __uuidof(IDXGIAdapter4), reinterpret_cast<void**>(&cur_adapter)))) {
+            AdapterInfo cur_info{};
+            cur_info.adapter = cur_adapter;
+            cur_adapter->GetDesc3(&cur_info.desc);
+            adapters.push_back(cur_info);
+        }
     }
 
     ID3D11Device5* dx_device = nullptr;
@@ -124,7 +132,7 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
     };
 
     {
-        auto hr_device = ::D3D11CreateDevice(dxgi_adapter
+        auto hr_device = ::D3D11CreateDevice(adapters.back().adapter
             , D3D_DRIVER_TYPE_UNKNOWN
             , nullptr
             , device_flags
@@ -167,7 +175,16 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
         , reinterpret_cast<IDXGISwapChain1**>(&dxgi_swap_chain));
     GUARANTEE_OR_DIE(SUCCEEDED(hr_createsc4hwnd), "Failed to create swap chain.");
     }
-
+    _allow_tearing_supported = QueryForAllowTearingSupport(dxgi_factory);
+    for(auto& a : adapters) {
+        GetPrimaryDisplayModeDescriptions(a.adapter, displayModes);
+    }
+    for(auto& info : adapters) {
+        info.adapter->Release();
+        info.adapter = nullptr;
+    }
+    dxgi_factory->Release();
+    dxgi_factory = nullptr;
 #ifdef RENDER_DEBUG
     ID3D11Debug* _dx_debug = nullptr;
     if(SUCCEEDED(_dx_device->QueryInterface(__uuidof(ID3D11Debug), (void**)&_dx_debug))) {
@@ -197,7 +214,7 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
     return new RHIOutput(this, window, dxgi_swap_chain);
 }
 
-bool RHIDevice::QueryForAllowTearingSupport(IDXGIFactory6* dxgi_factory) {
+bool RHIDevice::QueryForAllowTearingSupport(IDXGIFactory6* dxgi_factory) const {
     BOOL allow_tearing = {};
     HRESULT hr_cfs = dxgi_factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allow_tearing, sizeof(allow_tearing));
     bool cfs_call_succeeded = SUCCEEDED(hr_cfs);
@@ -207,46 +224,58 @@ bool RHIDevice::QueryForAllowTearingSupport(IDXGIFactory6* dxgi_factory) {
     return false;
 }
 
-void RHIDevice::GetPrimaryDisplayModeDescriptions(IDXGIAdapter4* dxgi_adapter, std::vector<DXGI_MODE_DESC1>& descriptions) {
-    descriptions.clear();
-    descriptions.shrink_to_fit();
+void RHIDevice::GetPrimaryDisplayModeDescriptions(IDXGIAdapter4* dxgi_adapter, std::set<DisplayDesc>& descriptions) const {
     IDXGIOutput6* primary_output = nullptr;
-    std::vector<IDXGIOutput6*> outputs;
+    std::vector<OutputInfo> outputs{};
     {
-    unsigned int i = 0;
-    IDXGIOutput6* cur_output = nullptr;
-    while(dxgi_adapter->EnumOutputs(i, (IDXGIOutput**)(&cur_output)) != DXGI_ERROR_NOT_FOUND) {
-        outputs.push_back(cur_output);
-        ++i;
+        unsigned int i = 0u;
+        IDXGIOutput6* cur_output = nullptr;
+        while(dxgi_adapter->EnumOutputs(i, reinterpret_cast<IDXGIOutput**>(&cur_output)) != DXGI_ERROR_NOT_FOUND) {
+            OutputInfo cur_info{};
+            cur_info.output = cur_output;
+            cur_output->GetDesc1(&cur_info.desc);
+            outputs.push_back(cur_info);
+            ++i;
+        }
     }
-    primary_output = outputs[0];
+    if(!outputs.empty()) {
+        primary_output = outputs[0].output;
     }
 
-    unsigned int display_count = 0;
+    if(!primary_output) {
+        return;
+    }
+
+    unsigned int display_count = 0u;
     unsigned int display_mode_flags = DXGI_ENUM_MODES_SCALING | DXGI_ENUM_MODES_INTERLACED | DXGI_ENUM_MODES_STEREO | DXGI_ENUM_MODES_DISABLED_STEREO;
     primary_output->GetDisplayModeList1(DXGI_FORMAT_R8G8B8A8_UNORM, display_mode_flags, &display_count, nullptr);
     if(display_count == 0) {
         return;
     }
+    std::vector<DXGI_MODE_DESC1> dxgi_descriptions(static_cast<std::size_t>(display_count), DXGI_MODE_DESC1{});
+    primary_output->GetDisplayModeList1(DXGI_FORMAT_R8G8B8A8_UNORM, display_mode_flags, &display_count, dxgi_descriptions.data());
 
-    descriptions.resize(display_count);
-    primary_output->GetDisplayModeList1(DXGI_FORMAT_R8G8B8A8_UNORM, display_mode_flags, &display_count, descriptions.data());
-
+    for(const auto& dxgi_desc : dxgi_descriptions) {
+        DisplayDesc display{};
+        display.width = dxgi_desc.Width;
+        display.height = dxgi_desc.Height;
+        descriptions.insert(display);
+    }
     for(auto& output : outputs) {
-        output->Release();
-        output = nullptr;
+        output.output->Release();
+        output.output = nullptr;
     }
     outputs.clear();
     outputs.shrink_to_fit();
 }
 
-DXGI_MODE_DESC1 RHIDevice::GetDisplayModeMatchingDimensions(const std::vector<DXGI_MODE_DESC1>& descriptions, unsigned int w, unsigned int h) {
+DisplayDesc RHIDevice::GetDisplayModeMatchingDimensions(const std::vector<DisplayDesc>& descriptions, unsigned int w, unsigned int h) {
     for(const auto& desc : descriptions) {
-        if(desc.Width == w && desc.Height == h) {
+        if(desc.width == w && desc.height == h) {
             return desc;
         }
     }
-    return descriptions.back();
+    return{};
 }
 
 std::vector<ConstantBuffer*> RHIDevice::CreateConstantBuffersFromByteCode(ID3DBlob* bytecode) const {

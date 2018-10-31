@@ -26,6 +26,16 @@
 #include <string>
 #include <cstdint>
 
+struct AdapterInfo {
+    IDXGIAdapter4* adapter = nullptr;
+    DXGI_ADAPTER_DESC3 desc{};
+};
+
+struct OutputInfo {
+    IDXGIOutput6* output = nullptr;
+    DXGI_OUTPUT_DESC1 desc{};
+};
+
 using bitfield8_t = std::uint8_t;
 using bitfield16_t = std::uint16_t;
 using bitfield32_t = std::uint32_t;

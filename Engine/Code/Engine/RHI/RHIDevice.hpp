@@ -10,6 +10,9 @@
 #include "Engine/Renderer/ConstantBuffer.hpp"
 #include "Engine/Renderer/VertexBuffer.hpp"
 
+#include <set>
+#include <vector>
+
 class RHIDeviceContext;
 class IntVector2;
 class Window;
@@ -47,19 +50,20 @@ public:
     ID3DBlob* CompileShader(const std::string& name, const void*  sourceCode, std::size_t sourceCodeSize, const std::string& entryPoint, const PipelineStage& target) const;
     std::vector<ConstantBuffer*> CreateConstantBuffersFromByteCode(ID3DBlob* bytecode) const;
 
+    std::set<DisplayDesc> displayModes{};
+
 private:
     RHIOutput* CreateOutputFromWindow(Window*& window);
 
     std::vector<ConstantBuffer*> CreateConstantBuffersUsingReflection(ID3D11ShaderReflection& cbufferReflection) const;
     InputLayout* CreateInputLayoutFromByteCode(ID3DBlob* bytecode) const;
 
-    bool QueryForAllowTearingSupport(IDXGIFactory6* dxgi_factory);
-    void GetPrimaryDisplayModeDescriptions(IDXGIAdapter4* dxgi_adapter, std::vector<DXGI_MODE_DESC1>& descriptions);
-    DXGI_MODE_DESC1 GetDisplayModeMatchingDimensions(const std::vector<DXGI_MODE_DESC1>& descriptions, unsigned int w, unsigned int h);
+    bool QueryForAllowTearingSupport(IDXGIFactory6* dxgi_factory) const;
+    void GetPrimaryDisplayModeDescriptions(IDXGIAdapter4* dxgi_adapter, std::set<DisplayDesc>& descriptions) const;
+    DisplayDesc GetDisplayModeMatchingDimensions(const std::vector<DisplayDesc>& descriptions, unsigned int w, unsigned int h);
 
     RHIDeviceContext* _immediate_context = nullptr;
     ID3D11Device5* _dx_device = nullptr;
     D3D_FEATURE_LEVEL _dx_highestSupportedFeatureLevel{};
     bool _allow_tearing_supported = false;
-
 };

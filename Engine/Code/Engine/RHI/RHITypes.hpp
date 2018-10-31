@@ -1,7 +1,16 @@
 #pragma once
 
-#include <type_traits>
 #include <cstdint>
+#include <ratio>
+#include <type_traits>
+#include <utility>
+
+struct DisplayDesc {
+    unsigned int width = 0u;
+    unsigned int height = 0u;
+};
+
+bool operator<(const DisplayDesc& a, const DisplayDesc& b);
 
 enum class RHIOutputMode : uint8_t {
     First_

@@ -2,6 +2,22 @@
 
 #include <type_traits>
 
+bool operator<(const DisplayDesc& a, const DisplayDesc& b) {
+    if(a.width < b.width) {
+        return true;
+    }
+    if(b.width < a.width) {
+        return false;
+    }
+    if(a.height < b.height) {
+        return true;
+    }
+    if(b.height < a.height) {
+        return false;
+    }
+    return false;
+}
+
 RHIOutputMode& operator++(RHIOutputMode& mode) {
     using underlying = std::underlying_type_t<RHIOutputMode>;
     mode = static_cast<RHIOutputMode>(static_cast<underlying>(mode) + 1);

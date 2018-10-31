@@ -275,7 +275,8 @@ void Element::DebugRenderBounds(Renderer* renderer) const {
     renderer->SetMaterial(renderer->GetMaterial("__2D"));
     auto world_transform = GetWorldTransform();
     renderer->SetModelMatrix(world_transform);
-    renderer->DrawIndexed(PrimitiveType::LinesStrip, vbo, ibo);
+    //renderer->DrawIndexed(PrimitiveType::LinesStrip, vbo, ibo);
+    renderer->DrawAABB2(_edge_color, _fill_color);
 }
 
 AABB2 Element::GetParentBounds() const {

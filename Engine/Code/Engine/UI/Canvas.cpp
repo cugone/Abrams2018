@@ -55,6 +55,7 @@ void Canvas::Render(Renderer* renderer) const {
     auto dims2 = Vector2(width, height);
     renderer->SetModelMatrix(Matrix4::CreateScaleMatrix(dims2));
     renderer->DrawQuad();
+    renderer->SetTexture(nullptr);
 }
 
 void Canvas::SetupMVPFromTargetAndCamera(Renderer* renderer) const {
@@ -72,10 +73,19 @@ void Canvas::SetupMVPFromTargetAndCamera(Renderer* renderer) const {
 }
 
 void Canvas::DebugRender(Renderer* renderer) const {
-    renderer->SetRenderTarget(_target_texture);
+    renderer->SetRenderTarget(_target_texture, _target_depthstencil);
     SetupMVPFromTargetAndCamera(renderer);
     DebugRenderBottomUp(renderer);
     renderer->SetRenderTarget();
+    renderer->SetMaterial(renderer->GetMaterial("__2D"));
+    renderer->SetTexture(_target_texture);
+    auto dims = _target_texture->GetDimensions();
+    auto width = static_cast<float>(dims.x);
+    auto height = static_cast<float>(dims.y);
+    auto dims2 = Vector2(width, height);
+    renderer->SetModelMatrix(Matrix4::CreateScaleMatrix(dims2));
+    renderer->DrawQuad();
+    renderer->SetTexture(nullptr);
 }
 
 const Camera2D* Canvas::GetUICamera() const {

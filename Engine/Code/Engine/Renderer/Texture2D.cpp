@@ -58,14 +58,22 @@ void Texture2D::SetDeviceAndTexture(const RHIDevice* device, ID3D11Texture2D* te
         success &= SUCCEEDED(_device->GetDxDevice()->CreateRenderTargetView(_dx_tex, nullptr, &_rtv)) == true;
     }
 
-    if(t_desc.BindFlags & D3D11_BIND_DEPTH_STENCIL) {
-        success &= SUCCEEDED(_device->GetDxDevice()->CreateDepthStencilView(_dx_tex, nullptr, &_dsv)) == true;
+    if(bool is_depthstencil = (t_desc.BindFlags & D3D11_BIND_DEPTH_STENCIL)) {
+        D3D11_DEPTH_STENCIL_VIEW_DESC desc{};
+        desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+        desc.Flags = 0u;
+        bool is_renderable_depthstencil = is_depthstencil && (t_desc.BindFlags & D3D11_BIND_SHADER_RESOURCE);
+        desc.Format = is_renderable_depthstencil ? ImageFormatToDxgiFormat(ImageFormat::D32_Float)
+                                                 : ImageFormatToDxgiFormat(ImageFormat::D24_UNorm_S8_UInt);
+        success &= SUCCEEDED(_device->GetDxDevice()->CreateDepthStencilView(_dx_tex, &desc, &_dsv)) == true;
     }
 
     if(t_desc.BindFlags & D3D11_BIND_SHADER_RESOURCE) {
         if(_dsv) {
             D3D11_SHADER_RESOURCE_VIEW_DESC desc{};
             desc.Format = DXGI_FORMAT_R32_FLOAT;
+            desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+            desc.Texture2D.MipLevels = 1;
             success &= SUCCEEDED(_device->GetDxDevice()->CreateShaderResourceView(_dx_tex, &desc, &_srv)) == true;
         } else {
             success &= SUCCEEDED(_device->GetDxDevice()->CreateShaderResourceView(_dx_tex, nullptr, &_srv)) == true;

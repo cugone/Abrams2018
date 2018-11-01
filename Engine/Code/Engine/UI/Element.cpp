@@ -259,23 +259,9 @@ void Element::DebugRenderPivot(Renderer* renderer) const {
 }
 
 void Element::DebugRenderBounds(Renderer* renderer) const {
-    Vector2 topLeft = Vector2(-0.50f, -0.50f);
-    Vector2 topRight = Vector2(0.50f, -0.50f);
-    Vector2 bottomRight = Vector2(0.50f, 0.50f);
-    Vector2 bottomLeft = Vector2(-0.50f, 0.50f);
-    std::vector<Vertex3D> vbo = {
-      Vertex3D(Vector3(topLeft, 0.0f), _edge_color, Vector2::ZERO)
-    , Vertex3D(Vector3(topRight, 0.0f), _edge_color, Vector2::ZERO)
-    , Vertex3D(Vector3(bottomRight, 0.0f), _edge_color, Vector2::ZERO)
-    , Vertex3D(Vector3(bottomLeft, 0.0f), _edge_color, Vector2::ZERO)
-    };
-    std::vector<unsigned int> ibo = {
-        0, 1, 2, 3, 0
-    };
-    renderer->SetMaterial(renderer->GetMaterial("__2D"));
     auto world_transform = GetWorldTransform();
     renderer->SetModelMatrix(world_transform);
-    //renderer->DrawIndexed(PrimitiveType::LinesStrip, vbo, ibo);
+    renderer->SetMaterial(renderer->GetMaterial("__2D"));
     renderer->DrawAABB2(_edge_color, _fill_color);
 }
 

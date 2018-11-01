@@ -1138,6 +1138,10 @@ void Renderer::SetWinProc(const std::function<bool(HWND hwnd, UINT msg, WPARAM w
     }
 }
 
+Texture* Renderer::GetDefaultDepthStencil() const {
+    return _default_depthstencil;
+}
+
 void Renderer::SetFullscreen(bool isFullscreen) {
     if(isFullscreen) {
         SetFullscreenMode();
@@ -3027,11 +3031,11 @@ Texture* Renderer::CreateTexture(const std::string& filepath,
 }
 
 void Renderer::SetTexture(Texture* texture, unsigned int registerIndex /*= 0*/) {
-    if(_current_target == texture) {
-        return;
-    }
     if(texture == nullptr) {
         texture = GetTexture("__default");
+    }
+    if(_current_target == texture) {
+        return;
     }
     _current_target = texture;
     _rhi_context->SetTexture(registerIndex, _current_target);

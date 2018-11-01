@@ -145,6 +145,7 @@ public:
     Texture* CreateDepthStencil(const RHIDevice* owner, const IntVector2& dimensions);
     Texture* CreateRenderableDepthStencil(const RHIDevice* owner, const IntVector2& dimensions);
 
+    Texture* GetDefaultDepthStencil() const;
     void SetDepthStencilState(DepthStencilState* depthstencil);
     DepthStencilState* GetDepthStencilState(const std::string& name);
     void EnableDepth();

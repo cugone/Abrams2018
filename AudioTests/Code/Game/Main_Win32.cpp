@@ -1,7 +1,8 @@
-#include <memory>
-#include <sstream>
 
+#include "Engine/Core/ArgumentParser.hpp"
+#include "Engine/Core/Config.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Core/KeyValueParser.hpp"
 #include "Engine/Core/Win.hpp"
 
 #include "Engine/Renderer/Window.hpp"
@@ -9,42 +10,53 @@
 #include "Engine/RHI/RHIOutput.hpp"
 
 #include "Game/GameCommon.hpp"
+#include "Game/GameConfig.hpp"
 
+#include <sstream>
 
-void Initialize(HINSTANCE hInstance, LPWSTR lpCmdLine, int nShowCmd);
-void Shutdown();
+void Initialize(HINSTANCE hInstance, LPSTR lpCmdLine, int nShowCmd);
+App* CreateApp();
+void SetupCoR();
+void MainLoop();
 void RunMessagePump();
+void Shutdown();
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpCmdLine, int nShowCmd) {
+int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int nShowCmd) {
 
     Initialize(hInstance, lpCmdLine, nShowCmd);
+    MainLoop();
+    Shutdown();
+    return 0;
+}
+void Initialize(HINSTANCE /*hInstance*/, LPSTR /*lpCmdLine*/, int /*nShowCmd*/) {
 
+    g_theApp = CreateApp();
+    SetupCoR();
+    g_theApp->Initialize();
+}
+
+App* CreateApp() {
+    std::unique_ptr<JobSystem> jobSystem = std::make_unique<JobSystem>(-1, static_cast<std::size_t>(JobType::Max), new std::condition_variable);
+    std::unique_ptr<FileLogger> fileLogger = std::make_unique<FileLogger>(*jobSystem, "game");
+    return new App(std::move(jobSystem), std::move(fileLogger));
+}
+
+void SetupCoR() {
+    g_theConsole->SetNextHandler(g_theInput);
+    g_theInput->SetNextHandler(g_theApp);
+    g_theApp->SetNextHandler(nullptr);
+    g_theSubsystemHead = g_theConsole;
+}
+
+void MainLoop() {
+    if(g_theApp->applet_mode) {
+        return;
+    }
     while(!g_theApp->IsQuitting()) {
         ::Sleep(0);
         RunMessagePump();
         g_theApp->RunFrame();
     }
-    Shutdown();
-    return 0;
-}
-
-
-void Initialize(HINSTANCE /*hInstance*/, LPWSTR /*lpCmdLine*/, int /*nShowCmd*/) {
-    
-    g_theJobSystem = new JobSystem();
-    g_theFileLogger = new FileLogger();
-    std::condition_variable* cv = new std::condition_variable;
-    g_theApp = new App(*g_theJobSystem, cv);
-
-    g_theConsole->SetNextHandler(g_theInput);
-    g_theInput->SetNextHandler(g_theApp);
-    g_theApp->SetNextHandler(nullptr);
-
-    g_theSubsystemHead = g_theConsole;
-
-    g_theJobSystem->Initialize(-1, static_cast<std::size_t>(JobType::Max), cv);
-    g_theFileLogger->Initialize(*g_theJobSystem, "game");
-    g_theApp->Initialize();
 }
 
 void RunMessagePump() {
@@ -65,14 +77,8 @@ void RunMessagePump() {
 }
 
 void Shutdown() {
+    //Required due to WinProc needing to post destroy window message.
     g_theSubsystemHead = g_theApp;
     delete g_theApp;
     g_theApp = nullptr;
-    g_theSubsystemHead = nullptr;
-
-    delete g_theFileLogger;
-    g_theFileLogger = nullptr;
-
-    delete g_theJobSystem;
-    g_theJobSystem = nullptr;
 }

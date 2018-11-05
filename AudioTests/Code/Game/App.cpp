@@ -1,11 +1,8 @@
 #include "Game/App.hpp"
 
-#include "Engine/Audio/AudioSystem.hpp"
-
 #include "Engine/Core/EngineSubsystem.hpp"
-
-#include "Engine/Core/TimeUtils.hpp"
 #include "Engine/Core/FileUtils.hpp"
+#include "Engine/Core/TimeUtils.hpp"
 
 #include "Engine/Math/MathUtils.hpp"
 
@@ -16,6 +13,8 @@
 
 #include "Game/GameCommon.hpp"
 #include "Game/GameConfig.hpp"
+
+bool App::applet_mode = false;
 
 bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
@@ -31,33 +30,45 @@ bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     return false;
 }
 
-App::App(JobSystem& jobSystem, std::condition_variable* cv /*= nullptr*/)
+App::App(std::unique_ptr<JobSystem>&& jobSystem, std::unique_ptr<FileLogger>&& fileLogger)
     : EngineSubsystem()
-    , _job_system(&jobSystem)
-    , _cv(cv)
+    , _theJobSystem(std::move(jobSystem))
+    , _theFileLogger(std::move(fileLogger))
+    , _theConfig(std::make_unique<Config>())
+    , _theRenderer{ std::make_unique<Renderer>(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT)) }
+    , _theAudioSystem{std::make_unique<AudioSystem>() }
+    , _theInputSystem{ std::make_unique<InputSystem>() }
+    , _theConsole{ std::make_unique<Console>(_theRenderer.get()) }
+    , _theGame{ std::make_unique<Game>() }
 {
-    g_theRenderer = new Renderer(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
-    g_theAudio = new AudioSystem();
-    g_theInput = new InputSystem();
-    g_theConsole = new Console(g_theRenderer);
-    g_theGame = new Game();
+    g_theJobSystem = _theJobSystem.get();
+    g_theFileLogger = _theFileLogger.get();
+    g_theConfig = _theConfig.get();
+    g_theRenderer = _theRenderer.get();
+    g_theAudio = _theAudioSystem.get();
+    g_theInput = _theInputSystem.get();
+    g_theConsole = _theConsole.get();
+    g_theGame = _theGame.get();
 }
 
 App::~App() {
-    delete g_theGame;
+    _theGame.reset();
+    _theConsole.reset();
+    _theInputSystem.reset();
+    _theAudioSystem.reset();
+    _theRenderer.reset();
+    _theConfig.reset();
+    _theFileLogger.reset();
+    _theJobSystem.reset();
+
+    g_theJobSystem = nullptr;
+    g_theFileLogger = nullptr;
     g_theGame = nullptr;
-
-    delete g_theConsole;
     g_theConsole = nullptr;
-
-    delete g_theInput;
     g_theInput = nullptr;
-    
-    delete g_theAudio;
     g_theAudio = nullptr;
-
-    delete g_theRenderer;
     g_theRenderer = nullptr;
+    g_theConfig = nullptr;
 
 }
 
@@ -71,21 +82,16 @@ void App::SetIsQuitting(bool quit) {
 
 void App::Initialize() {
     FileUtils::CreateFolders("Data/");
-    g_theRenderer->Initialize();
-    g_theRenderer->SetVSync(GRAPHICS_OPTION_VSYNC);
-    if(g_theRenderer->GetOutput()) {
-        Window* window = g_theRenderer->GetOutput()->GetWindow();
-        if(window) {
-            window->custom_message_handler = WindowProc;
-            window->SetTitle("Test Title");
-            bool is_fullscreen = false;
-            if(is_fullscreen) {
-                window->SetDisplayMode(RHIOutputMode::Fullscreen_Window);
-            }
-        }
+    g_theRenderer->Initialize(applet_mode);
+    if(applet_mode) {
+        return;
     }
-    g_theAudio->Initialize();
+    g_theRenderer->SetVSync(GRAPHICS_OPTION_VSYNC);
+    g_theRenderer->SetWindowTitle("Test Title");
+    g_theRenderer->SetWinProc(WindowProc);
+    g_theRenderer->SetFullscreen(GRAPHICS_OPTION_FULLSCREEN);
     g_theInput->Initialize();
+    g_theAudio->Initialize();
     g_theConsole->Initialize();
     g_theGame->Initialize();
 
@@ -99,12 +105,9 @@ void App::Initialize() {
 }
 
 void App::RunFrame() {
-    using namespace std::chrono;
-
     BeginFrame();
-
-    static float previousFrameTime = TimeUtils::GetCurrentTimeElapsed<duration<float>>();
-    float currentFrameTime = TimeUtils::GetCurrentTimeElapsed<duration<float>>();
+    static float previousFrameTime = TimeUtils::GetCurrentTimeElapsed<FPSeconds>();
+    float currentFrameTime = TimeUtils::GetCurrentTimeElapsed<FPSeconds>();
     float deltaSeconds = currentFrameTime - previousFrameTime;
     previousFrameTime = currentFrameTime;
 
@@ -115,32 +118,77 @@ void App::RunFrame() {
     EndFrame();
 }
 
+bool App::HasFocus() const {
+    return _current_focus;
+}
+
+bool App::LostFocus() const {
+    return _previous_focus && !_current_focus;
+}
+
+bool App::GainedFocus() const {
+    return !_previous_focus && _current_focus;
+}
+
 bool App::ProcessSystemMessage(const EngineMessage& msg) {
+
+    WPARAM wp = msg.wparam;
     switch(msg.wmMessageCode) {
-        case WindowsSystemMessage::Window_Close:
-        case WindowsSystemMessage::Window_Quit:
-        case WindowsSystemMessage::Window_Destroy:
-        {
-            SetIsQuitting(true);
-            return true;
+    case WindowsSystemMessage::Window_Close:
+    case WindowsSystemMessage::Window_Quit:
+    case WindowsSystemMessage::Window_Destroy:
+    {
+        SetIsQuitting(true);
+        return true;
+    }
+    case WindowsSystemMessage::Window_ActivateApp:
+    {
+        bool losing_focus = wp == FALSE;
+        bool gaining_focus = wp == TRUE;
+        if(losing_focus) {
+            _current_focus = false;
+            _previous_focus = true;
         }
+        if(gaining_focus) {
+            _current_focus = true;
+            _previous_focus = false;
+        }
+        return true;
+    }
+    case WindowsSystemMessage::Keyboard_Activate:
+    {
+        auto active_type = LOWORD(wp);
+        switch(active_type) {
+        case WA_ACTIVE: /* FALLTHROUGH */
+        case WA_CLICKACTIVE:
+            _current_focus = true;
+            _previous_focus = false;
+            return true;
+        case WA_INACTIVE:
+            _current_focus = false;
+            _previous_focus = true;
+            return true;
         default:
             return false;
+        }
+    }
+    default:
+        return false;
     }
 }
 
 void App::BeginFrame() {
-    _job_system->BeginFrame();
-    g_theAudio->BeginFrame();
+    g_theJobSystem->BeginFrame();
     g_theInput->BeginFrame();
+    g_theAudio->BeginFrame();
     g_theConsole->BeginFrame();
     g_theGame->BeginFrame();
     g_theRenderer->BeginFrame();
 }
 
 void App::Update(float deltaSeconds) {
-    g_theAudio->Update(deltaSeconds);
     g_theInput->Update(deltaSeconds);
+    g_theAudio->Update(deltaSeconds);
     g_theConsole->Update(deltaSeconds);
     g_theGame->Update(deltaSeconds);
     g_theRenderer->Update(deltaSeconds);
@@ -157,7 +205,8 @@ void App::Render() const {
 void App::EndFrame() {
     g_theGame->EndFrame();
     g_theConsole->EndFrame();
-    g_theInput->EndFrame();
     g_theAudio->EndFrame();
+    g_theInput->EndFrame();
     g_theRenderer->EndFrame();
 }
+

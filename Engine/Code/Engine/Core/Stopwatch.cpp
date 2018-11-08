@@ -1,7 +1,7 @@
 #include "Engine/Core/Stopwatch.hpp"
 
-Stopwatch::Stopwatch(float frequency)
-    : Stopwatch(FPSeconds(1.0f / frequency))
+Stopwatch::Stopwatch(unsigned int frequency)
+    : Stopwatch(FPSeconds(1.0f / static_cast<float>(frequency)))
 {
     /* DO NOTHING */
 }
@@ -16,8 +16,8 @@ void Stopwatch::SetSeconds(const FPSeconds& seconds) {
         + seconds.count() };
 }
 
-void Stopwatch::SetFrequency(float hz) {
-    SetSeconds(FPSeconds(1.0f / hz));
+void Stopwatch::SetFrequency(unsigned int hz) {
+    SetSeconds(FPSeconds(1.0f / static_cast<float>(hz)));
 }
 
 bool Stopwatch::Check() {

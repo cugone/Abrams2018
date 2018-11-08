@@ -8,9 +8,9 @@
 class Stopwatch {
 public:
     explicit Stopwatch(const FPSeconds& seconds);
-    explicit Stopwatch(float frequency);
+    explicit Stopwatch(unsigned int frequency);
     void SetSeconds(const FPSeconds& seconds);
-    void SetFrequency(float hz);
+    void SetFrequency(unsigned int hz);
     bool Check();
     bool CheckAndDecrement();
     bool CheckAndReset();

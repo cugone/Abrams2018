@@ -307,6 +307,9 @@
     <ClCompile Include="Profiling\StackTrace.cpp">
       <Filter>Profiling</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Base64.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -596,6 +599,9 @@
     </ClInclude>
     <ClInclude Include="Profiling\StackTrace.hpp">
       <Filter>Profiling</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Base64.hpp">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

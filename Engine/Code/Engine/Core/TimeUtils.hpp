@@ -10,6 +10,8 @@ using FPNanoseconds = std::chrono::duration<float, std::ratio_multiply<std::chro
 
 namespace TimeUtils {
 
+double GetCurrentTimeSeconds();
+
 template<typename Duration = std::chrono::duration<double>
     , typename Clock = std::chrono::high_resolution_clock>
 decltype(auto) Now() noexcept {

@@ -14,7 +14,6 @@ public:
     virtual void Update(float deltaSeconds) override;
     virtual void Render(Renderer* renderer) const override;
     virtual void DebugRender(Renderer* renderer) const override;
-    virtual void SetPosition(const Metric& position) override;
 protected:
 private:
     AnimatedSprite* _sprite = nullptr;

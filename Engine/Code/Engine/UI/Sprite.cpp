@@ -1,4 +1,4 @@
-#include "Engine/UI/Image.hpp"
+#include "Engine/UI/Sprite.hpp"
 
 namespace UI {
 

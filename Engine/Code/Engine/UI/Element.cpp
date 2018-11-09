@@ -226,7 +226,7 @@ Vector2 Element::CalcLocalScale() const {
     auto parent_height = parent_bounds.maxs.y - parent_bounds.mins.y;
     auto my_height = my_bounds.maxs.y - my_bounds.mins.y;
     auto height_scale = my_height / parent_height;
-    return _parent ? Vector2(width_scale, height_scale) : _size.unit;
+    return Vector2(width_scale, height_scale);
 }
 
 Matrix4 Element::GetWorldTransform() const {

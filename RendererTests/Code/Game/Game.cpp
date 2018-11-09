@@ -39,6 +39,8 @@
 Game::Game() {
     _camera2 = new Camera2D;
     _camera3 = new Camera3D;
+    _aabb2.mins = Vector2{-100.0f, -100.0f};
+    _aabb2.maxs = Vector2{100.0f, 100.0f};
 }
 
 Game::~Game() {
@@ -74,16 +76,16 @@ void Game::InitializeData() {
 
 void Game::InitializeUI() {
     auto reference_resolution = (std::min)(static_cast<float>(g_theRenderer->GetOutput()->GetDimensions().x), static_cast<float>(g_theRenderer->GetOutput()->GetDimensions().y));
-    _canvas = new UI::Canvas(*g_theRenderer, reference_resolution);
-    _canvas->SetBorderColor(Rgba::CYAN);
-    _canvas->SetPivot(UI::PivotPosition::Center);
-
-    _label = _canvas->CreateChild<UI::Label>(_canvas);
-    _label->SetBorderColor(Rgba::ORANGE);
-    _label->SetPivot(UI::PivotPosition::Left);
-    _label->SetFont(g_theRenderer->GetFont("System32"));
-    _label->SetText("Hello World");
-    _label->SetPosition(UI::Metric{ UI::Ratio(Vector2(0.0f, 0.0f)), Vector2::ZERO });
+    auto ref_res_uint = static_cast<unsigned int>(reference_resolution);
+    auto ref_res_area = ref_res_uint * ref_res_uint;
+    std::vector<Rgba> data(ref_res_area, Rgba::WHITE);
+    auto ui_target_texture = g_theRenderer->Create2DTextureFromMemory(data, ref_res_uint, ref_res_uint, BufferUsage::Default, BufferBindUsage::Render_Target);
+    auto ui_target_depthstencil = g_theRenderer->CreateRenderableDepthStencil(g_theRenderer->GetDevice(), IntVector2(ref_res_uint, ref_res_uint));
+    ui_target_texture->SetDebugName("__ui_target");
+    ui_target_depthstencil->SetDebugName("__ui_depth");
+    g_theRenderer->RegisterTexture("__ui_target", ui_target_texture);
+    g_theRenderer->RegisterTexture("__ui_depth", ui_target_depthstencil);
+    _canvas = new UI::Canvas(*g_theRenderer, ui_target_texture, ui_target_depthstencil, reference_resolution);
 }
 
 void Game::BeginFrame() {
@@ -142,22 +144,18 @@ void Game::UpdateCameraFromKeyboard(float deltaSeconds) {
         if(g_theInput->IsKeyDown(KeyCode::Shift)) {
             is_fast = true;
         }
-        camera_move_speed = _cameraSpeed * (is_fast ? _camera_move_speed_multiplier : 1.0f);
-        camera_move_speed *= deltaSeconds;
+        camera_move_speed = _cameraSpeed * deltaSeconds * (is_fast ? _camera_move_speed_multiplier : 1.0f);
     }
-
-    auto forward = _camera3->GetForward();
     if(g_theInput->IsKeyDown(KeyCode::W)) {
-        _camera3->Translate(forward * camera_move_speed);
+        _camera3->Translate(_camera3->GetForward() * camera_move_speed);
     } else if(g_theInput->IsKeyDown(KeyCode::S)) {
-        _camera3->Translate(-forward * camera_move_speed);
+        _camera3->Translate(-_camera3->GetForward() * camera_move_speed);
     }
 
-    auto right = _camera3->GetRight();
     if(g_theInput->IsKeyDown(KeyCode::A)) {
-        _camera3->Translate(-right * camera_move_speed);
+        _camera3->Translate(-_camera3->GetRight() * camera_move_speed);
     } else if(g_theInput->IsKeyDown(KeyCode::D)) {
-        _camera3->Translate(right * camera_move_speed);
+        _camera3->Translate(_camera3->GetRight() * camera_move_speed);
     }
 
     if(g_theInput->IsKeyDown(KeyCode::Q)) {
@@ -168,11 +166,10 @@ void Game::UpdateCameraFromKeyboard(float deltaSeconds) {
         _camera3->SetEulerAnglesDegrees(angles);
     }
 
-    auto up = _camera3->GetUp();
     if(g_theInput->IsKeyDown(KeyCode::Space)) {
-        _camera3->Translate(up * camera_move_speed);
+        _camera3->Translate(_camera3->GetUp() * camera_move_speed);
     } else if(g_theInput->IsKeyDown(KeyCode::Ctrl)) {
-        _camera3->Translate(-up * camera_move_speed);
+        _camera3->Translate(-_camera3->GetUp() * camera_move_speed);
     }
 
     if(g_theInput->WasKeyJustPressed(KeyCode::R)) {
@@ -252,12 +249,9 @@ void Game::Render() const {
     g_theRenderer->SetViewMatrix(_camera2->GetViewMatrix());
     g_theRenderer->SetProjectionMatrix(_camera2->GetProjectionMatrix());
 
-    {
-        std::ostringstream ss;
-        ss << "Delta Seconds: " << g_theRenderer->GetSystemFrameTime();
-        g_theRenderer->SetModelMatrix(Matrix4::CreateTranslationMatrix(Vector2(view_leftBottom.x, view_rightTop.y + g_theRenderer->GetFont("System32")->GetLineHeight())));
-        g_theRenderer->DrawTextLine(g_theRenderer->GetFont("System32"), ss.str());
-    }
+    g_theRenderer->SetModelMatrix(Matrix4::CreateScaleMatrix(_aabb2.CalcDimensions()));
+    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__unlit"));
+    g_theRenderer->DrawAABB2(Rgba::CYAN, Rgba::NOALPHA);
 
     _canvas->Render(g_theRenderer);
     if(_debug) {

@@ -13,20 +13,19 @@
 
 namespace UI {
 
-Canvas::Canvas(Renderer& renderer, Texture* target_texture, Texture* target_depthstencil, float reference_resolution)
+Canvas::Canvas(Renderer& renderer, float reference_resolution, Texture* target_texture /*= nullptr*/)
     : Element()
     , _renderer(&renderer)
     , _target_texture(target_texture)
-    , _target_depthstencil(target_depthstencil)
     , _reference_resolution(reference_resolution)
 {
     if(!_target_texture) {
         _target_texture = _renderer->GetOutput()->GetBackBuffer();
     }
     {
-    std::ostringstream ss;
-    ss << __FUNCTION__ << ": reference resolution must not be zero.";
-    GUARANTEE_OR_DIE(!MathUtils::IsEquivalent(_reference_resolution, 0.0f), ss.str().c_str());
+        std::ostringstream ss;
+        ss << __FUNCTION__ << ": reference resolution must not be zero.";
+        GUARANTEE_OR_DIE(!MathUtils::IsEquivalent(_reference_resolution, 0.0f), ss.str().c_str());
     }
 
     Vector2 dimensions{};
@@ -41,21 +40,9 @@ void Canvas::Update(float deltaSeconds) {
 }
 
 void Canvas::Render(Renderer* renderer) const {
-    renderer->SetRenderTarget(_target_texture, _target_depthstencil);
-    renderer->ClearColor(Rgba::BLACK);
-    renderer->ClearDepthStencilBuffer();
     SetupMVPFromTargetAndCamera(renderer);
+    renderer->SetRenderTarget(_target_texture);
     RenderChildren(renderer);
-    renderer->SetRenderTarget();
-    renderer->SetMaterial(renderer->GetMaterial("__2D"));
-    renderer->SetTexture(_target_texture);
-    auto dims = _target_texture->GetDimensions();
-    auto width = static_cast<float>(dims.x);
-    auto height = static_cast<float>(dims.y);
-    auto dims2 = Vector2(width, height);
-    renderer->SetModelMatrix(Matrix4::CreateScaleMatrix(dims2));
-    renderer->DrawQuad();
-    renderer->SetTexture(nullptr);
 }
 
 void Canvas::SetupMVPFromTargetAndCamera(Renderer* renderer) const {
@@ -65,27 +52,18 @@ void Canvas::SetupMVPFromTargetAndCamera(Renderer* renderer) const {
     Vector2 rightTop = Vector2(0.5f, -0.5f) * target_dims;
     Vector2 nearFar{ 0.0f, 1.0f };
     _camera->SetupView(leftBottom, rightTop, nearFar, _aspect_ratio);
-    auto scale = target_dims * 0.5f;
-    Matrix4 s = Matrix4::CreateScaleMatrix(scale);
-    renderer->SetModelMatrix(s);
+    renderer->SetModelMatrix(GetWorldTransform());
     renderer->SetViewMatrix(_camera->GetViewMatrix());
     renderer->SetProjectionMatrix(_camera->GetProjectionMatrix());
 }
 
 void Canvas::DebugRender(Renderer* renderer) const {
-    renderer->SetRenderTarget(_target_texture, _target_depthstencil);
-    SetupMVPFromTargetAndCamera(renderer);
+    renderer->SetRenderTarget(_target_texture);
+    renderer->DisableDepth();
     DebugRenderBottomUp(renderer);
+    renderer->EnableDepth();
     renderer->SetRenderTarget();
-    renderer->SetMaterial(renderer->GetMaterial("__2D"));
-    renderer->SetTexture(_target_texture);
-    auto dims = _target_texture->GetDimensions();
-    auto width = static_cast<float>(dims.x);
-    auto height = static_cast<float>(dims.y);
-    auto dims2 = Vector2(width, height);
-    renderer->SetModelMatrix(Matrix4::CreateScaleMatrix(dims2));
-    renderer->DrawQuad();
-    renderer->SetTexture(nullptr);
+    renderer->SetMaterial(nullptr);
 }
 
 const Camera2D* Canvas::GetUICamera() const {

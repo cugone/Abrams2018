@@ -10,7 +10,7 @@ namespace UI {
 
 class Canvas : public UI::Element {
 public:
-    Canvas(Renderer& renderer, Texture* target_texture, Texture* target_depthstencil, float reference_resolution);
+    Canvas(Renderer& renderer, float reference_resolution, Texture* target_texture = nullptr);
     virtual ~Canvas() = default;
     virtual void Update(float deltaSeconds) override;
     virtual void Render(Renderer* renderer) const override;
@@ -25,7 +25,6 @@ private:
     Camera2D* _camera = nullptr;
     Renderer* _renderer = nullptr;
     Texture* _target_texture = nullptr;
-    Texture* _target_depthstencil = nullptr;
     float _reference_resolution = 0.0f;
     float _aspect_ratio = 1.0f;
 };

@@ -17,14 +17,14 @@ class ConstantBuffer;
 class Texture;
 
 namespace UI {
-    class Canvas;
-    class Panel;
-    class Label;
+class Canvas;
+class Panel;
+class Label;
 }
 
 struct health_buffer_t {
     float health_percentage = 0.0f;
-    float PADDING[3] = {0.0f};
+    float PADDING[3] = { 0.0f };
 };
 
 class Game {
@@ -54,11 +54,11 @@ private:
     void DrawCube() const;
 
     UI::Canvas* _canvas = nullptr;
+    UI::Label* _label = nullptr;
     ConstantBuffer* _health_cb = nullptr;
     health_buffer_t health_data{};
-    const float _cameraSpeed = 10.0f;
+    const float _cameraSpeed = 1.0f;
     const float _camera_move_speed_multiplier = 10.0f;
-    AABB2 _aabb2{};
     Camera2D* _camera2 = nullptr;
     Camera3D* _camera3 = nullptr;
     bool _debug = true;

@@ -35,10 +35,10 @@ App::App(std::unique_ptr<JobSystem>&& jobSystem, std::unique_ptr<FileLogger>&& f
     , _theJobSystem(std::move(jobSystem))
     , _theFileLogger(std::move(fileLogger))
     , _theConfig(std::make_unique<Config>())
-    , _theRenderer{std::make_unique<Renderer>(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT))}
-    , _theInputSystem{std::make_unique<InputSystem>()}
-    , _theConsole{std::make_unique<Console>(_theRenderer.get())}
-    , _theGame{std::make_unique<Game>()}
+    , _theRenderer{ std::make_unique<Renderer>(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT)) }
+    , _theInputSystem{ std::make_unique<InputSystem>() }
+    , _theConsole{ std::make_unique<Console>(_theRenderer.get()) }
+    , _theGame{ std::make_unique<Game>() }
 {
     g_theJobSystem = _theJobSystem.get();
     g_theFileLogger = _theFileLogger.get();
@@ -101,14 +101,14 @@ void App::Initialize() {
 
 void App::RunFrame() {
     BeginFrame();
-    static auto previousFrameTime = TimeUtils::Now();
-    auto currentFrameTime = TimeUtils::Now();
-    FPSeconds deltaSeconds = currentFrameTime - previousFrameTime;
+    static auto previousFrameTime = TimeUtils::GetCurrentTimeElapsed();
+    auto currentFrameTime = TimeUtils::GetCurrentTimeElapsed();
+    auto deltaSeconds = static_cast<float>(currentFrameTime - previousFrameTime);
     previousFrameTime = currentFrameTime;
 
-    float ds = MathUtils::Clamp(deltaSeconds.count(), 0.0f, 0.16f);
+    deltaSeconds = MathUtils::Clamp(deltaSeconds, 0.0f, 0.016f);
 
-    Update(ds);
+    Update(deltaSeconds);
     Render();
     EndFrame();
 }
@@ -129,46 +129,46 @@ bool App::ProcessSystemMessage(const EngineMessage& msg) {
 
     WPARAM wp = msg.wparam;
     switch(msg.wmMessageCode) {
-        case WindowsSystemMessage::Window_Close:
-        case WindowsSystemMessage::Window_Quit:
-        case WindowsSystemMessage::Window_Destroy:
-        {
-            SetIsQuitting(true);
+    case WindowsSystemMessage::Window_Close:
+    case WindowsSystemMessage::Window_Quit:
+    case WindowsSystemMessage::Window_Destroy:
+    {
+        SetIsQuitting(true);
+        return true;
+    }
+    case WindowsSystemMessage::Window_ActivateApp:
+    {
+        bool losing_focus = wp == FALSE;
+        bool gaining_focus = wp == TRUE;
+        if(losing_focus) {
+            _current_focus = false;
+            _previous_focus = true;
+        }
+        if(gaining_focus) {
+            _current_focus = true;
+            _previous_focus = false;
+        }
+        return true;
+    }
+    case WindowsSystemMessage::Keyboard_Activate:
+    {
+        auto active_type = LOWORD(wp);
+        switch(active_type) {
+        case WA_ACTIVE: /* FALLTHROUGH */
+        case WA_CLICKACTIVE:
+            _current_focus = true;
+            _previous_focus = false;
             return true;
-        }
-        case WindowsSystemMessage::Window_ActivateApp:
-        {
-            bool losing_focus = wp == FALSE;
-            bool gaining_focus = wp == TRUE;
-            if(losing_focus) {
-                _current_focus = false;
-                _previous_focus = true;
-            }
-            if(gaining_focus) {
-                _current_focus = true;
-                _previous_focus = false;
-            }
+        case WA_INACTIVE:
+            _current_focus = false;
+            _previous_focus = true;
             return true;
-        }
-        case WindowsSystemMessage::Keyboard_Activate:
-        {
-            auto active_type = LOWORD(wp);
-            switch(active_type) {
-                case WA_ACTIVE: /* FALLTHROUGH */
-                case WA_CLICKACTIVE:
-                    _current_focus = true;
-                    _previous_focus = false;
-                    return true;
-                case WA_INACTIVE:
-                    _current_focus = false;
-                    _previous_focus = true;
-                    return true;
-                default:
-                    return false;
-            }
-        }
         default:
             return false;
+        }
+    }
+    default:
+        return false;
     }
 }
 

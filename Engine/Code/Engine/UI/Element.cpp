@@ -69,8 +69,8 @@ void Element::RemoveChild(Element* child) {
     _children.erase(
         std::remove_if(_children.begin(), _children.end(),
             [&child](UI::Element* c) {
-                return child == c;
-            }),
+        return child == c;
+    }),
         _children.end());
     CalcBoundsForMeThenMyChildren();
 }
@@ -158,38 +158,38 @@ void Element::SetPivot(const Vector2& pivotPosition) {
 
 void Element::SetPivot(const PivotPosition& pivotPosition) {
     switch(pivotPosition) {
-        case PivotPosition::Center:
-            SetPivot(Vector2(0.0f, 0.0f));
-            break;
-        case PivotPosition::TopLeft:
-            SetPivot(Vector2(-0.5f, -0.5f));
-            break;
-        case PivotPosition::Top:
-            SetPivot(Vector2(0.0f, -0.5f));
-            break;
-        case PivotPosition::TopRight:
-            SetPivot(Vector2(0.5f, -0.5f));
-            break;
-        case PivotPosition::Right:
-            SetPivot(Vector2(0.5f, 0.0f));
-            break;
-        case PivotPosition::BottomRight:
-            SetPivot(Vector2(0.5f, 0.5f));
-            break;
-        case PivotPosition::Bottom:
-            SetPivot(Vector2(0.0f, 0.5f));
-            break;
-        case PivotPosition::BottomLeft:
-            SetPivot(Vector2(-0.5f, 0.5f));
-            break;
-        case PivotPosition::Left:
-            SetPivot(Vector2(-0.5f, 0.0f));
-            break;
-        default:
-            std::ostringstream ss;
-            ss << __FUNCTION__ << ": Unhandled pivot mode.";
-            ERROR_AND_DIE(ss.str().c_str());
-            break;
+    case PivotPosition::Center:
+        SetPivot(Vector2(0.0f, 0.0f));
+        break;
+    case PivotPosition::TopLeft:
+        SetPivot(Vector2(-0.5f, -0.5f));
+        break;
+    case PivotPosition::Top:
+        SetPivot(Vector2(0.0f, -0.5f));
+        break;
+    case PivotPosition::TopRight:
+        SetPivot(Vector2(0.5f, -0.5f));
+        break;
+    case PivotPosition::Right:
+        SetPivot(Vector2(0.5f, 0.0f));
+        break;
+    case PivotPosition::BottomRight:
+        SetPivot(Vector2(0.5f, 0.5f));
+        break;
+    case PivotPosition::Bottom:
+        SetPivot(Vector2(0.0f, 0.5f));
+        break;
+    case PivotPosition::BottomLeft:
+        SetPivot(Vector2(-0.5f, 0.5f));
+        break;
+    case PivotPosition::Left:
+        SetPivot(Vector2(-0.5f, 0.0f));
+        break;
+    default:
+        std::ostringstream ss;
+        ss << __FUNCTION__ << ": Unhandled pivot mode.";
+        ERROR_AND_DIE(ss.str().c_str());
+        break;
     }
 }
 
@@ -226,7 +226,7 @@ Vector2 Element::CalcLocalScale() const {
     auto parent_height = parent_bounds.maxs.y - parent_bounds.mins.y;
     auto my_height = my_bounds.maxs.y - my_bounds.mins.y;
     auto height_scale = my_height / parent_height;
-    return Vector2(width_scale, height_scale);
+    return _parent ? Vector2(width_scale, height_scale) : _size.unit;
 }
 
 Matrix4 Element::GetWorldTransform() const {
@@ -272,19 +272,19 @@ AABB2 Element::GetParentBounds() const {
 void Element::CalcBounds() {
     _dirty_bounds = false;
     switch(_mode) {
-        case UI::PositionMode::Absolute:
-            _bounds = CalcAbsoluteBounds();
-            break;
-        case UI::PositionMode::Relative:
-            _bounds = CalcRelativeBounds();
-            break;
-        default:
-        {
-            std::ostringstream ss;
-            ss << __FUNCTION__ << ": Unhandled positioning mode.";
-            ERROR_AND_DIE(ss.str().c_str());
-            break;
-        }
+    case UI::PositionMode::Absolute:
+        _bounds = CalcAbsoluteBounds();
+        break;
+    case UI::PositionMode::Relative:
+        _bounds = CalcRelativeBounds();
+        break;
+    default:
+    {
+        std::ostringstream ss;
+        ss << __FUNCTION__ << ": Unhandled positioning mode.";
+        ERROR_AND_DIE(ss.str().c_str());
+        break;
+    }
     }
 }
 
@@ -406,7 +406,7 @@ void Element::DebugRenderChildren(Renderer* renderer) const {
 }
 
 AABB2 Element::GetParentLocalBounds() const {
-    return _parent ? _parent->CalcLocalBounds() : AABB2( Vector2::ZERO , _size.unit );
+    return _parent ? _parent->CalcLocalBounds() : AABB2(Vector2::ZERO, _size.unit);
 }
 
 AABB2 Element::GetParentRelativeBounds() const {
@@ -459,7 +459,7 @@ Vector2 Element::GetTopLeft() const noexcept {
 }
 
 Vector2 Element::GetTopRight() const noexcept {
-    return Vector2{_bounds.maxs.x, _bounds.mins.y };
+    return Vector2{ _bounds.maxs.x, _bounds.mins.y };
 }
 
 Vector2 Element::GetBottomLeft() const noexcept {

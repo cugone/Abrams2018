@@ -78,12 +78,30 @@ void Game::InitializeUI() {
     _canvas->SetBorderColor(Rgba::CYAN);
     _canvas->SetPivot(UI::PivotPosition::Center);
 
-    _label = _canvas->CreateChild<UI::Label>(_canvas);
+    _panel = _canvas->CreateChild<UI::Panel>(_canvas);
+    _panel->SetBorderColor(Rgba::RED);
+    _panel->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * 0.5f}, {} });
+/*
+    _label = _panel->CreateChild<UI::Label>(_canvas);
     _label->SetBorderColor(Rgba::ORANGE);
-    _label->SetPivot(UI::PivotPosition::Left);
+    _label->SetPivot(UI::PivotPosition::Center);
     _label->SetFont(g_theRenderer->GetFont("System32"));
     _label->SetText("Hello World");
-    _label->SetPosition(UI::Metric{ UI::Ratio(Vector2(0.0f, 0.0f)), Vector2::ZERO });
+    _label->SetPosition(UI::Metric{ UI::Ratio(Vector2::ZERO), Vector2::ZERO });
+*/
+    _sprite = _panel->CreateChild<UI::Sprite>(_canvas, g_theRenderer->CreateAnimatedSprite("Data/Images/cute_sif.gif"));
+    _sprite->SetBorderColor(Rgba::MAGENTA);
+    _sprite->SetPivot(UI::PivotPosition::Center);
+    _sprite->SetPosition(UI::Metric{ UI::Ratio(Vector2(0.0f, 0.0f)), Vector2::ZERO });
+    _sprite->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE}, Vector2::ZERO });
+
+    _label_deltaSeconds = _panel->CreateChild<UI::Label>(_canvas);
+    _label_deltaSeconds->SetBorderColor(Rgba::BLUE);
+    _label_deltaSeconds->SetPivot(UI::PivotPosition::BottomLeft);
+    _label_deltaSeconds->SetFont(g_theRenderer->GetFont("System32"));
+    _label_deltaSeconds->SetText("DeltaSeconds: ");
+    _label_deltaSeconds->SetPosition(UI::Metric{ UI::Ratio(Vector2(0.0f, 0.0f)), Vector2(0.0f, 1.0f) });// *_label_deltaSeconds->GetFont()->GetLineHeight() });
+
 }
 
 void Game::BeginFrame() {
@@ -202,6 +220,19 @@ void Game::UpdateCameraFromMouse(float deltaSeconds) {
         auto moved_y = mouse_delta_pos.y;
         Vector3 angles = Vector3{ _camera3->GetPitchDegrees() - moved_y, _camera3->GetYawDegrees() - moved_x, _camera3->GetRollDegrees() };
         _camera3->SetEulerAnglesDegrees(angles);
+        if(g_theInput->WasKeyJustPressed(KeyCode::MButton)) {
+            _sprite_scale = 1.0f;
+            _sprite->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * _sprite_scale}, Vector2::ZERO });
+        }
+        if(g_theInput->WasMouseWheelJustScrolledDown()) {
+            _sprite_scale *= 0.99f;
+            _sprite_scale = MathUtils::Clamp(_sprite_scale, 0.0f, 1.0f);
+            _sprite->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * _sprite_scale}, Vector2::ZERO });
+        } else if(g_theInput->WasMouseWheelJustScrolledUp()) {
+            _sprite_scale *= 1.01f;
+            _sprite_scale = MathUtils::Clamp(_sprite_scale, 0.0f, 1.0f);
+            _sprite->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * _sprite_scale}, Vector2::ZERO });
+        }
         if(g_theInput->WasMouseWheelJustScrolledLeft()) {
             _camera3->Translate(-_camera3->GetRight() * camera_move_speed);
         }
@@ -255,8 +286,7 @@ void Game::Render() const {
     {
         std::ostringstream ss;
         ss << "Delta Seconds: " << g_theRenderer->GetSystemFrameTime();
-        g_theRenderer->SetModelMatrix(Matrix4::CreateTranslationMatrix(Vector2(view_leftBottom.x, view_rightTop.y + g_theRenderer->GetFont("System32")->GetLineHeight())));
-        g_theRenderer->DrawTextLine(g_theRenderer->GetFont("System32"), ss.str());
+        _label_deltaSeconds->SetText(ss.str());
     }
 
     _canvas->Render(g_theRenderer);

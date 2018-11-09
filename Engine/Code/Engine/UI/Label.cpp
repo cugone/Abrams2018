@@ -42,6 +42,10 @@ void Label::DebugRender(Renderer* renderer) const {
     DebugRenderBoundsAndPivot(renderer);
 }
 
+const KerningFont* const Label::GetFont() const {
+    return _font;
+}
+
 void Label::SetFont(KerningFont* font) {
     _font = font;
     DirtyElement();

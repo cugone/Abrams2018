@@ -19,6 +19,7 @@ public:
     virtual void Render(Renderer* renderer) const override;
     virtual void DebugRender(Renderer* renderer) const override;
 
+    const KerningFont* const GetFont() const;
     void SetFont(KerningFont* font);
     void SetText(const std::string& text);
     const std::string& GetText() const;

@@ -114,7 +114,7 @@
     <ClCompile Include="RHI\RHITypes.cpp" />
     <ClCompile Include="UI\Canvas.cpp" />
     <ClCompile Include="UI\Element.cpp" />
-    <ClCompile Include="UI\Image.cpp" />
+    <ClCompile Include="UI\Sprite.cpp" />
     <ClCompile Include="UI\Panel.cpp" />
     <ClCompile Include="UI\Label.cpp" />
     <ClCompile Include="UI\Types.cpp" />
@@ -213,7 +213,7 @@
     <ClInclude Include="RHI\RHITypes.hpp" />
     <ClInclude Include="UI\Canvas.hpp" />
     <ClInclude Include="UI\Element.hpp" />
-    <ClInclude Include="UI\Image.hpp" />
+    <ClInclude Include="UI\Sprite.hpp" />
     <ClInclude Include="UI\Panel.hpp" />
     <ClInclude Include="UI\Label.hpp" />
     <ClInclude Include="UI\Types.hpp" />

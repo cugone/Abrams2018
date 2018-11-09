@@ -310,7 +310,7 @@
     <ClCompile Include="Core\Base64.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="UI\Image.cpp">
+    <ClCompile Include="UI\Sprite.cpp">
       <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
@@ -606,7 +606,7 @@
     <ClInclude Include="Core\Base64.hpp">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="UI\Image.hpp">
+    <ClInclude Include="UI\Sprite.hpp">
       <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>

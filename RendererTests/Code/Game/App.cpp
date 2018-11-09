@@ -101,14 +101,14 @@ void App::Initialize() {
 
 void App::RunFrame() {
     BeginFrame();
-    static auto previousFrameTime = TimeUtils::Now();
-    auto currentFrameTime = TimeUtils::Now();
-    FPSeconds deltaSeconds = currentFrameTime - previousFrameTime;
+    static auto previousFrameTime = TimeUtils::GetCurrentTimeElapsed();
+    auto currentFrameTime = TimeUtils::GetCurrentTimeElapsed();
+    auto deltaSeconds = static_cast<float>(currentFrameTime - previousFrameTime);
     previousFrameTime = currentFrameTime;
 
-    float ds = MathUtils::Clamp(deltaSeconds.count(), 0.0f, 0.16f);
+    deltaSeconds = MathUtils::Clamp(deltaSeconds, 0.0f, 0.016f);
 
-    Update(ds);
+    Update(deltaSeconds);
     Render();
     EndFrame();
 }

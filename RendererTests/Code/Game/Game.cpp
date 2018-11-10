@@ -45,9 +45,6 @@ Game::~Game() {
     delete _canvas;
     _canvas = nullptr;
 
-    delete _health_cb;
-    _health_cb = nullptr;
-
     delete _camera3;
     _camera3 = nullptr;
 
@@ -67,7 +64,6 @@ void Game::InitializeData() {
     g_theRenderer->RegisterMaterialsFromFolder(std::string{ "Data/Materials" });
     g_theRenderer->RegisterFontsFromFolder(std::string{ "Data/Fonts" });
 
-    _health_cb = g_theRenderer->CreateConstantBuffer(&health_data, sizeof(health_data));
     _camera3->SetPosition(Vector3(0.0f, 5.0f, -10.0f));
 
 }
@@ -126,14 +122,6 @@ void Game::Update(float deltaSeconds) {
         _wireframe_mode = !_wireframe_mode;
     }
 
-    if(g_theInput->IsKeyDown(KeyCode::Up)) {
-        health_data.health_percentage += 0.1f * deltaSeconds;
-    } else if(g_theInput->IsKeyDown(KeyCode::Down)) {
-        health_data.health_percentage -= 0.1f * deltaSeconds;
-    }
-    health_data.health_percentage = std::clamp(health_data.health_percentage, 0.0f, 1.0f);
-    _health_cb->Update(g_theRenderer->GetDeviceContext(), &health_data);
-
     _camera2->Update(deltaSeconds);
     _camera3->Update(deltaSeconds);
 
@@ -185,7 +173,6 @@ void Game::UpdateCameraFromKeyboard(float deltaSeconds) {
         _camera3->SetEulerAngles(Vector3{ 0.0f, 0.0f, 0.0f });
         _camera2->SetPosition(Vector2::ZERO);
         _camera2->SetRotationDegrees(0.0f);
-        health_data.health_percentage = 0.0f;
     }
 }
 
@@ -207,19 +194,6 @@ void Game::UpdateCameraFromMouse(float deltaSeconds) {
         auto moved_y = mouse_delta_pos.y;
         Vector3 angles = Vector3{ _camera3->GetPitchDegrees() - moved_y, _camera3->GetYawDegrees() - moved_x, _camera3->GetRollDegrees() };
         _camera3->SetEulerAnglesDegrees(angles);
-        if(g_theInput->WasKeyJustPressed(KeyCode::MButton)) {
-            _sprite_scale = 1.0f;
-            _sprite->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * _sprite_scale}, Vector2::ZERO });
-        }
-        if(g_theInput->WasMouseWheelJustScrolledDown()) {
-            _sprite_scale *= 0.99f;
-            _sprite_scale = MathUtils::Clamp(_sprite_scale, 0.0f, 1.0f);
-            _sprite->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * _sprite_scale}, Vector2::ZERO });
-        } else if(g_theInput->WasMouseWheelJustScrolledUp()) {
-            _sprite_scale *= 1.01f;
-            _sprite_scale = MathUtils::Clamp(_sprite_scale, 0.0f, 1.0f);
-            _sprite->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * _sprite_scale}, Vector2::ZERO });
-        }
         if(g_theInput->WasMouseWheelJustScrolledLeft()) {
             _camera3->Translate(-_camera3->GetRight() * camera_move_speed);
         }

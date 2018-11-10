@@ -81,26 +81,26 @@ void Game::InitializeUI() {
     _panel = _canvas->CreateChild<UI::Panel>(_canvas);
     _panel->SetBorderColor(Rgba::RED);
     _panel->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * 0.5f}, {} });
-/*
-    _label = _panel->CreateChild<UI::Label>(_canvas);
-    _label->SetBorderColor(Rgba::ORANGE);
-    _label->SetPivot(UI::PivotPosition::Center);
-    _label->SetFont(g_theRenderer->GetFont("System32"));
-    _label->SetText("Hello World");
-    _label->SetPosition(UI::Metric{ UI::Ratio(Vector2::ZERO), Vector2::ZERO });
-*/
-    _sprite = _panel->CreateChild<UI::Sprite>(_canvas, g_theRenderer->CreateAnimatedSprite("Data/Images/cute_sif.gif"));
-    _sprite->SetBorderColor(Rgba::MAGENTA);
-    _sprite->SetPivot(UI::PivotPosition::Center);
-    _sprite->SetPosition(UI::Metric{ UI::Ratio(Vector2(0.0f, 0.0f)), Vector2::ZERO });
-    _sprite->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE}, Vector2::ZERO });
+
+    //_label = _panel->CreateChild<UI::Label>(_canvas);
+    //_label->SetBorderColor(Rgba::ORANGE);
+    //_label->SetPivot(UI::PivotPosition::Center);
+    //_label->SetFont(g_theRenderer->GetFont("System32"));
+    //_label->SetText("Hello World");
+    //_label->SetPositionRatio(UI::Ratio{ Vector2{0.5f, 0.0f} });
+
+    //_sprite = _panel->CreateChild<UI::Sprite>(_canvas, g_theRenderer->CreateAnimatedSprite("Data/Images/cute_sif.gif"));
+    //_sprite->SetBorderColor(Rgba::MAGENTA);
+    //_sprite->SetPivot(UI::PivotPosition::Center);
+    //_sprite->SetPosition(UI::Metric{ UI::Ratio(Vector2(0.0f, 0.0f)), Vector2::ZERO });
+    //_sprite->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE}, Vector2::ZERO });
 
     _label_deltaSeconds = _panel->CreateChild<UI::Label>(_canvas);
     _label_deltaSeconds->SetBorderColor(Rgba::BLUE);
-    _label_deltaSeconds->SetPivot(UI::PivotPosition::BottomLeft);
+    _label_deltaSeconds->SetPivot(UI::PivotPosition::Center);
     _label_deltaSeconds->SetFont(g_theRenderer->GetFont("System32"));
     _label_deltaSeconds->SetText("DeltaSeconds: ");
-    _label_deltaSeconds->SetPosition(UI::Metric{ UI::Ratio(Vector2(0.0f, 0.0f)), Vector2(0.0f, 1.0f) });// *_label_deltaSeconds->GetFont()->GetLineHeight() });
+    _label_deltaSeconds->SetPositionOffset(Vector2(0.0f, 0.0f));
 
 }
 

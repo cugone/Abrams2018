@@ -150,6 +150,14 @@ void Element::SetPosition(const Metric& position) {
     CalcBoundsForMeThenMyChildren();
 }
 
+void Element::SetPositionRatio(const UI::Ratio& ratio) {
+    Element::SetPosition(UI::Metric{ ratio, _position.unit });
+}
+
+void Element::SetPositionOffset(const Vector2& offset) {
+    Element::SetPosition(UI::Metric{ _position.ratio, MathUtils::CalcNormalizedHalfExtentsFromPoint(offset, GetParentBounds()) });
+}
+
 void Element::SetPivot(const Vector2& pivotPosition) {
     _dirty_bounds = true;
     _pivot.SetValue(pivotPosition);
@@ -248,13 +256,11 @@ void Element::DebugRenderBoundsAndPivot(Renderer* renderer) const {
 
 void Element::DebugRenderPivot(Renderer* renderer) const {
     auto world_transform = GetWorldTransform();
-    auto inv_scale_matrix = Matrix4::CalculateInverse(Matrix4::CreateScaleMatrix(world_transform.GetScale()));
-    Matrix4 pivot_scale_matrix = inv_scale_matrix * Matrix4::CreateScaleMatrix(0.01f);
-    auto pivot_translation = GetPivot();
-    auto pivot_translation_matrix = Matrix4::CreateTranslationMatrix(pivot_translation);
-    Matrix4 pivot_mat = world_transform * pivot_translation_matrix * pivot_scale_matrix;
+    auto scale = GetWorldTransform().GetScale();
+    auto scale_transform = Matrix4::CalculateInverse(Matrix4::CreateScaleMatrix(Vector3(scale.x * 0.10f, scale.y * 0.10f, 1.0f)));
+    auto transform = GetWorldTransform() * scale_transform;
     renderer->SetMaterial(renderer->GetMaterial("__2D"));
-    renderer->SetModelMatrix(pivot_mat);
+    renderer->SetModelMatrix(transform);
     renderer->DrawX2D(_pivot_color);
 }
 
@@ -468,6 +474,10 @@ Vector2 Element::GetBottomLeft() const noexcept {
 
 Vector2 Element::GetBottomRight() const noexcept {
     return _bounds.maxs;
+}
+
+bool Element::HasParent() const {
+    return _parent != nullptr;
 }
 
 float Element::GetParentOrientationRadians() const {

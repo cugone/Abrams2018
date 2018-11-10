@@ -71,6 +71,8 @@ public:
 
     const UI::Metric& GetPosition() const;
     virtual void SetPosition(const Metric& position);
+    virtual void SetPositionOffset(const Vector2& offset);
+    virtual void SetPositionRatio(const UI::Ratio& ratio);
 
     void SetPivot(const Vector2& pivotPosition);
     const Vector2& GetPivot() const;
@@ -84,6 +86,9 @@ public:
     void SetOrder(std::size_t value);
     std::size_t GetOrder() const;
 
+    bool HasParent() const;
+    AABB2 GetParentBounds() const;
+
 protected:
 
     Vector2 CalcLocalPosition() const;
@@ -95,9 +100,6 @@ protected:
 
     Vector2 CalcRelativePosition() const;
     Vector2 CalcRelativePosition(const Vector2& position) const;
-
-
-    AABB2 GetParentBounds() const;
 
     void CalcBounds();
     AABB2 CalcBoundsRelativeToParent();

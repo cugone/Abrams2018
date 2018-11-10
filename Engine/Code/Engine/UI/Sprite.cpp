@@ -15,6 +15,11 @@ Sprite::Sprite(Canvas* parent_canvas, AnimatedSprite* sprite)
     SetSize(UI::Metric{ UI::Ratio{}, Vector2(w, h) });
 }
 
+Sprite::~Sprite() {
+    delete _sprite;
+    _sprite = nullptr;
+}
+
 void Sprite::Update(float deltaSeconds) {
     _sprite->Update(deltaSeconds);
 }

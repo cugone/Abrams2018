@@ -79,11 +79,9 @@ void Game::InitializeUI() {
     _panel->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * 0.5f}, {} });
     _panel->SetPivot(UI::PivotPosition::Center);
 
-    _label_deltaSeconds = _panel->CreateChild<UI::Label>(_canvas);
+    _label_deltaSeconds = _panel->CreateChild<UI::Label>(_canvas, g_theRenderer->GetFont("System32"), "Label");
     _label_deltaSeconds->SetBorderColor(Rgba::Blue);
     _label_deltaSeconds->SetPivot(_label_pivot);
-    _label_deltaSeconds->SetFont(g_theRenderer->GetFont("System32"));
-    _label_deltaSeconds->SetText("DeltaSeconds: ");
 
 }
 

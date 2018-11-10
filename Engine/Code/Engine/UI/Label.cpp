@@ -16,6 +16,15 @@ Label::Label(UI::Canvas* parent_canvas)
     /* DO NOTHING */
 }
 
+Label::Label(UI::Canvas* parent_canvas, KerningFont* font, const std::string& text)
+    : UI::Element(parent_canvas)
+    , _font(font)
+    , _text(text)
+{
+    DirtyElement();
+    CalcBoundsFromFont(_font);
+}
+
 void Label::Update(float /*deltaSeconds*/) {
     /* DO NOTHING */
 }
@@ -120,8 +129,7 @@ void Label::CalcBoundsFromFont(KerningFont* font) {
     } else {
         if(old_width < width) {
             SetSize(UI::Metric{ UI::Ratio{ Vector2::ZERO }, Vector2{ width, old_height } });
-        }
-        if(old_height < height) {
+        } else if(old_height < height) {
             SetSize(UI::Metric{ UI::Ratio{ Vector2::ZERO }, Vector2{ old_width, height } });
         }
     }

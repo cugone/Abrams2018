@@ -176,9 +176,9 @@ void Rgba::SetValueFromName(std::string name) {
         SetFromRawValue(Rgba::Red.GetAsRawValue());
     } else if(name == "GREEN") {
         SetFromRawValue(Rgba::Green.GetAsRawValue());
-    } else if(name == "FOREST_GREEN") {
+    } else if(name == "FORESTGREEN") {
         SetFromRawValue(Rgba::ForestGreen.GetAsRawValue());
-    } else if(name == "NAVY_BLUE") {
+    } else if(name == "NAVYBLUE") {
         SetFromRawValue(Rgba::NavyBlue.GetAsRawValue());
     } else if(name == "CYAN") {
         SetFromRawValue(Rgba::Cyan.GetAsRawValue());
@@ -192,17 +192,17 @@ void Rgba::SetValueFromName(std::string name) {
         SetFromRawValue(Rgba::Grey.GetAsRawValue());
     } else if(name == "GRAY") {
         SetFromRawValue(Rgba::Gray.GetAsRawValue());
-    } else if(name == "LIGHT_GREY") {
+    } else if(name == "LIGHTGREY") {
         SetFromRawValue(Rgba::LightGrey.GetAsRawValue());
-    } else if(name == "LIGHT_GRAY") {
+    } else if(name == "LIGHTGRAY") {
         SetFromRawValue(Rgba::LightGray.GetAsRawValue());
-    } else if(name == "DARK_GREY") {
+    } else if(name == "DARKGREY") {
         SetFromRawValue(Rgba::DarkGrey.GetAsRawValue());
-    } else if(name == "DARK_GRAY") {
+    } else if(name == "DARKGRAY") {
         SetFromRawValue(Rgba::DarkGray.GetAsRawValue());
     } else if(name == "OLIVE") {
         SetFromRawValue(Rgba::Olive.GetAsRawValue());
-    } else if(name == "SKY_BLUE") {
+    } else if(name == "SKYBLUE") {
         SetFromRawValue(Rgba::SkyBlue.GetAsRawValue());
     } else if(name == "LIME") {
         SetFromRawValue(Rgba::Lime.GetAsRawValue());
@@ -212,7 +212,7 @@ void Rgba::SetValueFromName(std::string name) {
         SetFromRawValue(Rgba::Turquoise.GetAsRawValue());
     } else if(name == "PERIWINKLE") {
         SetFromRawValue(Rgba::Periwinkle.GetAsRawValue());
-    } else if(name == "NORMAL_Z") {
+    } else if(name == "NORMALZ") {
         SetFromRawValue(Rgba::NormalZ.GetAsRawValue());
     } else if(name == "NOALPHA") {
         SetFromRawValue(Rgba::NoAlpha.GetAsRawValue());

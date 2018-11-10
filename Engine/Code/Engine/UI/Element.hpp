@@ -173,6 +173,10 @@ T* UI::Element::CreateChild() {
     return (T*)AddChild(new T{});
 }
 
+template<typename T, typename ...Args>
+T* UI::Element::CreateChild(Args&&... args) {
+    return (T*)AddChild(new T{std::forward<Args>(args)...});
+}
 template<typename T>
 T* UI::Element::CreateChild(UI::Canvas* parentCanvas) {
     return (T*)AddChild(new T{ parentCanvas });

@@ -10,7 +10,7 @@ namespace UI {
 
 class Canvas : public UI::Element {
 public:
-    Canvas(Renderer& renderer, float reference_resolution, Texture* target_texture = nullptr);
+    explicit Canvas(Renderer& renderer, float reference_resolution, Texture* target_texture = nullptr);
     virtual ~Canvas() = default;
     virtual void Update(float deltaSeconds) override;
     virtual void Render(Renderer* renderer) const override;

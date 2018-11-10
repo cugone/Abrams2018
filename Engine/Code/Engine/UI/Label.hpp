@@ -14,8 +14,8 @@ class Canvas;
 
 class Label : public UI::Element {
 public:
-    Label(UI::Canvas* parent_canvas);
-    Label(UI::Canvas* parent_canvas, KerningFont* font, const std::string& text);
+    explicit Label(UI::Canvas* parent_canvas);
+    explicit Label(UI::Canvas* parent_canvas, KerningFont* font, const std::string& text);
     virtual ~Label() = default;
 
     virtual void Update(float deltaSeconds) override;

@@ -8,7 +8,7 @@ namespace UI {
 
 class Sprite : public UI::Element {
 public:
-	Sprite(Canvas* parent_canvas, AnimatedSprite* sprite);
+	explicit Sprite(Canvas* parent_canvas, AnimatedSprite* sprite);
     virtual ~Sprite();
 
     virtual void Update(float deltaSeconds) override;

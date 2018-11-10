@@ -8,7 +8,7 @@ class Canvas;
 
 class Panel : public UI::Element {
 public:
-    Panel(UI::Canvas* parent_canvas);
+    explicit Panel(UI::Canvas* parent_canvas);
     virtual ~Panel() = default;
 
     virtual void Update(float deltaSeconds) override;

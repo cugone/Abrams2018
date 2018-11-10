@@ -4,11 +4,10 @@
 
 #include "Engine/Math/MathUtils.hpp"
 
-#include "Engine/Profiling/ProfileLogScope.hpp"
-
 const Rgba Rgba::WHITE(255, 255, 255, 255);
 const Rgba Rgba::BLACK(0, 0, 0, 255);
 const Rgba Rgba::RED(255, 0, 0, 255);
+const Rgba Rgba::PINK(255, 192, 203, 255);
 const Rgba Rgba::GREEN(0, 255, 0, 255);
 const Rgba Rgba::FOREST_GREEN(34, 139, 34, 255);
 const Rgba Rgba::BLUE(0, 0, 255, 255);

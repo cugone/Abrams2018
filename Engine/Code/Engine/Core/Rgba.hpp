@@ -60,10 +60,10 @@ public:
     void ScaleRGB(float scale);
     void ScaleAlpha(float scale);
 
-    unsigned int GetAsRawValue() const;
-    void SetFromRawValue(unsigned long value);
-    void SetRGBAFromRawValue(unsigned long value);
-    void SetRGBFromRawValue(unsigned long value);
+    uint32_t GetAsRawValue() const;
+    void SetFromRawValue(uint32_t value);
+    void SetRGBAFromRawValue(uint32_t value);
+    void SetRGBFromRawValue(uint32_t value);
 
     bool IsRgbEqual(const Rgba& rhs) const;
     bool operator==(const Rgba& rhs) const;

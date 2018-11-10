@@ -142,28 +142,28 @@ void Rgba::ScaleAlpha(float scale) {
     a = static_cast<unsigned char>(MathUtils::Clamp<float>(scaled_alpha, 0.0f, 255.0f));
 }
 
-unsigned int Rgba::GetAsRawValue() const {
-    return static_cast<unsigned int>(  ((static_cast<unsigned int>(r) << 24) & 0xFF000000)
-                                     | ((static_cast<unsigned int>(g) << 16) & 0x00FF0000)
-                                     | ((static_cast<unsigned int>(b) << 8)  & 0x0000FF00)
-                                     | ((static_cast<unsigned int>(a) << 0)  & 0x000000FF));
+uint32_t Rgba::GetAsRawValue() const {
+    return static_cast<uint32_t>(  ((static_cast<uint32_t>(r) << 24) & 0xFF000000u)
+                                 | ((static_cast<uint32_t>(g) << 16) & 0x00FF0000u)
+                                 | ((static_cast<uint32_t>(b) << 8)  & 0x0000FF00u)
+                                 | ((static_cast<uint32_t>(a) << 0)  & 0x000000FFu));
 }
 
-void Rgba::SetFromRawValue(unsigned long value) {
+void Rgba::SetFromRawValue(uint32_t value) {
     SetRGBAFromRawValue(value);
 }
 
-void Rgba::SetRGBAFromRawValue(unsigned long value) {
-    r = static_cast<unsigned char>((value & 0xFF000000ul) >> 24);
-    g = static_cast<unsigned char>((value & 0x00FF0000ul) >> 16);
-    b = static_cast<unsigned char>((value & 0x0000FF00ul) >> 8);
-    a = static_cast<unsigned char>((value & 0x000000FFul) >> 0);
+void Rgba::SetRGBAFromRawValue(uint32_t value) {
+    r = static_cast<uint8_t>((value & 0xFF000000u) >> 24);
+    g = static_cast<uint8_t>((value & 0x00FF0000u) >> 16);
+    b = static_cast<uint8_t>((value & 0x0000FF00u) >> 8);
+    a = static_cast<uint8_t>((value & 0x000000FFu) >> 0);
 }
 
-void Rgba::SetRGBFromRawValue(unsigned long value) {
-    r = static_cast<unsigned char>((value & 0xff0000ul) >> 16);
-    g = static_cast<unsigned char>((value & 0x00ff00ul) >> 8);
-    b = static_cast<unsigned char>((value & 0x0000fful) >> 0);
+void Rgba::SetRGBFromRawValue(uint32_t value) {
+    r = static_cast<uint8_t>((value & 0xff0000u) >> 16);
+    g = static_cast<uint8_t>((value & 0x00ff00u) >> 8);
+    b = static_cast<uint8_t>((value & 0x0000ffu) >> 0);
 }
 
 void Rgba::SetValueFromName(std::string name) {

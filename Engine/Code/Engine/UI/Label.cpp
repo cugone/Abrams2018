@@ -33,7 +33,6 @@ void Label::Render(Renderer* renderer) const {
     auto inv_half_extents = Vector2(-half_extents.x, half_extents.y);
     auto inv_half_extents_matrix = Matrix4::CreateTranslationMatrix(inv_half_extents);
     renderer->SetModelMatrix(world_transform * inv_scale_matrix * inv_half_extents_matrix);
-    renderer->SetViewMatrix(Matrix4::GetIdentity());
     renderer->SetMaterial(_font->GetMaterial());
     renderer->DrawTextLine(_font, _text, _color);
 }

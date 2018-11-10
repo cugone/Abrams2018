@@ -97,6 +97,16 @@ void Label::SetPosition(const Metric& position) {
     CalcBoundsFromFont(_font);
 }
 
+void Label::SetPositionOffset(const Vector2& offset) {
+    Element::SetPositionOffset(offset);
+    CalcBoundsFromFont(_font);
+}
+
+void Label::SetPositionRatio(const UI::Ratio& ratio) {
+    Element::SetPositionRatio(ratio);
+    CalcBoundsFromFont(_font);
+}
+
 void Label::CalcBoundsFromFont(KerningFont* font) {
     if(font == nullptr) {
         return;

@@ -256,9 +256,13 @@ void Element::DebugRenderBoundsAndPivot(Renderer* renderer) const {
 
 void Element::DebugRenderPivot(Renderer* renderer) const {
     auto world_transform = GetWorldTransform();
-    auto scale = GetWorldTransform().GetScale();
-    auto scale_transform = Matrix4::CalculateInverse(Matrix4::CreateScaleMatrix(Vector3(scale.x * 0.10f, scale.y * 0.10f, 1.0f)));
-    auto transform = GetWorldTransform() * scale_transform;
+    auto scale = world_transform.GetScale();
+    auto inv_scale_matrix = Matrix4::CalculateInverse(Matrix4::CreateScaleMatrix(Vector3(scale.x * 0.10f, scale.y * 0.10f, 1.0f)));
+    auto extents = GetSize();
+    auto pivot = GetPivot();
+    auto pivot_pos = world_transform.GetTranslation() + Vector3(extents, 0.0f) * Vector3(pivot, 0.0f);
+    auto pivot_pos_matrix = Matrix4::CreateTranslationMatrix(pivot_pos);
+    auto transform = pivot_pos_matrix * world_transform * inv_scale_matrix;
     renderer->SetMaterial(renderer->GetMaterial("__2D"));
     renderer->SetModelMatrix(transform);
     renderer->DrawX2D(_pivot_color);

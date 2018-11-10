@@ -58,6 +58,7 @@ private:
     UI::Panel* _panel = nullptr;
     UI::Label* _label = nullptr;
     UI::Label* _label_deltaSeconds = nullptr;
+    UI::PivotPosition _label_pivot = UI::PivotPosition::Center;
     UI::Sprite* _sprite = nullptr;
     const float _cameraSpeed = 10.0f;
     const float _camera_move_speed_multiplier = 10.0f;

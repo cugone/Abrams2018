@@ -77,13 +77,13 @@ void Game::InitializeUI() {
     _panel = _canvas->CreateChild<UI::Panel>(_canvas);
     _panel->SetBorderColor(Rgba::Pink);
     _panel->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * 0.5f}, {} });
+    _panel->SetPivot(UI::PivotPosition::Center);
 
     _label_deltaSeconds = _panel->CreateChild<UI::Label>(_canvas);
     _label_deltaSeconds->SetBorderColor(Rgba::Blue);
-    _label_deltaSeconds->SetPivot(UI::PivotPosition::Center);
+    _label_deltaSeconds->SetPivot(_label_pivot);
     _label_deltaSeconds->SetFont(g_theRenderer->GetFont("System32"));
     _label_deltaSeconds->SetText("DeltaSeconds: ");
-    _label_deltaSeconds->SetPositionOffset(Vector2(0.0f, 0.0f));
 
 }
 
@@ -120,6 +120,15 @@ void Game::Update(float deltaSeconds) {
 
     if(g_theInput->WasKeyJustPressed(KeyCode::F3)) {
         _wireframe_mode = !_wireframe_mode;
+    }
+
+    if(g_theInput->WasKeyJustPressed(KeyCode::Add)) {
+        ++_label_pivot;
+        _label_deltaSeconds->SetPivot(_label_pivot);
+    }
+    if(g_theInput->WasKeyJustPressed(KeyCode::Minus)) {
+        --_label_pivot;
+        _label_deltaSeconds->SetPivot(_label_pivot);
     }
 
     _camera2->Update(deltaSeconds);

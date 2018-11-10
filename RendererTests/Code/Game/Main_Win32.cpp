@@ -22,14 +22,13 @@ void RunMessagePump();
 void Shutdown();
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int nShowCmd) {
-
     Initialize(hInstance, lpCmdLine, nShowCmd);
     MainLoop();
     Shutdown();
     return 0;
 }
-void Initialize(HINSTANCE /*hInstance*/, LPSTR /*lpCmdLine*/, int /*nShowCmd*/) {
 
+void Initialize(HINSTANCE /*hInstance*/, LPSTR /*lpCmdLine*/, int /*nShowCmd*/) {
     g_theApp = CreateApp();
     SetupCoR();
     g_theApp->Initialize();

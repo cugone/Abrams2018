@@ -50,7 +50,7 @@ protected:
 private:
     struct OutputEntry {
         std::string str{};
-        Rgba color = Rgba::WHITE;
+        Rgba color = Rgba::White;
     };
     void PostEntryLine();
     void PushEntrylineToOutputBuffer();

@@ -75,15 +75,15 @@ void Game::InitializeData() {
 void Game::InitializeUI() {
     auto reference_resolution = (std::min)(static_cast<float>(g_theRenderer->GetOutput()->GetDimensions().x), static_cast<float>(g_theRenderer->GetOutput()->GetDimensions().y));
     _canvas = new UI::Canvas(*g_theRenderer, reference_resolution);
-    _canvas->SetBorderColor(Rgba::CYAN);
+    _canvas->SetBorderColor(Rgba::Cyan);
     _canvas->SetPivot(UI::PivotPosition::Center);
 
     _panel = _canvas->CreateChild<UI::Panel>(_canvas);
-    _panel->SetBorderColor(Rgba::PINK);
+    _panel->SetBorderColor(Rgba::Pink);
     _panel->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * 0.5f}, {} });
 
     _label_deltaSeconds = _panel->CreateChild<UI::Label>(_canvas);
-    _label_deltaSeconds->SetBorderColor(Rgba::BLUE);
+    _label_deltaSeconds->SetBorderColor(Rgba::Blue);
     _label_deltaSeconds->SetPivot(UI::PivotPosition::Center);
     _label_deltaSeconds->SetFont(g_theRenderer->GetFont("System32"));
     _label_deltaSeconds->SetText("DeltaSeconds: ");
@@ -231,7 +231,7 @@ void Game::UpdateCameraFromMouse(float deltaSeconds) {
 
 void Game::Render() const {
     g_theRenderer->SetRenderTarget();
-    g_theRenderer->ClearColor(Rgba::BLACK);
+    g_theRenderer->ClearColor(Rgba::Black);
     g_theRenderer->ClearDepthStencilBuffer();
 
     g_theRenderer->SetViewport(0, 0, static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
@@ -244,11 +244,11 @@ void Game::Render() const {
     g_theRenderer->SetProjectionMatrix(_camera3->GetProjectionMatrix());
     g_theRenderer->SetViewMatrix(_camera3->GetViewMatrix());
 
-    g_theRenderer->SetAmbientLight(Rgba::WHITE, 5.0f);
+    g_theRenderer->SetAmbientLight(Rgba::White, 5.0f);
     g_theRenderer->SetLightingEyePosition(_camera3->GetPosition());
 
     DirectionalLightDesc dl_desc{};
-    dl_desc.color = Rgba::RED;
+    dl_desc.color = Rgba::Red;
     dl_desc.direction = -Vector3::Y_AXIS;
     dl_desc.intensity = 10.0f;
     g_theRenderer->SetDirectionalLight(0, dl_desc);
@@ -363,35 +363,35 @@ void Game::DrawCube() const {
     auto tex_right_bottom = Vector2{ maxs.x, maxs.y };
     std::vector<Vertex3D> vbo = {
         //Bottom
-        Vertex3D(Vector3(-0.5f, -0.5f,  0.5f), Rgba::WHITE, tex_left_bottom, -Vector3::Y_AXIS),
-        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::WHITE, tex_left_top, -Vector3::Y_AXIS),
-        Vertex3D(Vector3(0.5f,  -0.5f, -0.5f), Rgba::WHITE, tex_right_top, -Vector3::Y_AXIS),
-        Vertex3D(Vector3(0.5f,  -0.5f,  0.5f), Rgba::WHITE, tex_right_bottom, -Vector3::Y_AXIS),
+        Vertex3D(Vector3(-0.5f, -0.5f,  0.5f), Rgba::White, tex_left_bottom, -Vector3::Y_AXIS),
+        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::White, tex_left_top, -Vector3::Y_AXIS),
+        Vertex3D(Vector3(0.5f,  -0.5f, -0.5f), Rgba::White, tex_right_top, -Vector3::Y_AXIS),
+        Vertex3D(Vector3(0.5f,  -0.5f,  0.5f), Rgba::White, tex_right_bottom, -Vector3::Y_AXIS),
         //Top
-        Vertex3D(Vector3(-0.5f, 0.5f, -0.5f), Rgba::WHITE, tex_left_bottom, Vector3::Y_AXIS),
-        Vertex3D(Vector3(-0.5f, 0.5f, 0.5f), Rgba::WHITE,  tex_left_top, Vector3::Y_AXIS),
-        Vertex3D(Vector3(0.5f,  0.5f, 0.5f), Rgba::WHITE,  tex_right_top, Vector3::Y_AXIS),
-        Vertex3D(Vector3(0.5f,  0.5f, -0.5f), Rgba::WHITE, tex_right_bottom, Vector3::Y_AXIS),
+        Vertex3D(Vector3(-0.5f, 0.5f, -0.5f), Rgba::White, tex_left_bottom, Vector3::Y_AXIS),
+        Vertex3D(Vector3(-0.5f, 0.5f, 0.5f), Rgba::White,  tex_left_top, Vector3::Y_AXIS),
+        Vertex3D(Vector3(0.5f,  0.5f, 0.5f), Rgba::White,  tex_right_top, Vector3::Y_AXIS),
+        Vertex3D(Vector3(0.5f,  0.5f, -0.5f), Rgba::White, tex_right_bottom, Vector3::Y_AXIS),
         //Left
-        Vertex3D(Vector3(-0.5f, 0.5f, -0.5f), Rgba::WHITE,  tex_right_top, -Vector3::X_AXIS),
-        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::WHITE, tex_right_bottom, -Vector3::X_AXIS),
-        Vertex3D(Vector3(-0.5f, -0.5f, 0.5f), Rgba::WHITE,  tex_left_bottom, -Vector3::X_AXIS),
-        Vertex3D(Vector3(-0.5f, 0.5f, 0.5f), Rgba::WHITE,   tex_left_top, -Vector3::X_AXIS),
+        Vertex3D(Vector3(-0.5f, 0.5f, -0.5f), Rgba::White,  tex_right_top, -Vector3::X_AXIS),
+        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::White, tex_right_bottom, -Vector3::X_AXIS),
+        Vertex3D(Vector3(-0.5f, -0.5f, 0.5f), Rgba::White,  tex_left_bottom, -Vector3::X_AXIS),
+        Vertex3D(Vector3(-0.5f, 0.5f, 0.5f), Rgba::White,   tex_left_top, -Vector3::X_AXIS),
         //Right
-        Vertex3D(Vector3(0.5f, -0.5f, -0.5f), Rgba::WHITE, tex_left_bottom, Vector3::X_AXIS),
-        Vertex3D(Vector3(0.5f,  0.5f, -0.5f), Rgba::WHITE, tex_left_top, Vector3::X_AXIS),
-        Vertex3D(Vector3(0.5f,  0.5f,  0.5f), Rgba::WHITE, tex_right_top, Vector3::X_AXIS),
-        Vertex3D(Vector3(0.5f, -0.5f,  0.5f), Rgba::WHITE, tex_right_bottom, Vector3::X_AXIS),
+        Vertex3D(Vector3(0.5f, -0.5f, -0.5f), Rgba::White, tex_left_bottom, Vector3::X_AXIS),
+        Vertex3D(Vector3(0.5f,  0.5f, -0.5f), Rgba::White, tex_left_top, Vector3::X_AXIS),
+        Vertex3D(Vector3(0.5f,  0.5f,  0.5f), Rgba::White, tex_right_top, Vector3::X_AXIS),
+        Vertex3D(Vector3(0.5f, -0.5f,  0.5f), Rgba::White, tex_right_bottom, Vector3::X_AXIS),
         //Front
-        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::WHITE, tex_left_bottom, -Vector3::Z_AXIS),
-        Vertex3D(Vector3(-0.5f,  0.5f, -0.5f), Rgba::WHITE, tex_left_top, -Vector3::Z_AXIS),
-        Vertex3D(Vector3(0.5f,   0.5f, -0.5f), Rgba::WHITE, tex_right_top, -Vector3::Z_AXIS),
-        Vertex3D(Vector3(0.5f,  -0.5f, -0.5f), Rgba::WHITE, tex_right_bottom, -Vector3::Z_AXIS),
+        Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::White, tex_left_bottom, -Vector3::Z_AXIS),
+        Vertex3D(Vector3(-0.5f,  0.5f, -0.5f), Rgba::White, tex_left_top, -Vector3::Z_AXIS),
+        Vertex3D(Vector3(0.5f,   0.5f, -0.5f), Rgba::White, tex_right_top, -Vector3::Z_AXIS),
+        Vertex3D(Vector3(0.5f,  -0.5f, -0.5f), Rgba::White, tex_right_bottom, -Vector3::Z_AXIS),
         //Back
-        Vertex3D(Vector3(0.5f,  -0.5f, 0.5f), Rgba::WHITE, tex_left_bottom, Vector3::Z_AXIS),
-        Vertex3D(Vector3(0.5f,   0.5f, 0.5f), Rgba::WHITE, tex_left_top, Vector3::Z_AXIS),
-        Vertex3D(Vector3(-0.5f,  0.5f, 0.5f), Rgba::WHITE, tex_right_top, Vector3::Z_AXIS),
-        Vertex3D(Vector3(-0.5f, -0.5f, 0.5f), Rgba::WHITE, tex_right_bottom, Vector3::Z_AXIS),
+        Vertex3D(Vector3(0.5f,  -0.5f, 0.5f), Rgba::White, tex_left_bottom, Vector3::Z_AXIS),
+        Vertex3D(Vector3(0.5f,   0.5f, 0.5f), Rgba::White, tex_left_top, Vector3::Z_AXIS),
+        Vertex3D(Vector3(-0.5f,  0.5f, 0.5f), Rgba::White, tex_right_top, Vector3::Z_AXIS),
+        Vertex3D(Vector3(-0.5f, -0.5f, 0.5f), Rgba::White, tex_right_bottom, Vector3::Z_AXIS),
     };
 
     std::vector<unsigned int> ibo = {

@@ -4,33 +4,33 @@
 
 #include "Engine/Math/MathUtils.hpp"
 
-const Rgba Rgba::WHITE(255, 255, 255, 255);
-const Rgba Rgba::BLACK(0, 0, 0, 255);
-const Rgba Rgba::RED(255, 0, 0, 255);
-const Rgba Rgba::PINK(255, 192, 203, 255);
-const Rgba Rgba::GREEN(0, 255, 0, 255);
-const Rgba Rgba::FOREST_GREEN(34, 139, 34, 255);
-const Rgba Rgba::BLUE(0, 0, 255, 255);
-const Rgba Rgba::NAVY_BLUE(0, 0, 128, 255);
-const Rgba Rgba::CYAN(0, 255, 255, 255);
-const Rgba Rgba::YELLOW(255, 255, 0, 255);
-const Rgba Rgba::MAGENTA(255, 0, 255, 255);
-const Rgba Rgba::ORANGE(255, 165, 0, 255);
-const Rgba Rgba::VIOLET(143, 0, 255, 255);
-const Rgba Rgba::GREY(128, 128, 128, 255);
-const Rgba Rgba::GRAY(128, 128, 128, 255);
-const Rgba Rgba::LIGHT_GREY(192, 192, 192, 255);
-const Rgba Rgba::LIGHT_GRAY(192, 192, 192, 255);
-const Rgba Rgba::DARK_GREY(64, 64, 64, 255);
-const Rgba Rgba::DARK_GRAY(64, 64, 64, 255);
-const Rgba Rgba::OLIVE(107, 142, 35, 255);
-const Rgba Rgba::SKY_BLUE(45, 185, 255, 255);
-const Rgba Rgba::LIME(227, 255, 0, 255);
-const Rgba Rgba::TEAL(0, 128, 128, 255);
-const Rgba Rgba::TURQUOISE(64, 224, 208, 255);
-const Rgba Rgba::PERIWINKLE(204, 204, 255, 255);
-const Rgba Rgba::NORMAL_Z(128, 128, 255, 255);
-const Rgba Rgba::NOALPHA(0, 0, 0, 0);
+const Rgba Rgba::White(255, 255, 255, 255);
+const Rgba Rgba::Black(0, 0, 0, 255);
+const Rgba Rgba::Red(255, 0, 0, 255);
+const Rgba Rgba::Pink(255, 192, 203, 255);
+const Rgba Rgba::Green(0, 255, 0, 255);
+const Rgba Rgba::ForestGreen(34, 139, 34, 255);
+const Rgba Rgba::Blue(0, 0, 255, 255);
+const Rgba Rgba::NavyBlue(0, 0, 128, 255);
+const Rgba Rgba::Cyan(0, 255, 255, 255);
+const Rgba Rgba::Yellow(255, 255, 0, 255);
+const Rgba Rgba::Magenta(255, 0, 255, 255);
+const Rgba Rgba::Orange(255, 165, 0, 255);
+const Rgba Rgba::Violet(143, 0, 255, 255);
+const Rgba Rgba::Grey(128, 128, 128, 255);
+const Rgba Rgba::Gray(128, 128, 128, 255);
+const Rgba Rgba::LightGrey(192, 192, 192, 255);
+const Rgba Rgba::LightGray(192, 192, 192, 255);
+const Rgba Rgba::DarkGrey(64, 64, 64, 255);
+const Rgba Rgba::DarkGray(64, 64, 64, 255);
+const Rgba Rgba::Olive(107, 142, 35, 255);
+const Rgba Rgba::SkyBlue(45, 185, 255, 255);
+const Rgba Rgba::Lime(227, 255, 0, 255);
+const Rgba Rgba::Teal(0, 128, 128, 255);
+const Rgba Rgba::Turquoise(64, 224, 208, 255);
+const Rgba Rgba::Periwinkle(204, 204, 255, 255);
+const Rgba Rgba::NormalZ(128, 128, 255, 255);
+const Rgba Rgba::NoAlpha(0, 0, 0, 0);
 
 Rgba Rgba::Random() {
     return Rgba(static_cast<unsigned char>(MathUtils::GetRandomIntLessThan(256))
@@ -169,53 +169,53 @@ void Rgba::SetRGBFromRawValue(unsigned long value) {
 void Rgba::SetValueFromName(std::string name) {
     name = StringUtils::ToUpperCase(name);
     if(name == "WHITE") {
-        SetFromRawValue(Rgba::WHITE.GetAsRawValue());
+        SetFromRawValue(Rgba::White.GetAsRawValue());
     } else if(name == "BLACK") {
-        SetFromRawValue(Rgba::BLACK.GetAsRawValue());
+        SetFromRawValue(Rgba::Black.GetAsRawValue());
     } else if(name == "RED") {
-        SetFromRawValue(Rgba::RED.GetAsRawValue());
+        SetFromRawValue(Rgba::Red.GetAsRawValue());
     } else if(name == "GREEN") {
-        SetFromRawValue(Rgba::GREEN.GetAsRawValue());
+        SetFromRawValue(Rgba::Green.GetAsRawValue());
     } else if(name == "FOREST_GREEN") {
-        SetFromRawValue(Rgba::FOREST_GREEN.GetAsRawValue());
+        SetFromRawValue(Rgba::ForestGreen.GetAsRawValue());
     } else if(name == "NAVY_BLUE") {
-        SetFromRawValue(Rgba::NAVY_BLUE.GetAsRawValue());
+        SetFromRawValue(Rgba::NavyBlue.GetAsRawValue());
     } else if(name == "CYAN") {
-        SetFromRawValue(Rgba::CYAN.GetAsRawValue());
+        SetFromRawValue(Rgba::Cyan.GetAsRawValue());
     } else if(name == "YELLOW") {
-        SetFromRawValue(Rgba::YELLOW.GetAsRawValue());
+        SetFromRawValue(Rgba::Yellow.GetAsRawValue());
     } else if(name == "MAGENTA") {
-        SetFromRawValue(Rgba::MAGENTA.GetAsRawValue());
+        SetFromRawValue(Rgba::Magenta.GetAsRawValue());
     } else if(name == "ORANGE") {
-        SetFromRawValue(Rgba::ORANGE.GetAsRawValue());
+        SetFromRawValue(Rgba::Orange.GetAsRawValue());
     } else if(name == "GREY") {
-        SetFromRawValue(Rgba::GREY.GetAsRawValue());
+        SetFromRawValue(Rgba::Grey.GetAsRawValue());
     } else if(name == "GRAY") {
-        SetFromRawValue(Rgba::GRAY.GetAsRawValue());
+        SetFromRawValue(Rgba::Gray.GetAsRawValue());
     } else if(name == "LIGHT_GREY") {
-        SetFromRawValue(Rgba::LIGHT_GREY.GetAsRawValue());
+        SetFromRawValue(Rgba::LightGrey.GetAsRawValue());
     } else if(name == "LIGHT_GRAY") {
-        SetFromRawValue(Rgba::LIGHT_GRAY.GetAsRawValue());
+        SetFromRawValue(Rgba::LightGray.GetAsRawValue());
     } else if(name == "DARK_GREY") {
-        SetFromRawValue(Rgba::DARK_GREY.GetAsRawValue());
+        SetFromRawValue(Rgba::DarkGrey.GetAsRawValue());
     } else if(name == "DARK_GRAY") {
-        SetFromRawValue(Rgba::DARK_GRAY.GetAsRawValue());
+        SetFromRawValue(Rgba::DarkGray.GetAsRawValue());
     } else if(name == "OLIVE") {
-        SetFromRawValue(Rgba::OLIVE.GetAsRawValue());
+        SetFromRawValue(Rgba::Olive.GetAsRawValue());
     } else if(name == "SKY_BLUE") {
-        SetFromRawValue(Rgba::SKY_BLUE.GetAsRawValue());
+        SetFromRawValue(Rgba::SkyBlue.GetAsRawValue());
     } else if(name == "LIME") {
-        SetFromRawValue(Rgba::LIME.GetAsRawValue());
+        SetFromRawValue(Rgba::Lime.GetAsRawValue());
     } else if(name == "TEAL") {
-        SetFromRawValue(Rgba::TEAL.GetAsRawValue());
+        SetFromRawValue(Rgba::Teal.GetAsRawValue());
     } else if(name == "TURQUOISE") {
-        SetFromRawValue(Rgba::TURQUOISE.GetAsRawValue());
+        SetFromRawValue(Rgba::Turquoise.GetAsRawValue());
     } else if(name == "PERIWINKLE") {
-        SetFromRawValue(Rgba::PERIWINKLE.GetAsRawValue());
+        SetFromRawValue(Rgba::Periwinkle.GetAsRawValue());
     } else if(name == "NORMAL_Z") {
-        SetFromRawValue(Rgba::NORMAL_Z.GetAsRawValue());
+        SetFromRawValue(Rgba::NormalZ.GetAsRawValue());
     } else if(name == "NOALPHA") {
-        SetFromRawValue(Rgba::NOALPHA.GetAsRawValue());
+        SetFromRawValue(Rgba::NoAlpha.GetAsRawValue());
     }
 
 }

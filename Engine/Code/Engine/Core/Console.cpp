@@ -771,7 +771,7 @@ void Console::DrawCursor(const Vector2& view_half_extents) const {
     Matrix4 model_cursor_mat = cursor_t;
     _renderer->SetModelMatrix(model_cursor_mat);
     _renderer->SetMaterial(font->GetMaterial());
-    _renderer->DrawTextLine(font, "|", Rgba::WHITE);
+    _renderer->DrawTextLine(font, "|", Rgba::White);
 }
 
 void Console::DrawOutput(const Vector2& view_half_extents) const {
@@ -894,15 +894,15 @@ void Console::InsertCharInEntryLine(unsigned char c) {
 }
 
 void Console::PrintMsg(const std::string& msg) {
-    OutputMsg(msg, Rgba::WHITE);
+    OutputMsg(msg, Rgba::White);
 }
 
 void Console::WarnMsg(const std::string& msg) {
-    OutputMsg(msg, Rgba::YELLOW);
+    OutputMsg(msg, Rgba::Yellow);
 }
 
 void Console::ErrorMsg(const std::string& msg) {
-    OutputMsg(msg, Rgba::RED);
+    OutputMsg(msg, Rgba::Red);
 }
 
 void Console::DrawBackground(const Vector2& view_half_extents) const {
@@ -940,22 +940,22 @@ void Console::DrawEntryLine(const Vector2& view_half_extents) const {
         _renderer->SetModelMatrix(model_entryline_mat);
         _renderer->SetMaterial(font->GetMaterial());
 
-        _renderer->DrawTextLine(font, std::string(_entryline, 0, std::distance(std::cbegin(_entryline), rangeStart)), Rgba::WHITE);
+        _renderer->DrawTextLine(font, std::string(_entryline, 0, std::distance(std::cbegin(_entryline), rangeStart)), Rgba::White);
         Matrix4 rightside_t = Matrix4::CreateTranslationMatrix(Vector3(xPosOffsetToSelect, 0.0f, 0.0f));
         rightside_t = rightside_t * model_entryline_mat;
         _renderer->SetModelMatrix(rightside_t);
-        _renderer->DrawTextLine(font, std::string(_entryline, std::distance(std::cbegin(_entryline), rangeEnd), std::distance(rangeEnd, std::cend(_entryline))), Rgba::WHITE);
+        _renderer->DrawTextLine(font, std::string(_entryline, std::distance(std::cbegin(_entryline), rangeEnd), std::distance(rangeEnd, std::cend(_entryline))), Rgba::White);
 
         float xPosOffsetToStart = font->CalculateTextWidth(std::string(std::begin(_entryline), rangeStart));
         Matrix4 blacktext_t = Matrix4::CreateTranslationMatrix(Vector3(xPosOffsetToStart, 0.0f, 0.0f));
         Matrix4 model_mat_blacktext = blacktext_t * model_entryline_mat;
         _renderer->SetModelMatrix(model_mat_blacktext);
-        _renderer->DrawTextLine(font, std::string(rangeStart, rangeEnd), Rgba::BLACK);
+        _renderer->DrawTextLine(font, std::string(rangeStart, rangeEnd), Rgba::Black);
 
     } else {
         _renderer->SetModelMatrix(model_entryline_mat);
         _renderer->SetMaterial(font->GetMaterial());
-        _renderer->DrawTextLine(font, _entryline, Rgba::WHITE);
+        _renderer->DrawTextLine(font, _entryline, Rgba::White);
     }
 }
 

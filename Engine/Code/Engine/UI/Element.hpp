@@ -63,7 +63,7 @@ public:
     void SetBorderColor(const Rgba& color);
     void SetBackgroundColor(const Rgba& color);
     void SetPivotColor(const Rgba& color);
-    void SetDebugColors(const Rgba& edge, const Rgba& fill, const Rgba& pivot = Rgba::RED);
+    void SetDebugColors(const Rgba& edge, const Rgba& fill, const Rgba& pivot = Rgba::Red);
 
 
     void SetSize(const Metric& size);
@@ -152,9 +152,9 @@ private:
     Metric _size{};
     HalfExtent _pivot{};
     PositionMode _mode{};
-    Rgba _fill_color = Rgba::NOALPHA;
-    Rgba _edge_color = Rgba::WHITE;
-    Rgba _pivot_color = Rgba::RED;
+    Rgba _fill_color = Rgba::NoAlpha;
+    Rgba _edge_color = Rgba::White;
+    Rgba _pivot_color = Rgba::Red;
     Element* _parent = nullptr;
     std::vector<Element*> _children{};
     UI::Canvas* _parent_canvas = nullptr;

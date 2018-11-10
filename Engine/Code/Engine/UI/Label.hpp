@@ -42,7 +42,7 @@ protected:
 private:
     KerningFont* _font = nullptr;
     std::string _text{};
-    Rgba _color = Rgba::WHITE;
+    Rgba _color = Rgba::White;
     float _scale = 1.0f;
 };
 

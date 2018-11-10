@@ -66,14 +66,14 @@ struct PointLightDesc {
     Vector3 position = Vector3::ZERO;
     Vector3 attenuation = Vector3::Z_AXIS;
     float intensity = 1.0f;
-    Rgba color = Rgba::WHITE;
+    Rgba color = Rgba::White;
 };
 
 struct DirectionalLightDesc {
     Vector3 direction = Vector3::X_AXIS;
     Vector3 attenuation = Vector3::X_AXIS;
     float intensity = 1.0f;
-    Rgba color = Rgba::WHITE;
+    Rgba color = Rgba::White;
 };
 
 struct SpotLightDesc {
@@ -82,7 +82,7 @@ struct SpotLightDesc {
     Vector3 attenuation = Vector3::Z_AXIS;
     Vector2 inner_outer_anglesDegrees = Vector2{30.0f, 60.0f};
     float intensity = 1.0f;
-    Rgba color = Rgba::WHITE;
+    Rgba color = Rgba::White;
 };
 
 struct light_t {
@@ -191,10 +191,10 @@ public:
     void Present();
 
     void DrawPoint(const Vertex3D& point);
-    void DrawPoint(const Vector3& point, const Rgba& color = Rgba::WHITE, const Vector2& tex_coords = Vector2::ZERO);
-    void DrawFrustum(const Frustum& frustum, const Rgba& color = Rgba::YELLOW, const Vector2& tex_coords = Vector2::ZERO);
-    void DrawWorldGridXZ(float radius = 500.0f, float major_gridsize = 20.0f, float minor_gridsize = 5.0f, const Rgba& major_color = Rgba::WHITE, const Rgba& minor_color = Rgba::DARK_GRAY);
-    void DrawWorldGridXY(float radius = 500.0f, float major_gridsize = 20.0f, float minor_gridsize = 5.0f, const Rgba& major_color = Rgba::WHITE, const Rgba& minor_color = Rgba::DARK_GRAY);
+    void DrawPoint(const Vector3& point, const Rgba& color = Rgba::White, const Vector2& tex_coords = Vector2::ZERO);
+    void DrawFrustum(const Frustum& frustum, const Rgba& color = Rgba::Yellow, const Vector2& tex_coords = Vector2::ZERO);
+    void DrawWorldGridXZ(float radius = 500.0f, float major_gridsize = 20.0f, float minor_gridsize = 5.0f, const Rgba& major_color = Rgba::White, const Rgba& minor_color = Rgba::DarkGray);
+    void DrawWorldGridXY(float radius = 500.0f, float major_gridsize = 20.0f, float minor_gridsize = 5.0f, const Rgba& major_color = Rgba::White, const Rgba& minor_color = Rgba::DarkGray);
     void DrawAxes(float maxlength = 1000.0f, bool disable_unit_depth = true);
     void DrawDebugSphere(const Rgba& color);
 
@@ -269,28 +269,28 @@ public:
     void SetConstantBuffer(unsigned int index, ConstantBuffer* buffer);
     void SetStructuredBuffer(unsigned int index, StructuredBuffer* buffer);
 
-    void DrawQuad(const Vector3& position = Vector3::ZERO, const Vector3& halfExtents = Vector3::XY_AXIS * 0.5f, const Rgba& color = Rgba::WHITE, const Vector4& texCoords = Vector4::ZW_AXIS, const Vector3& normalFront = Vector3::Z_AXIS, const Vector3& worldUp = Vector3::Y_AXIS);
+    void DrawQuad(const Vector3& position = Vector3::ZERO, const Vector3& halfExtents = Vector3::XY_AXIS * 0.5f, const Rgba& color = Rgba::White, const Vector4& texCoords = Vector4::ZW_AXIS, const Vector3& normalFront = Vector3::Z_AXIS, const Vector3& worldUp = Vector3::Y_AXIS);
     void DrawQuad(const Rgba& frontColor, const Rgba& backColor, const Vector3& position = Vector3::ZERO, const Vector3& halfExtents = Vector3::XY_AXIS * 0.5f, const Vector4& texCoords = Vector4::ZW_AXIS, const Vector3& normalFront = Vector3::Z_AXIS, const Vector3& worldUp = Vector3::Y_AXIS);
-    void DrawPoint2D(float pointX, float pointY, const Rgba& color = Rgba::WHITE);
-    void DrawPoint2D(const Vector2& point, const Rgba& color = Rgba::WHITE);
-    void DrawLine2D(float startX, float startY, float endX, float endY, const Rgba& color = Rgba::WHITE, float thickness = 0.0f);
-    void DrawLine2D(const Vector2& start, const Vector2& end, const Rgba& color = Rgba::WHITE, float thickness = 0.0f);
-    void DrawQuad2D(float left, float bottom, float right, float top, const Rgba& color = Rgba::WHITE, const Vector4& texCoords = Vector4::ZW_AXIS);
-    void DrawQuad2D(const Vector2& position = Vector2::ZERO, const Vector2& halfExtents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::WHITE, const Vector4& texCoords = Vector4::ZW_AXIS);
+    void DrawPoint2D(float pointX, float pointY, const Rgba& color = Rgba::White);
+    void DrawPoint2D(const Vector2& point, const Rgba& color = Rgba::White);
+    void DrawLine2D(float startX, float startY, float endX, float endY, const Rgba& color = Rgba::White, float thickness = 0.0f);
+    void DrawLine2D(const Vector2& start, const Vector2& end, const Rgba& color = Rgba::White, float thickness = 0.0f);
+    void DrawQuad2D(float left, float bottom, float right, float top, const Rgba& color = Rgba::White, const Vector4& texCoords = Vector4::ZW_AXIS);
+    void DrawQuad2D(const Vector2& position = Vector2::ZERO, const Vector2& halfExtents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::White, const Vector4& texCoords = Vector4::ZW_AXIS);
     void DrawQuad2D(const Rgba& color);
     void DrawQuad2D(const Vector4& texCoords);
     void DrawQuad2D(const Rgba& color, const Vector4& texCoords);
-    void DrawCircle2D(float centerX, float centerY, float radius, const Rgba& color = Rgba::WHITE);
-    void DrawCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::WHITE);
-    void DrawFilledCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::WHITE);
+    void DrawCircle2D(float centerX, float centerY, float radius, const Rgba& color = Rgba::White);
+    void DrawCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::White);
+    void DrawFilledCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::White);
     void DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents = Vector2::ZERO);
     void DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor);
-    void DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::WHITE);
-    void DrawPolygon2D(const Vector2& center, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::WHITE);
-    void DrawX2D(const Vector2& position = Vector2::ZERO, const Vector2& half_extents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::WHITE);
+    void DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White);
+    void DrawPolygon2D(const Vector2& center, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White);
+    void DrawX2D(const Vector2& position = Vector2::ZERO, const Vector2& half_extents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::White);
     void DrawX2D(const Rgba& color);
-    void DrawTextLine(KerningFont* font, const std::string& text, const Rgba& color = Rgba::WHITE);
-    void DrawMultilineText(KerningFont* font, const std::string& text, const Rgba& color = Rgba::WHITE);
+    void DrawTextLine(KerningFont* font, const std::string& text, const Rgba& color = Rgba::White);
+    void DrawMultilineText(KerningFont* font, const std::string& text, const Rgba& color = Rgba::White);
     void AppendMultiLineTextBuffer(KerningFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo);
 
     constexpr static unsigned int MATRIX_BUFFER_INDEX = 0;

@@ -423,15 +423,15 @@ void Renderer::DrawWorldGridXY(float radius /*= 500.0f*/, float major_gridsize /
 
 void Renderer::DrawAxes(float maxlength /*= 1000.0f*/, bool disable_unit_depth /*= true*/) {
     static std::vector<Vertex3D> vbo{
-        Vertex3D{Vector3::ZERO, Rgba::RED},
-        Vertex3D{Vector3::ZERO, Rgba::GREEN},
-        Vertex3D{Vector3::ZERO, Rgba::BLUE},
-        Vertex3D{Vector3::X_AXIS * maxlength, Rgba::RED},
-        Vertex3D{Vector3::Y_AXIS * maxlength, Rgba::GREEN},
-        Vertex3D{Vector3::Z_AXIS * maxlength, Rgba::BLUE},
-        Vertex3D{Vector3::X_AXIS, Rgba::RED},
-        Vertex3D{Vector3::Y_AXIS, Rgba::GREEN},
-        Vertex3D{Vector3::Z_AXIS, Rgba::BLUE},
+        Vertex3D{Vector3::ZERO, Rgba::Red},
+        Vertex3D{Vector3::ZERO, Rgba::Green},
+        Vertex3D{Vector3::ZERO, Rgba::Blue},
+        Vertex3D{Vector3::X_AXIS * maxlength, Rgba::Red},
+        Vertex3D{Vector3::Y_AXIS * maxlength, Rgba::Green},
+        Vertex3D{Vector3::Z_AXIS * maxlength, Rgba::Blue},
+        Vertex3D{Vector3::X_AXIS, Rgba::Red},
+        Vertex3D{Vector3::Y_AXIS, Rgba::Green},
+        Vertex3D{Vector3::Z_AXIS, Rgba::Blue},
     };
     static std::vector<unsigned int> ibo{
         0, 3, 1, 4, 2, 5,
@@ -825,7 +825,7 @@ void Renderer::DrawQuad2D(const Vector2& position /*= Vector2::ZERO*/, const Vec
 }
 
 void Renderer::DrawQuad2D(const Vector4& texCoords) {
-    DrawQuad2D(Vector2::ZERO, Vector2(0.5f, 0.5f), Rgba::WHITE, texCoords);
+    DrawQuad2D(Vector2::ZERO, Vector2(0.5f, 0.5f), Rgba::White, texCoords);
 }
 
 void Renderer::DrawQuad2D(const Rgba& color, const Vector4& texCoords) {
@@ -2285,57 +2285,57 @@ void Renderer::CreateAndRegisterDefaultTextures() {
 
 Texture* Renderer::CreateDefaultTexture() {
     std::vector<Rgba> data = {
-        Rgba::WHITE
+        Rgba::White
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 Texture* Renderer::CreateInvalidTexture() {
     std::vector<Rgba> data = {
-        Rgba::MAGENTA, Rgba::BLACK,
-        Rgba::BLACK,   Rgba::MAGENTA,
+        Rgba::Magenta, Rgba::Black,
+        Rgba::Black,   Rgba::Magenta,
     };
     return Create2DTextureFromMemory(data, 2, 2);
 }
 
 Texture* Renderer::CreateDefaultDiffuseTexture() {
     std::vector<Rgba> data = {
-        Rgba::WHITE
+        Rgba::White
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 Texture* Renderer::CreateDefaultNormalTexture() {
     std::vector<Rgba> data = {
-        Rgba::NORMAL_Z
+        Rgba::NormalZ
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 Texture* Renderer::CreateDefaultLightingTexture() {
     std::vector<Rgba> data = {
-        Rgba::WHITE
+        Rgba::White
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 Texture* Renderer::CreateDefaultSpecularTexture() {
     std::vector<Rgba> data = {
-        Rgba::BLACK
+        Rgba::Black
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 Texture* Renderer::CreateDefaultOcclusionTexture() {
     std::vector<Rgba> data = {
-        Rgba::WHITE
+        Rgba::White
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 Texture* Renderer::CreateDefaultEmissiveTexture() {
     std::vector<Rgba> data = {
-        Rgba::BLACK
+        Rgba::Black
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }

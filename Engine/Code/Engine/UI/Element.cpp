@@ -344,8 +344,7 @@ AABB2 Element::CalcAbsoluteBounds() {
     float pivot_y = pivot.y;
     Vector2 mins{ { -(size.x * pivot_x) },{ -(size.y * pivot_y) } };
     Vector2 maxs{ { size.x * (1.0f - pivot_y) },{ size.y * (1.0f - pivot_y) } };
-    AABB2 result(mins, maxs);
-    return result;
+    return AABB2(mins, maxs);
 }
 
 AABB2 Element::AlignBoundsToContainer(AABB2 bounds, AABB2 container, const Vector2& alignment) noexcept {
@@ -550,7 +549,4 @@ void Element::SortChildren() {
     std::sort(std::begin(_children), std::end(_children), [](UI::Element* a, UI::Element* b) { return a->_order < b->_order; });
 }
 
-bool operator<(const Element& a, const Element& b) {
-    return a.GetOrder() < b.GetOrder();
-}
 } //End UI

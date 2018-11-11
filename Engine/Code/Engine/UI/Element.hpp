@@ -147,9 +147,10 @@ protected:
     Vector2 GetBottomLeft() const noexcept;
     Vector2 GetBottomRight() const noexcept;
 
+    Metric _size{};
+
 private:
     Metric _position{};
-    Metric _size{};
     HalfExtent _pivot{};
     PositionMode _mode{};
     Rgba _fill_color = Rgba::NoAlpha;
@@ -170,59 +171,57 @@ private:
 
 template<typename T>
 T* UI::Element::CreateChild() {
-    return (T*)AddChild(new T{});
+    return dynamic_cast<T*>(AddChild(new T{}));
 }
 
 template<typename T, typename ...Args>
 T* UI::Element::CreateChild(Args&&... args) {
-    return (T*)AddChild(new T{std::forward<Args>(args)...});
+    return dynamic_cast<T*>(AddChild(new T{std::forward<Args>(args)...}));
 }
 template<typename T>
 T* UI::Element::CreateChild(UI::Canvas* parentCanvas) {
-    return (T*)AddChild(new T{ parentCanvas });
+    return dynamic_cast<T*>(AddChild(new T{ parentCanvas }));
 }
 
 template<typename T, typename ...Args>
 T* UI::Element::CreateChild(UI::Canvas* parentCanvas, Args&&... args) {
-    return (T*)AddChild(new T{ parentCanvas, std::forward<Args>(args)... });
+    return dynamic_cast<T*>(AddChild(new T{ parentCanvas, std::forward<Args>(args)... }));
 }
 
 template<typename T>
 T* UI::Element::CreateChildBefore(UI::Element* youngerSibling) {
-    return (T*)AddChildBefore(new T{}, youngerSibling);
+    return dynamic_cast<T*>(AddChildBefore(new T{}, youngerSibling));
 }
 
 template<typename T>
 T* UI::Element::CreateChildBefore(UI::Canvas* parentCanvas, UI::Element* youngerSibling) {
-    return (T*)AddChildBefore(new T{ parentCanvas }, youngerSibling);
+    return dynamic_cast<T*>(AddChildBefore(new T{ parentCanvas }, youngerSibling));
 }
 template<typename T, typename ...Args>
 T* UI::Element::CreateChildBefore(UI::Element* youngerSibling, Args&&... args) {
-    return (T*)AddChildBefore(new T{std::forward<Args>(args)...}, youngerSibling);
+    return dynamic_cast<T*>(AddChildBefore(new T{std::forward<Args>(args)...}, youngerSibling));
 }
 template<typename T, typename ...Args>
 T* UI::Element::CreateChildBefore(UI::Canvas* parentCanvas, UI::Element* youngerSibling, Args&&... args) {
-    return (T*)AddChildBefore(new T{ parentCanvas, std::forward<Args>(args)... }, youngerSibling);
+    return dynamic_cast<T*>(AddChildBefore(new T{ parentCanvas, std::forward<Args>(args)... }, youngerSibling));
 }
 template<typename T>
 T* UI::Element::CreateChildAfter(UI::Element* olderSibling) {
-    return (T*)AddChildAfter(new T{}, olderSibling);
+    return dynamic_cast<T*>(AddChildAfter(new T{}, olderSibling));
 }
 template<typename T, typename ...Args>
 T* UI::Element::CreateChildAfter(UI::Element* olderSibling, Args&&... args) {
-    return (T*)AddChildAfter(new T{std::forward<Args>(args)... }, olderSibling);
+    return dynamic_cast<T*>(AddChildAfter(new T{std::forward<Args>(args)... }, olderSibling));
 }
 
 template<typename T>
 T* UI::Element::CreateChildAfter(UI::Canvas* parentCanvas, UI::Element* olderSibling) {
-    return (T*)AddChildAfter(new T{ parentCanvas }, olderSibling);
+    return dynamic_cast<T*>(AddChildAfter(new T{ parentCanvas }, olderSibling));
 }
 
 template<typename T, typename ...Args>
 T* UI::Element::CreateChildAfter(UI::Canvas* parentCanvas, UI::Element* olderSibling, Args&&... args) {
-    return (T*)AddChildAfter(new T{ parentCanvas, std::forward<Args>(args)... }, olderSibling);
+    return dynamic_cast<T*>(AddChildAfter(new T{ parentCanvas, std::forward<Args>(args)... }, olderSibling));
 }
-
-bool operator<(const Element& a, const Element& b);
 
 } //End UI

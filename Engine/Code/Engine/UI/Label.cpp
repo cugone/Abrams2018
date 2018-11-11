@@ -125,12 +125,12 @@ void Label::CalcBoundsFromFont(KerningFont* font) {
     float old_width = old_size.x;
     float old_height = old_size.y;
     if(old_width < width && old_height < height) {
-        SetSize(UI::Metric{ UI::Ratio{ Vector2::ZERO }, Vector2{ width, height } });
+        SetSize(UI::Metric{ UI::Ratio{ _size.ratio }, Vector2{ width, height } });
     } else {
         if(old_width < width) {
-            SetSize(UI::Metric{ UI::Ratio{ Vector2::ZERO }, Vector2{ width, old_height } });
+            SetSize(UI::Metric{ UI::Ratio{ _size.ratio }, Vector2{ width, old_height } });
         } else if(old_height < height) {
-            SetSize(UI::Metric{ UI::Ratio{ Vector2::ZERO }, Vector2{ old_width, height } });
+            SetSize(UI::Metric{ UI::Ratio{ _size.ratio }, Vector2{ old_width, height } });
         }
     }
 }

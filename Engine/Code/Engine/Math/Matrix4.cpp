@@ -832,7 +832,7 @@ Matrix4 Matrix4::operator*(const Matrix4& rhs) const {
     Vector4 rhsW = rhs.GetWComponents();
 
     float m00 = DotProduct(myX, rhsI);  float m01 = DotProduct(myX, rhsJ); float m02 = DotProduct(myX, rhsK);  float m03 = DotProduct(myX, rhsT);
-    float m04 = DotProduct(myY, rhsI);  float m05 = DotProduct(myY, rhsJ); float m06 = DotProduct(myY, rhsK);; float m07 = DotProduct(myY, rhsT);;
+    float m04 = DotProduct(myY, rhsI);  float m05 = DotProduct(myY, rhsJ); float m06 = DotProduct(myY, rhsK); float m07 = DotProduct(myY, rhsT);
     float m08 = DotProduct(myZ, rhsI);  float m09 = DotProduct(myZ, rhsJ); float m10 = DotProduct(myZ, rhsK);  float m11 = DotProduct(myZ, rhsT);
     float m12 = DotProduct(myW, rhsI);  float m13 = DotProduct(myW, rhsJ); float m14 = DotProduct(myW, rhsK);  float m15 = DotProduct(myW, rhsT);
 
@@ -882,7 +882,7 @@ Matrix4& Matrix4::operator*=(const Matrix4& rhs) {
 
 
     m_indicies[0] = DotProduct(myX, rhsI);  m_indicies[1] = DotProduct(myX, rhsJ); m_indicies[2] = DotProduct(myX, rhsK);  m_indicies[3] = DotProduct(myX, rhsT);
-    m_indicies[4] = DotProduct(myY, rhsI);  m_indicies[5] = DotProduct(myY, rhsJ); m_indicies[6] = DotProduct(myY, rhsK);; m_indicies[7] = DotProduct(myY, rhsT);;
+    m_indicies[4] = DotProduct(myY, rhsI);  m_indicies[5] = DotProduct(myY, rhsJ); m_indicies[6] = DotProduct(myY, rhsK); m_indicies[7] = DotProduct(myY, rhsT);
     m_indicies[8] = DotProduct(myZ, rhsI);  m_indicies[9] = DotProduct(myZ, rhsJ); m_indicies[10] = DotProduct(myZ, rhsK);  m_indicies[11] = DotProduct(myZ, rhsT);
     m_indicies[12] = DotProduct(myW, rhsI);  m_indicies[13] = DotProduct(myW, rhsJ); m_indicies[14] = DotProduct(myW, rhsK);  m_indicies[15] = DotProduct(myW, rhsT);
 

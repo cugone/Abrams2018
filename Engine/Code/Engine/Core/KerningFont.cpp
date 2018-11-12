@@ -19,6 +19,11 @@ KerningFont::KerningFont(Renderer* renderer)
 }
 
 float KerningFont::CalculateTextWidth(const KerningFont& font, const std::string& text, float scale /*= 1.0f*/) {
+
+    if(text.find('\n') != std::string::npos) {
+        return CalculateLongestMultiline(font, text, scale);
+    }
+
     float cursor_x = 0.0f;
 
     for(auto char_iter = text.begin(); char_iter != text.end(); /* DO NOTHING */) {
@@ -155,6 +160,18 @@ int KerningFont::GetKerningValue(int first, int second) {
         return (*iter).second;
     }
     return 0;
+}
+
+float KerningFont::CalculateLongestMultiline(const KerningFont& font, const std::string& text, float scale /*= 1.0f*/) {
+    auto lines = StringUtils::Split(text, '\n', false);
+    float length = 0.0f;
+    auto max_iter = std::max_element(std::begin(lines), std::end(lines), [](const std::string& a, const std::string& b) { return a.size() < b.size(); });
+    length = CalculateTextWidth(font, *max_iter, scale);
+    return length;
+}
+
+float KerningFont::CalculateLongestMultiline(const std::string& text, float scale /*= 1.0f*/) const {
+    return CalculateLongestMultiline(*this, text, scale);
 }
 
 bool KerningFont::LoadFromText(std::vector<unsigned char>& buffer) {

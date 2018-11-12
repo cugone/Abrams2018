@@ -111,6 +111,9 @@ using KerningMap = std::map<std::pair<int, int>, int>;
 protected:
 private:
 
+    static float CalculateLongestMultiline(const KerningFont& font, const std::string& text, float scale = 1.0f);
+    float CalculateLongestMultiline(const std::string& text, float scale = 1.0f) const;
+
     bool LoadFromText(std::vector<unsigned char>& buffer);
     bool LoadFromXml(std::vector<unsigned char>& buffer);
     bool LoadFromBinary(std::vector<unsigned char>& buffer);

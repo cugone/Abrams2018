@@ -704,16 +704,16 @@ void Console::RegisterDefaultCommands() {
 
     Console::Command echo{};
     echo.command_name = "echo";
-    echo.help_text_short = "Displays arguments as text.";
-    echo.help_text_long = "echo [text]";
+    echo.help_text_short = "Displays text as arguments.";
+    echo.help_text_long = "echo [text]: Displays text as if they were arguments, each on a separate line.";
     echo.command_function = [this](const std::string& args)->void {
         ArgumentParser arg_set(args);
         std::string cur_arg{};
-        std::ostringstream ss;
         while(arg_set.GetNext(cur_arg)) {
-            ss << cur_arg << ' ';
+            std::ostringstream ss;
+            ss << cur_arg;
+            PrintMsg(ss.str());
         }
-        PrintMsg(ss.str());
     };
     RegisterCommand(echo);
 

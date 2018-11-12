@@ -13,6 +13,7 @@
 #include "Engine/Renderer/Camera2D.hpp"
 #include "Engine/Renderer/Camera3D.hpp"
 #include "Engine/Renderer/ConstantBuffer.hpp"
+#include "Engine/Renderer/Material.hpp"
 #include "Engine/Renderer/RasterState.hpp"
 #include "Engine/Renderer/SpriteSheet.hpp"
 #include "Engine/Renderer/Texture.hpp"
@@ -74,14 +75,14 @@ void Game::InitializeUI() {
     _canvas->SetBorderColor(Rgba::Cyan);
     _canvas->SetPivot(UI::PivotPosition::Center);
 
-    _panel = _canvas->CreateChild<UI::Panel>(_canvas);
+    _panel = _canvas->CreateChild<UI::Panel>();
     _panel->SetBorderColor(Rgba::Pink);
     _panel->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * 0.5f}, {} });
     _panel->SetPivot(UI::PivotPosition::Center);
 
     _label_deltaSeconds = _panel->CreateChild<UI::Label>(_canvas, g_theRenderer->GetFont("System32"), "Label");
     _label_deltaSeconds->SetBorderColor(Rgba::Blue);
-    _label_deltaSeconds->SetPivot(_label_pivot);
+    _label_deltaSeconds->SetPivot(UI::PivotPosition::TopLeft);
 
 }
 
@@ -108,25 +109,15 @@ void Game::Update(float deltaSeconds) {
         _debug = !_debug;
     }
 
-    if(g_theInput->WasKeyJustPressed(KeyCode::F2)) {
-        DoExport();
-    }
-
     if(g_theInput->WasKeyJustPressed(KeyCode::F4)) {
         MathUtils::SetRandomEngineSeed(1729);
     }
 
-    if(g_theInput->WasKeyJustPressed(KeyCode::F3)) {
-        _wireframe_mode = !_wireframe_mode;
-    }
-
     if(g_theInput->WasKeyJustPressed(KeyCode::Add)) {
-        ++_label_pivot;
-        _label_deltaSeconds->SetPivot(_label_pivot);
+        _label_deltaSeconds->SetPivot(++_label_pivot);
     }
-    if(g_theInput->WasKeyJustPressed(KeyCode::Minus)) {
-        --_label_pivot;
-        _label_deltaSeconds->SetPivot(_label_pivot);
+    if(g_theInput->WasKeyJustPressed(KeyCode::Subtract)) {
+        _label_deltaSeconds->SetPivot(--_label_pivot);
     }
 
     _camera2->Update(deltaSeconds);
@@ -139,11 +130,10 @@ void Game::UpdateCameraFromKeyboard(float deltaSeconds) {
     float camera_move_speed = 0.0f;
     {
         bool is_fast = false;
-        if(g_theInput->IsKeyDown(KeyCode::Shift)) {
+        if(g_theInput->IsKeyDown(KeyCode::LShift)) {
             is_fast = true;
         }
-        camera_move_speed = _cameraSpeed * (is_fast ? _camera_move_speed_multiplier : 1.0f);
-        camera_move_speed *= deltaSeconds;
+        camera_move_speed = _cameraSpeed * deltaSeconds * (is_fast ? _camera_move_speed_multiplier : 1.0f);
     }
 
     auto forward = _camera3->GetForward();
@@ -171,7 +161,7 @@ void Game::UpdateCameraFromKeyboard(float deltaSeconds) {
     auto up = _camera3->GetUp();
     if(g_theInput->IsKeyDown(KeyCode::Space)) {
         _camera3->Translate(up * camera_move_speed);
-    } else if(g_theInput->IsKeyDown(KeyCode::Ctrl)) {
+    } else if(g_theInput->IsKeyDown(KeyCode::LCtrl)) {
         _camera3->Translate(-up * camera_move_speed);
     }
 
@@ -184,29 +174,30 @@ void Game::UpdateCameraFromKeyboard(float deltaSeconds) {
 }
 
 void Game::UpdateCameraFromMouse(float deltaSeconds) {
-    if(g_theApp->HasFocus()) {
-        float camera_move_speed = 0.0f;
-        {
-            bool is_fast = false;
-            if(g_theInput->IsKeyDown(KeyCode::Shift)) {
-                is_fast = true;
-            }
-            camera_move_speed = _cameraSpeed * deltaSeconds * (is_fast ? _camera_move_speed_multiplier : 1.0f);
+    if(!g_theApp->HasFocus() || g_theConsole->IsOpen()) {
+        return;
+    }
+    float camera_move_speed = 0.0f;
+    {
+        bool is_fast = false;
+        if(g_theInput->IsKeyDown(KeyCode::Shift)) {
+            is_fast = true;
         }
-        const auto& window = *(g_theRenderer->GetOutput()->GetWindow());
-        auto mouse_pos = g_theInput->GetCursorWindowPosition(window);
-        g_theInput->SetCursorToWindowCenter(window);
-        auto mouse_delta_pos = (mouse_pos - g_theInput->GetCursorWindowPosition(window));
-        auto moved_x = mouse_delta_pos.x;
-        auto moved_y = mouse_delta_pos.y;
-        Vector3 angles = Vector3{ _camera3->GetPitchDegrees() - moved_y, _camera3->GetYawDegrees() - moved_x, _camera3->GetRollDegrees() };
-        _camera3->SetEulerAnglesDegrees(angles);
-        if(g_theInput->WasMouseWheelJustScrolledLeft()) {
-            _camera3->Translate(-_camera3->GetRight() * camera_move_speed);
-        }
-        if(g_theInput->WasMouseWheelJustScrolledRight()) {
-            _camera3->Translate(_camera3->GetRight() * camera_move_speed);
-        }
+        camera_move_speed = _cameraSpeed * deltaSeconds * (is_fast ? _camera_move_speed_multiplier : 1.0f);
+    }
+    const auto& window = *(g_theRenderer->GetOutput()->GetWindow());
+    auto mouse_pos = g_theInput->GetCursorWindowPosition(window);
+    g_theInput->SetCursorToWindowCenter(window);
+    auto mouse_delta_pos = (mouse_pos - g_theInput->GetCursorWindowPosition(window));
+    auto moved_x = mouse_delta_pos.x;
+    auto moved_y = mouse_delta_pos.y;
+    Vector3 angles = Vector3{ _camera3->GetPitchDegrees() - moved_y, _camera3->GetYawDegrees() - moved_x, _camera3->GetRollDegrees() };
+    _camera3->SetEulerAnglesDegrees(angles);
+    if(g_theInput->WasMouseWheelJustScrolledLeft()) {
+        _camera3->Translate(-_camera3->GetRight() * camera_move_speed);
+    }
+    if(g_theInput->WasMouseWheelJustScrolledRight()) {
+        _camera3->Translate(_camera3->GetRight() * camera_move_speed);
     }
 }
 
@@ -245,7 +236,7 @@ void Game::Render() const {
     Vector2 view_leftBottom = Vector2(-view_half_width, view_half_height);
     Vector2 view_rightTop = Vector2(view_half_width, -view_half_height);
     Vector2 view_nearFar = Vector2(0.0f, 1.0f);
-    Vector2 cam_pos2 = Vector2(_camera2->GetPosition());
+    auto cam_pos2 = Vector2(_camera2->GetPosition());
 
     _camera2->SetupView(view_leftBottom, view_rightTop, view_nearFar, MathUtils::M_16_BY_9_RATIO);
     g_theRenderer->SetViewMatrix(_camera2->GetViewMatrix());
@@ -253,24 +244,25 @@ void Game::Render() const {
 
     {
         std::ostringstream ss;
-        ss << "Delta Seconds: " << g_theRenderer->GetSystemFrameTime();
+        ss << "Delta Seconds: " << g_theRenderer->GetGameFrameTime()
+           << '\n' << "Game FPS: " << 1.0f / g_theRenderer->GetGameFrameTime()
+           << '\n' << "System FPS: " << 1.0f / g_theRenderer->GetSystemFrameTime();
         _label_deltaSeconds->SetText(ss.str());
     }
 
     _canvas->Render(g_theRenderer);
     if(_debug) {
-        _canvas->DebugRender(g_theRenderer);
+        _canvas->DebugRender(g_theRenderer, true);
     }
 
 }
 
 void Game::RenderStuff() const {
     DrawCube();
-    //DrawObj();
-    //DrawWorldGrid();
-    //DrawAxes();
+    DrawWorldGrid();
+    DrawAxes();
 
-    //g_theRenderer->EnableDepth();
+    g_theRenderer->EnableDepth();
 }
 
 void Game::EndFrame() {
@@ -286,39 +278,6 @@ struct export_image_job_t {
     Image* img = nullptr;
     std::string filepath{};
 };
-
-void Game::DoExport() {
-    auto generate_job_data = new generate_image_job_t;
-    generate_job_data->width = 1600;
-    generate_job_data->height = 900;
-    g_theJobSystem->Run(JobType::Generic, [this](void* user_data) { this->GenerateImageData(user_data); }, generate_job_data);
-}
-
-void Game::GenerateImageData(void* data) {
-    auto width = ((generate_image_job_t*)data)->width;
-    auto height = ((generate_image_job_t*)data)->height;
-    std::vector<Rgba> img_data;
-    img_data.resize(width * height);
-    std::generate(std::begin(img_data), std::end(img_data), Rgba::Random);
-
-    auto export_job_data = new export_image_job_t;
-    Image* img = new Image(img_data, width, height);
-    export_job_data->img = img;
-    std::filesystem::path p("Data/Images/Test_");
-    static int index = 0;
-    p += std::to_string(index++);
-    p += ".png";
-    p.make_preferred();
-    export_job_data->filepath = p.string();
-    g_theJobSystem->Run(JobType::Generic, [this](void* user_data) { this->ExportImageData(user_data); }, export_job_data);
-}
-
-void Game::ExportImageData(void* data) {
-    auto image = ((export_image_job_t*)data)->img;
-    auto filepath = ((export_image_job_t*)data)->filepath;
-    image->Export(filepath);
-    delete image;
-}
 
 void Game::DrawWorldGrid() const {
     if(!_debug) {

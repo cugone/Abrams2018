@@ -47,9 +47,6 @@ protected:
 private:
     void UpdateCameraFromKeyboard(float deltaSeconds);
     void UpdateCameraFromMouse(float deltaSeconds);
-    void DoExport();
-    void GenerateImageData(void* data);
-    void ExportImageData(void* data);
     void DrawWorldGrid() const;
     void DrawAxes() const;
     void DrawCube() const;
@@ -66,5 +63,4 @@ private:
     Camera3D* _camera3 = nullptr;
     bool _debug = true;
     bool _slowmo = false;
-    bool _wireframe_mode = false;
 };

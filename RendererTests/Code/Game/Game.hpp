@@ -23,11 +23,6 @@ class Label;
 class Sprite;
 }
 
-struct health_buffer_t {
-    float health_percentage = 0.0f;
-    float PADDING[3] = { 0.0f };
-};
-
 class Game {
 public:
     Game();

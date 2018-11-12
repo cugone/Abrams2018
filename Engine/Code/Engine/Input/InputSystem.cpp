@@ -622,7 +622,7 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                 case KeyCode::Alt:
                     {
                         auto left_key = !!(::GetKeyState(VK_LMENU) & keystate_state_mask);
-                        auto right_key = !!(::GetKeyState(VK_RMENU) & keystate_state_mask);;
+                        auto right_key = !!(::GetKeyState(VK_RMENU) & keystate_state_mask);
                         auto my_leftkey = ConvertWinVKToKeyCode(VK_LMENU);
                         auto my_rightkey = ConvertWinVKToKeyCode(VK_RMENU);
                         auto alt_key = ConvertKeyCodeToWinVK(my_key);
@@ -634,8 +634,8 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                     }
                 case KeyCode::Ctrl:
                     {
-                        auto left_key = !!(::GetKeyState(VK_LCONTROL) & keystate_state_mask);;
-                        auto right_key = !!(::GetKeyState(VK_RCONTROL) & keystate_state_mask);;
+                        auto left_key = !!(::GetKeyState(VK_LCONTROL) & keystate_state_mask);
+                        auto right_key = !!(::GetKeyState(VK_RCONTROL) & keystate_state_mask);
                         auto my_leftkey = ConvertWinVKToKeyCode(VK_LCONTROL);
                         auto my_rightkey = ConvertWinVKToKeyCode(VK_RCONTROL);
                         auto ctrl_key = ConvertKeyCodeToWinVK(my_key);
@@ -648,14 +648,14 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                 case KeyCode::Return: my_key = KeyCode::NumPadEnter; break;
                 case KeyCode::LWin:
                     {
-                        auto left_key = !!(::GetKeyState(VK_LWIN) & keystate_state_mask);;
+                        auto left_key = !!(::GetKeyState(VK_LWIN) & keystate_state_mask);
                         auto my_leftkey = ConvertWinVKToKeyCode(VK_LWIN);
                         my_key = left_key ? my_leftkey : KeyCode::Unknown;
                         break;
                     }
                 case KeyCode::RWin:
                     {
-                        auto right_key = !!(::GetKeyState(VK_RWIN) & keystate_state_mask);;
+                        auto right_key = !!(::GetKeyState(VK_RWIN) & keystate_state_mask);
                         auto my_rightkey = ConvertWinVKToKeyCode(VK_RWIN);
                         my_key = right_key ? my_rightkey : KeyCode::Unknown;
                         break;
@@ -665,8 +665,8 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             switch(my_key) {
             case KeyCode::Shift:
                 {
-                    auto left_key = !!(::GetKeyState(VK_LSHIFT) & keystate_state_mask);;
-                    auto right_key = !!(::GetKeyState(VK_RSHIFT) & keystate_state_mask);;
+                    auto left_key = !!(::GetKeyState(VK_LSHIFT) & keystate_state_mask);
+                    auto right_key = !!(::GetKeyState(VK_RSHIFT) & keystate_state_mask);
                     auto my_leftkey = ConvertWinVKToKeyCode(VK_LSHIFT);
                     auto my_rightkey = ConvertWinVKToKeyCode(VK_RSHIFT);
                     auto shift_key = ConvertKeyCodeToWinVK(my_key);
@@ -678,8 +678,8 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                 }
             case KeyCode::Ctrl:
                 {
-                    auto left_key = !!(::GetKeyState(VK_LCONTROL) & keystate_state_mask);;
-                    auto right_key = !!(::GetKeyState(VK_RCONTROL) & keystate_state_mask);;
+                    auto left_key = !!(::GetKeyState(VK_LCONTROL) & keystate_state_mask);
+                    auto right_key = !!(::GetKeyState(VK_RCONTROL) & keystate_state_mask);
                     auto my_leftkey = ConvertWinVKToKeyCode(VK_LCONTROL);
                     auto my_rightkey = ConvertWinVKToKeyCode(VK_RCONTROL);
                     auto ctrl_key = ConvertKeyCodeToWinVK(my_key);
@@ -689,10 +689,10 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                     }
                     break;
                 }
-                case KeyCode::Alt:
+            case KeyCode::Alt:
                 {
-                    auto left_key = !!(::GetKeyState(VK_LMENU) & keystate_state_mask);;
-                    auto right_key = !!(::GetKeyState(VK_RMENU) & keystate_state_mask);;
+                    auto left_key = !!(::GetKeyState(VK_LMENU) & keystate_state_mask);
+                    auto right_key = !!(::GetKeyState(VK_RMENU) & keystate_state_mask);
                     auto my_leftkey = ConvertWinVKToKeyCode(VK_LMENU);
                     auto my_rightkey = ConvertWinVKToKeyCode(VK_RMENU);
                     auto alt_key = ConvertKeyCodeToWinVK(my_key);
@@ -734,26 +734,118 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             }
             if(is_extended_key) {
                 switch(my_key) {
-                    case KeyCode::Alt:
-                    {
-                        auto left_key = !!(::GetKeyState(VK_LMENU) & keystate_state_mask);
-                        auto right_key = !!(::GetKeyState(VK_RMENU) & keystate_state_mask);;
-                        auto my_leftkey = ConvertWinVKToKeyCode(VK_LMENU);
-                        auto my_rightkey = ConvertWinVKToKeyCode(VK_RMENU);
-                        auto alt_key = ConvertKeyCodeToWinVK(my_key);
-                        my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
-                        if(my_key != KeyCode::Unknown) {
-                            RegisterKeyUp(alt_key);
-                        }
-                        break;
+                case KeyCode::Shift:
+                {
+                    auto left_down = this->IsKeyDown(KeyCode::LShift);
+                    auto right_down = this->IsKeyDown(KeyCode::RShift);
+                    auto left_key  = left_down && !!!(::GetKeyState(VK_LSHIFT) & keystate_state_mask);
+                    auto right_key = right_down && !!!(::GetKeyState(VK_RSHIFT) & keystate_state_mask);
+                    auto my_leftkey = ConvertWinVKToKeyCode(VK_LSHIFT);
+                    auto my_rightkey = ConvertWinVKToKeyCode(VK_RSHIFT);
+                    auto shift_key = ConvertKeyCodeToWinVK(my_key);
+                    my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                    if(my_key != KeyCode::Unknown) {
+                        RegisterKeyUp(shift_key);
                     }
-                    case KeyCode::Ctrl: my_key = KeyCode::RCtrl; break;
-                    case KeyCode::Return: my_key = KeyCode::NumPadEnter; break;
-                    case KeyCode::LWin: return true;
-                    case KeyCode::RWin: return true;
+                    break;
                 }
-                key = ConvertKeyCodeToWinVK(my_key);
+                case KeyCode::Alt:
+                {
+                    auto left_down = this->IsKeyDown(KeyCode::LAlt);
+                    auto right_down = this->IsKeyDown(KeyCode::RAlt);
+                    auto left_key = left_down && !!!(::GetKeyState(VK_LMENU) & keystate_state_mask);
+                    auto right_key = right_down && !!!(::GetKeyState(VK_RMENU) & keystate_state_mask);
+                    auto my_leftkey = ConvertWinVKToKeyCode(VK_LMENU);
+                    auto my_rightkey = ConvertWinVKToKeyCode(VK_RMENU);
+                    auto alt_key = ConvertKeyCodeToWinVK(my_key);
+                    my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                    if(my_key != KeyCode::Unknown) {
+                        RegisterKeyUp(alt_key);
+                    }
+                    break;
+                }
+                case KeyCode::Ctrl:
+                {
+                    auto left_down = this->IsKeyDown(KeyCode::LControl);
+                    auto right_down = this->IsKeyDown(KeyCode::RControl);
+                    auto left_key = left_down && !!!(::GetKeyState(VK_LCONTROL) & keystate_state_mask);
+                    auto right_key = right_down && !!!(::GetKeyState(VK_RCONTROL) & keystate_state_mask);
+                    auto my_leftkey = ConvertWinVKToKeyCode(VK_LCONTROL);
+                    auto my_rightkey = ConvertWinVKToKeyCode(VK_RCONTROL);
+                    auto ctrl_key = ConvertKeyCodeToWinVK(my_key);
+                    my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                    if(my_key != KeyCode::Unknown) {
+                        RegisterKeyUp(ctrl_key);
+                    }
+                    break;
+                }
+                case KeyCode::Return: my_key = KeyCode::NumPadEnter; break;
+                case KeyCode::LWin:
+                {
+                    auto left_down = this->IsKeyDown(KeyCode::LWin);
+                    auto left_key = left_down && !!!(::GetKeyState(VK_LWIN) & keystate_state_mask);
+                    auto my_leftkey = ConvertWinVKToKeyCode(VK_LWIN);
+                    my_key = left_key ? my_leftkey : KeyCode::Unknown;
+                    break;
+                }
+                case KeyCode::RWin:
+                {
+                    auto right_down = this->IsKeyDown(KeyCode::RWin);
+                    auto right_key = right_down && !!!(::GetKeyState(VK_RWIN) & keystate_state_mask);
+                    auto my_rightkey = ConvertWinVKToKeyCode(VK_RWIN);
+                    my_key = right_key ? my_rightkey : KeyCode::Unknown;
+                    break;
+                }
+                }
             }
+            switch(my_key) {
+            case KeyCode::Shift:
+            {
+                auto left_down = this->IsKeyDown(KeyCode::LShift);
+                auto right_down = this->IsKeyDown(KeyCode::RShift);
+                auto left_key = left_down && !!!(::GetKeyState(VK_LSHIFT) & keystate_state_mask);
+                auto right_key = right_down && !!!(::GetKeyState(VK_RSHIFT) & keystate_state_mask);
+                auto my_leftkey = ConvertWinVKToKeyCode(VK_LSHIFT);
+                auto my_rightkey = ConvertWinVKToKeyCode(VK_RSHIFT);
+                auto shift_key = ConvertKeyCodeToWinVK(my_key);
+                my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                if(my_key != KeyCode::Unknown) {
+                    RegisterKeyUp(shift_key);
+                }
+                break;
+            }
+            case KeyCode::Ctrl:
+            {
+                auto left_down = this->IsKeyDown(KeyCode::LControl);
+                auto right_down = this->IsKeyDown(KeyCode::RControl);
+                auto left_key = left_down && !!!(::GetKeyState(VK_LCONTROL) & keystate_state_mask);
+                auto right_key = right_down && !!!(::GetKeyState(VK_RCONTROL) & keystate_state_mask);
+                auto my_leftkey = ConvertWinVKToKeyCode(VK_LCONTROL);
+                auto my_rightkey = ConvertWinVKToKeyCode(VK_RCONTROL);
+                auto ctrl_key = ConvertKeyCodeToWinVK(my_key);
+                my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                if(my_key != KeyCode::Unknown) {
+                    RegisterKeyUp(ctrl_key);
+                }
+                break;
+            }
+            case KeyCode::Alt:
+            {
+                auto left_down = this->IsKeyDown(KeyCode::LAlt);
+                auto right_down = this->IsKeyDown(KeyCode::RAlt);
+                auto left_key = left_down && !!!(::GetKeyState(VK_LMENU) & keystate_state_mask);
+                auto right_key = right_down && !!!(::GetKeyState(VK_RMENU) & keystate_state_mask);
+                auto my_leftkey = ConvertWinVKToKeyCode(VK_LMENU);
+                auto my_rightkey = ConvertWinVKToKeyCode(VK_RMENU);
+                auto alt_key = ConvertKeyCodeToWinVK(my_key);
+                my_key = left_key ? my_leftkey : (right_key ? my_rightkey : KeyCode::Unknown);
+                if(my_key != KeyCode::Unknown) {
+                    RegisterKeyUp(alt_key);
+                }
+                break;
+            }
+            }
+            key = ConvertKeyCodeToWinVK(my_key);
             RegisterKeyUp(key); return true;
         }
         case WindowsSystemMessage::Keyboard_SysKeyDown:
@@ -786,7 +878,7 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                 switch(my_key) {
                     case KeyCode::Alt: //Right Alt
                     {
-                        auto is_key_down = !!(::GetKeyState(key) & keystate_state_mask);;
+                        auto is_key_down = !!(::GetKeyState(key) & keystate_state_mask);
                         auto my_rightkey = KeyCode::RAlt;
                         auto alt_key = ConvertKeyCodeToWinVK(KeyCode::Alt);
                         my_key = is_key_down ? my_rightkey : KeyCode::Unknown;
@@ -800,7 +892,7 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             switch(my_key) {
                 case KeyCode::Alt: //Left Alt
                 {
-                    auto is_key_down = !!(::GetKeyState(VK_LMENU) & keystate_state_mask);;
+                    auto is_key_down = !!(::GetKeyState(VK_LMENU) & keystate_state_mask);
                     auto my_leftkey = KeyCode::LAlt;
                     auto alt_key = ConvertKeyCodeToWinVK(KeyCode::Alt);
                     my_key = is_key_down ? my_leftkey : KeyCode::Unknown;
@@ -811,7 +903,7 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                 }
                 case KeyCode::F10:
                 {
-                    auto is_key_down = !!(::GetKeyState(VK_F10) & keystate_state_mask);;
+                    auto is_key_down = !!(::GetKeyState(VK_F10) & keystate_state_mask);
                     my_key = is_key_down ? KeyCode::F10 : KeyCode::Unknown;
                 }
             }

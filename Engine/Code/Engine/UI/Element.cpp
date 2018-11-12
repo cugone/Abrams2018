@@ -578,4 +578,11 @@ void Element::SortChildren() {
     std::sort(std::begin(_children), std::end(_children), [](UI::Element* a, UI::Element* b) { return a->_order < b->_order; });
 }
 
+void Element::SortAllChildren() {
+    SortChildren();
+    for(auto& c : _children) {
+        c->SortAllChildren();
+    }
+}
+
 } //End UI

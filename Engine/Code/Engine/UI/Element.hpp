@@ -168,6 +168,7 @@ private:
     float GetParentOrientationRadians() const;
     float GetParentOrientationDegrees() const;
     void SortChildren();
+    void SortAllChildren();
 };
 
 template<typename T>
@@ -177,7 +178,7 @@ T* UI::Element::CreateChild() {
 
 template<typename T, typename ...Args>
 T* UI::Element::CreateChild(Args&&... args) {
-    return dynamic_cast<T*>(AddChild(new T{std::forward<Args>(args)...}));
+    return dynamic_cast<T*>(AddChild(new T{ std::forward<Args>(args)... }));
 }
 template<typename T>
 T* UI::Element::CreateChild(UI::Canvas* parentCanvas) {
@@ -200,7 +201,7 @@ T* UI::Element::CreateChildBefore(UI::Canvas* parentCanvas, UI::Element* younger
 }
 template<typename T, typename ...Args>
 T* UI::Element::CreateChildBefore(UI::Element* youngerSibling, Args&&... args) {
-    return dynamic_cast<T*>(AddChildBefore(new T{std::forward<Args>(args)...}, youngerSibling));
+    return dynamic_cast<T*>(AddChildBefore(new T{ std::forward<Args>(args)... }, youngerSibling));
 }
 template<typename T, typename ...Args>
 T* UI::Element::CreateChildBefore(UI::Canvas* parentCanvas, UI::Element* youngerSibling, Args&&... args) {
@@ -212,7 +213,7 @@ T* UI::Element::CreateChildAfter(UI::Element* olderSibling) {
 }
 template<typename T, typename ...Args>
 T* UI::Element::CreateChildAfter(UI::Element* olderSibling, Args&&... args) {
-    return dynamic_cast<T*>(AddChildAfter(new T{std::forward<Args>(args)... }, olderSibling));
+    return dynamic_cast<T*>(AddChildAfter(new T{ std::forward<Args>(args)... }, olderSibling));
 }
 
 template<typename T>

@@ -22,7 +22,7 @@ public:
 
     virtual void Update(float deltaSeconds);
     virtual void Render(Renderer* renderer) const;
-    virtual void DebugRender(Renderer* renderer) const;
+    virtual void DebugRender(Renderer* renderer, bool showSortOrder = false) const;
 
     template<typename T>
     T* CreateChild();
@@ -124,12 +124,13 @@ protected:
     UI::Canvas* GetParentCanvas() const;
     void SetParentCanvas(UI::Canvas* canvas);
 
-    void DebugRenderBottomUp(Renderer* renderer) const;
-    void DebugRenderTopDown(Renderer* renderer) const;
-    void DebugRenderChildren(Renderer* renderer) const;
+    void DebugRenderBottomUp(Renderer* renderer, bool showSortOrder = false) const;
+    void DebugRenderTopDown(Renderer* renderer, bool showSortOrder = false) const;
+    void DebugRenderChildren(Renderer* renderer, bool showSortOrder = false) const;
     void DebugRenderBoundsAndPivot(Renderer* renderer) const;
     void DebugRenderPivot(Renderer* renderer) const;
     void DebugRenderBounds(Renderer* renderer) const;
+    void DebugRenderOrder(Renderer* renderer) const;
     AABB2 GetParentLocalBounds() const;
     AABB2 GetParentRelativeBounds() const;
     void UpdateChildren(float deltaSeconds);

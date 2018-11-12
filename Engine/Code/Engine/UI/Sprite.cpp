@@ -32,8 +32,8 @@ void Sprite::Render(Renderer* renderer) const {
     renderer->DrawQuad2D(tex_coords);
 }
 
-void Sprite::DebugRender(Renderer* renderer) const {
-    Element::DebugRender(renderer);
+void Sprite::DebugRender(Renderer* renderer, bool showSortOrder /*= false*/) const {
+    Element::DebugRender(renderer, showSortOrder);
 }
 
 }

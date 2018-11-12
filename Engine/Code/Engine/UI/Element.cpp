@@ -1,6 +1,7 @@
 #include "Engine/UI/Element.hpp"
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Core/KerningFont.hpp"
 
 #include "Engine/Math/MathUtils.hpp"
 
@@ -46,7 +47,6 @@ UI::Element* Element::AddChildBefore(UI::Element* child, UI::Element* younger_si
         result->_order = younger_sibling->_order;
         ++(younger_sibling->_order);
     }
-    SortChildren();
     CalcBoundsForMeThenMyChildren();
     return child;
 }
@@ -59,7 +59,6 @@ UI::Element* Element::AddChildAfter(UI::Element* child, UI::Element* older_sibli
         result->_order = older_sibling->_order;
         --(older_sibling->_order);
     }
-    SortChildren();
     CalcBoundsForMeThenMyChildren();
     return child;
 }
@@ -213,8 +212,11 @@ void Element::Render(Renderer* /*renderer*/) const {
     /* DO NOTHING */
 }
 
-void Element::DebugRender(Renderer* renderer) const {
+void Element::DebugRender(Renderer* renderer, bool showSortOrder /*= false*/) const {
     DebugRenderBoundsAndPivot(renderer);
+    if(showSortOrder) {
+        DebugRenderOrder(renderer);
+    }
 }
 
 Matrix4 Element::GetLocalTransform() const {
@@ -273,6 +275,28 @@ void Element::DebugRenderBounds(Renderer* renderer) const {
     renderer->SetModelMatrix(world_transform);
     renderer->SetMaterial(renderer->GetMaterial("__2D"));
     renderer->DrawAABB2(_edge_color, _fill_color);
+}
+
+void Element::DebugRenderOrder(Renderer* renderer) const {
+    auto world_transform = GetWorldTransform();
+    auto world_transform_scale = world_transform.GetScale();
+    auto inv_scale_x = 1.0f / world_transform_scale.x;
+    auto inv_scale_y = 1.0f / world_transform_scale.y;
+    auto inv_scale_z = 1.0f / world_transform_scale.z;
+    auto inv_scale = Vector3(inv_scale_x, inv_scale_y, inv_scale_z);
+    auto inv_scale_matrix = Matrix4::CreateScaleMatrix(inv_scale);
+    Vector2 extents = GetSize();
+    Vector2 half_extents = extents * 0.5f;
+    auto inv_half_extents = Vector2(half_extents.x, -half_extents.y);
+    auto font = renderer->GetFont("System32");
+    auto text_height_matrix = Matrix4::CreateTranslationMatrix(Vector2(-16.0f, 32.0f));
+    auto inv_half_extents_matrix = Matrix4::CreateTranslationMatrix(inv_half_extents);
+    std::ostringstream ss;
+    ss << _order;
+    auto text = ss.str();
+    renderer->SetModelMatrix(world_transform * inv_scale_matrix * inv_half_extents_matrix * text_height_matrix);
+    renderer->SetMaterial(font->GetMaterial());
+    renderer->DrawTextLine(font, text);
 }
 
 AABB2 Element::GetParentBounds() const {
@@ -338,7 +362,6 @@ AABB2 Element::CalcRelativeBounds() {
 
 AABB2 Element::CalcAbsoluteBounds() {
     Vector2 size = GetSize();
-
     Vector2 pivot = _pivot.GetValue();
     float pivot_x = pivot.x;
     float pivot_y = pivot.y;
@@ -396,20 +419,26 @@ void Element::SetParentCanvas(UI::Canvas* canvas) {
     _parent_canvas = canvas;
 }
 
-void Element::DebugRenderBottomUp(Renderer* renderer) const {
+void Element::DebugRenderBottomUp(Renderer* renderer, bool showSortOrder /*= false*/) const {
     DebugRenderBoundsAndPivot(renderer);
-    DebugRenderChildren(renderer);
+    if(showSortOrder) {
+        DebugRenderOrder(renderer);
+    }
+    DebugRenderChildren(renderer, showSortOrder);
 }
 
-void Element::DebugRenderTopDown(Renderer* renderer) const {
+void Element::DebugRenderTopDown(Renderer* renderer, bool showSortOrder /*= false*/) const {
     DebugRenderChildren(renderer);
     DebugRenderBoundsAndPivot(renderer);
+    if(showSortOrder) {
+        DebugRenderOrder(renderer);
+    }
 }
 
-void Element::DebugRenderChildren(Renderer* renderer) const {
+void Element::DebugRenderChildren(Renderer* renderer, bool showSortOrder /*= false*/) const {
     for(auto& child : _children) {
         if(child) {
-            child->DebugRender(renderer);
+            child->DebugRender(renderer, showSortOrder);
         }
     }
 }

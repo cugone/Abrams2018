@@ -57,10 +57,10 @@ void Canvas::SetupMVPFromTargetAndCamera(Renderer* renderer) const {
     renderer->SetProjectionMatrix(_camera->GetProjectionMatrix());
 }
 
-void Canvas::DebugRender(Renderer* renderer) const {
+void Canvas::DebugRender(Renderer* renderer, bool showSortOrder /*= false*/) const {
     renderer->SetRenderTarget(_target_texture);
     renderer->DisableDepth();
-    DebugRenderBottomUp(renderer);
+    DebugRenderBottomUp(renderer, showSortOrder);
     renderer->EnableDepth();
     renderer->SetRenderTarget();
     renderer->SetMaterial(nullptr);

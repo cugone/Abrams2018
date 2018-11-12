@@ -15,7 +15,7 @@ public:
     virtual void Update(float deltaSeconds) override;
     virtual void Render(Renderer* renderer) const override;
     void SetupMVPFromTargetAndCamera(Renderer* renderer) const;
-    virtual void DebugRender(Renderer* renderer) const override;
+    virtual void DebugRender(Renderer* renderer, bool showSortOrder = false) const override;
     const Camera2D* GetUICamera() const;
 
     template<typename T>

@@ -18,8 +18,8 @@ void Panel::Render(Renderer* renderer) const {
     RenderChildren(renderer);
 }
 
-void Panel::DebugRender(Renderer* renderer) const {
-    DebugRenderBottomUp(renderer);
+void Panel::DebugRender(Renderer* renderer, bool showSortOrder /*= false*/) const {
+    DebugRenderBottomUp(renderer, showSortOrder);
 }
 
 } //End UI

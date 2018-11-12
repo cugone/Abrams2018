@@ -409,11 +409,11 @@ bool Element::IsDirty() const {
 }
 
 bool Element::IsParent() const {
-    return _children.empty();
+    return !_children.empty();
 }
 
 bool Element::IsChild() const {
-    return !_parent;
+    return _parent;
 }
 
 UI::Canvas* Element::GetParentCanvas() const {

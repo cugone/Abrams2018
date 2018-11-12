@@ -57,15 +57,15 @@ enum class FillMode {
 
 enum class PivotPosition {
     First_,
-    Center = First_,
-    TopLeft,
+    TopLeft = First_,
     Top,
     TopRight,
-    Right,
-    BottomRight,
-    Bottom,
-    BottomLeft,
     Left,
+    Center,
+    Right,
+    BottomLeft,
+    Bottom,
+    BottomRight,
     Last_,
 };
 

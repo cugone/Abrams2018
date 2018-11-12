@@ -124,6 +124,8 @@ protected:
     UI::Canvas* GetParentCanvas() const;
     void SetParentCanvas(UI::Canvas* canvas);
 
+    void ReorderAllChildren();
+
     void DebugRenderBottomUp(Renderer* renderer, bool showSortOrder = false) const;
     void DebugRenderTopDown(Renderer* renderer, bool showSortOrder = false) const;
     void DebugRenderChildren(Renderer* renderer, bool showSortOrder = false) const;

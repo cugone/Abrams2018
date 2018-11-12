@@ -36,6 +36,7 @@ Element* Element::AddChild(Element* child) {
     child->_parent = this;
     child->_order = _children.size();
     CalcBoundsForMeThenMyChildren();
+    ReorderAllChildren();
     return child;
 }
 
@@ -47,6 +48,7 @@ UI::Element* Element::AddChildBefore(UI::Element* child, UI::Element* younger_si
         result->_order = younger_sibling->_order;
         ++(younger_sibling->_order);
     }
+    ReorderAllChildren();
     CalcBoundsForMeThenMyChildren();
     return child;
 }
@@ -59,6 +61,7 @@ UI::Element* Element::AddChildAfter(UI::Element* child, UI::Element* older_sibli
         result->_order = older_sibling->_order;
         --(older_sibling->_order);
     }
+    ReorderAllChildren();
     CalcBoundsForMeThenMyChildren();
     return child;
 }
@@ -71,6 +74,7 @@ void Element::RemoveChild(Element* child) {
         return child == c;
     }),
         _children.end());
+    ReorderAllChildren();
     CalcBoundsForMeThenMyChildren();
 }
 
@@ -78,6 +82,7 @@ void Element::RemoveAllChildren() {
     _dirty_bounds = true;
     _children.clear();
     _children.shrink_to_fit();
+    ReorderAllChildren();
     CalcBounds();
 }
 
@@ -417,6 +422,13 @@ UI::Canvas* Element::GetParentCanvas() const {
 
 void Element::SetParentCanvas(UI::Canvas* canvas) {
     _parent_canvas = canvas;
+}
+
+void Element::ReorderAllChildren() {
+    auto i = GetOrder() + 1;
+    for(auto& c : _children) {
+        c->_order = i++;
+    }
 }
 
 void Element::DebugRenderBottomUp(Renderer* renderer, bool showSortOrder /*= false*/) const {

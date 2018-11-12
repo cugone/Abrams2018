@@ -39,15 +39,11 @@ void Label::Render(Renderer* renderer) const {
     auto inv_scale_matrix = Matrix4::CreateScaleMatrix(inv_scale);
     Vector2 extents = GetSize();
     Vector2 half_extents = extents * 0.5f;
-    auto inv_half_extents = Vector2(-half_extents.x, half_extents.y);
+    auto inv_half_extents = Vector2(-half_extents.x, -half_extents.y);
     auto inv_half_extents_matrix = Matrix4::CreateTranslationMatrix(inv_half_extents);
     renderer->SetModelMatrix(world_transform * inv_scale_matrix * inv_half_extents_matrix);
     renderer->SetMaterial(_font->GetMaterial());
-    renderer->DrawTextLine(_font, _text, _color);
-}
-
-void Label::DebugRender(Renderer* renderer) const {
-    DebugRenderBoundsAndPivot(renderer);
+    renderer->DrawMultilineText(_font, _text, _color);
 }
 
 const KerningFont* const Label::GetFont() const {

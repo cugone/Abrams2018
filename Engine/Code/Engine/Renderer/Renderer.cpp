@@ -1876,17 +1876,18 @@ Material* Renderer::CreateMaterialFromFont(KerningFont* font) {
         FS::path image_path = font->GetImagePaths()[i];
         auto fullpath = folderpath / image_path;
         fullpath.make_preferred();
+        const auto fullpath_string = fullpath.string();
         switch(i) {
-            case 0: material_stream << R"(<diffuse src=")"   << fullpath << R"(" />)"; break;
-            case 1: material_stream << R"(<normal src=")"    << fullpath << R"(" />)"; break;
-            case 2: material_stream << R"(<lighting src=")"  << fullpath << R"(" />)"; break;
-            case 3: material_stream << R"(<specular src=")"  << fullpath << R"(" />)"; break;
-            case 4: material_stream << R"(<occlusion src=")" << fullpath << R"(" />)"; break;
-            case 5: material_stream << R"(<emissive src=")"  << fullpath << R"(" />)"; break;
+            case 0: material_stream << "<diffuse src=\""   << fullpath_string << "\" />"; break;
+            case 1: material_stream << "<normal src=\""    << fullpath_string << "\" />"; break;
+            case 2: material_stream << "<lighting src=\""  << fullpath_string << "\" />"; break;
+            case 3: material_stream << "<specular src=\""  << fullpath_string << "\" />"; break;
+            case 4: material_stream << "<occlusion src=\"" << fullpath_string << "\" />"; break;
+            case 5: material_stream << "<emissive src=\""  << fullpath_string << "\" />"; break;
             default: /* DO NOTHING */;
         }
         if(i >= 6 && has_lots_of_textures) {
-            material_stream << R"(<texture index=")" << (i-6) << R"("\" src=")" << fullpath << R"(" />)";
+            material_stream << "<texture index=\"" << (i-6) << "\" src=\"" << fullpath_string << "\" />";
         }
     }
     if(has_textures) {

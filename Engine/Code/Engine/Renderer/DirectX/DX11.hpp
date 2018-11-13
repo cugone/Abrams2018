@@ -27,8 +27,10 @@
 #include <cstdint>
 
 struct AdapterInfo {
-    IDXGIAdapter4* adapter = nullptr;
-    DXGI_ADAPTER_DESC3 desc{};
+    //IDXGIAdapter4* adapter = nullptr;
+    //DXGI_ADAPTER_DESC3 desc{};
+    IDXGIAdapter1* adapter = nullptr;
+    DXGI_ADAPTER_DESC1 desc{};
 };
 
 struct OutputInfo {

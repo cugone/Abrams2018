@@ -111,11 +111,15 @@ Renderer::~Renderer() {
 
     delete _temp_vbo;
     _temp_vbo = nullptr;
+    _current_vbo_size = 0;
 
     delete _temp_ibo;
     _temp_ibo = nullptr;
+    _current_ibo_size = 0;
 
     _default_depthstencil = nullptr;
+    _current_target = nullptr;
+    _current_depthstencil = nullptr;
     _current_depthstencil_state = nullptr;
     _current_raster_state = nullptr;
     _current_sampler = nullptr;
@@ -2042,6 +2046,14 @@ void Renderer::CreateAndRegisterDefaultDepthStencilStates() {
     depth_enabled->SetDebugName("__depthenabled");
     RegisterDepthStencilState("__depthenabled", depth_enabled);
 
+    DepthStencilState* stencil_disabled = CreateDisabledStencil();
+    stencil_disabled->SetDebugName("__stencildisabled");
+    RegisterDepthStencilState("__stencildisabled", stencil_disabled);
+
+    DepthStencilState* stencil_enabled = CreateEnabledStencil();
+    stencil_enabled->SetDebugName("__stencilenabled");
+    RegisterDepthStencilState("__stencilenabled", stencil_enabled);
+
 }
 
 DepthStencilState* Renderer::CreateDefaultDepthStencilState() {
@@ -2062,6 +2074,24 @@ DepthStencilState* Renderer::CreateEnabledDepth() {
     DepthStencilDesc desc{};
     desc.depth_enabled = true;
     desc.depth_comparison = ComparisonFunction::Less;
+    DepthStencilState* state = new DepthStencilState(_rhi_device, desc);
+    return state;
+}
+
+DepthStencilState* Renderer::CreateDisabledStencil() {
+    DepthStencilDesc desc{};
+    desc.stencil_enabled = false;
+    desc.stencil_read = false;
+    desc.stencil_write = false;
+    DepthStencilState* state = new DepthStencilState(_rhi_device, desc);
+    return state;
+}
+
+DepthStencilState* Renderer::CreateEnabledStencil() {
+    DepthStencilDesc desc{};
+    desc.stencil_enabled = true;
+    desc.stencil_read = true;
+    desc.stencil_write = true;
     DepthStencilState* state = new DepthStencilState(_rhi_device, desc);
     return state;
 }
@@ -3103,6 +3133,11 @@ DepthStencilState* Renderer::GetDepthStencilState(const std::string& name) {
         return nullptr;
     }
     return found_iter->second;
+}
+
+void Renderer::CreateAndRegisterDepthStencilStateFromDepthStencilDescription(const std::string& name, const DepthStencilDesc& desc) {
+    auto ds = new DepthStencilState(_rhi_device, desc);
+    RegisterDepthStencilState(name, ds);
 }
 
 void Renderer::EnableDepth() {

@@ -148,6 +148,7 @@ public:
     Texture* GetDefaultDepthStencil() const;
     void SetDepthStencilState(DepthStencilState* depthstencil);
     DepthStencilState* GetDepthStencilState(const std::string& name);
+    void CreateAndRegisterDepthStencilStateFromDepthStencilDescription(const std::string& name, const DepthStencilDesc& desc);
     void EnableDepth();
     void DisableDepth();
 
@@ -386,6 +387,8 @@ private:
     DepthStencilState* CreateDefaultDepthStencilState();
     DepthStencilState* CreateDisabledDepth();
     DepthStencilState* CreateEnabledDepth();
+    DepthStencilState* CreateDisabledStencil();
+    DepthStencilState* CreateEnabledStencil();
 
     void UnbindAllShaderResources();
     void UnbindAllConstantBuffers();
@@ -423,5 +426,4 @@ private:
     std::map<std::string, KerningFont*> _fonts = {};
     bool _vsync = false;
     friend class Shader;
-
 };

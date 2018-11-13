@@ -88,14 +88,18 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
 
     window->Open();
 
-    IDXGIFactory6* dxgi_factory = nullptr;
+    //IDXGIFactory6* dxgi_factory = nullptr;
+    IDXGIFactory5* dxgi_factory = nullptr;
     {
         #ifdef RENDER_DEBUG
-        auto hr_factory = ::CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, __uuidof(IDXGIFactory6), reinterpret_cast<void**>(&dxgi_factory));
+        //auto hr_factory = ::CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, __uuidof(IDXGIFactory6), reinterpret_cast<void**>(&dxgi_factory));
+        auto hr_factory = ::CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, __uuidof(IDXGIFactory5), reinterpret_cast<void**>(&dxgi_factory));
         #else
-        auto hr_factory = ::CreateDXGIFactory2(0, __uuidof(IDXGIFactory6), reinterpret_cast<void**>(&dxgi_factory));
+        //auto hr_factory = ::CreateDXGIFactory2(0, __uuidof(IDXGIFactory6), reinterpret_cast<void**>(&dxgi_factory));
+        auto hr_factory = ::CreateDXGIFactory2(0, __uuidof(IDXGIFactory5), reinterpret_cast<void**>(&dxgi_factory));
         #endif
-        GUARANTEE_OR_DIE(SUCCEEDED(hr_factory), "Failed to create DXGIFactory6 from CreateDXGIFactory2.");
+        //GUARANTEE_OR_DIE(SUCCEEDED(hr_factory), "Failed to create DXGIFactory6 from CreateDXGIFactory2.");
+        GUARANTEE_OR_DIE(SUCCEEDED(hr_factory), "Failed to create DXGIFactory5 from CreateDXGIFactory2.");
 
         auto hr_mwa = dxgi_factory->MakeWindowAssociation(window->GetWindowHandle(), DXGI_MWA_NO_ALT_ENTER);
         GUARANTEE_OR_DIE(SUCCEEDED(hr_mwa), "Failed to restrict Alt+Enter usage.");
@@ -103,19 +107,22 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
 
     std::vector<AdapterInfo> adapters{};
     {
-        IDXGIAdapter4* cur_adapter = nullptr;
+        //IDXGIAdapter4* cur_adapter = nullptr;
+        IDXGIAdapter1* cur_adapter = nullptr;
         for(unsigned int i = 0u;
-            SUCCEEDED(dxgi_factory->EnumAdapterByGpuPreference(
-                        i,
-                        DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
-                        __uuidof(IDXGIAdapter4),
-                        reinterpret_cast<void**>(&cur_adapter)
-                        )
+            SUCCEEDED(dxgi_factory->EnumAdapters1(i, &cur_adapter)
+                        //->EnumAdapterByGpuPreference(
+                        //i,
+                        //DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
+                        //__uuidof(IDXGIAdapter4),
+                        //reinterpret_cast<void**>(&cur_adapter)
+                        //)
                      );
             ++i) {
             AdapterInfo cur_info{};
             cur_info.adapter = cur_adapter;
-            cur_adapter->GetDesc3(&cur_info.desc);
+            //cur_adapter->GetDesc3(&cur_info.desc);
+            cur_adapter->GetDesc1(&cur_info.desc);
             adapters.push_back(cur_info);
         }
     }
@@ -234,7 +241,8 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
     return new RHIOutput(this, window, dxgi_swap_chain);
 }
 
-bool RHIDevice::QueryForAllowTearingSupport(IDXGIFactory6* dxgi_factory) const {
+//bool RHIDevice::QueryForAllowTearingSupport(IDXGIFactory6* dxgi_factory) const {
+bool RHIDevice::QueryForAllowTearingSupport(IDXGIFactory5* dxgi_factory) const {
     BOOL allow_tearing = {};
     HRESULT hr_cfs = dxgi_factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allow_tearing, sizeof(allow_tearing));
     bool cfs_call_succeeded = SUCCEEDED(hr_cfs);

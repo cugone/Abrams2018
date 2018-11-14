@@ -1,6 +1,31 @@
 #include "Engine/RHI/RHITypes.hpp"
 
+#include <iomanip>
 #include <type_traits>
+
+std::ostream& operator<<(std::ostream& out_stream, const GraphicsCardDesc& graphicsCardDesc) {
+    auto name = graphicsCardDesc.Description;
+    out_stream << std::left << std::setw(22) << "Name:" << std::right << std::setw(30) << name << '\n';
+    auto vid = graphicsCardDesc.VendorId;
+    out_stream << std::left << std::setw(22) << "Vendor ID:" << std::right << std::setw(30) << vid << '\n';
+    auto did = graphicsCardDesc.DeviceId;
+    out_stream << std::left << std::setw(22) << "Device ID:" << std::right << std::setw(30) << did << '\n';
+    auto subsysid = graphicsCardDesc.SubSysId;
+    out_stream << std::left << std::setw(22) << "Subsystem ID:" << std::right << std::setw(30) << subsysid << '\n';
+    auto revision = graphicsCardDesc.Revision;
+    out_stream << std::left << std::setw(22) << "Revision:" << std::right << std::setw(30) << revision << '\n';
+    auto ded_vid_mem = graphicsCardDesc.DedicatedVideoMemory;
+    out_stream << std::left << std::setw(22) << "Video Memory:" << std::right << std::setw(30) << ded_vid_mem << '\n';
+    auto ded_sys_mem = graphicsCardDesc.DedicatedSystemMemory;
+    out_stream << std::left << std::setw(22) << "System Memory:" << std::right << std::setw(30) << ded_sys_mem << '\n';
+    auto shared_mem = graphicsCardDesc.SharedSystemMemory;
+    out_stream << std::left << std::setw(22) << "Shared System Memory:" << std::right << std::setw(30) << shared_mem << '\n';
+    bool is_unspecified = graphicsCardDesc.is_unspecified;
+    bool is_software = graphicsCardDesc.is_software;
+    bool is_remote = graphicsCardDesc.is_remote;
+    out_stream << std::left << std::setw(22) << "Adapter Type:" << std::right << std::setw(30) << (is_software ? "Software" : (is_remote ? "Remote" : (is_unspecified ? "Unspecified" : "Unknown")));
+    return out_stream;
+}
 
 bool DisplayDescLTComparator::operator()(const DisplayDesc& a, const DisplayDesc& b) const noexcept {
     if(a.width < b.width) {

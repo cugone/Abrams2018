@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <ratio>
+#include <string>
 #include <type_traits>
 #include <utility>
 
@@ -9,6 +10,21 @@ struct DisplayDesc {
     unsigned int width = 0u;
     unsigned int height = 0u;
     unsigned int refreshRateHz = 0u;
+};
+
+struct GraphicsCardDesc {
+    std::string Description{};
+    unsigned int VendorId = 0u;
+    unsigned int DeviceId = 0u;
+    unsigned int SubSysId = 0u;
+    unsigned int Revision = 0u;
+    std::size_t DedicatedVideoMemory = 0u;
+    std::size_t DedicatedSystemMemory = 0u;
+    std::size_t SharedSystemMemory = 0u;
+    bool is_software = false;
+    bool is_remote = false;
+    bool is_unspecified = false;
+    friend std::ostream& operator<<(std::ostream& out_stream, const GraphicsCardDesc& adapterInfo);
 };
 
 struct DisplayDescLTComparator {

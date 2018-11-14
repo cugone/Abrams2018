@@ -19,8 +19,36 @@ using XMLAttribute = tinyxml2::XMLAttribute;
 
 namespace DataUtils {
 
-constexpr inline unsigned int Bit(unsigned int n) {
-    return 1 << n;
+[[nodiscard]] constexpr inline auto Shift(uint8_t value, uint8_t distance) noexcept -> uint8_t {
+    return value << distance;
+}
+
+[[nodiscard]] constexpr inline auto Shift(uint16_t value, uint16_t distance) noexcept -> uint16_t {
+    return value << distance;
+}
+
+[[nodiscard]] constexpr inline auto Shift(uint32_t value, uint32_t distance) noexcept -> uint32_t {
+    return value << distance;
+}
+
+[[nodiscard]] constexpr inline auto Shift(uint64_t value, uint64_t distance) noexcept -> uint64_t {
+    return value << distance;
+}
+
+[[nodiscard]] constexpr inline auto Bit(uint8_t n) noexcept -> uint8_t {
+    return Shift(1, n);
+}
+
+[[nodiscard]] constexpr inline auto Bit(uint16_t n) noexcept -> uint16_t {
+    return Shift(1, n);
+}
+
+[[nodiscard]] constexpr inline auto Bit(uint32_t n) noexcept -> uint32_t {
+    return Shift(1, n);
+}
+
+[[nodiscard]] constexpr inline auto Bit(uint64_t n) noexcept -> uint64_t {
+    return Shift(1, n);
 }
 
 void ValidateXmlElement(const XMLElement& element,

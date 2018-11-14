@@ -88,16 +88,20 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
 
     window->Open();
 
+    //TODO: Switch when RenderDoc or VS GD support changes.
     //IDXGIFactory6* dxgi_factory = nullptr;
     IDXGIFactory5* dxgi_factory = nullptr;
     {
         #ifdef RENDER_DEBUG
+        //TODO: Switch when RenderDoc or VS GD support changes.
         //auto hr_factory = ::CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, __uuidof(IDXGIFactory6), reinterpret_cast<void**>(&dxgi_factory));
         auto hr_factory = ::CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, __uuidof(IDXGIFactory5), reinterpret_cast<void**>(&dxgi_factory));
         #else
+        //TODO: Switch when RenderDoc or VS GD support changes.
         //auto hr_factory = ::CreateDXGIFactory2(0, __uuidof(IDXGIFactory6), reinterpret_cast<void**>(&dxgi_factory));
         auto hr_factory = ::CreateDXGIFactory2(0, __uuidof(IDXGIFactory5), reinterpret_cast<void**>(&dxgi_factory));
         #endif
+        //TODO: Switch when RenderDoc or VS GD support changes.
         //GUARANTEE_OR_DIE(SUCCEEDED(hr_factory), "Failed to create DXGIFactory6 from CreateDXGIFactory2.");
         GUARANTEE_OR_DIE(SUCCEEDED(hr_factory), "Failed to create DXGIFactory5 from CreateDXGIFactory2.");
 
@@ -107,9 +111,11 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
 
     std::vector<AdapterInfo> adapters{};
     {
+        //TODO: Switch when RenderDoc or VS GD support changes.
         //IDXGIAdapter4* cur_adapter = nullptr;
         IDXGIAdapter1* cur_adapter = nullptr;
         for(unsigned int i = 0u;
+            //TODO: Switch when RenderDoc or VS GD support changes.
             SUCCEEDED(dxgi_factory->EnumAdapters1(i, &cur_adapter)
                         //->EnumAdapterByGpuPreference(
                         //i,
@@ -121,6 +127,7 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
             ++i) {
             AdapterInfo cur_info{};
             cur_info.adapter = cur_adapter;
+            //TODO: Switch when RenderDoc or VS GD support changes.
             //cur_adapter->GetDesc3(&cur_info.desc);
             cur_adapter->GetDesc1(&cur_info.desc);
             adapters.push_back(cur_info);
@@ -132,6 +139,19 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
         DebuggerPrintf("No graphics cards installed!");
         return nullptr;
     }
+
+    {
+        std::ostringstream ss;
+        ss << "ADAPTERS\n";
+        for(const auto& adapter : adapters) {
+            ss << std::right << std::setw(60) << std::setfill('-') << '\n' << std::setfill(' ');
+            ss << AdapterInfoToGraphicsCardDesc(adapter) << '\n';
+        }
+        ss << std::right << std::setw(60) << std::setfill('-') << '\n';
+        ss << std::flush;
+        DebuggerPrintf(ss.str().c_str());
+    }
+
     ID3D11Device5* dx_device = nullptr;
     ID3D11DeviceContext* dx_context = nullptr;
     D3D_FEATURE_LEVEL supported_feature_level = {};
@@ -140,7 +160,7 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
     #ifdef RENDER_DEBUG
     device_flags |= D3D11_CREATE_DEVICE_DEBUG;
     #endif
-    std::array<D3D_FEATURE_LEVEL, 7> feature_levels{
+    std::array feature_levels{
         D3D_FEATURE_LEVEL_11_1,
         D3D_FEATURE_LEVEL_11_0,
         D3D_FEATURE_LEVEL_10_1,
@@ -151,8 +171,13 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
     };
 
     {
-        bool has_adapter = std::begin(adapters)->adapter != nullptr;
-        auto hr_device = ::D3D11CreateDevice(has_adapter ? std::begin(adapters)->adapter : nullptr
+        auto first_adapter_info = std::begin(adapters);
+        std::ostringstream ss;
+        ss << "Selected Adapter: " << AdapterInfoToGraphicsCardDesc(*first_adapter_info).Description << std::endl;
+        DebuggerPrintf(ss.str().c_str());
+        auto first_adapter = first_adapter_info->adapter;
+        bool has_adapter = first_adapter != nullptr;
+        auto hr_device = ::D3D11CreateDevice(has_adapter ? first_adapter : nullptr
             , has_adapter ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE
             , nullptr
             , device_flags
@@ -241,6 +266,7 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
     return new RHIOutput(this, window, dxgi_swap_chain);
 }
 
+//TODO: Switch when RenderDoc or VS GD support changes.
 //bool RHIDevice::QueryForAllowTearingSupport(IDXGIFactory6* dxgi_factory) const {
 bool RHIDevice::QueryForAllowTearingSupport(IDXGIFactory5* dxgi_factory) const {
     BOOL allow_tearing = {};

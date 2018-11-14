@@ -27,11 +27,14 @@
 #include <cstdint>
 
 struct AdapterInfo {
+    //TODO: Switch when RenderDoc or VS GD support changes.
     //IDXGIAdapter4* adapter = nullptr;
     //DXGI_ADAPTER_DESC3 desc{};
     IDXGIAdapter1* adapter = nullptr;
     DXGI_ADAPTER_DESC1 desc{};
 };
+
+GraphicsCardDesc AdapterInfoToGraphicsCardDesc(const AdapterInfo& adapterInfo);
 
 struct OutputInfo {
     IDXGIOutput6* output = nullptr;

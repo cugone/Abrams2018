@@ -59,12 +59,12 @@ constexpr const float M_SQRT3_3             = 0.57735026918962576451f;          
 constexpr const float M_TAU                 = 1.61803398874989484821f;            // tau (golden ratio)
 constexpr const float M_16_BY_9_RATIO       = 1.77777777777777777778f;            // 16/9
 constexpr const float M_4_BY_3_RATIO        = 1.33333333333333333333f;            // 4/3
-constexpr const long double KIB_BYTES_RATIO = 0.0009765625;                       // Kilobyte/Bytes
-constexpr const long double MIB_BYTES_RATIO = 0.00000095367431640625;             // Megabyte/Bytes
-constexpr const long double GIB_BYTES_RATIO = 0.000000000931322574615478515625;   // Gigabyte/Bytes
-constexpr const long double BYTES_KIB_RATIO = 1024.0;                             // Bytes/Kilobytes
-constexpr const long double BYTES_MIB_RATIO = 1048576.0;                          // Bytes/Megabytes
-constexpr const long double BYTES_GIB_RATIO = 1073741824.0;                       // Bytes/Gigabytes
+constexpr const long double KIB_BYTES_RATIO = 0.0009765625L;                      // Kilobyte/Bytes
+constexpr const long double MIB_BYTES_RATIO = 0.00000095367431640625L;            // Megabyte/Bytes
+constexpr const long double GIB_BYTES_RATIO = 0.000000000931322574615478515625L;  // Gigabyte/Bytes
+constexpr const long double BYTES_KIB_RATIO = 1024.0L;                            // Bytes/Kilobytes
+constexpr const long double BYTES_MIB_RATIO = 1048576.0L;                         // Bytes/Megabytes
+constexpr const long double BYTES_GIB_RATIO = 1073741824.0L;                      // Bytes/Gigabytes
 
 //NOT THREAD SAFE
 void SetRandomEngineSeed(unsigned int seed);

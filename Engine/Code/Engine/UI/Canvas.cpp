@@ -3,6 +3,7 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 
 #include "Engine/Renderer/Camera2D.hpp"
+#include "Engine/Renderer/DepthStencilState.hpp"
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Texture.hpp"
 #include "Engine/Renderer/Texture2D.hpp"
@@ -13,14 +14,18 @@
 
 namespace UI {
 
-Canvas::Canvas(Renderer& renderer, float reference_resolution, Texture* target_texture /*= nullptr*/)
+Canvas::Canvas(Renderer& renderer, float reference_resolution, Texture* target_texture /*= nullptr*/, Texture* target_depthStencil /*= nullptr*/)
     : Element()
     , _renderer(&renderer)
     , _target_texture(target_texture)
+    , _target_depthstencil(target_depthStencil)
     , _reference_resolution(reference_resolution)
 {
     if(!_target_texture) {
         _target_texture = _renderer->GetOutput()->GetBackBuffer();
+    }
+    if(!_target_depthstencil) {
+        _target_depthstencil = _renderer->GetDefaultDepthStencil();
     }
     {
         std::ostringstream ss;
@@ -33,6 +38,10 @@ Canvas::Canvas(Renderer& renderer, float reference_resolution, Texture* target_t
     SetSize(Metric{ Ratio{}, dimensions });
 
     _camera = new Camera2D;
+    auto desc = DepthStencilDesc{};
+    desc.stencil_enabled = true;
+    desc.stencil_testFront = ComparisonFunction::Equal;
+    _renderer->CreateAndRegisterDepthStencilStateFromDepthStencilDescription("UIDepthStencil", desc);
 }
 
 void Canvas::Update(float deltaSeconds) {
@@ -41,7 +50,7 @@ void Canvas::Update(float deltaSeconds) {
 
 void Canvas::Render(Renderer* renderer) const {
     SetupMVPFromTargetAndCamera(renderer);
-    renderer->SetRenderTarget(_target_texture);
+    renderer->SetRenderTarget(_target_texture, _target_depthstencil);
     RenderChildren(renderer);
 }
 
@@ -58,7 +67,7 @@ void Canvas::SetupMVPFromTargetAndCamera(Renderer* renderer) const {
 }
 
 void Canvas::DebugRender(Renderer* renderer, bool showSortOrder /*= false*/) const {
-    renderer->SetRenderTarget(_target_texture);
+    renderer->SetRenderTarget(_target_texture, _target_depthstencil);
     renderer->DisableDepth();
     DebugRenderBottomUp(renderer, showSortOrder);
     renderer->EnableDepth();
@@ -91,12 +100,16 @@ void Canvas::CalcDimensionsAndAspectRatio(Vector2& dimensions, float& aspectRati
 }
 
 
-void Canvas::SetTargetTexture(Renderer& renderer, Texture* target) {
+void Canvas::SetTargetTexture(Renderer& renderer, Texture* target, Texture* depthstencil) {
     _renderer = &renderer;
     if(!target) {
         target = _renderer->GetOutput()->GetBackBuffer();
     }
+    if(!depthstencil) {
+        depthstencil = _renderer->GetDefaultDepthStencil();
+    }
     _target_texture = target;
+    _target_depthstencil = depthstencil;
 
     Vector2 dimensions{};
     CalcDimensionsAndAspectRatio(dimensions, _aspect_ratio);

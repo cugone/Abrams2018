@@ -705,10 +705,8 @@ AnimatedSprite* Renderer::CreateAnimatedSpriteFromGif(const std::string& filepat
     auto delays = img.GetDelaysIfGif();
     auto tex = GetTexture(p.string());
     auto spr = new SpriteSheet(tex, 1, static_cast<int>(delays.size()));
-    float duration_sum = 0.0f;
-    for(auto i : delays) {
-        duration_sum += (i * 0.001f);
-    }
+    float duration_sum = std::accumulate(std::begin(delays), std::end(delays), 0.0f);
+    duration_sum *= 0.001f;
     auto anim = new AnimatedSprite(*this, spr, duration_sum, 0, static_cast<int>(delays.size()));
     tinyxml2::XMLDocument doc;
     std::ostringstream ss;

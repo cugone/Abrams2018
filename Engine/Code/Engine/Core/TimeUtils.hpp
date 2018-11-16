@@ -4,9 +4,10 @@
 #include <string>
 
 using FPSeconds = std::chrono::duration<float>;
-using FPMilliseconds = std::chrono::duration<float, std::ratio_multiply<std::chrono::seconds::period, std::milli>>;
-using FPMicroseconds = std::chrono::duration<float, std::ratio_multiply<std::chrono::seconds::period, std::micro>>;
-using FPNanoseconds = std::chrono::duration<float, std::ratio_multiply<std::chrono::seconds::period, std::nano>>;
+using FPMilliseconds = std::chrono::duration<float, std::milli>;
+using FPMicroseconds = std::chrono::duration<float, std::micro>;
+using FPNanoseconds = std::chrono::duration<float, std::nano>;
+using FPFrames = std::chrono::duration<float, std::ratio<1, 60>>;
 
 namespace TimeUtils {
 

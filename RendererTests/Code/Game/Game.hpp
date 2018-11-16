@@ -11,6 +11,7 @@
 #include <functional>
 #include <string>
 
+class AnimatedSprite;
 class Camera2D;
 class Camera3D;
 class ConstantBuffer;
@@ -56,6 +57,7 @@ private:
     const float _camera_move_speed_multiplier = 10.0f;
     Camera2D* _camera2 = nullptr;
     Camera3D* _camera3 = nullptr;
+    AnimatedSprite* _animSprite = nullptr;
     bool _debug = true;
     bool _slowmo = false;
 };

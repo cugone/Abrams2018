@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core/DataUtils.hpp"
+#include "Engine/Core/TimeUtils.hpp"
 
 #include "Engine/Math/AABB2.hpp"
 
@@ -23,7 +24,7 @@ public:
     AnimatedSprite(Renderer& renderer, const XMLElement& elem);
     ~AnimatedSprite();
 
-    void Update(float deltaSeconds);
+    void Update(TimeUtils::FPSeconds deltaSeconds);
     AABB2 GetCurrentTexCoords() const;	               // Based on the current elapsed time
     const Texture* const GetTexture() const;
     int GetNumSprites() const;
@@ -34,18 +35,18 @@ public:
     void Reset();					                   // Rewinds to time 0 and starts (re)playing
     bool IsFinished() const;                           //{ return m_isFinished; }
     bool IsPlaying() const;                            //{ return m_isPlaying; }
-    float GetDurationSeconds() const;                  //{ return m_durationSeconds; }
-    float GetSecondsElapsed() const;                   //{ return m_elapsedSeconds; }
-    float GetSecondsRemaining() const;
+    TimeUtils::FPSeconds GetDurationSeconds() const;                  //{ return m_durationSeconds; }
+    TimeUtils::FPSeconds GetSecondsElapsed() const;                   //{ return m_elapsedSeconds; }
+    TimeUtils::FPSeconds GetSecondsRemaining() const;
     float GetFractionElapsed() const;
     float GetFractionRemaining() const;
-    void SetSecondsElapsed(float secondsElapsed);	   // Jump to specific time
+    void SetSecondsElapsed(TimeUtils::FPSeconds secondsElapsed);	   // Jump to specific time
     void SetFractionElapsed(float fractionElapsed);    // e.g. 0.33f for one-third in
     void SetMaterial(Material* mat);
     Material* GetMaterial() const;
 protected:
 private:
-    AnimatedSprite(Renderer& renderer, SpriteSheet* spriteSheet, float durationSeconds,
+    AnimatedSprite(Renderer& renderer, SpriteSheet* spriteSheet, TimeUtils::FPSeconds durationSeconds,
                    int startSpriteIndex, int frameLength, SpriteAnimMode playbackMode = SpriteAnimMode::Looping);
 
     void LoadFromXml(Renderer& renderer, const XMLElement& elem);
@@ -54,15 +55,14 @@ private:
     Renderer* _renderer = nullptr;
     Material* _material = nullptr;
     SpriteSheet* _sheet = nullptr;
-    float _duration_seconds = 0.016f;
-    float _elapsed_seconds = 0.0f;
-    float _elapsed_frame_delta_seconds = 0.0f;
-    float _max_frame_delta_seconds = 0.0f;
+    TimeUtils::FPSeconds _duration_seconds = TimeUtils::FPFrames{1};
+    TimeUtils::FPSeconds _elapsed_seconds{ 0.0f };
+    TimeUtils::FPSeconds _elapsed_frame_delta_seconds{0.0f};
+    TimeUtils::FPSeconds _max_seconds_per_frame{0.0f};
     SpriteAnimMode _playback_mode = SpriteAnimMode::Looping;
-    int _start_index = 0;
-    int _end_index = 1;
+    int _start_index{0};
+    int _end_index{1};
     bool _is_playing = true;
-    bool _padding[3]{};
 
     friend class Renderer;
 

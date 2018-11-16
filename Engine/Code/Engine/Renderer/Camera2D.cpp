@@ -27,8 +27,8 @@ void Camera2D::CalcViewMatrix() {
     inv_view_matrix = Matrix4::CalculateInverse(view_matrix);
 }
 
-void Camera2D::Update(float deltaSeconds) {
-    trauma -= trauma_recovery_rate * deltaSeconds;
+void Camera2D::Update(TimeUtils::FPSeconds deltaSeconds) {
+    trauma -= trauma_recovery_rate * deltaSeconds.count();
 }
 
 const Vector2& Camera2D::GetPosition() const {

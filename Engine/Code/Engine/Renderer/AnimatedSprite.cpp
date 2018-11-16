@@ -11,7 +11,7 @@
 
 AnimatedSprite::AnimatedSprite(Renderer& renderer,
                                SpriteSheet* spriteSheet,
-                               float durationSeconds,
+                               TimeUtils::FPSeconds durationSeconds,
                                int startSpriteIndex,
                                int frameLength,
                                SpriteAnimMode playbackMode /*= SpriteAnimMode::LOOPING*/)
@@ -23,8 +23,8 @@ AnimatedSprite::AnimatedSprite(Renderer& renderer,
     , _end_index(startSpriteIndex + frameLength)
 {
     bool has_frames = frameLength > 0;
-    _max_frame_delta_seconds = _duration_seconds / (has_frames ? (_end_index - _start_index) : 1);
-}
+    _max_seconds_per_frame = TimeUtils::FPSeconds{ _duration_seconds / (has_frames ? static_cast<float>(_end_index - _start_index) : 1.0f) };
+};
 
 AnimatedSprite::AnimatedSprite(Renderer& renderer, const XMLElement& elem)
     : _renderer(&renderer)
@@ -38,11 +38,11 @@ AnimatedSprite::~AnimatedSprite() {
     _sheet = nullptr;
 }
 
-void AnimatedSprite::Update(float deltaSeconds) {
+void AnimatedSprite::Update(TimeUtils::FPSeconds deltaSeconds) {
 
     _elapsed_frame_delta_seconds += deltaSeconds;
-    while(_elapsed_frame_delta_seconds >= _max_frame_delta_seconds) {
-        _elapsed_frame_delta_seconds -= _max_frame_delta_seconds;
+    while(_elapsed_frame_delta_seconds >= _max_seconds_per_frame) {
+        _elapsed_frame_delta_seconds -= _max_seconds_per_frame;
     }
     switch(_playback_mode) {
         case SpriteAnimMode::Looping:
@@ -61,7 +61,7 @@ void AnimatedSprite::Update(float deltaSeconds) {
         case SpriteAnimMode::Play_To_Beginning:
             if(IsFinished()) {
                 _is_playing = false;
-                _elapsed_seconds = 0.0f;
+                _elapsed_seconds = TimeUtils::FPSeconds{0.0f};
             }
             break;
         case SpriteAnimMode::Play_To_End:
@@ -71,9 +71,9 @@ void AnimatedSprite::Update(float deltaSeconds) {
             }
             break;
         case SpriteAnimMode::Ping_Pong:
-            if(_elapsed_seconds < 0.0) {
+            if(_elapsed_seconds < TimeUtils::FPSeconds{0.0f}) {
                 deltaSeconds *= -1.0f;
-                while(_elapsed_seconds < 0.0f) {
+                while(_elapsed_seconds < TimeUtils::FPSeconds{0.0f}) {
                     _elapsed_seconds += _duration_seconds;
                 }
             } else if(_elapsed_seconds >= _duration_seconds) {
@@ -91,9 +91,9 @@ void AnimatedSprite::Update(float deltaSeconds) {
 
 AABB2 AnimatedSprite::GetCurrentTexCoords() const {
 
-    auto framesPerSecond = 1.0f / _max_frame_delta_seconds;
-    auto frameIndex = static_cast<int>(framesPerSecond * _elapsed_seconds);
-    auto length = _end_index - _start_index;
+    int length = _end_index - _start_index;
+    auto framesPerSecond = TimeUtils::FPSeconds{ 1.0f } / _max_seconds_per_frame;
+    auto frameIndex = static_cast<int>(_elapsed_seconds.count() * framesPerSecond);
     switch(_playback_mode) {
         case SpriteAnimMode::Play_To_End:
             if(frameIndex >= length) {
@@ -154,7 +154,7 @@ void AnimatedSprite::Resume() {
 }
 
 void AnimatedSprite::Reset() {
-    _elapsed_seconds = 0.0f;
+    _elapsed_seconds = TimeUtils::FPSeconds{0.0f};
 }
 
 bool AnimatedSprite::IsFinished() const {
@@ -167,7 +167,7 @@ bool AnimatedSprite::IsFinished() const {
             return !(_elapsed_seconds < _duration_seconds);
         case SpriteAnimMode::Looping_Reverse: /* FALL THROUGH */
         case SpriteAnimMode::Play_To_Beginning:
-            return _elapsed_seconds < 0.0f;
+            return _elapsed_seconds < TimeUtils::FPSeconds{0.0f};
         case SpriteAnimMode::Ping_Pong:
             return false;
         default:
@@ -179,15 +179,15 @@ bool AnimatedSprite::IsPlaying() const {
     return _is_playing;
 }
 
-float AnimatedSprite::GetDurationSeconds() const {
+TimeUtils::FPSeconds AnimatedSprite::GetDurationSeconds() const {
     return _duration_seconds;
 }
 
-float AnimatedSprite::GetSecondsElapsed() const {
+TimeUtils::FPSeconds AnimatedSprite::GetSecondsElapsed() const {
     return _elapsed_seconds;
 }
 
-float AnimatedSprite::GetSecondsRemaining() const {
+TimeUtils::FPSeconds AnimatedSprite::GetSecondsRemaining() const {
     return _duration_seconds - _elapsed_seconds;
 }
 
@@ -199,7 +199,7 @@ float AnimatedSprite::GetFractionRemaining() const {
     return (_duration_seconds - _elapsed_seconds) / _duration_seconds;
 }
 
-void AnimatedSprite::SetSecondsElapsed(float secondsElapsed) {
+void AnimatedSprite::SetSecondsElapsed(TimeUtils::FPSeconds secondsElapsed) {
     _elapsed_seconds = secondsElapsed;
 }
 
@@ -241,12 +241,14 @@ void AnimatedSprite::LoadFromXml(Renderer& renderer, const XMLElement& elem) {
     auto xml_animset = elem.FirstChildElement("animationset");
     DataUtils::ValidateXmlElement(*xml_animset, "animationset", "", "startindex,framelength,duration", "", "loop,reverse,pingpong");
 
-    _start_index = DataUtils::ParseXmlAttribute(*xml_animset, "startindex", _start_index);
-    int frameLength = DataUtils::ParseXmlAttribute(*xml_animset, "framelength", 0);
+    int start_index = 0;
+    _start_index = DataUtils::ParseXmlAttribute(*xml_animset, "startindex", start_index);
+    auto frameLength = DataUtils::ParseXmlAttribute(*xml_animset, "framelength", 0);
     _end_index = _start_index + frameLength;
 
-    auto min_duration = 0.016f;
-    _duration_seconds = DataUtils::ParseXmlAttribute(*xml_animset, "duration", _duration_seconds);
+    TimeUtils::FPSeconds min_duration = TimeUtils::FPFrames{1};
+    float duration_seconds = 0.0f;
+    _duration_seconds = TimeUtils::FPSeconds{DataUtils::ParseXmlAttribute(*xml_animset, "duration", duration_seconds)};
     if(_duration_seconds < min_duration) {
         _duration_seconds = min_duration;
     }
@@ -257,5 +259,5 @@ void AnimatedSprite::LoadFromXml(Renderer& renderer, const XMLElement& elem) {
     _playback_mode = GetAnimModeFromOptions(is_looping, is_reverse, is_pingpong);
 
     bool has_frames = frameLength > 0;
-    _max_frame_delta_seconds = _duration_seconds / (has_frames ? (_end_index - _start_index) : 1);
+    _max_seconds_per_frame = TimeUtils::FPSeconds{ _duration_seconds / (has_frames ? static_cast<float>(_end_index - _start_index) : 1.0f) };
 }

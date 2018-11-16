@@ -734,7 +734,7 @@ void Console::BeginFrame() {
     }
 }
 
-void Console::Update(float /*deltaSeconds*/) {
+void Console::Update([[maybe_unused]]TimeUtils::FPSeconds deltaSeconds) {
     /* DO NOTHING */
 }
 

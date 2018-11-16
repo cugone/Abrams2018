@@ -86,7 +86,7 @@ void Game::InitializeUI() {
     _panel->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * 0.5f}, {} });
     _panel->SetPivot(UI::PivotPosition::Center);
 
-    _label_deltaSeconds = _panel->CreateChild<UI::Label>(_canvas, g_theRenderer->GetFont("System32"), "Label", false, 100.0f, 16.0f);
+    _label_deltaSeconds = _panel->CreateChild<UI::Label>(_canvas, g_theRenderer->GetFont("System32"), "Label");
     _label_deltaSeconds->SetBorderColor(Rgba::Blue);
     _label_deltaSeconds->SetPivot(UI::PivotPosition::TopLeft);
 
@@ -96,7 +96,7 @@ void Game::BeginFrame() {
     /* DO NOTHING */
 }
 
-void Game::Update(float deltaSeconds) {
+void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
     if(g_theInput->WasKeyJustPressed(KeyCode::Esc)) {
         g_theApp->SetIsQuitting(true);
         return;
@@ -133,14 +133,14 @@ void Game::Update(float deltaSeconds) {
     _animSprite->Update(deltaSeconds);
 }
 
-void Game::UpdateCameraFromKeyboard(float deltaSeconds) {
+void Game::UpdateCameraFromKeyboard(TimeUtils::FPSeconds deltaSeconds) {
     float camera_move_speed = 0.0f;
     {
         bool is_fast = false;
         if(g_theInput->IsKeyDown(KeyCode::LShift)) {
             is_fast = true;
         }
-        camera_move_speed = _cameraSpeed * deltaSeconds * (is_fast ? _camera_move_speed_multiplier : 1.0f);
+        camera_move_speed = _cameraSpeed * deltaSeconds.count() * (is_fast ? _camera_move_speed_multiplier : 1.0f);
     }
 
     auto forward = _camera3->GetForward();
@@ -180,7 +180,7 @@ void Game::UpdateCameraFromKeyboard(float deltaSeconds) {
     }
 }
 
-void Game::UpdateCameraFromMouse(float deltaSeconds) {
+void Game::UpdateCameraFromMouse(TimeUtils::FPSeconds deltaSeconds) {
     if(!g_theApp->HasFocus() || g_theConsole->IsOpen()) {
         return;
     }
@@ -190,7 +190,7 @@ void Game::UpdateCameraFromMouse(float deltaSeconds) {
         if(g_theInput->IsKeyDown(KeyCode::Shift)) {
             is_fast = true;
         }
-        camera_move_speed = _cameraSpeed * deltaSeconds * (is_fast ? _camera_move_speed_multiplier : 1.0f);
+        camera_move_speed = _cameraSpeed * deltaSeconds.count() * (is_fast ? _camera_move_speed_multiplier : 1.0f);
     }
     const auto& window = *(g_theRenderer->GetOutput()->GetWindow());
     auto mouse_pos = g_theInput->GetCursorWindowPosition(window);
@@ -251,9 +251,9 @@ void Game::Render() const {
 
     {
         std::ostringstream ss;
-        ss << "Delta Seconds: " << g_theRenderer->GetGameFrameTime()
-           << '\n' << "Game FPS: " << 1.0f / g_theRenderer->GetGameFrameTime()
-           << '\n' << "System FPS: " << 1.0f / g_theRenderer->GetSystemFrameTime();
+        ss << "Delta Seconds: " << g_theRenderer->GetGameFrameTime().count()
+            << '\n' << "Game FPS: " << 1.0f / g_theRenderer->GetGameFrameTime().count()
+           << '\n' << "System FPS: " << 1.0f / g_theRenderer->GetSystemFrameTime().count();
         _label_deltaSeconds->SetText(ss.str());
     }
 

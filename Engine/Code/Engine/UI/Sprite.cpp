@@ -20,7 +20,7 @@ Sprite::~Sprite() {
     _sprite = nullptr;
 }
 
-void Sprite::Update(float deltaSeconds) {
+void Sprite::Update(TimeUtils::FPSeconds deltaSeconds) {
     _sprite->Update(deltaSeconds);
 }
 

@@ -25,10 +25,6 @@ Label::Label(UI::Canvas* parent_canvas, KerningFont* font, const std::string& te
     CalcBoundsFromFont(_font);
 }
 
-void Label::Update(float /*deltaSeconds*/) {
-    /* DO NOTHING */
-}
-
 void Label::Render(Renderer* renderer) const {
     auto world_transform = GetWorldTransform();
     auto world_transform_scale = world_transform.GetScale();

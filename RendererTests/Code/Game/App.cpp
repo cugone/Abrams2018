@@ -108,10 +108,10 @@ void App::RunFrame() {
     FPSeconds deltaSeconds = (currentFrameTime - previousFrameTime);
     previousFrameTime = currentFrameTime;
 
-    auto deltaFrames = FPFrames{ deltaSeconds };
-    deltaSeconds = FPSeconds{ std::clamp(FPFrames{ deltaSeconds }, FPFrames{0}, FPFrames{1}) };
+    auto deltaFrames = FPFrames{ std::clamp(FPFrames{ deltaSeconds }, FPFrames{0}, FPFrames{1}) };
+    deltaSeconds = FPSeconds{ deltaFrames };
 
-    Update(deltaSeconds.count());
+    Update(deltaSeconds);
     Render();
     EndFrame();
 }
@@ -183,7 +183,7 @@ void App::BeginFrame() {
     g_theRenderer->BeginFrame();
 }
 
-void App::Update(float deltaSeconds) {
+void App::Update([[maybe_unused]]TimeUtils::FPSeconds deltaSeconds) {
     g_theInput->Update(deltaSeconds);
     g_theConsole->Update(deltaSeconds);
     g_theGame->Update(deltaSeconds);

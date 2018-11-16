@@ -292,7 +292,7 @@ public:
     virtual bool ProcessSystemMessage(const EngineMessage& msg) override;
     virtual void Initialize() override;
     virtual void BeginFrame() override;
-    virtual void Update(float) override;
+    virtual void Update([[maybe_unused]]TimeUtils::FPSeconds) override;
     virtual void Render() const override;
     virtual void EndFrame() override;
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Core/TimeUtils.hpp"
+
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Matrix4.hpp"
 #include "Engine/Math/Vector2.hpp"
@@ -10,7 +12,7 @@ public:
 
     void SetupView(const Vector2& leftBottom, const Vector2& rightTop, const Vector2& nearFar = Vector2(0.0f, 1.0f), float aspectRatio = MathUtils::M_16_BY_9_RATIO);
 
-    void Update(float deltaSeconds);
+    void Update(TimeUtils::FPSeconds deltaSeconds);
 
     const Vector2& GetPosition() const;
     void SetPosition(const Vector3& newPosition);

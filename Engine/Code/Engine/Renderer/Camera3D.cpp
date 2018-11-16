@@ -70,8 +70,8 @@ void Camera3D::CalcRotationMatrix() {
     rotation_matrix = R;
 }
 
-void Camera3D::Update(float deltaSeconds) {
-    trauma -= trauma_recovery_rate * deltaSeconds;
+void Camera3D::Update(TimeUtils::FPSeconds deltaSeconds) {
+    trauma -= trauma_recovery_rate * deltaSeconds.count();
 }
 
 const Vector3& Camera3D::GetPosition() const {

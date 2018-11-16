@@ -12,7 +12,7 @@ class Canvas : public UI::Element {
 public:
     explicit Canvas(Renderer& renderer, float reference_resolution, Texture* target_texture = nullptr, Texture* target_depthStencil = nullptr);
     virtual ~Canvas() = default;
-    virtual void Update(float deltaSeconds) override;
+    virtual void Update(TimeUtils::FPSeconds deltaSeconds) override;
     virtual void Render(Renderer* renderer) const override;
     void SetupMVPFromTargetAndCamera(Renderer* renderer) const;
     virtual void DebugRender(Renderer* renderer, bool showSortOrder = false) const override;

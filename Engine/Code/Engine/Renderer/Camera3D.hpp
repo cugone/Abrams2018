@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Core/TimeUtils.hpp"
+
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Matrix4.hpp"
 #include "Engine/Math/Quaternion.hpp"
@@ -12,7 +14,7 @@ public:
     ~Camera3D() = default;
 
     void SetupView(float fovVerticalDegrees, float aspectRatio = MathUtils::M_16_BY_9_RATIO, float nearDistance = 0.01f, float farDistance = 1.0f, const Vector3& worldUp = Vector3::Y_AXIS);
-    void Update(float deltaSeconds);
+    void Update(TimeUtils::FPSeconds deltaSeconds);
 
     const Vector3& GetPosition() const;
     void SetPosition(const Vector3& newPosition);

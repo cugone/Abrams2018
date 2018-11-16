@@ -11,7 +11,7 @@ public:
     explicit Panel(UI::Canvas* parent_canvas);
     virtual ~Panel() = default;
 
-    virtual void Update(float deltaSeconds) override;
+    virtual void Update(TimeUtils::FPSeconds deltaSeconds) override;
     virtual void Render(Renderer* renderer) const override;
     virtual void DebugRender(Renderer* renderer, bool showSortOrder = false) const override;
 protected:

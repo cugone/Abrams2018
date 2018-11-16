@@ -2,6 +2,7 @@
 
 #include "Engine/Core/Event.hpp"
 #include "Engine/Core/Obj.hpp"
+#include "Engine/Core/TimeUtils.hpp"
 
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/AABB3.hpp"
@@ -34,15 +35,15 @@ public:
     void InitializeUI();
 
     void BeginFrame();
-    void Update(float deltaSeconds);
+    void Update(TimeUtils::FPSeconds deltaSeconds);
     void Render() const;
     void RenderStuff() const;
     void EndFrame();
 
 protected:
 private:
-    void UpdateCameraFromKeyboard(float deltaSeconds);
-    void UpdateCameraFromMouse(float deltaSeconds);
+    void UpdateCameraFromKeyboard(TimeUtils::FPSeconds deltaSeconds);
+    void UpdateCameraFromMouse(TimeUtils::FPSeconds deltaSeconds);
     void DrawWorldGrid() const;
     void DrawAxes() const;
     void DrawCube() const;

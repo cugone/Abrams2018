@@ -1208,7 +1208,7 @@ void InputSystem::BeginFrame() {
     }
 }
 
-void InputSystem::Update(float /*deltaSeconds*/) {
+void InputSystem::Update([[maybe_unused]]TimeUtils::FPSeconds deltaSeconds) {
     /* DO NOTHING */
 }
 

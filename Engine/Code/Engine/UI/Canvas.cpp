@@ -44,7 +44,7 @@ Canvas::Canvas(Renderer& renderer, float reference_resolution, Texture* target_t
     _renderer->CreateAndRegisterDepthStencilStateFromDepthStencilDescription("UIDepthStencil", desc);
 }
 
-void Canvas::Update(float deltaSeconds) {
+void Canvas::Update(TimeUtils::FPSeconds deltaSeconds) {
     UpdateChildren(deltaSeconds);
 }
 

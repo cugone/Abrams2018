@@ -199,20 +199,20 @@ void Renderer::BeginFrame() {
     /* DO NOTHING */
 }
 
-void Renderer::Update(float deltaSeconds) {
+void Renderer::Update(TimeUtils::FPSeconds deltaSeconds) {
     UpdateSystemTime(deltaSeconds);
 }
 
-void Renderer::UpdateGameTime(float deltaSeconds) {
-    _time_data.game_time += deltaSeconds;
-    _time_data.game_frame_time = deltaSeconds;
+void Renderer::UpdateGameTime(TimeUtils::FPSeconds deltaSeconds) {
+    _time_data.game_time += deltaSeconds.count();
+    _time_data.game_frame_time = deltaSeconds.count();
     _time_cb->Update(_rhi_context, &_time_data);
     SetConstantBuffer(TIME_BUFFER_INDEX, _time_cb);
 }
 
-void Renderer::UpdateSystemTime(float deltaSeconds) {
-    _time_data.system_time += deltaSeconds;
-    _time_data.system_frame_time = deltaSeconds;
+void Renderer::UpdateSystemTime(TimeUtils::FPSeconds deltaSeconds) {
+    _time_data.system_time += deltaSeconds.count();
+    _time_data.system_frame_time = deltaSeconds.count();
     _time_cb->Update(_rhi_context, &_time_data);
     SetConstantBuffer(TIME_BUFFER_INDEX, _time_cb);
 }
@@ -225,20 +225,20 @@ void Renderer::EndFrame() {
     Present();
 }
 
-float Renderer::GetGameFrameTime() const {
-    return _time_data.game_frame_time;
+TimeUtils::FPSeconds Renderer::GetGameFrameTime() const {
+    return TimeUtils::FPSeconds{ _time_data.game_frame_time };
 }
 
-float Renderer::GetSystemFrameTime() const {
-    return _time_data.system_frame_time;
+TimeUtils::FPSeconds Renderer::GetSystemFrameTime() const {
+    return TimeUtils::FPSeconds{_time_data.system_frame_time};
 }
 
-float Renderer::GetGameTime() const {
-    return _time_data.game_time;
+TimeUtils::FPSeconds Renderer::GetGameTime() const {
+    return TimeUtils::FPSeconds{_time_data.game_time};
 }
 
-float Renderer::GetSystemTime() const {
-    return _time_data.system_time;
+TimeUtils::FPSeconds Renderer::GetSystemTime() const {
+    return TimeUtils::FPSeconds{_time_data.system_time};
 }
 
 ConstantBuffer* Renderer::CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) const {
@@ -705,9 +705,8 @@ AnimatedSprite* Renderer::CreateAnimatedSpriteFromGif(const std::string& filepat
     auto delays = img.GetDelaysIfGif();
     auto tex = GetTexture(p.string());
     auto spr = new SpriteSheet(tex, 1, static_cast<int>(delays.size()));
-    float duration_sum = std::accumulate(std::begin(delays), std::end(delays), 0.0f);
-    duration_sum *= 0.001f;
-    auto anim = new AnimatedSprite(*this, spr, duration_sum, 0, static_cast<int>(delays.size()));
+    int duration_sum = std::accumulate(std::begin(delays), std::end(delays), 0);
+    auto anim = new AnimatedSprite(*this, spr, TimeUtils::FPMilliseconds{duration_sum}, 0, static_cast<int>(delays.size()));
     tinyxml2::XMLDocument doc;
     std::ostringstream ss;
     ss << R"("<material name="__Gif_)" << p.stem().string() << R"("><shader src="__2D" /><textures><diffuse src=")" << p.string() << R"(" /></textures></material>)";

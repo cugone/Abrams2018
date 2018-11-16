@@ -10,7 +10,7 @@ Panel::Panel(UI::Canvas* parent_canvas)
     /* DO NOTHING */
 }
 
-void Panel::Update(float deltaSeconds) {
+void Panel::Update(TimeUtils::FPSeconds deltaSeconds) {
     UpdateChildren(deltaSeconds);
 }
 

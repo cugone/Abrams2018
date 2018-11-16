@@ -33,7 +33,7 @@ public:
 protected:
 private:
     virtual void BeginFrame() override;
-    virtual void Update(float deltaSeconds) override;
+    virtual void Update([[maybe_unused]]TimeUtils::FPSeconds deltaSeconds) override;
     virtual void Render() const override;
     virtual void EndFrame() override;
 

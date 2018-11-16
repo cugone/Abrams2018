@@ -209,7 +209,7 @@ const Vector2& Element::GetPivot() const {
     return _pivot.GetValue();
 }
 
-void Element::Update(float /*deltaSeconds*/) {
+void Element::Update(TimeUtils::FPSeconds /*deltaSeconds*/) {
     /* DO NOTHING */
 }
 
@@ -463,7 +463,7 @@ AABB2 Element::GetParentRelativeBounds() const {
     return _parent ? _parent->CalcBoundsRelativeToParent() : AABB2{ 0.0f, 0.0f, 0.0f, 0.0f };
 }
 
-void Element::UpdateChildren(float deltaSeconds) {
+void Element::UpdateChildren(TimeUtils::FPSeconds deltaSeconds) {
     for(auto& child : _children) {
         if(child) {
             child->Update(deltaSeconds);

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Core/TimeUtils.hpp"
+
 #include <cstdint>
 
 enum class WindowsSystemMessage : unsigned int {
@@ -130,7 +132,7 @@ public:
 
     virtual void Initialize() = 0;
     virtual void BeginFrame() = 0;
-    virtual void Update([[maybe_unused]]float deltaSeconds) = 0;
+    virtual void Update([[maybe_unused]]TimeUtils::FPSeconds deltaSeconds) = 0;
     virtual void Render() const = 0;
     virtual void EndFrame() = 0;
 

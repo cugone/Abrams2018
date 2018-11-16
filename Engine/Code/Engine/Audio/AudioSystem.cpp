@@ -108,7 +108,7 @@ void AudioSystem::BeginFrame() {
     /* DO NOTHING */
 }
 
-void AudioSystem::Update(float /*deltaSeconds*/) {
+void AudioSystem::Update([[maybe_unused]]TimeUtils::FPSeconds deltaSeconds) {
     /* DO NOTHING */
 }
 

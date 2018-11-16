@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core/Rgba.hpp"
+#include "Engine/Core/TimeUtils.hpp"
 
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/Matrix4.hpp"
@@ -20,7 +21,7 @@ public:
     explicit Element(UI::Canvas* parent_canvas);
     virtual ~Element() = 0;
 
-    virtual void Update(float deltaSeconds);
+    virtual void Update(TimeUtils::FPSeconds deltaSeconds);
     virtual void Render(Renderer* renderer) const;
     virtual void DebugRender(Renderer* renderer, bool showSortOrder = false) const;
 
@@ -135,7 +136,7 @@ protected:
     void DebugRenderOrder(Renderer* renderer) const;
     AABB2 GetParentLocalBounds() const;
     AABB2 GetParentRelativeBounds() const;
-    void UpdateChildren(float deltaSeconds);
+    void UpdateChildren(TimeUtils::FPSeconds deltaSeconds);
     void RenderChildren(Renderer* renderer) const;
 
     AABB2 GetBounds(const AABB2& parent, const Vector4& anchors, const Vector4& offsets) const noexcept;

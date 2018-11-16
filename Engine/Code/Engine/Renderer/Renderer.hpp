@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core/DataUtils.hpp"
+#include "Engine/Core/TimeUtils.hpp"
 #include "Engine/Core/Vertex3D.hpp"
 
 #include "Engine/Math/AABB2.hpp"
@@ -114,14 +115,14 @@ public:
     void Initialize(bool headless = false);
 
     void BeginFrame();
-    void Update(float deltaSeconds);
+    void Update(TimeUtils::FPSeconds deltaSeconds);
     void Render() const;
     void EndFrame();
 
-    float GetGameFrameTime() const;
-    float GetSystemFrameTime() const;
-    float GetGameTime() const;
-    float GetSystemTime() const;
+    TimeUtils::FPSeconds GetGameFrameTime() const;
+    TimeUtils::FPSeconds GetSystemFrameTime() const;
+    TimeUtils::FPSeconds GetGameTime() const;
+    TimeUtils::FPSeconds GetSystemTime() const;
 
     void SetFullscreen(bool isFullscreen);
     void SetBorderless(bool isBorderless);
@@ -252,7 +253,7 @@ public:
     void RegisterFont(KerningFont* font);
     void RegisterFontsFromFolder(const std::string& folderpath, bool recursive = false);
 
-    void UpdateGameTime(float deltaSeconds);
+    void UpdateGameTime(TimeUtils::FPSeconds deltaSeconds);
 
     void SetModelMatrix(const Matrix4& mat);
     void SetViewMatrix(const Matrix4& mat);
@@ -306,7 +307,7 @@ public:
     void SetWinProc(const std::function<bool(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) >& windowProcedure);
 protected:
 private:
-    void UpdateSystemTime(float deltaSeconds);
+    void UpdateSystemTime(TimeUtils::FPSeconds deltaSeconds);
     void RegisterTexturesFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
     bool RegisterTexture(const std::filesystem::path& filepath);
     void RegisterShaderProgram(const std::string& name, ShaderProgram * sp);

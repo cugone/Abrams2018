@@ -69,7 +69,7 @@ void InputLayout::PopulateInputLayoutUsingReflection(ID3D11ShaderReflection& ver
 
 D3D11_INPUT_ELEMENT_DESC InputLayout::CreateInputElementFromSignature(D3D11_SIGNATURE_PARAMETER_DESC& input_desc, unsigned int& last_input_slot) {
     D3D11_INPUT_ELEMENT_DESC elem{};
-    //TODO: Meta file required in the future!
+    //TODO: Meta file may be required in the future!
     elem.InputSlot = 0;
     elem.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
     elem.InstanceDataStepRate = 0;

@@ -27,7 +27,7 @@
 #include <cstdint>
 
 struct AdapterInfo {
-    //TODO: Switch when RenderDoc or VS GD support changes.
+    //TODO: Switch when RenderDoc or VS GD support dxgi 1.6.
     //IDXGIAdapter4* adapter = nullptr;
     //DXGI_ADAPTER_DESC3 desc{};
     IDXGIAdapter1* adapter = nullptr;

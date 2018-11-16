@@ -19,7 +19,6 @@ decltype(auto) Now() noexcept {
     return Clock::now();
 }
 
-//Get the elapsed time between calls (defaults to float-precision seconds)
 template<typename Clock = std::chrono::steady_clock>
 decltype(auto) GetCurrentTimeElapsed() noexcept {
     using namespace std::chrono;

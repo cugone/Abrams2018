@@ -58,7 +58,7 @@ private:
     std::vector<ConstantBuffer*> CreateConstantBuffersUsingReflection(ID3D11ShaderReflection& cbufferReflection) const;
     InputLayout* CreateInputLayoutFromByteCode(ID3DBlob* bytecode) const;
 
-    //TODO: Switch when RenderDoc or VS GD support changes.
+    //TODO: Switch when RenderDoc or VS GD support dxgi 1.6.
     //bool QueryForAllowTearingSupport(IDXGIFactory6* dxgi_factory) const;
     bool QueryForAllowTearingSupport(IDXGIFactory5* dxgi_factory) const;
     std::vector<OutputInfo> GetOutputsFromAdapter(const AdapterInfo& a) const noexcept;

@@ -100,15 +100,18 @@ void App::Initialize() {
 }
 
 void App::RunFrame() {
+    using namespace TimeUtils;
+
     BeginFrame();
-    static auto previousFrameTime = TimeUtils::GetCurrentTimeElapsed();
-    auto currentFrameTime = TimeUtils::GetCurrentTimeElapsed();
-    auto deltaSeconds = static_cast<float>(currentFrameTime - previousFrameTime);
+    static FPSeconds previousFrameTime = TimeUtils::GetCurrentTimeElapsed();
+    FPSeconds currentFrameTime = TimeUtils::GetCurrentTimeElapsed();
+    FPSeconds deltaSeconds = (currentFrameTime - previousFrameTime);
     previousFrameTime = currentFrameTime;
 
-    deltaSeconds = MathUtils::Clamp(deltaSeconds, 0.0f, 0.016f);
+    auto deltaFrames = FPFrames{ deltaSeconds };
+    deltaSeconds = FPSeconds{ std::clamp(FPFrames{ deltaSeconds }, FPFrames{0}, FPFrames{1}) };
 
-    Update(deltaSeconds);
+    Update(deltaSeconds.count());
     Render();
     EndFrame();
 }

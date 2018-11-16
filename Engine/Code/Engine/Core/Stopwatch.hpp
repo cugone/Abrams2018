@@ -7,9 +7,9 @@
 
 class Stopwatch {
 public:
-    explicit Stopwatch(const FPSeconds& seconds);
+    explicit Stopwatch(const TimeUtils::FPSeconds& seconds);
     explicit Stopwatch(unsigned int frequency);
-    void SetSeconds(const FPSeconds& seconds);
+    void SetSeconds(const TimeUtils::FPSeconds& seconds);
     void SetFrequency(unsigned int hz);
     bool Check();
     bool CheckAndDecrement();
@@ -17,7 +17,7 @@ public:
     unsigned int DecrementAll();
     void Reset();
 private:
-    FPSeconds interval_time;
-    FPSeconds target_time;
+    TimeUtils::FPSeconds interval_time;
+    TimeUtils::FPSeconds target_time;
 
 };

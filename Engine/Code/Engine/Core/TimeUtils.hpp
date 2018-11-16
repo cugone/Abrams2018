@@ -3,30 +3,29 @@
 #include <chrono>
 #include <string>
 
+namespace TimeUtils {
+
 using FPSeconds = std::chrono::duration<float>;
 using FPMilliseconds = std::chrono::duration<float, std::milli>;
 using FPMicroseconds = std::chrono::duration<float, std::micro>;
 using FPNanoseconds = std::chrono::duration<float, std::nano>;
 using FPFrames = std::chrono::duration<float, std::ratio<1, 60>>;
-
-namespace TimeUtils {
+using Frames = std::chrono::duration<uint64_t, std::ratio<1, 60>>;
 
 double GetCurrentTimeSeconds();
 
-template<typename Duration = std::chrono::duration<double>
-    , typename Clock = std::chrono::high_resolution_clock>
+template<typename Clock = std::chrono::steady_clock>
 decltype(auto) Now() noexcept {
-    return std::chrono::time_point_cast<Duration>(Clock::now());
+    return Clock::now();
 }
 
-//Get the elapsed time between calls (defaults to double-precision seconds)
-template<typename Duration = std::chrono::duration<double>
-        , typename Clock = std::chrono::high_resolution_clock>
+//Get the elapsed time between calls (defaults to float-precision seconds)
+template<typename Clock = std::chrono::steady_clock>
 decltype(auto) GetCurrentTimeElapsed() noexcept {
     using namespace std::chrono;
-    static auto initial_now = Now<Duration,Clock>();
-    auto now = Now<Duration,Clock>();
-    return (now - initial_now).count();
+    static auto initial_now = Now<Clock>();
+    auto now = Now<Clock>();
+    return (now - initial_now);
 }
 
 struct DateTimeStampOptions {

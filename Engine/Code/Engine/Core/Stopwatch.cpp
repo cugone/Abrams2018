@@ -1,28 +1,28 @@
 #include "Engine/Core/Stopwatch.hpp"
 
 Stopwatch::Stopwatch(unsigned int frequency)
-    : Stopwatch(FPSeconds(1.0f / static_cast<float>(frequency)))
+    : Stopwatch(TimeUtils::FPSeconds(1.0f / static_cast<float>(frequency)))
 {
     /* DO NOTHING */
 }
 
-Stopwatch::Stopwatch(const FPSeconds& seconds) {
+Stopwatch::Stopwatch(const TimeUtils::FPSeconds& seconds) {
     SetSeconds(seconds);
 }
 
-void Stopwatch::SetSeconds(const FPSeconds& seconds) {
+void Stopwatch::SetSeconds(const TimeUtils::FPSeconds& seconds) {
     interval_time = seconds;
-    target_time = FPSeconds{ TimeUtils::GetCurrentTimeElapsed<FPSeconds, std::chrono::steady_clock>()
-        + seconds.count() };
+    target_time = TimeUtils::FPSeconds{ TimeUtils::GetCurrentTimeElapsed()
+        + seconds };
 }
 
 void Stopwatch::SetFrequency(unsigned int hz) {
-    SetSeconds(FPSeconds(1.0f / static_cast<float>(hz)));
+    SetSeconds(TimeUtils::FPSeconds(1.0f / static_cast<float>(hz)));
 }
 
 bool Stopwatch::Check() {
-    auto current_time = TimeUtils::GetCurrentTimeElapsed<FPSeconds, std::chrono::steady_clock>();
-    return (target_time.count() < current_time);
+    auto current_time = TimeUtils::GetCurrentTimeElapsed();
+    return (target_time < current_time);
 }
 
 bool Stopwatch::CheckAndDecrement() {
@@ -53,6 +53,6 @@ unsigned int Stopwatch::DecrementAll() {
 }
 
 void Stopwatch::Reset() {
-    target_time = FPSeconds{ TimeUtils::GetCurrentTimeElapsed<FPSeconds, std::chrono::steady_clock>()
-                             + interval_time.count() };
+    target_time = TimeUtils::FPSeconds{ TimeUtils::GetCurrentTimeElapsed()
+                             + interval_time };
 }

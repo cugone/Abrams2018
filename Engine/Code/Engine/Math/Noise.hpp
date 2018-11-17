@@ -110,8 +110,8 @@ namespace MathUtils {
     // Simplex noise is based on a regular simplex (2D triangle, 3D tetrahedron, 4-simplex/5-cell)
     //	grid, which is a bit more fiddly, so I haven't written my own yet.
     //
-    // #TODO: Implement simplex noise in 2D, 3D, 4D (1D simplex is identical to 1D Perlin, I think?)
-    // #TODO: Test actual simplex noise implementation in 2D/3D to compare speeds (branches vs. math!)
+    //TODO: Implement simplex noise in 2D, 3D, 4D (1D simplex is identical to 1D Perlin, I think?)
+    //TODO: Test actual simplex noise implementation in 2D/3D to compare speeds (branches vs. math!)
 
 
     //-----------------------------------------------------------------------------------------------

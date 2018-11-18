@@ -95,12 +95,15 @@ public:
     void Hide();
     void Show();
     void SetHidden(bool hidden = true);
+    void ToggleHidden();
+    void ToggleVisibility();
 
     bool IsEnabled() const;
     bool IsDisabled() const;
     void Enable();
     void Disable();
     void SetEnabled(bool enabled = true);
+    void ToggleEnabled();
 
 protected:
 

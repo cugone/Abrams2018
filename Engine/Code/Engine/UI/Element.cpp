@@ -328,6 +328,14 @@ void Element::SetHidden(bool hidden /*= true*/) {
     _hidden = hidden;
 }
 
+void Element::ToggleHidden() {
+    _hidden = !_hidden;
+}
+
+void Element::ToggleVisibility() {
+    ToggleHidden();
+}
+
 bool Element::IsEnabled() const {
     return _enabled;
 }
@@ -346,6 +354,10 @@ void Element::Disable() {
 
 void Element::SetEnabled(bool enabled /*= true*/) {
     _enabled = enabled;
+}
+
+void Element::ToggleEnabled() {
+    _enabled = !_enabled;
 }
 
 void Element::CalcBounds() {

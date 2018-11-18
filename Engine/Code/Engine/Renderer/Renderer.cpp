@@ -2827,6 +2827,16 @@ void Renderer::SetPerspectiveProjectionFromCamera(const Camera3D& camera) {
     SetPerspectiveProjection(Vector2{ camera.CalcFovYDegrees(), camera.GetAspectRatio()}, Vector2{ camera.GetNearDistance(), camera.GetFarDistance()});
 }
 
+void Renderer::SetCamera(const Camera3D& camera) {
+    _camera = camera;
+    SetViewMatrix(_camera.GetViewMatrix());
+    SetProjectionMatrix(_camera.GetProjectionMatrix());
+}
+
+Camera3D Renderer::GetCamera() const {
+    return _camera;
+}
+
 void Renderer::SetConstantBuffer(unsigned int index, ConstantBuffer* buffer) {
     _rhi_context->SetConstantBuffer(index, buffer);
 }

@@ -9,6 +9,7 @@
 #include "Engine/Math/IntVector2.hpp"
 #include "Engine/Math/Matrix4.hpp"
 
+#include "Engine/Renderer/Camera3D.hpp"
 #include "Engine/Renderer/IndexBuffer.hpp"
 #include "Engine/Renderer/StructuredBuffer.hpp"
 #include "Engine/Renderer/VertexBuffer.hpp"
@@ -22,7 +23,6 @@
 class AABB2;
 class AnimatedSprite;
 class BlendState;
-class Camera3D;
 class ConstantBuffer;
 class DepthStencilState;
 struct DepthStencilDesc;
@@ -255,6 +255,7 @@ public:
 
     void UpdateGameTime(TimeUtils::FPSeconds deltaSeconds);
 
+    void AppendModelMatrix(const Matrix4& modelMatrix);
     void SetModelMatrix(const Matrix4& mat);
     void SetViewMatrix(const Matrix4& mat);
     void SetProjectionMatrix(const Matrix4& mat);
@@ -265,8 +266,8 @@ public:
     void SetOrthoProjectionFromCamera(const Camera3D& camera);
     void SetPerspectiveProjection(const Vector2& vfovDegrees_aspect, const Vector2& nz_fz);
     void SetPerspectiveProjectionFromCamera(const Camera3D& camera);
-
-    void AppendModelMatrix(const Matrix4& modelMatrix);
+    void SetCamera(const Camera3D& camera);
+    Camera3D GetCamera() const;
 
     void SetConstantBuffer(unsigned int index, ConstantBuffer* buffer);
     void SetStructuredBuffer(unsigned int index, StructuredBuffer* buffer);
@@ -394,9 +395,10 @@ private:
     void UnbindAllShaderResources();
     void UnbindAllConstantBuffers();
 
-    matrix_buffer_t _matrix_data = {};
-    time_buffer_t _time_data = {};
-    lighting_buffer_t _lighting_data = {};
+    Camera3D _camera{};
+    matrix_buffer_t _matrix_data{};
+    time_buffer_t _time_data{};
+    lighting_buffer_t _lighting_data{};
     std::size_t _current_vbo_size = 0;
     std::size_t _current_ibo_size = 0;
     RHIDeviceContext* _rhi_context = nullptr;
@@ -417,14 +419,14 @@ private:
     ConstantBuffer* _matrix_cb = nullptr;
     ConstantBuffer* _time_cb = nullptr;
     ConstantBuffer* _lighting_cb = nullptr;
-    std::map<std::string, Texture*> _textures = {};
-    std::map<std::string, ShaderProgram*> _shader_programs = {};
-    std::map<std::string, Material*> _materials = {};
-    std::map<std::string, Shader*> _shaders = {};
-    std::map<std::string, Sampler*> _samplers = {};
-    std::map<std::string, RasterState*> _rasters = {};
-    std::map<std::string, DepthStencilState*> _depthstencils = {};
-    std::map<std::string, KerningFont*> _fonts = {};
+    std::map<std::string, Texture*> _textures{};
+    std::map<std::string, ShaderProgram*> _shader_programs{};
+    std::map<std::string, Material*> _materials{};
+    std::map<std::string, Shader*> _shaders{};
+    std::map<std::string, Sampler*> _samplers{};
+    std::map<std::string, RasterState*> _rasters{};
+    std::map<std::string, DepthStencilState*> _depthstencils{};
+    std::map<std::string, KerningFont*> _fonts{};
     bool _vsync = false;
     friend class Shader;
 };

@@ -11,6 +11,9 @@ Panel::Panel(UI::Canvas* parent_canvas)
 }
 
 void Panel::Update(TimeUtils::FPSeconds deltaSeconds) {
+    if(IsDisabled()) {
+        return;
+    }
     UpdateChildren(deltaSeconds);
 }
 

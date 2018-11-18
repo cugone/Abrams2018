@@ -45,6 +45,9 @@ Canvas::Canvas(Renderer& renderer, float reference_resolution, Texture* target_t
 }
 
 void Canvas::Update(TimeUtils::FPSeconds deltaSeconds) {
+    if(IsDisabled()) {
+        return;
+    }
     UpdateChildren(deltaSeconds);
 }
 

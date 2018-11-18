@@ -21,6 +21,9 @@ Sprite::~Sprite() {
 }
 
 void Sprite::Update(TimeUtils::FPSeconds deltaSeconds) {
+    if(IsDisabled()) {
+        return;
+    }
     _sprite->Update(deltaSeconds);
 }
 

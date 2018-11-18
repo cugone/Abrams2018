@@ -13,34 +13,34 @@ class Matrix4;
 
 class ArgumentParser {
 public:
-    ArgumentParser(const std::string& args);
+    ArgumentParser(const std::string& args) noexcept;
     ~ArgumentParser() = default;
-    bool GetNext(Rgba& value);
-    bool GetNext(Vector2& value);
-    bool GetNext(Vector3& value);
-    bool GetNext(Vector4& value);
-    bool GetNext(IntVector2& value);
-    bool GetNext(IntVector3& value);
-    bool GetNext(IntVector4& value);
-    bool GetNext(Matrix4& value);
-    bool GetNext(std::string& value);
-    bool GetNext(unsigned char& value);
-    bool GetNext(signed char& value);
-    bool GetNext(char& value);
-    bool GetNext(unsigned short& value);
-    bool GetNext(short& value);
-    bool GetNext(unsigned int& value);
-    bool GetNext(int& value);
-    bool GetNext(unsigned long& value);
-    bool GetNext(long& value);
-    bool GetNext(unsigned long long& value);
-    bool GetNext(long long& value);
-    bool GetNext(float& value);
-    bool GetNext(double& value);
-    bool GetNext(long double& value);
+    bool GetNext(Rgba& value) const noexcept;
+    bool GetNext(Vector2& value) const noexcept;
+    bool GetNext(Vector3& value) const noexcept;
+    bool GetNext(Vector4& value) const noexcept;
+    bool GetNext(IntVector2& value) const noexcept;
+    bool GetNext(IntVector3& value) const noexcept;
+    bool GetNext(IntVector4& value) const noexcept;
+    bool GetNext(Matrix4& value) const noexcept;
+    bool GetNext(std::string& value) const noexcept;
+    bool GetNext(unsigned char& value) const noexcept;
+    bool GetNext(signed char& value) const noexcept;
+    bool GetNext(char& value) const noexcept;
+    bool GetNext(unsigned short& value) const noexcept;
+    bool GetNext(short& value) const noexcept;
+    bool GetNext(unsigned int& value) const noexcept;
+    bool GetNext(int& value) const noexcept;
+    bool GetNext(unsigned long& value) const noexcept;
+    bool GetNext(long& value) const noexcept;
+    bool GetNext(unsigned long long& value) const noexcept;
+    bool GetNext(long long& value) const noexcept;
+    bool GetNext(float& value) const noexcept;
+    bool GetNext(double& value) const noexcept;
+    bool GetNext(long double& value) const noexcept;
 
 protected:
 private:
-    std::string _args{};
-    std::string _current{};
+    mutable std::string _args{};
+    mutable std::string _current{};
 };

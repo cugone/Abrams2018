@@ -324,6 +324,22 @@ void Element::SetHidden(bool hidden /*= true*/) {
     _hidden = hidden;
 }
 
+bool Element::IsEnabled() const {
+    return _enabled;
+}
+
+void Element::Enable() {
+    _enabled = true;
+}
+
+void Element::Disable() {
+    _enabled = false;
+}
+
+void Element::SetEnable(bool enable /*= true*/) {
+    _enabled = enable;
+}
+
 void Element::CalcBounds() {
     _dirty_bounds = false;
     switch(_mode) {

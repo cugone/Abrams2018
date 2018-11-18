@@ -95,6 +95,11 @@ public:
     void Show();
     void SetHidden(bool hidden = true);
 
+    bool IsEnabled() const;
+    void Enable();
+    void Disable();
+    void SetEnable(bool enable = true);
+
 protected:
 
     Vector2 CalcLocalPosition() const;

@@ -173,6 +173,14 @@ unsigned char* Image::GetData() const {
     return m_texelBytes;
 }
 
+std::size_t Image::GetDataLength() const {
+    return m_dimensions.x * m_dimensions.y * m_bytesPerTexel;
+}
+
+int Image::GetBytesPerTexel() const {
+    return m_bytesPerTexel;
+}
+
 const std::vector<int>& Image::GetDelaysIfGif() const {
     return m_gifDelays;
 }

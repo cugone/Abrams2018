@@ -29,6 +29,9 @@ public:
     const IntVector2& GetDimensions() const;
 
     unsigned char* GetData() const;
+    std::size_t GetDataLength() const;
+    int GetBytesPerTexel() const;
+
     const std::vector<int>& GetDelaysIfGif() const;
     bool Export(const std::string& filepath, int bytes_per_pixel = 4, int jpg_quality = 100);
     static Image* CreateImageFromFileBuffer(const std::vector<unsigned char>& data);

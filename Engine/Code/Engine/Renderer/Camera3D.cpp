@@ -1,5 +1,46 @@
 #include "Engine/Renderer/Camera3D.hpp"
 
+#include "Engine/Renderer/Camera2D.hpp"
+
+Camera3D::Camera3D(const Camera2D& camera2D)
+    : trauma(camera2D.trauma)
+    , trauma_recovery_rate(camera2D.trauma_recovery_rate)
+    , aspect_ratio(camera2D.GetAspectRatio())
+    , far_distance(camera2D.GetFarDistance())
+    , near_distance(camera2D.GetNearDistance())
+    , position(camera2D.GetPosition())
+    , rotationRoll(camera2D.GetOrientation())
+    , view_matrix(camera2D.GetViewMatrix())
+    , projection_matrix(camera2D.GetProjectionMatrix())
+    , view_projection_matrix(camera2D.GetViewProjectionMatrix())
+    , inv_view_matrix(camera2D.GetInverseViewMatrix())
+    , inv_projection_matrix(camera2D.GetInverseProjectionMatrix())
+    , inv_view_projection_matrix(camera2D.GetInverseViewProjectionMatrix())
+    , rotation_matrix(camera2D.GetViewMatrix().GetRotation())
+    , rotation(rotation_matrix)
+{
+    /* DO NOTHING */
+}
+
+Camera3D& Camera3D::operator=(const Camera2D& camera2D) {
+    trauma = camera2D.trauma;
+    trauma_recovery_rate = camera2D.trauma_recovery_rate;
+    aspect_ratio = camera2D.GetAspectRatio();
+    far_distance = camera2D.GetFarDistance();
+    near_distance = camera2D.GetNearDistance();
+    position = Vector3{camera2D.GetPosition()};
+    rotationRoll = camera2D.GetOrientation();
+    view_matrix = camera2D.GetViewMatrix();
+    projection_matrix = camera2D.GetProjectionMatrix();
+    view_projection_matrix = camera2D.GetViewProjectionMatrix();
+    inv_view_matrix = camera2D.GetInverseViewMatrix();
+    inv_projection_matrix = camera2D.GetInverseProjectionMatrix();
+    inv_view_projection_matrix = camera2D.GetInverseViewProjectionMatrix();
+    rotation_matrix = camera2D.GetViewMatrix().GetRotation();
+    rotation = Quaternion{ rotation_matrix };
+    return *this;
+}
+
 void Camera3D::SetupView(float fovVerticalDegrees, float aspectRatio /*= MathUtils::M_16_BY_9_RATIO*/, float nearDistance /*= 0.01f*/, float farDistance /*= 1.0f*/, const Vector3& worldUp /*= Vector3::Y_AXIS*/) {
     fov_vertical_degrees = fovVerticalDegrees;
     aspect_ratio = aspectRatio;

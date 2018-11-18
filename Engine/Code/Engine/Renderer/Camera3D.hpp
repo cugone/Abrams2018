@@ -8,10 +8,14 @@
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"
 
+class Camera2D;
+
 class Camera3D {
 public:
     Camera3D() = default;
     ~Camera3D() = default;
+    explicit Camera3D(const Camera2D& camera2D);
+    Camera3D& operator=(const Camera2D& camera2D);
 
     void SetupView(float fovVerticalDegrees, float aspectRatio = MathUtils::M_16_BY_9_RATIO, float nearDistance = 0.01f, float farDistance = 1.0f, const Vector3& worldUp = Vector3::Y_AXIS);
     void Update(TimeUtils::FPSeconds deltaSeconds);
@@ -84,16 +88,15 @@ private:
     float far_distance = 1.0f;
     Vector3 position = Vector3::ZERO;
     Vector3 world_up = Vector3::Y_AXIS;
-    Quaternion rotation = Quaternion::GetIdentity();
-    Matrix4 rotation_matrix = Matrix4::GetIdentity();
     Matrix4 view_matrix = Matrix4::GetIdentity();
+    Matrix4 rotation_matrix = Matrix4::GetIdentity();
     Matrix4 projection_matrix = Matrix4::GetIdentity();
     Matrix4 view_projection_matrix = Matrix4::GetIdentity();
-
     Matrix4 inv_view_matrix = Matrix4::GetIdentity();
     Matrix4 inv_projection_matrix = Matrix4::GetIdentity();
     Matrix4 inv_view_projection_matrix = Matrix4::GetIdentity();
 
+    Quaternion rotation = Quaternion::GetIdentity();
     float rotationPitch = 0.0f;
     float rotationYaw = 0.0f;
     float rotationRoll = 0.0f;

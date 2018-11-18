@@ -66,13 +66,9 @@ constexpr const long double BYTES_KIB_RATIO = 1024.0L;                          
 constexpr const long double BYTES_MIB_RATIO = 1048576.0L;                         // Bytes/Megabytes
 constexpr const long double BYTES_GIB_RATIO = 1073741824.0L;                      // Bytes/Gigabytes
 
-//NOT THREAD SAFE
 void SetRandomEngineSeed(unsigned int seed);
-//NOT THREAD SAFE
 std::random_device& GetRandomDevice();
-//NOT THREAD SAFE
 std::mt19937& GetMTRandomEngine(unsigned int seed = 0);
-//NOT THREAD SAFE
 std::mt19937_64& GetMT64RandomEngine(unsigned int seed = 0);
 
 std::pair<float, float> SplitFloatingPointValue(float value);

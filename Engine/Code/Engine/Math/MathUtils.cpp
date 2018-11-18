@@ -19,7 +19,7 @@
 namespace MathUtils {
 
 namespace {
-unsigned int MT_RANDOM_SEED = 0;
+static thread_local unsigned int MT_RANDOM_SEED = 0u;
 }
 
 void SetRandomEngineSeed(unsigned int seed) {
@@ -55,21 +55,18 @@ float ConvertRadiansToDegrees(float radians) {
     return radians * (180.0f * MathUtils::M_1_PI);
 }
 
-//NOT THREAD SAFE
 std::random_device& GetRandomDevice() {
-    static std::random_device rd;
+    static thread_local std::random_device rd;
     return rd;
 }
 
-//NOT THREAD SAFE
 std::mt19937& GetMTRandomEngine(unsigned int seed /*= 0*/) {
-    static std::mt19937 e = std::mt19937(!seed ? GetRandomDevice()() : seed);
+    static thread_local std::mt19937 e = std::mt19937(!seed ? GetRandomDevice()() : seed);
     return e;
 }
 
-//NOT THREAD SAFE
 std::mt19937_64& GetMT64RandomEngine(unsigned int seed /*= 0*/) {
-    static std::mt19937_64 e = std::mt19937_64(!seed ? GetRandomDevice()() : seed);
+    static thread_local std::mt19937_64 e = std::mt19937_64(!seed ? GetRandomDevice()() : seed);
     return e;
 }
 

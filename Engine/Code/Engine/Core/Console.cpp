@@ -676,7 +676,7 @@ void Console::RegisterDefaultCommands() {
         RunCommand("clear");
         ArgumentParser arg_set(args);
         std::string line{};
-        if(arg_set.GetNext(line)) {
+        if(arg_set >> line) {
             line = StringUtils::TrimWhitespace(line);
             auto found_iter = _commands.find(line);
             if(found_iter != _commands.end()) {
@@ -709,7 +709,7 @@ void Console::RegisterDefaultCommands() {
     echo.command_function = [this](const std::string& args)->void {
         ArgumentParser arg_set(args);
         std::string cur_arg{};
-        while(arg_set.GetNext(cur_arg)) {
+        while(arg_set >> cur_arg) {
             std::ostringstream ss;
             ss << cur_arg;
             PrintMsg(ss.str());

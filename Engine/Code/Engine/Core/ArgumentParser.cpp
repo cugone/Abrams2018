@@ -18,6 +18,10 @@ ArgumentParser::ArgumentParser(const std::string& args) noexcept
     /* DO NOTHING */
 }
 
+ArgumentParser::operator bool() const {
+    return _state_bits[0] || !_state_bits[1];
+}
+
 bool ArgumentParser::GetNext(Rgba& value) const noexcept {
 
     std::string value_str{};
@@ -25,6 +29,7 @@ bool ArgumentParser::GetNext(Rgba& value) const noexcept {
         value = Rgba(value_str);
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -35,6 +40,7 @@ bool ArgumentParser::GetNext(Vector2& value) const noexcept {
         value = Vector2(value_str);
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -45,6 +51,7 @@ bool ArgumentParser::GetNext(Vector3& value) const noexcept {
         value = Vector3(value_str);
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -55,6 +62,7 @@ bool ArgumentParser::GetNext(Vector4& value) const noexcept {
         value = Vector4(value_str);
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -65,6 +73,7 @@ bool ArgumentParser::GetNext(IntVector2& value) const noexcept {
         value = IntVector2(value_str);
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -75,6 +84,7 @@ bool ArgumentParser::GetNext(IntVector3& value) const noexcept {
         value = IntVector3(value_str);
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -85,6 +95,7 @@ bool ArgumentParser::GetNext(IntVector4& value) const noexcept {
         value = IntVector4(value_str);
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -95,12 +106,14 @@ bool ArgumentParser::GetNext(Matrix4& value) const noexcept {
         value = Matrix4(value_str);
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
 bool ArgumentParser::GetNext(std::string& value) const noexcept {
 
     if(_current.empty()) {
+        _state_bits[1] = true;
         return false;
     }
     std::istringstream ss;
@@ -135,6 +148,7 @@ bool ArgumentParser::GetNext(std::string& value) const noexcept {
         value = arg;
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -145,10 +159,12 @@ bool ArgumentParser::GetNext(unsigned char& value) const noexcept {
         try {
             value = static_cast<unsigned char>(std::stoul(value_str));
         } catch(std::invalid_argument& /*e*/) {
+            _state_bits[0] = true;
             return false;
         }
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -159,10 +175,12 @@ bool ArgumentParser::GetNext(signed char& value) const noexcept {
         try {
             value = static_cast<signed char>(std::stoi(value_str));
         } catch(std::invalid_argument& /*e*/) {
+            _state_bits[0] = true;
             return false;
         }
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -173,6 +191,7 @@ bool ArgumentParser::GetNext(char& value) const noexcept {
         value = *value_str.begin();
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -183,10 +202,12 @@ bool ArgumentParser::GetNext(unsigned short& value) const noexcept {
         try {
             value = static_cast<unsigned short>(std::stoul(value_str));
         } catch(std::invalid_argument& /*e*/) {
+            _state_bits[0] = true;
             return false;
         }
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -197,10 +218,12 @@ bool ArgumentParser::GetNext(short& value) const noexcept {
         try {
             value = static_cast<short>(std::stoi(value_str));
         } catch(std::invalid_argument& /*e*/) {
+            _state_bits[0] = true;
             return false;
         }
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -211,10 +234,12 @@ bool ArgumentParser::GetNext(unsigned int& value) const noexcept {
         try {
             value = static_cast<unsigned int>(std::stoul(value_str));
         } catch(std::invalid_argument& /*e*/) {
+            _state_bits[0] = true;
             return false;
         }
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -225,10 +250,12 @@ bool ArgumentParser::GetNext(int& value) const noexcept {
         try {
             value = std::stoi(value_str);
         } catch(std::invalid_argument& /*e*/) {
+            _state_bits[0] = true;
             return false;
         }
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -239,10 +266,12 @@ bool ArgumentParser::GetNext(unsigned long& value) const noexcept {
         try {
             value = std::stoul(value_str);
         } catch(std::invalid_argument& /*e*/) {
+            _state_bits[0] = true;
             return false;
         }
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -253,10 +282,12 @@ bool ArgumentParser::GetNext(long& value) const noexcept {
         try {
             value = std::stol(value_str);
         } catch(std::invalid_argument& /*e*/) {
+            _state_bits[0] = true;
             return false;
         }
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -267,10 +298,12 @@ bool ArgumentParser::GetNext(unsigned long long& value) const noexcept {
         try {
             value = std::stoull(value_str);
         } catch(std::invalid_argument& /*e*/) {
+            _state_bits[0] = true;
             return false;
         }
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -281,10 +314,12 @@ bool ArgumentParser::GetNext(long long& value) const noexcept {
         try {
             value = std::stoll(value_str);
         } catch(std::invalid_argument& /*e*/) {
+            _state_bits[0] = true;
             return false;
         }
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -295,10 +330,12 @@ bool ArgumentParser::GetNext(float& value) const noexcept {
         try {
             value = std::stof(value_str);
         } catch(std::invalid_argument& /*e*/) {
+            _state_bits[0] = true;
             return false;
         }
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -309,10 +346,12 @@ bool ArgumentParser::GetNext(double& value) const noexcept {
         try {
             value = std::stod(value_str);
         } catch(std::invalid_argument& /*e*/) {
+            _state_bits[0] = true;
             return false;
         }
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }
 
@@ -323,9 +362,11 @@ bool ArgumentParser::GetNext(long double& value) const noexcept {
         try {
             value = std::stold(value_str);
         } catch(std::invalid_argument& /*e*/) {
+            _state_bits[0] = true;
             return false;
         }
         return true;
     }
+    _state_bits[0] = true;
     return false;
 }

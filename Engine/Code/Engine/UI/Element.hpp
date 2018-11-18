@@ -93,7 +93,7 @@ public:
     bool IsHidden() const;
     void Hide();
     void Show();
-    void SetHidden(float hidden = true);
+    void SetHidden(bool hidden = true);
 
 protected:
 
@@ -173,6 +173,7 @@ private:
     std::size_t _order = 0;
     bool _dirty_bounds = false;
     bool _hidden = false;
+    bool _enabled = true;
 
     float GetParentOrientationRadians() const;
     float GetParentOrientationDegrees() const;

@@ -320,7 +320,7 @@ void Element::Show() {
     SetHidden(false);
 }
 
-void Element::SetHidden(float hidden /*= true*/) {
+void Element::SetHidden(bool hidden /*= true*/) {
     _hidden = hidden;
 }
 

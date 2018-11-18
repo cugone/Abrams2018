@@ -312,6 +312,10 @@ bool Element::IsHidden() const {
     return _hidden;
 }
 
+bool Element::IsVisible() const {
+    return !_hidden;
+}
+
 void Element::Hide() {
     SetHidden();
 }
@@ -328,6 +332,10 @@ bool Element::IsEnabled() const {
     return _enabled;
 }
 
+bool Element::IsDisabled() const {
+    return !_enabled;
+}
+
 void Element::Enable() {
     _enabled = true;
 }
@@ -337,7 +345,7 @@ void Element::Disable() {
 }
 
 void Element::SetEnabled(bool enabled /*= true*/) {
-    _enabled = enable;
+    _enabled = enabled;
 }
 
 void Element::CalcBounds() {

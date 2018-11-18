@@ -91,11 +91,13 @@ public:
     AABB2 GetParentBounds() const;
 
     bool IsHidden() const;
+    bool IsVisible() const;
     void Hide();
     void Show();
     void SetHidden(bool hidden = true);
 
     bool IsEnabled() const;
+    bool IsDisabled() const;
     void Enable();
     void Disable();
     void SetEnabled(bool enabled = true);

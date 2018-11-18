@@ -37,23 +37,12 @@
 #include <numeric>
 #include <sstream>
 
-Game::Game() {
-    _camera2 = new Camera2D;
-    _camera3 = new Camera3D;
-}
-
 Game::~Game() {
     delete _animSprite;
     _animSprite = nullptr;
 
     delete _canvas;
     _canvas = nullptr;
-
-    delete _camera3;
-    _camera3 = nullptr;
-
-    delete _camera2;
-    _camera2 = nullptr;
 
 }
 
@@ -69,7 +58,7 @@ void Game::InitializeData() {
     g_theRenderer->RegisterFontsFromFolder(std::string{ "Data/Fonts" });
 
 
-    _camera3->SetPosition(Vector3(0.0f, 5.0f, -10.0f));
+    _camera3.SetPosition(Vector3(0.0f, 5.0f, -10.0f));
 
     _animSprite = g_theRenderer->CreateAnimatedSprite("Data/Images/cute_sif.gif");
 
@@ -82,7 +71,7 @@ void Game::InitializeUI() {
     _canvas->SetPivot(UI::PivotPosition::Center);
 
     _panel = _canvas->CreateChild<UI::Panel>();
-    _panel->SetBorderColor(Rgba::Pink);
+    _panel->SetBorderColor(Rgba::NoAlpha);
     _panel->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * 0.5f}, {} });
     _panel->SetPivot(UI::PivotPosition::Center);
 
@@ -126,8 +115,8 @@ void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
         _label_deltaSeconds->SetPivot(--_label_pivot);
     }
 
-    _camera2->Update(deltaSeconds);
-    _camera3->Update(deltaSeconds);
+    _camera2.Update(deltaSeconds);
+    _camera3.Update(deltaSeconds);
 
     _canvas->Update(deltaSeconds);
     _animSprite->Update(deltaSeconds);
@@ -143,40 +132,40 @@ void Game::UpdateCameraFromKeyboard(TimeUtils::FPSeconds deltaSeconds) {
         camera_move_speed = _cameraSpeed * deltaSeconds.count() * (is_fast ? _camera_move_speed_multiplier : 1.0f);
     }
 
-    auto forward = _camera3->GetForward();
+    auto forward = _camera3.GetForward();
     if(g_theInput->IsKeyDown(KeyCode::W)) {
-        _camera3->Translate(forward * camera_move_speed);
+        _camera3.Translate(forward * camera_move_speed);
     } else if(g_theInput->IsKeyDown(KeyCode::S)) {
-        _camera3->Translate(-forward * camera_move_speed);
+        _camera3.Translate(-forward * camera_move_speed);
     }
 
-    auto right = _camera3->GetRight();
+    auto right = _camera3.GetRight();
     if(g_theInput->IsKeyDown(KeyCode::A)) {
-        _camera3->Translate(-right * camera_move_speed);
+        _camera3.Translate(-right * camera_move_speed);
     } else if(g_theInput->IsKeyDown(KeyCode::D)) {
-        _camera3->Translate(right * camera_move_speed);
+        _camera3.Translate(right * camera_move_speed);
     }
 
     if(g_theInput->IsKeyDown(KeyCode::Q)) {
-        Vector3 angles = Vector3{ _camera3->GetPitchDegrees(), _camera3->GetYawDegrees(), _camera3->GetRollDegrees() - 1.0f };
-        _camera3->SetEulerAnglesDegrees(angles);
+        Vector3 angles = Vector3{ _camera3.GetPitchDegrees(), _camera3.GetYawDegrees(), _camera3.GetRollDegrees() - 1.0f };
+        _camera3.SetEulerAnglesDegrees(angles);
     } else if(g_theInput->IsKeyDown(KeyCode::E)) {
-        Vector3 angles = Vector3{ _camera3->GetPitchDegrees(), _camera3->GetYawDegrees(), _camera3->GetRollDegrees() + 1.0f };
-        _camera3->SetEulerAnglesDegrees(angles);
+        Vector3 angles = Vector3{ _camera3.GetPitchDegrees(), _camera3.GetYawDegrees(), _camera3.GetRollDegrees() + 1.0f };
+        _camera3.SetEulerAnglesDegrees(angles);
     }
 
-    auto up = _camera3->GetUp();
+    auto up = _camera3.GetUp();
     if(g_theInput->IsKeyDown(KeyCode::Space)) {
-        _camera3->Translate(up * camera_move_speed);
+        _camera3.Translate(up * camera_move_speed);
     } else if(g_theInput->IsKeyDown(KeyCode::LCtrl)) {
-        _camera3->Translate(-up * camera_move_speed);
+        _camera3.Translate(-up * camera_move_speed);
     }
 
     if(g_theInput->WasKeyJustPressed(KeyCode::R)) {
-        _camera3->SetPosition(Vector3::ZERO);
-        _camera3->SetEulerAngles(Vector3{ 0.0f, 0.0f, 0.0f });
-        _camera2->SetPosition(Vector2::ZERO);
-        _camera2->SetRotationDegrees(0.0f);
+        _camera3.SetPosition(Vector3::ZERO);
+        _camera3.SetEulerAngles(Vector3{ 0.0f, 0.0f, 0.0f });
+        _camera2.SetPosition(Vector2::ZERO);
+        _camera2.SetOrientationDegrees(0.0f);
     }
 }
 
@@ -198,13 +187,13 @@ void Game::UpdateCameraFromMouse(TimeUtils::FPSeconds deltaSeconds) {
     auto mouse_delta_pos = (mouse_pos - g_theInput->GetCursorWindowPosition(window));
     auto moved_x = mouse_delta_pos.x;
     auto moved_y = mouse_delta_pos.y;
-    Vector3 angles = Vector3{ _camera3->GetPitchDegrees() - moved_y, _camera3->GetYawDegrees() - moved_x, _camera3->GetRollDegrees() };
-    _camera3->SetEulerAnglesDegrees(angles);
+    Vector3 angles = Vector3{ _camera3.GetPitchDegrees() - moved_y, _camera3.GetYawDegrees() - moved_x, _camera3.GetRollDegrees() };
+    _camera3.SetEulerAnglesDegrees(angles);
     if(g_theInput->WasMouseWheelJustScrolledLeft()) {
-        _camera3->Translate(-_camera3->GetRight() * camera_move_speed);
+        _camera3.Translate(-_camera3.GetRight() * camera_move_speed);
     }
     if(g_theInput->WasMouseWheelJustScrolledRight()) {
-        _camera3->Translate(_camera3->GetRight() * camera_move_speed);
+        _camera3.Translate(_camera3.GetRight() * camera_move_speed);
     }
 }
 
@@ -218,13 +207,12 @@ void Game::Render() const {
     g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
     g_theRenderer->SetViewMatrix(Matrix4::GetIdentity());
     g_theRenderer->SetProjectionMatrix(Matrix4::GetIdentity());
-    _camera3->SetupView(45.0f, MathUtils::M_16_BY_9_RATIO, 0.01f, 1000.0f);
+    _camera3.SetupView(45.0f, MathUtils::M_16_BY_9_RATIO, 0.01f, 1000.0f);
 
-    g_theRenderer->SetProjectionMatrix(_camera3->GetProjectionMatrix());
-    g_theRenderer->SetViewMatrix(_camera3->GetViewMatrix());
+    g_theRenderer->SetCamera(_camera3);
 
     g_theRenderer->SetAmbientLight(Rgba::White, 5.0f);
-    g_theRenderer->SetLightingEyePosition(_camera3->GetPosition());
+    g_theRenderer->SetLightingEyePosition(_camera3.GetPosition());
 
     DirectionalLightDesc dl_desc{};
     dl_desc.color = Rgba::Red;
@@ -243,17 +231,16 @@ void Game::Render() const {
     Vector2 view_leftBottom = Vector2(-view_half_width, view_half_height);
     Vector2 view_rightTop = Vector2(view_half_width, -view_half_height);
     Vector2 view_nearFar = Vector2(0.0f, 1.0f);
-    auto cam_pos2 = Vector2(_camera2->GetPosition());
+    auto cam_pos2 = Vector2(_camera2.GetPosition());
 
-    _camera2->SetupView(view_leftBottom, view_rightTop, view_nearFar, MathUtils::M_16_BY_9_RATIO);
-    g_theRenderer->SetViewMatrix(_camera2->GetViewMatrix());
-    g_theRenderer->SetProjectionMatrix(_camera2->GetProjectionMatrix());
+    _camera2.SetupView(view_leftBottom, view_rightTop, view_nearFar, MathUtils::M_16_BY_9_RATIO);
+    g_theRenderer->SetCamera(Camera3D{_camera2});
 
     {
         std::ostringstream ss;
-        ss << "Delta Seconds: " << g_theRenderer->GetGameFrameTime().count()
+                 ss << "Delta Seconds: " << g_theRenderer->GetGameFrameTime().count()
             << '\n' << "Game FPS: " << 1.0f / g_theRenderer->GetGameFrameTime().count()
-           << '\n' << "System FPS: " << 1.0f / g_theRenderer->GetSystemFrameTime().count();
+            << '\n' << "System FPS: " << 1.0f / g_theRenderer->GetSystemFrameTime().count();
         _label_deltaSeconds->SetText(ss.str());
     }
 
@@ -267,7 +254,7 @@ void Game::Render() const {
 
     _canvas->Render(g_theRenderer);
     if(_debug) {
-        _canvas->DebugRender(g_theRenderer, true);
+        _canvas->DebugRender(g_theRenderer);
     }
 
 }

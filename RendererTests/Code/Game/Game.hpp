@@ -7,14 +7,15 @@
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/AABB3.hpp"
 
+#include "Engine/Renderer/Camera2D.hpp"
+#include "Engine/Renderer/Camera3D.hpp"
+
 #include "Engine/UI/Types.hpp"
 
 #include <functional>
 #include <string>
 
 class AnimatedSprite;
-class Camera2D;
-class Camera3D;
 class ConstantBuffer;
 class Texture;
 
@@ -27,7 +28,7 @@ class Sprite;
 
 class Game {
 public:
-    Game();
+    Game() = default;
     ~Game();
 
     void Initialize();
@@ -56,8 +57,8 @@ private:
     UI::Sprite* _sprite = nullptr;
     const float _cameraSpeed = 10.0f;
     const float _camera_move_speed_multiplier = 10.0f;
-    Camera2D* _camera2 = nullptr;
-    Camera3D* _camera3 = nullptr;
+    mutable Camera2D _camera2{};
+    mutable Camera3D _camera3{};
     AnimatedSprite* _animSprite = nullptr;
     bool _debug = true;
     bool _slowmo = false;

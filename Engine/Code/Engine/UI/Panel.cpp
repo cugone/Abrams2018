@@ -15,6 +15,12 @@ void Panel::Update(TimeUtils::FPSeconds deltaSeconds) {
 }
 
 void Panel::Render(Renderer* renderer) const {
+    if(IsHidden()) {
+        return;
+    }
+    if(0 < _edge_color.a || 0 < _fill_color.a) {
+        DebugRenderBounds(renderer);
+    }
     RenderChildren(renderer);
 }
 

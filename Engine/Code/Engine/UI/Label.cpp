@@ -26,6 +26,9 @@ Label::Label(UI::Canvas* parent_canvas, KerningFont* font, const std::string& te
 }
 
 void Label::Render(Renderer* renderer) const {
+    if(IsHidden()) {
+        return;
+    }
     auto world_transform = GetWorldTransform();
     auto world_transform_scale = world_transform.GetScale();
     auto inv_scale_x = 1.0f / world_transform_scale.x;

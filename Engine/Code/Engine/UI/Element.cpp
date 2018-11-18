@@ -308,6 +308,22 @@ AABB2 Element::GetParentBounds() const {
     return _parent ? _parent->_bounds : AABB2{ 0.0f, 0.0f, _size.unit.x, _size.unit.y };
 }
 
+bool Element::IsHidden() const {
+    return _hidden;
+}
+
+void Element::Hide() {
+    SetHidden();
+}
+
+void Element::Show() {
+    SetHidden(false);
+}
+
+void Element::SetHidden(float hidden /*= true*/) {
+    _hidden = hidden;
+}
+
 void Element::CalcBounds() {
     _dirty_bounds = false;
     switch(_mode) {

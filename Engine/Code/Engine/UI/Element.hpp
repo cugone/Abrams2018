@@ -90,6 +90,11 @@ public:
     bool HasParent() const;
     AABB2 GetParentBounds() const;
 
+    bool IsHidden() const;
+    void Hide();
+    void Show();
+    void SetHidden(float hidden = true);
+
 protected:
 
     Vector2 CalcLocalPosition() const;
@@ -152,13 +157,13 @@ protected:
     Vector2 GetBottomRight() const noexcept;
 
     Metric _size{};
+    Rgba _fill_color = Rgba::NoAlpha;
+    Rgba _edge_color = Rgba::White;
 
 private:
     Metric _position{};
     HalfExtent _pivot{};
     PositionMode _mode{};
-    Rgba _fill_color = Rgba::NoAlpha;
-    Rgba _edge_color = Rgba::White;
     Rgba _pivot_color = Rgba::Red;
     Element* _parent = nullptr;
     std::vector<Element*> _children{};
@@ -167,6 +172,7 @@ private:
     float _orientationRadians = 0.0f;
     std::size_t _order = 0;
     bool _dirty_bounds = false;
+    bool _hidden = false;
 
     float GetParentOrientationRadians() const;
     float GetParentOrientationDegrees() const;

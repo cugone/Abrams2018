@@ -49,9 +49,14 @@ void Canvas::Update(TimeUtils::FPSeconds deltaSeconds) {
 }
 
 void Canvas::Render(Renderer* renderer) const {
+    if(IsHidden()) {
+        return;
+    }
+    const auto old_camera = renderer->GetCamera();
     SetupMVPFromTargetAndCamera(renderer);
     renderer->SetRenderTarget(_target_texture, _target_depthstencil);
     RenderChildren(renderer);
+    renderer->SetCamera(old_camera);
 }
 
 void Canvas::SetupMVPFromTargetAndCamera(Renderer* renderer) const {
@@ -61,9 +66,8 @@ void Canvas::SetupMVPFromTargetAndCamera(Renderer* renderer) const {
     Vector2 rightTop = Vector2(0.5f, -0.5f) * target_dims;
     Vector2 nearFar{ 0.0f, 1.0f };
     _camera->SetupView(leftBottom, rightTop, nearFar, _aspect_ratio);
+    renderer->SetCamera(Camera3D{ *_camera });
     renderer->SetModelMatrix(GetWorldTransform());
-    renderer->SetViewMatrix(_camera->GetViewMatrix());
-    renderer->SetProjectionMatrix(_camera->GetProjectionMatrix());
 }
 
 void Canvas::DebugRender(Renderer* renderer, bool showSortOrder /*= false*/) const {

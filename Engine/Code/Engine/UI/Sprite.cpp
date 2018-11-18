@@ -25,6 +25,9 @@ void Sprite::Update(TimeUtils::FPSeconds deltaSeconds) {
 }
 
 void Sprite::Render(Renderer* renderer) const {
+    if(IsHidden()) {
+        return;
+    }
     renderer->SetModelMatrix(GetWorldTransform());
     renderer->SetMaterial(_sprite->GetMaterial());
     auto cur_tc = _sprite->GetCurrentTexCoords();

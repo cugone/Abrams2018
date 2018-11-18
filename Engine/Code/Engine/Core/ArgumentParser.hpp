@@ -41,6 +41,5 @@ public:
 
 protected:
 private:
-    mutable std::string _args{};
     mutable std::string _current{};
 };

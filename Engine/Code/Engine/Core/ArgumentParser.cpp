@@ -13,8 +13,7 @@
 #include <sstream>
 
 ArgumentParser::ArgumentParser(const std::string& args) noexcept
-    : _args(args)
-    , _current(args)
+    : _current(args)
 {
     /* DO NOTHING */
 }

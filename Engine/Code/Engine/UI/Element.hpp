@@ -98,7 +98,7 @@ public:
     bool IsEnabled() const;
     void Enable();
     void Disable();
-    void SetEnable(bool enable = true);
+    void SetEnabled(bool enabled = true);
 
 protected:
 

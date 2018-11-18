@@ -336,7 +336,7 @@ void Element::Disable() {
     _enabled = false;
 }
 
-void Element::SetEnable(bool enable /*= true*/) {
+void Element::SetEnabled(bool enabled /*= true*/) {
     _enabled = enable;
 }
 

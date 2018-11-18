@@ -19,10 +19,12 @@ public:
     void SetPosition(const Vector2& newPosition);
     void Translate(const Vector3& displacement);
     void Translate(const Vector2& displacement);
-    void SetRotationDegrees(float newAngleDegrees);
-    void ApplyRotationDegrees(float addAngleDegrees);
-    void SetRotation(float newAngleRadians);
-    void ApplyRotation(float addAngleRadians);
+    float GetOrientationDegrees() const;
+    void SetOrientationDegrees(float newAngleDegrees);
+    void ApplyOrientationDegrees(float addAngleDegrees);
+    float GetOrientation() const;
+    void SetOrientation(float newAngleRadians);
+    void ApplyOrientation(float addAngleRadians);
     float GetAspectRatio() const;
     float GetInverseAspectRatio() const;
     float GetNearDistance() const;
@@ -58,5 +60,4 @@ private:
     Vector2 position = Vector2::ZERO;
     float aspect_ratio = MathUtils::M_16_BY_9_RATIO;
     float orientation_degrees = 0.0f;
-
 };

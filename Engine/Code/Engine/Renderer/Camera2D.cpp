@@ -51,19 +51,27 @@ void Camera2D::Translate(const Vector2& displacement) {
     position += displacement;
 }
 
-void Camera2D::SetRotationDegrees(float newAngleDegrees) {
+float Camera2D::GetOrientationDegrees() const {
+    return orientation_degrees;
+}
+
+void Camera2D::SetOrientationDegrees(float newAngleDegrees) {
     orientation_degrees = newAngleDegrees;
 }
 
-void Camera2D::ApplyRotationDegrees(float addAngleDegrees) {
+void Camera2D::ApplyOrientationDegrees(float addAngleDegrees) {
     orientation_degrees += addAngleDegrees;
 }
 
-void Camera2D::SetRotation(float newAngleRadians) {
+float Camera2D::GetOrientation() const {
+    return MathUtils::ConvertDegreesToRadians(orientation_degrees);
+}
+
+void Camera2D::SetOrientation(float newAngleRadians) {
     orientation_degrees = MathUtils::ConvertRadiansToDegrees(newAngleRadians);
 }
 
-void Camera2D::ApplyRotation(float addAngleRadians) {
+void Camera2D::ApplyOrientation(float addAngleRadians) {
     orientation_degrees += MathUtils::ConvertRadiansToDegrees(addAngleRadians);
 }
 

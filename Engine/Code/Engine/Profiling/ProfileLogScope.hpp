@@ -19,10 +19,10 @@ public:
     ProfileLogScope& operator=(ProfileLogScope&&) = delete;
 protected:
 private:
-    using ProfileTimePoint = std::chrono::time_point<std::chrono::steady_clock, TimeUtils::FPNanoseconds>;
+    using time_point_t = std::chrono::time_point<std::chrono::steady_clock>;
 
     std::string _scope_name{};
-    ProfileTimePoint _time_at_creation{};
+    time_point_t _time_at_creation{};
 };
 
 #if defined PROFILE_LOG_SCOPE || defined PROFILE_LOG_SCOPE_FUNCTION

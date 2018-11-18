@@ -59,7 +59,6 @@ private:
     const float _camera_move_speed_multiplier = 10.0f;
     mutable Camera2D _camera2{};
     mutable Camera3D _camera3{};
-    AnimatedSprite* _animSprite = nullptr;
     bool _debug = true;
     bool _slowmo = false;
 };

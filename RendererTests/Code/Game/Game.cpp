@@ -38,12 +38,8 @@
 #include <sstream>
 
 Game::~Game() {
-    delete _animSprite;
-    _animSprite = nullptr;
-
     delete _canvas;
     _canvas = nullptr;
-
 }
 
 void Game::Initialize() {
@@ -59,8 +55,6 @@ void Game::InitializeData() {
 
 
     _camera3.SetPosition(Vector3(0.0f, 5.0f, -10.0f));
-
-    _animSprite = g_theRenderer->CreateAnimatedSprite("Data/Images/cute_sif.gif");
 
 }
 
@@ -78,6 +72,8 @@ void Game::InitializeUI() {
     _label_deltaSeconds = _panel->CreateChild<UI::Label>(_canvas, g_theRenderer->GetFont("System32"), "Label");
     _label_deltaSeconds->SetBorderColor(Rgba::Blue);
     _label_deltaSeconds->SetPivot(UI::PivotPosition::TopLeft);
+
+    _sprite = _panel->CreateChild<UI::Sprite>(_canvas, g_theRenderer->CreateAnimatedSprite("Data/Images/cute_sif.gif"));
 
 }
 
@@ -115,11 +111,14 @@ void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
         _label_deltaSeconds->SetPivot(--_label_pivot);
     }
 
+    if(g_theInput->WasKeyJustPressed(KeyCode::Enter)) {
+        _panel->ToggleEnabled();
+    }
+
     _camera2.Update(deltaSeconds);
     _camera3.Update(deltaSeconds);
 
     _canvas->Update(deltaSeconds);
-    _animSprite->Update(deltaSeconds);
 }
 
 void Game::UpdateCameraFromKeyboard(TimeUtils::FPSeconds deltaSeconds) {
@@ -243,14 +242,6 @@ void Game::Render() const {
             << '\n' << "System FPS: " << 1.0f / g_theRenderer->GetSystemFrameTime().count();
         _label_deltaSeconds->SetText(ss.str());
     }
-
-    auto model = Matrix4::CreateScaleMatrix(Vector2(static_cast<float>(_animSprite->GetFrameDimensions().x), static_cast<float>(_animSprite->GetFrameDimensions().y)));
-    g_theRenderer->SetMaterial(_animSprite->GetMaterial());
-    g_theRenderer->SetModelMatrix(model);
-    auto aabb2 = _animSprite->GetCurrentTexCoords();
-    auto lefttop = aabb2.mins;
-    auto rightbottom = aabb2.maxs;
-    g_theRenderer->DrawQuad2D(Vector4{ lefttop, rightbottom });
 
     _canvas->Render(g_theRenderer);
     if(_debug) {

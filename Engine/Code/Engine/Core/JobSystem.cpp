@@ -67,18 +67,13 @@ unsigned int JobConsumer::ConsumeAll() {
     return processed_jobs;
 }
 
-void JobConsumer::ConsumeForMs(unsigned int ms) {
-    using milliseconds = std::chrono::duration<unsigned int, std::milli>;
-    using clock = std::chrono::high_resolution_clock;
-    milliseconds ms_t = milliseconds(ms);
-    auto start_time = clock::now();
-    auto end_time = clock::now();
-    while(std::chrono::duration_cast<milliseconds>(end_time - start_time).count() < ms_t.count())
-    {
+void JobConsumer::ConsumeFor(TimeUtils::FPMilliseconds consume_duration) {
+    auto start_time = TimeUtils::Now();
+    while(TimeUtils::FPMilliseconds{TimeUtils::Now() - start_time} < consume_duration) {
         ConsumeJob();
-        end_time = clock::now();
     }
 }
+
 
 bool JobConsumer::HasJobs() const {
     if(_consumables.empty()) {

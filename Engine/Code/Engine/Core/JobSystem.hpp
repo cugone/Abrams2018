@@ -57,13 +57,12 @@ public:
     void AddCategory(const JobType& category);
     bool ConsumeJob();
     unsigned int ConsumeAll();
-    void ConsumeForMs(unsigned int ms);
+    void ConsumeFor(TimeUtils::FPMilliseconds consume_duration);
     bool HasJobs() const;
 private:
     std::vector<ThreadSafeQueue<Job*>*> _consumables{};
     friend class JobSystem;
 };
-
 
 class JobSystem {
 public:

@@ -132,7 +132,7 @@ bool StartsWith(const std::string& string, const std::string& start) {
 }
 
 bool EndsWith(const std::string& string, const std::string& end) {
-    auto found_loc = string.find(end);
+    auto found_loc = string.rfind(end);
     return found_loc != std::string::npos && found_loc == string.size() - end.size();
 }
 

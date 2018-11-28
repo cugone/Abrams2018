@@ -1,63 +1,94 @@
 #pragma once
 
-#include <algorithm>
-#include <functional>
-#include <tuple>
-#include <type_traits>
-#include <utility>
 #include <vector>
 
-template<typename... Args>
+template <typename ...ARGS>
 class Event {
 public:
-    using cb_t = std::function<void(Args...)>;
-    struct event_t {
-        explicit event_t(const cb_t& cb, void* user_data) : cb(cb), user_data(user_data) {}
-        ~event_t() = default;
-        event_t(const event_t& other) = default;
-        event_t& operator=(const event_t& rhs) = default;
-        event_t(event_t&& other) = default;
-        event_t& operator=(event_t&& rhs) = default;
-        bool operator==(const event_t& rhs) {
-            return (this->user_data == rhs.user_data);
-        }
-        cb_t cb{};
-        void* user_data = nullptr;
+    struct event_sub_t;
+    using cb_t = void(*)(event_sub_t*, ARGS...);
+    using cb_with_arg_t = void(*)(void*, ARGS...);
+
+    struct event_sub_t {
+        cb_t cb;
+        void *secondary_cb;
+        void *user_arg;
     };
+
     Event() = default;
     ~Event() = default;
 
-    void Subscribe(const cb_t& cb, void* user_data = nullptr) {
-        Subscribe(std::move(event_t( cb, user_data )));
+    void Subscribe(void *user_arg, cb_with_arg_t cb) {
+        event_sub_t sub;
+        sub.cb = FunctionWithArgumentCallback;
+        sub.secondary_cb = cb;
+        sub.user_arg = user_arg;
+        subscriptions.push_back(sub);
     }
 
-    void Unsubscribe(const cb_t& cb, void* user_data = nullptr) {
-        Unsubscribe(std::move(event_t(cb, user_data)));
+    void Unsubscribe(void *user_arg, void* cb) {
+        subscriptions.erase(std::remove_if(std::begin(subscriptions),
+            std::end(subscriptions),
+            [&cb, &user_arg](const event_sub_t& sub) {
+            return (sub.secondary_cb == cb) && (sub.user_arg == user_arg);
+        }),
+            std::end(subscriptions));
     }
 
-    void Trigger(Args&&... args) const {
-        for(auto& s : _subscribers) {
-            std::invoke(s.cb, args...);
+    void Unsubscribe_by_argument(void *user_arg) {
+        subscriptions.erase(std::remove_if(std::begin(subscriptions),
+            std::end(subscriptions),
+            [&user_arg](const event_sub_t& sub) {
+            return sub.user_arg == user_arg;
+        }),
+            std::end(subscriptions));
+    }
+
+    template <typename T>
+    void Subscribe_method(T *obj, void (T::*mcb)(ARGS...)) {
+        event_sub_t sub;
+        sub.cb = MethodCallback<T, decltype(mcb)>;
+        sub.secondary_cb = *(void**)(&mcb);
+        sub.user_arg = obj;
+        subscriptions.push_back(sub);
+    }
+
+    template <typename T>
+    void Unsubscribe_method(T *obj, void (T::*mcb)(ARGS...)) {
+        Unsubscribe(obj, *(void**)&mcb);
+    }
+
+    template <typename T>
+    void Unsubscribe_object(T *obj) {
+        Unsubscribe_by_argument(obj);
+    }
+
+    void Trigger(ARGS ...args) {
+        for(auto& sub : subscriptions) {
+            sub.cb(&sub, args...);
         }
     }
 
-protected:
 private:
-    std::vector<event_t> _subscribers{};
+    std::vector<event_sub_t> subscriptions;
 
-    void Subscribe(event_t&& cb) {
-        _subscribers.push_back(cb);
-    }
+    static void FunctionWithArgumentCallback(event_sub_t *sub, ARGS ...args);
 
-    void Unsubscribe(event_t&& cb) {
-        auto found = std::find(std::begin(_subscribers), std::end(_subscribers), cb);
-        if(found != std::end(_subscribers)) {
-            std::iter_swap(found, _subscribers.end() - 1);
-            _subscribers.pop_back();
-        }
-    }
+    template <typename T, typename MCB>
+    static void MethodCallback(event_sub_t *sub, ARGS ...args);
 
 };
 
-template<>
-class Event<void> : public Event<> {};
+template <typename ...ARGS>
+void Event<ARGS...>::FunctionWithArgumentCallback(event_sub_t *sub, ARGS ...args) {
+    cb_with_arg_t cb = (cb_with_arg_t)(sub->secondary_cb);
+    cb(sub->user_arg, args...);
+}
+
+template <typename ...ARGS>
+template <typename T, typename MCB>
+void Event<ARGS...>::MethodCallback(event_sub_t *sub, ARGS ...args) {
+    MCB mcb = *(MCB*)&(sub->secondary_cb);
+    T *obj = (T*)(sub->user_arg);
+    (obj->*mcb)(args...);
+}

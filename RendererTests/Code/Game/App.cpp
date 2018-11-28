@@ -108,7 +108,9 @@ void App::RunFrame() {
     FPSeconds deltaSeconds = (currentFrameTime - previousFrameTime);
     previousFrameTime = currentFrameTime;
 
+    #if _DEBUG
     deltaSeconds = FPSeconds{std::clamp(FPFrames{ deltaSeconds }, FPFrames{ 0 }, FPFrames{ 1 })};
+    #endif
 
     Update(deltaSeconds);
     Render();

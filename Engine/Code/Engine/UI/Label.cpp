@@ -16,7 +16,7 @@ Label::Label(UI::Canvas* parent_canvas)
     /* DO NOTHING */
 }
 
-Label::Label(UI::Canvas* parent_canvas, KerningFont* font, const std::string& text)
+Label::Label(UI::Canvas* parent_canvas, KerningFont* font, const std::string& text /*= "Label"*/)
     : UI::Element(parent_canvas)
     , _font(font)
     , _text(text)

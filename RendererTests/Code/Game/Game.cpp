@@ -53,7 +53,6 @@ void Game::InitializeData() {
     g_theRenderer->RegisterMaterialsFromFolder(std::string{ "Data/Materials" });
     g_theRenderer->RegisterFontsFromFolder(std::string{ "Data/Fonts" });
 
-
     _camera3.SetPosition(Vector3(0.0f, 5.0f, -10.0f));
 
 }
@@ -69,12 +68,7 @@ void Game::InitializeUI() {
     _panel->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * 0.5f}, {} });
     _panel->SetPivot(UI::PivotPosition::Center);
 
-    _label_deltaSeconds = _panel->CreateChild<UI::Label>(_canvas, g_theRenderer->GetFont("System32"), "Label");
-    _label_deltaSeconds->SetBorderColor(Rgba::Blue);
-    _label_deltaSeconds->SetPivot(UI::PivotPosition::TopLeft);
-
-    _sprite = _panel->CreateChild<UI::Sprite>(_canvas, g_theRenderer->CreateAnimatedSprite("Data/Images/cute_sif.gif"));
-
+    _label = _panel->CreateChild<UI::Label>(_canvas, g_theRenderer->GetFont("System32"));
 }
 
 void Game::BeginFrame() {
@@ -104,13 +98,6 @@ void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
         MathUtils::SetRandomEngineSeed(1729);
     }
 
-    if(g_theInput->WasKeyJustPressed(KeyCode::Add)) {
-        _label_deltaSeconds->SetPivot(++_label_pivot);
-    }
-    if(g_theInput->WasKeyJustPressed(KeyCode::Subtract)) {
-        _label_deltaSeconds->SetPivot(--_label_pivot);
-    }
-
     if(g_theInput->WasKeyJustPressed(KeyCode::Enter)) {
         _panel->ToggleEnabled();
     }
@@ -119,6 +106,7 @@ void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
     _camera3.Update(deltaSeconds);
 
     _canvas->Update(deltaSeconds);
+
 }
 
 void Game::UpdateCameraFromKeyboard(TimeUtils::FPSeconds deltaSeconds) {
@@ -206,8 +194,8 @@ void Game::Render() const {
     g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
     g_theRenderer->SetViewMatrix(Matrix4::GetIdentity());
     g_theRenderer->SetProjectionMatrix(Matrix4::GetIdentity());
-    _camera3.SetupView(45.0f, MathUtils::M_16_BY_9_RATIO, 0.01f, 1000.0f);
 
+    _camera3.SetupView(45.0f, MathUtils::M_16_BY_9_RATIO, 0.01f, 1000.0f);
     g_theRenderer->SetCamera(_camera3);
 
     g_theRenderer->SetAmbientLight(Rgba::White, 5.0f);
@@ -235,14 +223,6 @@ void Game::Render() const {
     _camera2.SetupView(view_leftBottom, view_rightTop, view_nearFar, MathUtils::M_16_BY_9_RATIO);
     g_theRenderer->SetCamera(Camera3D{_camera2});
 
-    {
-        std::ostringstream ss;
-                 ss << "Delta Seconds: " << g_theRenderer->GetGameFrameTime().count()
-            << '\n' << "Game FPS: " << 1.0f / g_theRenderer->GetGameFrameTime().count()
-            << '\n' << "System FPS: " << 1.0f / g_theRenderer->GetSystemFrameTime().count();
-        _label_deltaSeconds->SetText(ss.str());
-    }
-
     _canvas->Render(g_theRenderer);
     if(_debug) {
         _canvas->DebugRender(g_theRenderer);
@@ -261,16 +241,6 @@ void Game::RenderStuff() const {
 void Game::EndFrame() {
     /* DO NOTHING */
 }
-
-struct generate_image_job_t {
-    unsigned int width = 0;
-    unsigned int height = 0;
-};
-
-struct export_image_job_t {
-    Image* img = nullptr;
-    std::string filepath{};
-};
 
 void Game::DrawWorldGrid() const {
     if(!_debug) {

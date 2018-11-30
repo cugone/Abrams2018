@@ -14,13 +14,13 @@ struct DisplayDesc {
 
 struct GraphicsCardDesc {
     std::string Description{};
+    std::size_t DedicatedVideoMemory = 0u;
+    std::size_t DedicatedSystemMemory = 0u;
+    std::size_t SharedSystemMemory = 0u;
     unsigned int VendorId = 0u;
     unsigned int DeviceId = 0u;
     unsigned int SubSysId = 0u;
     unsigned int Revision = 0u;
-    std::size_t DedicatedVideoMemory = 0u;
-    std::size_t DedicatedSystemMemory = 0u;
-    std::size_t SharedSystemMemory = 0u;
     bool is_software = false;
     bool is_remote = false;
     bool is_unspecified = false;

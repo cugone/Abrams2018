@@ -50,26 +50,9 @@ bool DisplayDescLTComparator::operator()(const DisplayDesc& a, const DisplayDesc
 }
 
 bool DisplayDescGTComparator::operator()(const DisplayDesc& a, const DisplayDesc& b) const noexcept {
-    if(a.width < b.width) {
-        return false;
-    }
-    if(b.width < a.width) {
-        return true;
-    }
-    if(a.height < b.height) {
-        return false;
-    }
-    if(b.height < a.height) {
-        return true;
-    }
-    if(a.refreshRateHz < b.refreshRateHz) {
-        return false;
-    }
-    if(b.refreshRateHz < a.refreshRateHz) {
-        return true;
-    }
-    return false;
+    return DisplayDescLTComparator{}.operator()(b,a);
 }
+
 RHIOutputMode& operator++(RHIOutputMode& mode) {
     using underlying = std::underlying_type_t<RHIOutputMode>;
     mode = static_cast<RHIOutputMode>(static_cast<underlying>(mode) + 1);

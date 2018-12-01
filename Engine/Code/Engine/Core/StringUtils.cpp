@@ -5,6 +5,7 @@
 #include "Engine/Math/Vector4.hpp"
 #include "Engine/Math/Matrix4.hpp"
 
+#include "Engine/Core/Rgba.hpp"
 #include "Engine/Core/Win.hpp"
 
 #include <stdarg.h>
@@ -48,6 +49,12 @@ std::string to_string(const Matrix4& m) {
     ss << z.x << ',' << z.y << ',' << z.z << ',' << z.w;
     ss << w.x << ',' << w.y << ',' << w.z << ',' << w.w;
     ss << ']';
+    return ss.str();
+}
+
+std::string to_string(const Rgba& clr) {
+    std::ostringstream ss;
+    ss << std::hex << clr;
     return ss.str();
 }
 

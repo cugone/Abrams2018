@@ -107,11 +107,6 @@ void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
     _camera2.Update(deltaSeconds);
     _camera3.Update(deltaSeconds);
 
-    std::ostringstream ss;
-    ss << StringUtils::to_string(_camera3.GetPosition());
-    ss << '\n';
-    ss << StringUtils::to_string(_camera3.GetEulerAngles());
-    _label->SetText(ss.str());
     _canvas->Update(deltaSeconds);
 
 }

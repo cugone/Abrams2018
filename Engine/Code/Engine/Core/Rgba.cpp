@@ -4,6 +4,8 @@
 
 #include "Engine/Math/MathUtils.hpp"
 
+#include <iomanip>
+
 const Rgba Rgba::White(255, 255, 255, 255);
 const Rgba Rgba::Black(0, 0, 0, 255);
 const Rgba Rgba::Red(255, 0, 0, 255);
@@ -53,6 +55,23 @@ Rgba Rgba::RandomWithAlpha() {
                 , static_cast<unsigned char>(MathUtils::GetRandomIntLessThan(256))
                 , static_cast<unsigned char>(MathUtils::GetRandomIntLessThan(256))
                 , static_cast<unsigned char>(MathUtils::GetRandomIntLessThan(256)));
+}
+
+std::ostream& operator<<(std::ostream& os, const Rgba& rhs) {
+    if(os.flags() & std::ios_base::hex) {
+        auto old_fmt = os.flags();
+        auto old_fill = os.fill();
+        os << '#';
+        os << std::setw(8);
+        os << std::right;
+        os << std::setfill('0');
+        os << rhs.GetAsRawValue();
+        os.flags(old_fmt);
+        os.fill(old_fill);
+        return os;
+    }
+    os << static_cast<int>(rhs.r) << ',' << static_cast<int>(rhs.g) << ',' << static_cast<int>(rhs.b) << ',' << static_cast<int>(rhs.a);
+    return os;
 }
 
 Rgba::Rgba(std::string name) {

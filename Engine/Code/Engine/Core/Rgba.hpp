@@ -3,6 +3,7 @@
 #include "Engine/Math/Vector4.hpp"
 #include "Engine/Math/Vector3.hpp"
 
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -74,6 +75,8 @@ public:
     unsigned char g = 255;
     unsigned char b = 255;
     unsigned char a = 255;
+
+    friend std::ostream& operator<<(std::ostream& os, const Rgba& rhs);
 
 protected:
 private:

@@ -3,7 +3,17 @@
 #include <string>
 #include <vector>
 
+class Vector2;
+class Vector3;
+class Vector4;
+class Matrix4;
+
 namespace StringUtils {
+
+std::string to_string(const Vector2& v);
+std::string to_string(const Vector3& v);
+std::string to_string(const Vector4& v);
+std::string to_string(const Matrix4& m);
 
 const std::string Stringf(const char* format, ...);
 const std::string Stringf(const int maxLength, const char* format, ...);

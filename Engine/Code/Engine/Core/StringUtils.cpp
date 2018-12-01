@@ -1,5 +1,12 @@
 #include "Engine/Core/StringUtils.hpp"
 
+#include "Engine/Math/Vector2.hpp"
+#include "Engine/Math/Vector3.hpp"
+#include "Engine/Math/Vector4.hpp"
+#include "Engine/Math/Matrix4.hpp"
+
+#include "Engine/Core/Win.hpp"
+
 #include <stdarg.h>
 
 #include <algorithm>
@@ -7,11 +14,42 @@
 #include <numeric>
 #include <sstream>
 
-#include "Engine/Core/Win.hpp"
-
 const int STRINGF_STACK_LOCAL_TEMP_LENGTH = 2048;
 
 namespace StringUtils {
+
+std::string to_string(const Vector2& v) {
+    std::ostringstream ss;
+    ss << '[' << v.x << ',' << v.y << ']';
+    return ss.str();
+}
+
+std::string to_string(const Vector3& v) {
+    std::ostringstream ss;
+    ss << '[' << v.x << ',' << v.y << ',' << v.z << ']';
+    return ss.str();
+}
+
+std::string to_string(const Vector4& v) {
+    std::ostringstream ss;
+    ss << '[' << v.x << ',' << v.y << ',' << v.z << ',' << v.w << ']';
+    return ss.str();
+}
+
+std::string to_string(const Matrix4& m) {
+    std::ostringstream ss;
+    const auto& x = m.GetXComponents();
+    const auto& y = m.GetYComponents();
+    const auto& z = m.GetZComponents();
+    const auto& w = m.GetWComponents();
+    ss << '[';
+    ss << x.x << ',' << x.y << ',' << x.z << ',' << x.w;
+    ss << y.x << ',' << y.y << ',' << y.z << ',' << y.w;
+    ss << z.x << ',' << z.y << ',' << z.z << ',' << z.w;
+    ss << w.x << ',' << w.y << ',' << w.z << ',' << w.w;
+    ss << ']';
+    return ss.str();
+}
 
 const std::string Stringf(const char* format, ...) {
     char textLiteral[STRINGF_STACK_LOCAL_TEMP_LENGTH];

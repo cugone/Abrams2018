@@ -4,6 +4,7 @@
 #include "Engine/Core/Image.hpp"
 #include "Engine/Core/KerningFont.hpp"
 #include "Engine/Core/Rgba.hpp"
+#include "Engine/Core/StringUtils.hpp"
 
 #include "Engine/Math/IntVector2.hpp"
 #include "Engine/Math/MathUtils.hpp"
@@ -53,7 +54,8 @@ void Game::InitializeData() {
     g_theRenderer->RegisterMaterialsFromFolder(std::string{ "Data/Materials" });
     g_theRenderer->RegisterFontsFromFolder(std::string{ "Data/Fonts" });
 
-    _camera3.SetPosition(Vector3(0.0f, 5.0f, -10.0f));
+    _camera3.SetPosition(Vector3(230.0f, 270.0f, -180.0f));
+    _camera3.SetEulerAngles(Vector3(-45.0f, 0.0f, 0.0f));
 
 }
 
@@ -105,6 +107,11 @@ void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
     _camera2.Update(deltaSeconds);
     _camera3.Update(deltaSeconds);
 
+    std::ostringstream ss;
+    ss << StringUtils::to_string(_camera3.GetPosition());
+    ss << '\n';
+    ss << StringUtils::to_string(_camera3.GetEulerAngles());
+    _label->SetText(ss.str());
     _canvas->Update(deltaSeconds);
 
 }
@@ -149,8 +156,8 @@ void Game::UpdateCameraFromKeyboard(TimeUtils::FPSeconds deltaSeconds) {
     }
 
     if(g_theInput->WasKeyJustPressed(KeyCode::R)) {
-        _camera3.SetPosition(Vector3::ZERO);
-        _camera3.SetEulerAngles(Vector3{ 0.0f, 0.0f, 0.0f });
+        _camera3.SetPosition(Vector3(230.0f, 270.0f, -180.0f));
+        _camera3.SetEulerAngles(Vector3(-45.0f, 0.0f, 0.0f));
         _camera2.SetPosition(Vector2::ZERO);
         _camera2.SetOrientationDegrees(0.0f);
     }
@@ -232,6 +239,7 @@ void Game::Render() const {
 
 void Game::RenderStuff() const {
     DrawCube();
+    DrawCeres();
     DrawWorldGrid();
     DrawAxes();
 
@@ -254,6 +262,20 @@ void Game::DrawAxes() const {
         return;
     }
     g_theRenderer->DrawAxes();
+}
+
+void Game::DrawCeres() const {
+    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("ceres"));
+    auto dims = g_theRenderer->GetTexture("Data/Images/ceresasteroid_heightmap.jpg")->GetDimensions();
+    auto x = static_cast<float>(dims.x);
+    auto y = static_cast<float>(dims.y);
+    auto half_dims_xz = Vector3(x, 0.0f, y) * 0.5f;
+    Matrix4 T = Matrix4::CreateTranslationMatrix(half_dims_xz * 0.5f);
+    Matrix4 R = Matrix4::Create3DXRotationDegreesMatrix(90.0f);
+    Matrix4 S = Matrix4::CreateScaleMatrix(Vector2(x, y) * 0.5f);
+    Matrix4 m = T * R * S;
+    g_theRenderer->SetModelMatrix(m);
+    g_theRenderer->DrawQuad();
 }
 
 void Game::DrawCube() const {

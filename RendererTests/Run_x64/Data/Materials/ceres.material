@@ -1,0 +1,6 @@
+<material name="ceres">
+    <shader src="__default" />
+	<textures>
+	    <diffuse src="Data/Images/ceresasteroid_heightmap.jpg" />
+	</textures>
+</material>

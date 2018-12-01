@@ -48,6 +48,7 @@ private:
     void DrawWorldGrid() const;
     void DrawAxes() const;
     void DrawCube() const;
+    void DrawCeres() const;
 
     UI::Canvas* _canvas = nullptr;
     UI::Panel* _panel = nullptr;

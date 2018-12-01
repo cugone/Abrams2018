@@ -18,6 +18,7 @@ public:
     ~ArgumentParser() = default;
     template<typename T>
     friend ArgumentParser& operator>>(ArgumentParser& parser, T&& arg);
+    void clear();
     operator bool() const;
     bool GetNext(Rgba& value) const noexcept;
     bool GetNext(Vector2& value) const noexcept;

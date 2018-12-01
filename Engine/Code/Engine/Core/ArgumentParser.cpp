@@ -18,6 +18,10 @@ ArgumentParser::ArgumentParser(const std::string& args) noexcept
     /* DO NOTHING */
 }
 
+void ArgumentParser::clear() {
+    _state_bits.reset();
+}
+
 ArgumentParser::operator bool() const {
     return _state_bits[0] || !_state_bits[1];
 }

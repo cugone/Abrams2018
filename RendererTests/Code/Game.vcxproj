@@ -279,6 +279,7 @@
   <ItemGroup>
     <Image Include="..\Run_Win32\Data\Images\cute_sif.gif" />
     <Image Include="..\Run_Win32\Data\Images\Test_StbiAndDirectX.png" />
+    <Image Include="..\Run_x64\Data\Images\ceresasteroid_heightmap.jpg" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Run_Win32\Data\Materials\sif.material" />
@@ -286,6 +287,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="..\Run_Win32\Data\Shaders\Test.shader" />
+    <None Include="..\Run_x64\Data\Materials\ceres.material" />
   </ItemGroup>
   <ItemGroup>
     <Object Include="..\Run_Win32\Data\Models\bunny.obj">

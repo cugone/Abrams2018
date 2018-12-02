@@ -13,12 +13,12 @@
 namespace FileUtils {
 
 bool WriteBufferToFile(void* buffer, std::size_t size, const std::string& filePath) {
-
     namespace FS = std::filesystem;
     FS::path p(filePath);
     p.make_preferred();
     bool not_valid_path = FS::is_directory(p);
-    if(not_valid_path) {
+    bool invalid = not_valid_path;
+    if(invalid) {
         return false;
     }
 
@@ -34,7 +34,8 @@ bool WriteBufferToFile(const std::string& buffer, const std::string& filePath) {
     FS::path p(filePath);
     p.make_preferred();
     bool not_valid_path = FS::is_directory(p);
-    if(not_valid_path) {
+    bool invalid = not_valid_path;
+    if(invalid) {
         return false;
     }
 
@@ -43,6 +44,7 @@ bool WriteBufferToFile(const std::string& buffer, const std::string& filePath) {
     ofs.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
     ofs.close();
     return true;
+
 }
 
 bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::string& filePath) {
@@ -60,19 +62,19 @@ bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::strin
     std::ifstream ifs;
     ifs.open(p, std::ios_base::binary);
     ifs.seekg(0, std::ios_base::end);
-    auto byte_size = ifs.tellg();
+    std::size_t byte_size = ifs.tellg();
     ifs.seekg(0, std::ios_base::beg);
     ifs.clear();
-    out_buffer.resize(static_cast<std::size_t>(byte_size));
+    out_buffer.resize(byte_size);
     ifs.read(reinterpret_cast<char*>(out_buffer.data()), out_buffer.size());
     ifs.close();
     return true;
 }
 
-bool ReadBufferFromFile(std::string& out_buffer, const std::string& filepath) {
+bool ReadBufferFromFile(std::string& out_buffer, const std::string& filePath) {
 
     namespace FS = std::filesystem;
-    FS::path p(filepath);
+    FS::path p(filePath);
     p.make_preferred();
     bool path_is_directory = FS::is_directory(p);
     bool path_not_exist = !FS::exists(p);
@@ -84,11 +86,11 @@ bool ReadBufferFromFile(std::string& out_buffer, const std::string& filepath) {
     std::ifstream ifs;
     ifs.open(p);
     ifs.seekg(0, std::ios_base::end);
-    auto byte_size = ifs.tellg();
+    std::size_t byte_size = ifs.tellg();
     ifs.seekg(0, std::ios_base::beg);
     ifs.clear();
-    out_buffer.resize(static_cast<std::size_t>(byte_size));
-    ifs.read(reinterpret_cast<char*>(out_buffer.data()), out_buffer.size());
+    out_buffer.resize(byte_size);
+    ifs.read(out_buffer.data(), byte_size);
     ifs.close();
     return true;
 }
@@ -154,12 +156,18 @@ int CountFilesInFolders(const std::filesystem::path& folderpath, const std::stri
     return count;
 }
 
+std::vector<std::filesystem::path> GetAllPathsInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, bool recursive /*= false*/) {
+    namespace FS = std::filesystem;
+    std::vector<FS::path> paths{};
+    auto add_path_cb = [&paths](const FS::path& p) { paths.push_back(p); };
+    IterateFilesInFolders(folderpath, validExtensionList, add_path_cb, recursive);
+    return paths;
+}
+
 void FileUtils::RemoveExceptMostRecentFiles(const std::filesystem::path& folderpath, int mostRecentCountToKeep) {
     namespace FS = std::filesystem;
     if(mostRecentCountToKeep < CountFilesInFolders(folderpath)) {
-        std::vector<FS::path> paths{};
-        auto add_path_cb = [&paths](const FS::path& p) { paths.push_back(p); };
-        IterateFilesInFolders(folderpath, std::string{}, add_path_cb, false);
+        std::vector<FS::path> paths = GetAllPathsInFolders(folderpath);
         auto sort_pred = [](const FS::path& a, const FS::path& b) { return FS::last_write_time(a) > FS::last_write_time(b); };
         std::sort(std::begin(paths), std::end(paths), sort_pred);
         if(mostRecentCountToKeep > 0) {

@@ -39,4 +39,42 @@ constexpr const uint32_t FourCC(const char* id) {
     return static_cast<uint32_t>((((id[0] << 24) & 0xFF000000) | ((id[1] << 16) & 0x00FF0000) | ((id[2] << 8) & 0x0000FF00) | ((id[3] << 0) & 0x000000FF)));
 }
 
+namespace Encryption {
+
+//NOT USEFUL AS TRUE ENCRYPTION!! DO NOT USE IF SERIOUS ENCRYPTION IS NEEDED!!!
+std::string ROT13(std::string text);
+
+struct encode_tag {};
+struct decode_tag {};
+
+//NOT USEFUL AS TRUE ENCRYPTION!! DO NOT USE IF SERIOUS ENCRYPTION IS NEEDED!!!
+template<int key, typename Op = encode_tag>
+std::string CaesarShift(std::string plaintext) {
+    auto caesarshift = [](unsigned char a) {
+        bool lower = 'a' <= a && a <= 'z';
+        bool upper = 'A' <= a && a <= 'Z';
+        char base = lower ? 'a' : upper ? 'A' : 0;
+        if(!base) {
+            return a;
+        }
+        int shift_result = 0;
+        if(std::is_same_v<Op, encode_tag>) {
+            shift_result = (a - base + key) % 26;
+        } else if(std::is_same_v<Op, decode_tag>) {
+            shift_result = (a - base - key) % 26;
+        }
+        if(shift_result < 0) {
+            shift_result += 26;
+        }
+        if(25 < shift_result) {
+            shift_result -= 26;
+        }
+        return static_cast<unsigned char>(static_cast<char>(base + shift_result));
+    };
+    std::transform(std::begin(plaintext), std::end(plaintext), std::begin(plaintext), caesarshift);
+    return plaintext;
 }
+
+} //End Encryption
+
+} //End StringUtils

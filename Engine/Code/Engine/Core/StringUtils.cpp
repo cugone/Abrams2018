@@ -187,4 +187,12 @@ std::string TrimWhitespace(std::string string) {
     return string.substr(first_non_space, last_non_space - first_non_space + 1);
 }
 
+namespace Encryption {
+
+std::string ROT13(std::string text) {
+    return CaesarShift<13>(text);
+}
+
+} //End Encryption
+
 } //End StringUtils

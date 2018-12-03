@@ -3,6 +3,7 @@
 #include "Engine/Core/EngineSubsystem.hpp"
 #include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/TimeUtils.hpp"
+#include "Engine/Core/System.hpp"
 
 #include "Engine/Math/MathUtils.hpp"
 
@@ -78,6 +79,11 @@ void App::SetIsQuitting(bool quit) {
 
 void App::Initialize() {
     FileUtils::CreateFolders("Data/");
+    {
+        std::ostringstream ss;
+        ss << System::GetSystemDesc();
+        g_theFileLogger->LogAndFlush(ss.str());
+    }
     g_theRenderer->Initialize(applet_mode);
     if(applet_mode) {
         return;

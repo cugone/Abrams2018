@@ -9,7 +9,7 @@
 #include "Engine/Core/Rgba.hpp"
 #include "Engine/Core/Win.hpp"
 
-#include <stdarg.h>
+#include <cstdarg>
 
 #include <algorithm>
 #include <locale>

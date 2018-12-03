@@ -4,6 +4,8 @@
 #include "Engine/Core/Win.hpp"
 
 #include <iomanip>
+#include <memory>
+#include <sstream>
 #include <string>
 
 System::Cpu::ProcessorArchitecture GetProcessorArchitecture();
@@ -54,25 +56,26 @@ System::Cpu::CpuDesc System::Cpu::GetCpuDesc() {
     DWORD length{};
     if(!::GetLogicalProcessorInformationEx(LOGICAL_PROCESSOR_RELATIONSHIP::RelationAll, nullptr, &length)) {
         if(::GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-            auto buffer = reinterpret_cast<SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX*>(new unsigned char[length]);
-            if(!::GetLogicalProcessorInformationEx(LOGICAL_PROCESSOR_RELATIONSHIP::RelationAll, buffer, &length)) {
-                delete[] buffer;
-                buffer = nullptr;
-            } else {
-                SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX* ptr = buffer;
-                unsigned long long offset = 0ull;
-                while(offset + sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX) <= length) {
-                    switch(ptr->Relationship) {
-                    case RelationProcessorPackage:
-                    {
-                        ++desc.processorCount;
-                        break;
+            auto b = std::make_unique<unsigned char[]>(length);
+            auto buffer = reinterpret_cast<SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX*>(b.get());
+            if(::GetLogicalProcessorInformationEx(LOGICAL_PROCESSOR_RELATIONSHIP::RelationAll, buffer, &length)) {
+                std::stringstream ss(std::ios_base::binary | std::ios_base::in | std::ios_base::out);
+                if(ss.write(reinterpret_cast<const char*>(buffer), length)) {
+                    ss.clear();
+                    ss.seekg(0);
+                    ss.seekp(0);
+                    SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX p{};
+                    while(ss.read(reinterpret_cast<char*>(&p), sizeof(p))) {
+                        switch(p.Relationship) {
+                        case RelationProcessorPackage:
+                        {
+                            ++desc.processorCount;
+                            break;
+                        }
+                        default:
+                            break;
+                        }
                     }
-                    default:
-                        break;
-                    }
-                    offset += sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX);
-                    ptr++;
                 }
             }
         }

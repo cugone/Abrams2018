@@ -61,6 +61,7 @@ std::ostream& operator<<(std::ostream& os, const Rgba& rhs) {
     if(os.flags() & std::ios_base::hex) {
         auto old_fmt = os.flags();
         auto old_fill = os.fill();
+        auto old_w = os.width();
         os << '#';
         os << std::setw(8);
         os << std::right;
@@ -68,6 +69,7 @@ std::ostream& operator<<(std::ostream& os, const Rgba& rhs) {
         os << rhs.GetAsRawValue();
         os.flags(old_fmt);
         os.fill(old_fill);
+        os.width(old_w);
         return os;
     }
     os << static_cast<int>(rhs.r) << ',' << static_cast<int>(rhs.g) << ',' << static_cast<int>(rhs.b) << ',' << static_cast<int>(rhs.a);

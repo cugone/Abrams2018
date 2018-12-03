@@ -30,9 +30,6 @@ ProcessorArchitecture GetProcessorArchitecture();
 std::string ProcessorArchitectureToString(const ProcessorArchitecture& architecture);
 
 struct CpuDesc {
-    unsigned long long L1Cache = 0;
-    unsigned long long L2Cache = 0;
-    unsigned long long L3Cache = 0;
     ProcessorArchitecture type{};
     int processorCount = 0;
     int coreCount = 0;

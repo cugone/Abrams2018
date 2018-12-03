@@ -10,9 +10,6 @@ std::ostream& System::Cpu::operator<<(std::ostream& out, const System::Cpu::CpuD
     out << std::left << std::setw(22) << "Processor Type:" << std::right << std::setw(30) << ProcessorArchitectureToString(cpu.type) << '\n';
     out << std::left << std::setw(22) << "Processor Count:" << std::right << std::setw(30) << cpu.processorCount << '\n';
     out << std::left << std::setw(22) << "Core Count: " << std::right << std::setw(30) << cpu.coreCount << '\n';
-    out << std::left << std::setw(22) << "L1 Cache Size: " << std::right << std::setw(30) << cpu.L1Cache << " Bytes\n";
-    out << std::left << std::setw(22) << "L2 Cache Size: " << std::right << std::setw(30) << cpu.L2Cache << " Bytes\n";
-    out << std::left << std::setw(22) << "L3 Cache Size: " << std::right << std::setw(30) << cpu.L3Cache << " Bytes\n";
     out.flags(old_fmt);
     out.width(old_w);
     return out;
@@ -99,22 +96,6 @@ System::Cpu::CpuDesc System::Cpu::GetCpuDesc() {
                 unsigned long long offset = 0ull;
                 while(offset + sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX) <= length) {
                     switch(ptr->Relationship) {
-                    case RelationCache:
-                    {
-                        CACHE_RELATIONSHIP cache = ptr->Cache;
-                        switch(cache.Level) {
-                        case 1:
-                            desc.L1Cache += cache.CacheSize;
-                            break;
-                        case 2:
-                            desc.L2Cache += cache.CacheSize;
-                            break;
-                        case 3:
-                            desc.L3Cache += cache.CacheSize;
-                            break;
-                        }
-                        break;
-                    }
                     case RelationProcessorPackage:
                     {
                         ++desc.processorCount;

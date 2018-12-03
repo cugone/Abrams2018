@@ -10,8 +10,7 @@ std::ostream& System::operator<<(std::ostream& out, const System::SystemDesc& de
     auto old_w = out.width();
     out << "SYSTEM:\n";
     out << desc.cpu;
-    out << std::left << std::setw(22) << "Installed RAM:" << std::right << std::setw(30) << std::fixed << std::setprecision(1) << desc.installed_ram * MathUtils::GIB_BYTES_RATIO << " GB\n";
-    out << std::left << std::setw(22) << "Available RAM:" << std::right << std::setw(30) << std::fixed << std::setprecision(1) << desc.available_ram * MathUtils::GIB_BYTES_RATIO << " GB\n";
+    out << desc.ram;
     out << '\n';
     out.flags(old_fmt);
     out.width(old_w);
@@ -21,21 +20,6 @@ std::ostream& System::operator<<(std::ostream& out, const System::SystemDesc& de
 System::SystemDesc System::GetSystemDesc() {
     SystemDesc desc{};
     desc.cpu = Cpu::GetCpuDesc();
-    desc.installed_ram = GetPhysicalRam();
-    desc.available_ram = GetAvailableRam();
+    desc.ram = Ram::GetRamDesc();
     return desc;
 }
-
-unsigned long long System::GetPhysicalRam() {
-    uint64_t pram = 0;
-    ::GetPhysicallyInstalledSystemMemory(&pram);
-    return static_cast<unsigned long long>(pram * MathUtils::BYTES_KIB_RATIO);
-}
-
-unsigned long long System::GetAvailableRam() {
-    MEMORYSTATUSEX mem{};
-    mem.dwLength = sizeof(MEMORYSTATUSEX);
-    ::GlobalMemoryStatusEx(&mem);
-    return mem.ullTotalPhys;
-}
-

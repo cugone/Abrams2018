@@ -7,6 +7,7 @@ std::ostream& operator<<(std::ostream& out_stream, const GraphicsCardDesc& graph
     auto name = graphicsCardDesc.Description;
     out_stream << std::left << std::setw(22) << "Name:" << std::right << std::setw(30) << name << '\n';
     auto vid = graphicsCardDesc.VendorId;
+    out_stream << std::hex << std::uppercase;
     out_stream << std::left << std::setw(22) << "Vendor ID:" << std::right << std::setw(30) << vid << '\n';
     auto did = graphicsCardDesc.DeviceId;
     out_stream << std::left << std::setw(22) << "Device ID:" << std::right << std::setw(30) << did << '\n';
@@ -14,6 +15,7 @@ std::ostream& operator<<(std::ostream& out_stream, const GraphicsCardDesc& graph
     out_stream << std::left << std::setw(22) << "Subsystem ID:" << std::right << std::setw(30) << subsysid << '\n';
     auto revision = graphicsCardDesc.Revision;
     out_stream << std::left << std::setw(22) << "Revision:" << std::right << std::setw(30) << revision << '\n';
+    out_stream << std::dec << std::nouppercase;
     auto ded_vid_mem = graphicsCardDesc.DedicatedVideoMemory;
     out_stream << std::left << std::setw(22) << "Video Memory:" << std::right << std::setw(30) << ded_vid_mem << '\n';
     auto ded_sys_mem = graphicsCardDesc.DedicatedSystemMemory;

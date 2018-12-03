@@ -37,6 +37,7 @@
     <ClCompile Include="Core\BuildConfig.hpp" />
     <ClCompile Include="Core\Config.cpp" />
     <ClCompile Include="Core\Console.cpp" />
+    <ClCompile Include="Core\Cpu.cpp" />
     <ClCompile Include="Core\DataUtils.cpp" />
     <ClCompile Include="Core\EngineBase.cpp" />
     <ClCompile Include="Core\EngineSubsystem.cpp" />
@@ -131,6 +132,7 @@
     <ClInclude Include="Core\Base64.hpp" />
     <ClInclude Include="Core\Config.hpp" />
     <ClInclude Include="Core\Console.hpp" />
+    <ClInclude Include="Core\Cpu.hpp" />
     <ClInclude Include="Core\DataUtils.hpp" />
     <ClInclude Include="Core\EngineBase.hpp" />
     <ClInclude Include="Core\EngineSubsystem.hpp" />

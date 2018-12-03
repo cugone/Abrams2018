@@ -12,6 +12,14 @@ struct DisplayDesc {
     unsigned int refreshRateHz = 0u;
 };
 
+struct DisplayDescLTComparator {
+    bool operator()(const DisplayDesc& a, const DisplayDesc& b) const noexcept;
+};
+
+struct DisplayDescGTComparator {
+    bool operator()(const DisplayDesc& a, const DisplayDesc& b) const noexcept;
+};
+
 struct GraphicsCardDesc {
     std::string Description{};
     std::size_t DedicatedVideoMemory = 0u;
@@ -25,14 +33,6 @@ struct GraphicsCardDesc {
     bool is_remote = false;
     bool is_unspecified = false;
     friend std::ostream& operator<<(std::ostream& out_stream, const GraphicsCardDesc& adapterInfo);
-};
-
-struct DisplayDescLTComparator {
-    bool operator()(const DisplayDesc& a, const DisplayDesc& b) const noexcept;
-};
-
-struct DisplayDescGTComparator {
-    bool operator()(const DisplayDesc& a, const DisplayDesc& b) const noexcept;
 };
 
 enum class RHIOutputMode : uint8_t {

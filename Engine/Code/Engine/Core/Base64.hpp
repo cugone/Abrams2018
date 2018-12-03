@@ -23,8 +23,8 @@ std::string Decode(std::istream& input);
 std::string Decode(const std::string& input);
 void Decode(const std::string& input, std::vector<unsigned char>& output);
 namespace detail {
-std::vector<unsigned char> DecodeBinary(std::istream& input);
-std::vector<unsigned char> DecodeBinary(const std::string& input);
+std::string Encode(std::istream& input, std::size_t size);
+std::string Decode(std::istream& input, std::size_t size);
 }
 
 } //End FileUtils::Base64

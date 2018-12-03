@@ -5,6 +5,7 @@
 #include "Engine/Math/Vector4.hpp"
 #include "Engine/Math/Matrix4.hpp"
 
+#include "Engine/Core/Cpu.hpp"
 #include "Engine/Core/Rgba.hpp"
 #include "Engine/Core/Win.hpp"
 
@@ -56,6 +57,46 @@ std::string to_string(const Rgba& clr) {
     std::ostringstream ss;
     ss << std::hex << clr;
     return ss.str();
+}
+
+std::string to_string(const System::Cpu::ProcessorArchitecture& architecture) {
+    using namespace System::Cpu;
+    switch(architecture) {
+    case ProcessorArchitecture::Unknown:
+        return "Unknown";
+    case ProcessorArchitecture::x64: //Also Amd64
+        return "x64";
+    case ProcessorArchitecture::Arm:
+        return "ARM";
+    case ProcessorArchitecture::Arm64:
+        return "ARM 64";
+    case ProcessorArchitecture::Ia64:
+        return "Intel Itanium 64";
+    case ProcessorArchitecture::x86: //Also Intel
+        return "x86";
+    case ProcessorArchitecture::Mips:
+        return "Mips";
+    case ProcessorArchitecture::Alpha:
+        return "Alpha";
+    case ProcessorArchitecture::Ppc:
+        return "PPC";
+    case ProcessorArchitecture::Shx:
+        return "SHX";
+    case ProcessorArchitecture::Alpha64:
+        return "Alpha 64";
+    case ProcessorArchitecture::Msil:
+        return "MSIL";
+    case ProcessorArchitecture::Ia32OnWin64:
+        return "Intel Itanium on Win64";
+    case ProcessorArchitecture::Neutral:
+        return "Neutral";
+    case ProcessorArchitecture::Arm32OnWin64:
+        return "ARM32 on Win64";
+    case ProcessorArchitecture::Ia32OnArm64:
+        return "Intel Itanium on ARM64";
+    default:
+        return "";
+    }
 }
 
 const std::string Stringf(const char* format, ...) {

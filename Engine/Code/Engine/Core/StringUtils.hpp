@@ -8,6 +8,9 @@ class Vector3;
 class Vector4;
 class Matrix4;
 class Rgba;
+namespace System::Cpu {
+enum class ProcessorArchitecture;
+}
 
 namespace StringUtils {
 
@@ -16,6 +19,7 @@ std::string to_string(const Vector3& v);
 std::string to_string(const Vector4& v);
 std::string to_string(const Matrix4& m);
 std::string to_string(const Rgba& clr);
+std::string to_string(const System::Cpu::ProcessorArchitecture& architecture);
 
 const std::string Stringf(const char* format, ...);
 const std::string Stringf(const int maxLength, const char* format, ...);

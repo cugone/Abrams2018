@@ -1,39 +1,17 @@
 #include "Engine/Core/Cpu.hpp"
 
+#include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/Win.hpp"
 
 #include <iomanip>
 #include <string>
 
-enum class System::Cpu::ProcessorArchitecture {
-    Intel
-    , Mips
-    , Alpha
-    , Ppc
-    , Shx
-    , Arm
-    , Ia64
-    , Alpha64
-    , Msil
-    , Amd64
-    , Ia32OnWin64
-    , Neutral
-    , Arm64
-    , Arm32OnWin64
-    , Ia32OnArm64
-    , x64 = Amd64
-    , x86 = Intel
-    , Unknown = 0xFFFF
-};
-
 System::Cpu::ProcessorArchitecture GetProcessorArchitecture();
-std::string ProcessorArchitectureToString(const System::Cpu::ProcessorArchitecture& architecture);
-
 
 std::ostream& System::Cpu::operator<<(std::ostream& out, const System::Cpu::CpuDesc& cpu) {
     auto old_fmt = out.flags();
     auto old_w = out.width();
-    out << std::left << std::setw(22) << "Processor Type:" << std::right << std::setw(30) << ProcessorArchitectureToString(cpu.type) << '\n';
+    out << std::left << std::setw(22) << "Processor Type:" << std::right << std::setw(30) << StringUtils::to_string(cpu.type) << '\n';
     out << std::left << std::setw(22) << "Processor Count:" << std::right << std::setw(30) << cpu.processorCount << '\n';
     out << std::left << std::setw(22) << "Core Count: " << std::right << std::setw(30) << cpu.coreCount << '\n';
     out.flags(old_fmt);
@@ -41,45 +19,6 @@ std::ostream& System::Cpu::operator<<(std::ostream& out, const System::Cpu::CpuD
     return out;
 }
 
-std::string ProcessorArchitectureToString(const System::Cpu::ProcessorArchitecture& architecture) {
-    using namespace System::Cpu;
-    switch(architecture) {
-    case ProcessorArchitecture::Unknown:
-        return "Unknown";
-    case ProcessorArchitecture::x64: //Also Amd64
-        return "x64";
-    case ProcessorArchitecture::Arm:
-        return "ARM";
-    case ProcessorArchitecture::Arm64:
-        return "ARM 64";
-    case ProcessorArchitecture::Ia64:
-        return "Intel Itanium 64";
-    case ProcessorArchitecture::x86: //Also Intel
-        return "x86";
-    case ProcessorArchitecture::Mips:
-        return "Mips";
-    case ProcessorArchitecture::Alpha:
-        return "Alpha";
-    case ProcessorArchitecture::Ppc:
-        return "PPC";
-    case ProcessorArchitecture::Shx:
-        return "SHX";
-    case ProcessorArchitecture::Alpha64:
-        return "Alpha 64";
-    case ProcessorArchitecture::Msil:
-        return "MSIL";
-    case ProcessorArchitecture::Ia32OnWin64:
-        return "Intel Itanium on Win64";
-    case ProcessorArchitecture::Neutral:
-        return "Neutral";
-    case ProcessorArchitecture::Arm32OnWin64:
-        return "ARM32 on Win64";
-    case ProcessorArchitecture::Ia32OnArm64:
-        return "Intel Itanium on ARM64";
-    default:
-        return "";
-    }
-}
 
 System::Cpu::ProcessorArchitecture GetProcessorArchitecture() {
     using namespace System::Cpu;

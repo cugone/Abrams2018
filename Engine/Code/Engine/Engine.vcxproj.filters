@@ -316,6 +316,9 @@
     <ClCompile Include="Core\Cpu.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Core\System.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -613,6 +616,9 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="Core\Cpu.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\System.hpp">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

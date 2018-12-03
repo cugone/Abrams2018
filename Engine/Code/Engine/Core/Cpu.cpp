@@ -3,6 +3,32 @@
 #include "Engine/Core/Win.hpp"
 
 #include <iomanip>
+#include <string>
+
+enum class System::Cpu::ProcessorArchitecture {
+    Intel
+    , Mips
+    , Alpha
+    , Ppc
+    , Shx
+    , Arm
+    , Ia64
+    , Alpha64
+    , Msil
+    , Amd64
+    , Ia32OnWin64
+    , Neutral
+    , Arm64
+    , Arm32OnWin64
+    , Ia32OnArm64
+    , x64 = Amd64
+    , x86 = Intel
+    , Unknown = 0xFFFF
+};
+
+System::Cpu::ProcessorArchitecture GetProcessorArchitecture();
+std::string ProcessorArchitectureToString(const System::Cpu::ProcessorArchitecture& architecture);
+
 
 std::ostream& System::Cpu::operator<<(std::ostream& out, const System::Cpu::CpuDesc& cpu) {
     auto old_fmt = out.flags();
@@ -15,7 +41,8 @@ std::ostream& System::Cpu::operator<<(std::ostream& out, const System::Cpu::CpuD
     return out;
 }
 
-std::string System::Cpu::ProcessorArchitectureToString(const ProcessorArchitecture& architecture) {
+std::string ProcessorArchitectureToString(const System::Cpu::ProcessorArchitecture& architecture) {
+    using namespace System::Cpu;
     switch(architecture) {
     case ProcessorArchitecture::Unknown:
         return "Unknown";
@@ -54,7 +81,8 @@ std::string System::Cpu::ProcessorArchitectureToString(const ProcessorArchitectu
     }
 }
 
-System::Cpu::ProcessorArchitecture System::Cpu::GetProcessorArchitecture() {
+System::Cpu::ProcessorArchitecture GetProcessorArchitecture() {
+    using namespace System::Cpu;
     SYSTEM_INFO info{};
     ::GetSystemInfo(&info);
     switch(info.wProcessorArchitecture) {

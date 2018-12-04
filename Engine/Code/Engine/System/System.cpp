@@ -1,10 +1,5 @@
 #include "Engine/System/System.hpp"
 
-#include "Engine/Core/Win.hpp"
-#include "Engine/Math/MathUtils.hpp"
-
-#include <iomanip>
-
 std::ostream& System::operator<<(std::ostream& out, const System::SystemDesc& desc) {
     auto old_fmt = out.flags();
     auto old_w = out.width();

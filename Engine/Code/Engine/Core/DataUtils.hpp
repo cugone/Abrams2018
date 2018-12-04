@@ -11,7 +11,6 @@
 #include "Engine/Math/IntVector4.hpp"
 #include "Engine/Math/Matrix4.hpp"
 
-#include <bitset>
 #include <functional>
 #include <string>
 #include <intrin.h>
@@ -22,8 +21,24 @@ using XMLAttribute = tinyxml2::XMLAttribute;
 namespace DataUtils {
 
 [[nodiscard]] inline auto Bits(uint8_t value) noexcept -> uint8_t {
-    std::bitset<8> b(value);
-    return static_cast<uint8_t>(b.count());
+    const char* const bits =
+        "\0\1\1\2\1\2\2\3\1\2\2\3\2\3\3\4"
+        "\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
+        "\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
+        "\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
+        "\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
+        "\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
+        "\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
+        "\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
+        "\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
+        "\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
+        "\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
+        "\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
+        "\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
+        "\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
+        "\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
+        "\4\5\5\6\5\6\6\7\5\6\6\7\6\7\7\x8";
+    return bits[value];
 }
 
 [[nodiscard]] inline auto Bits(uint16_t value) noexcept -> uint16_t {

@@ -11,13 +11,32 @@
 #include "Engine/Math/IntVector4.hpp"
 #include "Engine/Math/Matrix4.hpp"
 
+#include <bitset>
 #include <functional>
 #include <string>
+#include <intrin.h>
 
 using XMLElement = tinyxml2::XMLElement;
 using XMLAttribute = tinyxml2::XMLAttribute;
 
 namespace DataUtils {
+
+[[nodiscard]] inline auto Bits(uint8_t value) noexcept -> uint8_t {
+    std::bitset<8> b(value);
+    return static_cast<uint8_t>(b.count());
+}
+
+[[nodiscard]] inline auto Bits(uint16_t value) noexcept -> uint16_t {
+    return __popcnt16(value);
+}
+
+[[nodiscard]] inline auto Bits(uint32_t value) noexcept -> uint32_t {
+    return __popcnt(value);
+}
+
+[[nodiscard]] inline auto Bits(uint64_t value) noexcept -> uint64_t {
+    return __popcnt64(value);
+}
 
 [[nodiscard]] constexpr inline auto Shift(uint8_t value, uint8_t distance) noexcept -> uint8_t {
     return value << distance;

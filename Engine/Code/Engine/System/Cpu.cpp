@@ -14,9 +14,9 @@ System::Cpu::ProcessorArchitecture GetProcessorArchitecture();
 std::ostream& System::Cpu::operator<<(std::ostream& out, const System::Cpu::CpuDesc& cpu) {
     auto old_fmt = out.flags();
     auto old_w = out.width();
-    out << std::left << std::setw(22) << "Processor Type:" << std::right << std::setw(30) << StringUtils::to_string(cpu.type) << '\n';
-    out << std::left << std::setw(22) << "Socket Count:" << std::right << std::setw(30) << cpu.socketCount << '\n';
-    out << std::left << std::setw(22) << "Core Count: " << std::right << std::setw(30) << cpu.coreCount << '\n';
+    out << std::left << std::setw(25) << "Processor Type:"           << std::right << std::setw(25) << StringUtils::to_string(cpu.type) << '\n';
+    out << std::left << std::setw(25) << "Socket Count:"             << std::right << std::setw(25) << cpu.socketCount  << '\n';
+    out << std::left << std::setw(25) << "Logical Processor Count:"  << std::right << std::setw(25) << cpu.logicalCount << '\n';
     out.flags(old_fmt);
     out.width(old_w);
     return out;
@@ -53,19 +53,19 @@ System::Cpu::CpuDesc System::Cpu::GetCpuDesc() {
     desc.type = GetProcessorArchitecture();
     SYSTEM_INFO info{};
     ::GetSystemInfo(&info);
-    desc.coreCount = info.dwNumberOfProcessors;
+    desc.logicalCount = info.dwNumberOfProcessors;
     DWORD length{};
-    if(!::GetLogicalProcessorInformationEx(LOGICAL_PROCESSOR_RELATIONSHIP::RelationAll, nullptr, &length)) {
+    if(!::GetLogicalProcessorInformation(nullptr, &length)) {
         if(::GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
             auto b = std::make_unique<unsigned char[]>(length);
-            auto buffer = reinterpret_cast<SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX*>(b.get());
-            if(::GetLogicalProcessorInformationEx(LOGICAL_PROCESSOR_RELATIONSHIP::RelationAll, buffer, &length)) {
+            auto buffer = reinterpret_cast<SYSTEM_LOGICAL_PROCESSOR_INFORMATION*>(b.get());
+            if(::GetLogicalProcessorInformation(buffer, &length)) {
                 std::stringstream ss(std::ios_base::binary | std::ios_base::in | std::ios_base::out);
                 if(ss.write(reinterpret_cast<const char*>(buffer), length)) {
                     ss.clear();
                     ss.seekg(0);
                     ss.seekp(0);
-                    SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX p{};
+                    SYSTEM_LOGICAL_PROCESSOR_INFORMATION p{};
                     while(ss.read(reinterpret_cast<char*>(&p), sizeof(p))) {
                         switch(p.Relationship) {
                         case RelationProcessorPackage:

@@ -37,7 +37,6 @@
     <ClCompile Include="Core\BuildConfig.hpp" />
     <ClCompile Include="Core\Config.cpp" />
     <ClCompile Include="Core\Console.cpp" />
-    <ClCompile Include="Core\Cpu.cpp" />
     <ClCompile Include="Core\DataUtils.cpp" />
     <ClCompile Include="Core\EngineBase.cpp" />
     <ClCompile Include="Core\EngineSubsystem.cpp" />
@@ -49,12 +48,10 @@
     <ClCompile Include="Core\KerningFont.cpp" />
     <ClCompile Include="Core\KeyValueParser.cpp" />
     <ClCompile Include="Core\Obj.cpp" />
-    <ClCompile Include="Core\Ram.cpp" />
     <ClCompile Include="Core\Rgba.cpp" />
     <ClCompile Include="Core\Riff.cpp" />
     <ClCompile Include="Core\Stopwatch.cpp" />
     <ClCompile Include="Core\StringUtils.cpp" />
-    <ClCompile Include="Core\System.cpp" />
     <ClCompile Include="Core\TimeUtils.cpp" />
     <ClCompile Include="Input\InputSystem.cpp" />
     <ClCompile Include="Input\XboxController.cpp" />
@@ -115,6 +112,9 @@
     <ClCompile Include="RHI\RHIInstance.cpp" />
     <ClCompile Include="RHI\RHIOutput.cpp" />
     <ClCompile Include="RHI\RHITypes.cpp" />
+    <ClCompile Include="System\Cpu.cpp" />
+    <ClCompile Include="System\Ram.cpp" />
+    <ClCompile Include="System\System.cpp" />
     <ClCompile Include="UI\Canvas.cpp" />
     <ClCompile Include="UI\Element.cpp" />
     <ClCompile Include="UI\Sprite.cpp" />
@@ -134,7 +134,6 @@
     <ClInclude Include="Core\Base64.hpp" />
     <ClInclude Include="Core\Config.hpp" />
     <ClInclude Include="Core\Console.hpp" />
-    <ClInclude Include="Core\Cpu.hpp" />
     <ClInclude Include="Core\DataUtils.hpp" />
     <ClInclude Include="Core\EngineBase.hpp" />
     <ClInclude Include="Core\EngineSubsystem.hpp" />
@@ -147,12 +146,10 @@
     <ClInclude Include="Core\KerningFont.hpp" />
     <ClInclude Include="Core\KeyValueParser.hpp" />
     <ClInclude Include="Core\Obj.hpp" />
-    <ClInclude Include="Core\Ram.hpp" />
     <ClInclude Include="Core\Rgba.hpp" />
     <ClInclude Include="Core\Riff.hpp" />
     <ClInclude Include="Core\Stopwatch.hpp" />
     <ClInclude Include="Core\StringUtils.hpp" />
-    <ClInclude Include="Core\System.hpp" />
     <ClInclude Include="Core\ThreadSafeQueue.hpp" />
     <ClInclude Include="Core\TimeUtils.hpp" />
     <ClInclude Include="Core\Vertex3D.hpp" />
@@ -217,6 +214,9 @@
     <ClInclude Include="RHI\RHIInstance.hpp" />
     <ClInclude Include="RHI\RHIOutput.hpp" />
     <ClInclude Include="RHI\RHITypes.hpp" />
+    <ClInclude Include="System\Cpu.hpp" />
+    <ClInclude Include="System\Ram.hpp" />
+    <ClInclude Include="System\System.hpp" />
     <ClInclude Include="UI\Canvas.hpp" />
     <ClInclude Include="UI\Element.hpp" />
     <ClInclude Include="UI\Sprite.hpp" />

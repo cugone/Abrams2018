@@ -3,7 +3,6 @@
 #include "Engine/Core/EngineSubsystem.hpp"
 #include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/TimeUtils.hpp"
-#include "Engine/Core/System.hpp"
 
 #include "Engine/Math/MathUtils.hpp"
 
@@ -11,6 +10,8 @@
 #include "Engine/Renderer/Window.hpp"
 
 #include "Engine/RHI/RHIOutput.hpp"
+
+#include "Engine/System/System.hpp"
 
 #include "Game/GameCommon.hpp"
 #include "Game/GameConfig.hpp"

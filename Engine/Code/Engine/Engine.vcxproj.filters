@@ -38,6 +38,9 @@
     <Filter Include="Profiling">
       <UniqueIdentifier>{d2bb5a78-3449-4cb3-895e-903e8efbb1fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System">
+      <UniqueIdentifier>{4b9283e1-491f-497b-8a6c-62833416b468}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">
@@ -313,14 +316,14 @@
     <ClCompile Include="UI\Sprite.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Cpu.cpp">
-      <Filter>Core</Filter>
+    <ClCompile Include="System\Cpu.cpp">
+      <Filter>System</Filter>
     </ClCompile>
-    <ClCompile Include="Core\System.cpp">
-      <Filter>Core</Filter>
+    <ClCompile Include="System\Ram.cpp">
+      <Filter>System</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Ram.cpp">
-      <Filter>Core</Filter>
+    <ClCompile Include="System\System.cpp">
+      <Filter>System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -618,14 +621,14 @@
     <ClInclude Include="UI\UI.hpp">
       <Filter>UI</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Cpu.hpp">
-      <Filter>Core</Filter>
+    <ClInclude Include="System\Cpu.hpp">
+      <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="Core\System.hpp">
-      <Filter>Core</Filter>
+    <ClInclude Include="System\Ram.hpp">
+      <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Ram.hpp">
-      <Filter>Core</Filter>
+    <ClInclude Include="System\System.hpp">
+      <Filter>System</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

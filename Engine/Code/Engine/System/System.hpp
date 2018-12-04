@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Engine/Core/Cpu.hpp"
-#include "Engine/Core/Ram.hpp"
+#include "Engine/System/Cpu.hpp"
+#include "Engine/System/Ram.hpp"
 
 #include <ostream>
 

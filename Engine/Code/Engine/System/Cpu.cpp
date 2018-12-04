@@ -1,5 +1,6 @@
-#include "Engine/Core/Cpu.hpp"
+#include "Engine/System/Cpu.hpp"
 
+#include "Engine/Core/DataUtils.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/Win.hpp"
 
@@ -14,7 +15,7 @@ std::ostream& System::Cpu::operator<<(std::ostream& out, const System::Cpu::CpuD
     auto old_fmt = out.flags();
     auto old_w = out.width();
     out << std::left << std::setw(22) << "Processor Type:" << std::right << std::setw(30) << StringUtils::to_string(cpu.type) << '\n';
-    out << std::left << std::setw(22) << "Processor Count:" << std::right << std::setw(30) << cpu.processorCount << '\n';
+    out << std::left << std::setw(22) << "Socket Count:" << std::right << std::setw(30) << cpu.socketCount << '\n';
     out << std::left << std::setw(22) << "Core Count: " << std::right << std::setw(30) << cpu.coreCount << '\n';
     out.flags(old_fmt);
     out.width(old_w);
@@ -69,7 +70,7 @@ System::Cpu::CpuDesc System::Cpu::GetCpuDesc() {
                         switch(p.Relationship) {
                         case RelationProcessorPackage:
                         {
-                            ++desc.processorCount;
+                            ++desc.socketCount;
                             break;
                         }
                         default:

@@ -278,7 +278,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Run_x64\Data\Materials\ceres.material" />
-    <None Include="..\Run_x64\Data\Materials\sif.material" />
     <None Include="..\Run_x64\Data\Materials\Test.material" />
     <None Include="..\Run_x64\Data\Shaders\Test.shader" />
   </ItemGroup>

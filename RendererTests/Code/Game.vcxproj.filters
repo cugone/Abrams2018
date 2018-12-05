@@ -65,9 +65,6 @@
     <None Include="..\Run_x64\Data\Materials\ceres.material">
       <Filter>Data\Materials</Filter>
     </None>
-    <None Include="..\Run_x64\Data\Materials\sif.material">
-      <Filter>Data\Materials</Filter>
-    </None>
     <None Include="..\Run_x64\Data\Materials\Test.material">
       <Filter>Data\Materials</Filter>
     </None>

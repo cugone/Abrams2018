@@ -19,7 +19,7 @@ std::string Encode(const std::vector<unsigned char>& input) {
 }
 
 std::string Encode(std::istream& input) {
-    detail::Encode(input, 1024);
+    return detail::Encode(input, 1024);
 }
 
 std::string detail::Encode(std::istream& input, std::size_t size) {

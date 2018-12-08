@@ -26,6 +26,7 @@ namespace FileUtils {
         const std::vector<Vertex3D>& GetVbo() const;
         const std::vector<unsigned int>& GetIbo() const;
 
+        void Unload();
         bool Load(const std::string& filepath);
         bool Save(const std::string& filepath);
         bool IsLoaded() const;

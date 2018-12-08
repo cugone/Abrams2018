@@ -9,6 +9,8 @@
 
 #include "Engine/RHI/RHIOutput.hpp"
 
+#include "Engine/Profiling/Memory.hpp"
+
 #include "Game/GameCommon.hpp"
 #include "Game/GameConfig.hpp"
 
@@ -22,6 +24,7 @@ void RunMessagePump();
 void Shutdown();
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int nShowCmd) {
+    Memory::enable(true);
     Initialize(hInstance, lpCmdLine, nShowCmd);
     MainLoop();
     Shutdown();
@@ -55,6 +58,7 @@ void MainLoop() {
         ::Sleep(0);
         RunMessagePump();
         g_theApp->RunFrame();
+        Memory::resetframecounters();
     }
 }
 

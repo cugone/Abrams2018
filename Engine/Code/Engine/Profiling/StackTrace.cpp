@@ -61,7 +61,7 @@ StackTrace::StackTrace([[maybe_unused]]unsigned long framesToSkip,
     }
     _frame_count = (std::min)(count, MAX_FRAMES_PER_CALLSTACK);
     
-    std::vector<callstack_line_t> lines = GetLines(this, MAX_CALLSTACK_LINES);
+    auto lines = GetLines(this, MAX_CALLSTACK_LINES);
     if(lines.empty()) {
         DebuggerPrintf("StackTrace unavailable. No stack to trace.\n");
         return;
@@ -118,22 +118,28 @@ void StackTrace::Initialize() {
 #endif
 }
 
-[[maybe_unused]] std::vector<StackTrace::callstack_line_t> StackTrace::GetLines([[maybe_unused]]StackTrace* st,
-                                               [[maybe_unused]]unsigned long max_lines) {
-#ifdef PROFILE_BUILD
+[[maybe_unused]]
+std::vector<StackTrace::callstack_line_t> StackTrace::GetLines([[maybe_unused]]StackTrace* st,
+                                 [[maybe_unused]]unsigned long max_lines) {
+#ifndef PROFILE_BUILD
+    return {};
+#else
     IMAGEHLP_LINE64 line_info{};
     DWORD line_offset = 0;
     line_info.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
 
     uint32_t count = std::min(max_lines, st->_frame_count);
-    std::vector<callstack_line_t> lines(count);
+    if(!count) {
+        return {};
+    }
+    std::vector<StackTrace::callstack_line_t> lines(count);
     std::size_t i = 0;
     for(auto& line : lines) {
-        DWORD64 ptr = reinterpret_cast<DWORD64>(st->_frames[i++]);
+        auto ptr = reinterpret_cast<DWORD64>(st->_frames[i++]);
         bool got_addr = false;
         {
             std::scoped_lock<std::shared_mutex> _lock(_cs);
-            got_addr = LSymFromAddr(process, ptr, 0, symbol);
+            got_addr = LSymFromAddr(process, ptr, nullptr, symbol);
         }
         if(!got_addr) {
             continue;
@@ -155,8 +161,6 @@ void StackTrace::Initialize() {
         }
     }
     return lines;
-#else
-    return {};
 #endif
 }
 

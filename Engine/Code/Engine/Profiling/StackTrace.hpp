@@ -4,6 +4,7 @@
 
 #include <atomic>
 #include <shared_mutex>
+#include <string>
 #include <vector>
 
 class StackTrace final {
@@ -26,8 +27,7 @@ private:
 
     static void Initialize();
     static void Shutdown();
-    [[maybe_unused]] static std::vector<StackTrace::callstack_line_t> GetLines([[maybe_unused]]StackTrace* st,
-                          [[maybe_unused]]unsigned long max_lines);
+    [[maybe_unused]] static std::vector<StackTrace::callstack_line_t> GetLines([[maybe_unused]]StackTrace* st, [[maybe_unused]]unsigned long max_lines);
     unsigned long hash = 0;
     unsigned long _frame_count = 0;
     static constexpr auto MAX_FRAMES_PER_CALLSTACK = 128ul;

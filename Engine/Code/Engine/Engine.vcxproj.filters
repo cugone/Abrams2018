@@ -325,6 +325,9 @@
     <ClCompile Include="System\System.cpp">
       <Filter>System</Filter>
     </ClCompile>
+    <ClCompile Include="Profiling\Memory.cpp">
+      <Filter>Profiling</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -629,6 +632,9 @@
     </ClInclude>
     <ClInclude Include="System\System.hpp">
       <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Profiling\Memory.hpp">
+      <Filter>Profiling</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

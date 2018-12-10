@@ -24,7 +24,6 @@ void RunMessagePump();
 void Shutdown();
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int nShowCmd) {
-    Memory::enable(true);
     Initialize(hInstance, lpCmdLine, nShowCmd);
     MainLoop();
     Shutdown();

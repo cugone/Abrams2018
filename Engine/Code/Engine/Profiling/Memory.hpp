@@ -5,10 +5,7 @@
 #include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 
-#include <memory>
-#include <memory_resource>
 #include <new>
-#include <sstream>
 
 class Memory {
 public:
@@ -33,16 +30,19 @@ public:
     };
 
     [[nodiscard]] static void* allocate(std::size_t n) {
-        auto c_size = sizeof(Memory::block_t);
-        auto size = n + c_size;
-        auto c = reinterpret_cast<Memory::block_t*>(std::malloc(size));
-        c->size = n;
-        c->ptr = reinterpret_cast<void*>(c + 1);
+        auto b_size = sizeof(Memory::block_t);
+        auto size = n + b_size;
+        auto b = reinterpret_cast<Memory::block_t*>(std::malloc(size));
+        if(!b) {
+            return nullptr;
+        }
+        b->size = n;
+        b->ptr = reinterpret_cast<void*>(b + 1);
         if(active) {
             ++frameCount;
-            frameSize += c->size;
+            frameSize += b->size;
             ++allocCount;
-            allocSize += c->size;
+            allocSize += b->size;
             if(maxSize < allocSize) {
                 maxSize = allocSize;
             }
@@ -50,15 +50,15 @@ public:
                 maxCount = allocCount;
             }
         }
-        return c->ptr;
+        return b->ptr;
     }
 
     static void deallocate(void* ptr, std::size_t /*size*/ = 0) noexcept {
         if(ptr) {
-            auto c = reinterpret_cast<Memory::block_t*>(ptr) - 1;
-            allocSize -= c->size;
+            auto b = reinterpret_cast<Memory::block_t*>(ptr) - 1;
+            allocSize -= b->size;
             --allocCount;
-            std::free(c);
+            std::free(b);
         }
     }
 

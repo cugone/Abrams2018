@@ -70,7 +70,7 @@ void RunMessagePump() {
         }
         auto window = g_theRenderer->GetOutput()->GetWindow();
         auto hWnd = window->GetWindowHandle();
-        HACCEL tbl = reinterpret_cast<HACCEL>(g_theConsole->GetAcceleratorTable());
+        auto tbl = reinterpret_cast<HACCEL>(g_theConsole->GetAcceleratorTable());
         if(!::TranslateAcceleratorA(hWnd, tbl, &msg)) {
             ::TranslateMessage(&msg);
             ::DispatchMessage(&msg);

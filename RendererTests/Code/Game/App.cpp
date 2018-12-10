@@ -32,7 +32,7 @@ bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     return false;
 }
 
-App::App(std::unique_ptr<JobSystem>&& jobSystem, std::unique_ptr<FileLogger>&& fileLogger)
+App::App(std::unique_ptr<JobSystem> jobSystem, std::unique_ptr<FileLogger> fileLogger)
     : EngineSubsystem()
     , _theJobSystem(std::move(jobSystem))
     , _theFileLogger(std::move(fileLogger))

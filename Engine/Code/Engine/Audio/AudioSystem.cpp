@@ -13,7 +13,7 @@ AudioSystem::AudioSystem(std::size_t max_channels /*= 1024*/)
     : EngineSubsystem()
     , _max_channels(max_channels)
 {
-    ::CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+    GUARANTEE_OR_DIE(SUCCEEDED(::CoInitializeEx(nullptr, COINIT_MULTITHREADED)), "Failed to setup Audio System.");
     GUARANTEE_OR_DIE(SUCCEEDED(::XAudio2Create(&_xaudio2)), "Failed to create Audio System.");
 }
 

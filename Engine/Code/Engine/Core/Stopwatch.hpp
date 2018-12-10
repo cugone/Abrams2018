@@ -17,7 +17,7 @@ public:
     unsigned int DecrementAll();
     void Reset();
 private:
-    TimeUtils::FPSeconds interval_time;
-    TimeUtils::FPSeconds target_time;
+    TimeUtils::FPSeconds interval_time{};
+    TimeUtils::FPSeconds target_time{};
 
 };

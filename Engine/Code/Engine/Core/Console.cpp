@@ -293,9 +293,11 @@ bool Console::HandleClipboardCopy() const {
             if(::EmptyClipboard()) {
                 auto hgblcopy = ::GlobalAlloc(GMEM_MOVEABLE, (copied_text.size() + 1) * sizeof(std::string::value_type));
                 if(hgblcopy) {
-                    LPTSTR lpstrcopy = reinterpret_cast<LPTSTR>(::GlobalLock(hgblcopy));
-                    std::memcpy(lpstrcopy, copied_text.data(), copied_text.size() + 1);
-                    lpstrcopy[copied_text.size() + 1] = '\0';
+                    auto lpstrcopy = reinterpret_cast<LPTSTR>(::GlobalLock(hgblcopy));
+                    if(lpstrcopy) {
+                        std::memcpy(lpstrcopy, copied_text.data(), copied_text.size() + 1);
+                        lpstrcopy[copied_text.size() + 1] = '\0';
+                    }
                     ::GlobalUnlock(hgblcopy);
                     ::SetClipboardData(CF_TEXT, hgblcopy);
                     did_copy = true;
@@ -313,7 +315,7 @@ void Console::HandleClipboardPaste() {
         if(::OpenClipboard(hwnd)) {
             HGLOBAL hglb = ::GetClipboardData(CF_TEXT);
             if(hglb) {
-                LPTSTR lpstrpaste = reinterpret_cast<LPTSTR>(::GlobalLock(hglb));
+                auto lpstrpaste = reinterpret_cast<LPTSTR>(::GlobalLock(hglb));
                 if(lpstrpaste) {
                     std::string text_to_paste = lpstrpaste;
                     PasteText(text_to_paste, _cursor_position);

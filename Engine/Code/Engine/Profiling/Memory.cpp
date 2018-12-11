@@ -3,50 +3,19 @@
 #ifdef TRACK_MEMORY
 
 void* operator new(std::size_t size) {
-    if(Memory::is_enabled()) {
-        return Memory::allocate(size);
-    } else {
-        return std::malloc(size);
-    }
+    return Memory::allocate(size);
 }
 
 void* operator new[](std::size_t size) {
-    if(Memory::is_enabled()) {
-        return Memory::allocate(size);
-    } else {
-        return std::malloc(size);
-    }
+    return Memory::allocate(size);
 }
 
-void operator delete(void* ptr, std::size_t size) {
-    if(Memory::is_enabled()) {
-        Memory::deallocate(ptr, size);
-    } else {
-        std::free(ptr);
-    }
+void operator delete(void* ptr, std::size_t size) noexcept {
+    Memory::deallocate(ptr, size);
 }
 
-void operator delete[](void* ptr, std::size_t size) {
-    if(Memory::is_enabled()) {
-        Memory::deallocate(ptr, size);
-    } else {
-        std::free(ptr);
-    }
+void operator delete[](void* ptr, std::size_t size) noexcept {
+    Memory::deallocate(ptr, size);
 }
 
-void operator delete(void* ptr) {
-    if(Memory::is_enabled()) {
-        Memory::deallocate(ptr);
-    } else {
-        std::free(ptr);
-    }
-}
-
-void operator delete[](void* ptr) {
-    if(Memory::is_enabled()) {
-        Memory::deallocate(ptr);
-    } else {
-        std::free(ptr);
-    }
-}
 #endif

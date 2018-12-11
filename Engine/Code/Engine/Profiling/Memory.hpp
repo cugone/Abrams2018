@@ -6,43 +6,53 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 
 #include <new>
+#include <sstream>
 
 class Memory {
 public:
 
-    struct block_t {
-        std::size_t size = 0;
-        void* ptr = nullptr;
-    };
     struct status_t {
         std::size_t leaked_objs  = 0;
         std::size_t leaked_bytes = 0;
         operator bool() {
             return leaked_objs || leaked_bytes;
         }
+        operator std::string() {
+            std::ostringstream ss;
+            ss << "Leaked objects: " << leaked_objs << " for " << leaked_bytes << " bytes.\n";
+            return ss.str();
+        }
+        operator const char*() {
+            std::ostringstream ss;
+            ss << "Leaked objects: " << leaked_objs << " for " << leaked_bytes << " bytes.\n";
+            return ss.str().c_str();
+        }
     };
     struct status_frame_t {
+        std::size_t frame_id = 0;
         std::size_t leaked_objs = 0;
         std::size_t leaked_bytes = 0;
         operator bool() {
             return leaked_objs || leaked_bytes;
         }
+        operator std::string() {
+            std::ostringstream ss;
+            ss << "Frame " << frame_id << ": Leaked objects: " << leaked_objs << " for " << leaked_bytes << " bytes.\n";
+            return ss.str();
+        }
+        operator const char*() {
+            std::ostringstream ss;
+            ss << "Frame " << frame_id << ": Leaked objects: " << leaked_objs << " for " << leaked_bytes << " bytes.\n";
+            return ss.str().c_str();
+        }
     };
 
     [[nodiscard]] static void* allocate(std::size_t n) {
-        auto b_size = sizeof(Memory::block_t);
-        auto size = n + b_size;
-        auto b = reinterpret_cast<Memory::block_t*>(std::malloc(size));
-        if(!b) {
-            return nullptr;
-        }
-        b->size = n;
-        b->ptr = reinterpret_cast<void*>(b + 1);
         if(active) {
             ++frameCount;
-            frameSize += b->size;
+            frameSize += n;
             ++allocCount;
-            allocSize += b->size;
+            allocSize += n;
             if(maxSize < allocSize) {
                 maxSize = allocSize;
             }
@@ -50,16 +60,15 @@ public:
                 maxCount = allocCount;
             }
         }
-        return b->ptr;
+        return std::malloc(n);
     }
 
-    static void deallocate(void* ptr, std::size_t /*size*/ = 0) noexcept {
-        if(ptr) {
-            auto b = reinterpret_cast<Memory::block_t*>(ptr) - 1;
-            allocSize -= b->size;
+    static void deallocate(void* ptr, std::size_t size) noexcept {
+        if(active) {
             --allocCount;
-            std::free(b);
+            allocSize -= size;
         }
+        std::free(ptr);
     }
 
     static void enable(bool e) {
@@ -68,6 +77,11 @@ public:
 
     static bool is_enabled() {
         return active;
+    }
+
+    static void tick() {
+        ++frameCounter;
+        resetframecounters();
     }
 
     static void resetframecounters() {
@@ -80,7 +94,7 @@ public:
     }
 
     static status_frame_t frame_status() {
-        return { frameCount, frameSize };
+        return { frameCounter, frameCount, frameSize };
     }
 
     inline static std::size_t maxSize = 0;
@@ -89,6 +103,7 @@ public:
     inline static std::size_t allocCount = 0;
     inline static std::size_t frameSize = 0;
     inline static std::size_t frameCount = 0;
+    inline static std::size_t frameCounter = 0;
 protected:
 private:
     inline static bool active = false;
@@ -98,9 +113,7 @@ private:
 
 void* operator new(std::size_t size);
 void* operator new[](std::size_t size);
-void operator delete(void* ptr);
-void operator delete(void* ptr, std::size_t size);
-void operator delete[](void* ptr);
-void operator delete[](void* ptr, std::size_t size);
+void operator delete(void* ptr, std::size_t size) noexcept;
+void operator delete[](void* ptr, std::size_t size) noexcept;
 
 #endif

@@ -2,6 +2,7 @@
 
 #include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/Win.hpp"
 
 #include <algorithm>
@@ -67,9 +68,7 @@ StackTrace::StackTrace([[maybe_unused]]unsigned long framesToSkip,
         return;
     }
     for(const auto& line : lines) {
-        std::ostringstream ss;
-        ss << '\t' << line.filename << '(' << line.line << "): " << line.function_name << '\n';
-        DebuggerPrintf(ss.str().c_str());
+        DebuggerPrintf("\t%s(%d): %s\n", line.filename.c_str(), line.line, line.function_name.c_str());
     }
 #else
     DebuggerPrintf("StackTrace unavailable. Attempting to call StackTrace in non-profile build. \n");
@@ -144,7 +143,7 @@ std::vector<StackTrace::callstack_line_t> StackTrace::GetLines([[maybe_unused]]S
         if(!got_addr) {
             continue;
         }
-        line.function_name = std::string(symbol->Name, symbol->Name + symbol->NameLen);
+        line.function_name.assign(symbol->Name, symbol->NameLen);
         bool got_line = false;
         {
             std::scoped_lock<std::shared_mutex> _lock(_cs);
@@ -153,7 +152,7 @@ std::vector<StackTrace::callstack_line_t> StackTrace::GetLines([[maybe_unused]]S
         if(got_line) {
             line.line = line_info.LineNumber;
             line.offset = line_offset;
-            line.filename = std::string(line_info.FileName ? line_info.FileName : "");
+            line.filename.assign(line_info.FileName);
         } else {
             line.line = 0;
             line.offset = 0;

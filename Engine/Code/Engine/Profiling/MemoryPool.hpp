@@ -14,21 +14,20 @@ public:
 protected:
 private:
 
-    int _count = 0;
-    int _max = 0;
+    std::size_t _count = 0;
+    std::size_t _max = 0;
     T* _data = nullptr;
-    T* _front = nullptr;
-    T* _back = nullptr;
+    T* _ptr = nullptr;
 };
 
 template<typename T, std::size_t maxSize>
 [[nodiscard]] void* MemoryPool<T, maxSize>::allocate(std::size_t size) {
-    auto elems = static_cast<int>(size / sizeof(T));
+    std::size_t elems = size / sizeof(T);
     if(_count + elems < _max) {
-        _back = _front;
-        _front += elems;
+        auto front = _ptr;
         _count += elems;
-        return reinterpret_cast<void*>(_back);
+        _ptr += _count;
+        return reinterpret_cast<void*>(front);
     }
     return nullptr;
 }
@@ -37,12 +36,10 @@ template<typename T, std::size_t maxSize>
 void MemoryPool<T, maxSize>::deallocate(void* ptr, std::size_t size) {
     auto elems = static_cast<int>(size / sizeof(T));
     if(0 < _count - elems) {
-        _back = _front;
-        _front -= elems;
+        _ptr -= elems;
         _count -= elems;
     } else {
-        _front = _data;
-        _back = _front;
+        _ptr = _data;
         _count = 0;
     }
 }
@@ -51,8 +48,7 @@ template<typename T, std::size_t maxSize>
 MemoryPool<T, maxSize>::~MemoryPool() {
     std::free(_data);
     _data = nullptr;
-    _front = nullptr;
-    _back = nullptr;
+    _ptr = nullptr;
     _count = 0;
     _max = 0;
 }
@@ -60,8 +56,7 @@ MemoryPool<T, maxSize>::~MemoryPool() {
 template<typename T, std::size_t maxSize>
 MemoryPool<T, maxSize>::MemoryPool() {
     _data = reinterpret_cast<T*>(std::malloc(maxSize * sizeof(T)));
-    _front = _data;
-    _back = _front;
+    _ptr = _data;
     _count = 0;
     _max = maxSize;
 }

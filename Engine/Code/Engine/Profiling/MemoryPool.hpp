@@ -8,7 +8,7 @@ public:
 	MemoryPool();
 	~MemoryPool();
 
-    void* allocate(std::size_t size);
+    [[nodiscard]] void* allocate(std::size_t size);
     void deallocate(void* ptr, std::size_t size);
 
 protected:
@@ -22,7 +22,7 @@ private:
 };
 
 template<typename T, std::size_t maxSize>
-void* MemoryPool<T, maxSize>::allocate(std::size_t size) {
+[[nodiscard]] void* MemoryPool<T, maxSize>::allocate(std::size_t size) {
     auto elems = static_cast<int>(size / sizeof(T));
     if(_count + elems < _max) {
         _back = _front;

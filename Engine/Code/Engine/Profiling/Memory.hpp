@@ -27,6 +27,10 @@ public:
             ss << "Leaked objects: " << leaked_objs << " for " << leaked_bytes << " bytes.\n";
             return ss.str().c_str();
         }
+        friend std::ostream& operator<<(std::ostream& os, const status_t s) {
+            os << "Leaked objects: " << s.leaked_objs << " for " << s.leaked_bytes << " bytes.\n";
+            return os;
+        }
     };
     struct status_frame_t {
         std::size_t frame_id = 0;
@@ -65,8 +69,10 @@ public:
 
     static void deallocate(void* ptr, std::size_t size) noexcept {
         if(active) {
-            --allocCount;
-            allocSize -= size;
+            ++framefreeCount;
+            framefreeSize += size;
+            ++freeCount;
+            freeSize += size;
         }
         std::free(ptr);
     }
@@ -80,6 +86,9 @@ public:
     }
 
     static void tick() {
+        if(auto f = Memory::frame_status()) {
+            DebuggerPrintf(f);
+        }
         ++frameCounter;
         resetframecounters();
     }
@@ -87,14 +96,16 @@ public:
     static void resetframecounters() {
         frameSize = 0;
         frameCount = 0;
+        framefreeCount = 0;
+        framefreeSize = 0;
     }
 
     static status_t status() {
-        return { allocCount, allocSize };
+        return { allocCount - freeCount, allocSize - freeSize };
     }
 
     static status_frame_t frame_status() {
-        return { frameCounter, frameCount, frameSize };
+        return { frameCounter, frameCount - framefreeCount, frameSize - framefreeSize };
     }
 
     inline static std::size_t maxSize = 0;
@@ -104,6 +115,10 @@ public:
     inline static std::size_t frameSize = 0;
     inline static std::size_t frameCount = 0;
     inline static std::size_t frameCounter = 0;
+    inline static std::size_t freeCount = 0;
+    inline static std::size_t freeSize = 0;
+    inline static std::size_t framefreeCount = 0;
+    inline static std::size_t framefreeSize = 0;
 protected:
 private:
     inline static bool active = false;

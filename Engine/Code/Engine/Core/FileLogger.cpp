@@ -8,6 +8,8 @@
 #include "Engine/Core/TimeUtils.hpp"
 #include "Engine/Core/Win.hpp"
 
+#include "Engine/Profiling/Memory.hpp"
+
 #include <cstdio>
 #include <cstdarg>
 #include <chrono>
@@ -147,6 +149,7 @@ void FileLogger::Shutdown() {
     if(IsRunning()) {
         {
             std::ostringstream ss;
+            ss << Memory::status();
             ss << "Shutting down Logger: " << _current_log_path << "...";
             LogLine(ss.str().c_str());
         }

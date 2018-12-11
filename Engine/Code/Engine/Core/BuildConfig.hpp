@@ -11,7 +11,7 @@
     #define TRACK_MEMORY TRACK_MEMORY_VERBOSE
     #define AUDIO_DEBUG
     #define RENDER_DEBUG
-    #undef PROFILE_BUILD
+    #define PROFILE_BUILD
 #elif defined(FINAL_BUILD)
     #undef TRACK_MEMORY
     #undef PROFILE_BUILD

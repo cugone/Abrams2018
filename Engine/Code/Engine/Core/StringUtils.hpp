@@ -36,7 +36,7 @@ std::wstring ConvertMultiByteToUnicode(const std::string& filePath);
 
 bool StartsWith(const std::string& string, const std::string& start);
 bool EndsWith(const std::string& string, const std::string& end);
-
+std::string ReplaceAll(std::string string, const std::string& from, const std::string& to);
 std::string TrimWhitespace(std::string string);
 
 constexpr const uint32_t FourCC(const char* id) {

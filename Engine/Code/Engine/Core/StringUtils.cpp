@@ -223,6 +223,19 @@ bool EndsWith(const std::string& string, const std::string& end) {
     return found_loc != std::string::npos && found_loc == string.size() - end.size();
 }
 
+//From https://stackoverflow.com/a/3418285/421178
+std::string ReplaceAll(std::string string, const std::string& from, const std::string& to) {
+    if(from.empty()) {
+        return string;
+    }
+    std::size_t start_pos = 0;
+    while((start_pos = string.find(from, start_pos)) != std::string::npos) {
+        string.replace(start_pos, from.size(), to);
+        start_pos += to.size(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+    }
+    return string;
+}
+
 std::string TrimWhitespace(std::string string) {
     auto first_non_space = string.find_first_not_of(" \r\n\t\v\f");
     auto last_non_space = string.find_last_not_of(" \r\n\t\v\f");

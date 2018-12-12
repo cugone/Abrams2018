@@ -46,7 +46,6 @@ Material::Material(Renderer* renderer, const XMLElement& element)
     LoadFromXml(element);
 }
 
-
 bool Material::LoadFromXml(const XMLElement& element) {
     namespace FS = std::filesystem;
 

@@ -99,10 +99,8 @@ void FileLogger::CopyLog(void* user_data) {
 void FileLogger::FinalizeLog() {
     std::filesystem::path from_p = _current_log_path;
     from_p.make_preferred();
-    std::filesystem::path to_p = from_p.parent_path();
-    to_p += "/";
-    to_p += TimeUtils::GetDateTimeStampFromNow();
-    to_p += ".log";
+    std::filesystem::path to_p = from_p;
+    to_p.replace_filename(TimeUtils::GetDateTimeStampFromNow() + ".log");
     to_p.make_preferred();
     _stream.flush();
     _stream.close();

@@ -200,14 +200,22 @@ void Game::Render() const {
     _camera3.SetupView(45.0f, MathUtils::M_16_BY_9_RATIO, 0.01f, 1000.0f);
     g_theRenderer->SetCamera(_camera3);
 
-    g_theRenderer->SetAmbientLight(Rgba::White, 5.0f);
+    g_theRenderer->SetAmbientLight(Rgba::Grey, 0.2f);
     g_theRenderer->SetLightingEyePosition(_camera3.GetPosition());
 
     DirectionalLightDesc dl_desc{};
-    dl_desc.color = Rgba::Red;
-    dl_desc.direction = -Vector3::Y_AXIS;
-    dl_desc.intensity = 10.0f;
+    dl_desc.color = Rgba::White;
+    dl_desc.direction = (Vector3(-1.0f, -1.0f, 0.0f)).GetNormalize();
+    dl_desc.intensity = 0.2f;
     g_theRenderer->SetDirectionalLight(0, dl_desc);
+
+    SpotLightDesc sp_desc{};
+    sp_desc.position = _camera3.GetPosition();
+    auto dir = (_camera3.GetForward() + -_camera3.GetUp()).GetNormalize();
+    sp_desc.direction = dir;
+    sp_desc.intensity = 100.0f;
+    sp_desc.inner_outer_anglesDegrees = Vector2(80.0f, 160.0f);
+    g_theRenderer->SetSpotlight(1, sp_desc);
 
     RenderStuff();
 

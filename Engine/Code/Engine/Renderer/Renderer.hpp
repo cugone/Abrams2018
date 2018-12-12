@@ -345,7 +345,7 @@ private:
     Texture* CreateInvalidTexture();
     Texture* CreateDefaultDiffuseTexture();
     Texture* CreateDefaultNormalTexture();
-    Texture* CreateDefaultLightingTexture();
+    Texture* CreateDefaultDisplacementTexture();
     Texture* CreateDefaultSpecularTexture();
     Texture* CreateDefaultOcclusionTexture();
     Texture* CreateDefaultEmissiveTexture();

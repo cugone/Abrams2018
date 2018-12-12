@@ -2,5 +2,7 @@
     <shader src="__default" />
 	<textures>
 	    <diffuse src="Data/Images/ceres.png" />
+        <normal src="Data/Images/ceresn.png" />
+        <displacement src="Data/Images/ceresd.png" />
 	</textures>
 </material>

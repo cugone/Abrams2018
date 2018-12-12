@@ -8,6 +8,7 @@ class Texture;
 
 class Material {
 public:
+
     Material(Renderer* renderer);
     Material(Renderer* renderer, const XMLElement& element);
     ~Material() = default;

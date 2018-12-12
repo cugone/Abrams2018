@@ -2297,6 +2297,10 @@ void Renderer::CreateAndRegisterDefaultTextures() {
     normal_texture->SetDebugName("__normal");
     RegisterTexture("__normal", normal_texture);
 
+    auto displacement_texture = CreateDefaultDisplacementTexture();
+    displacement_texture->SetDebugName("__displacement");
+    RegisterTexture("__displacement", displacement_texture);
+
     auto specular_texture = CreateDefaultSpecularTexture();
     specular_texture->SetDebugName("__specular");
     RegisterTexture("__specular", specular_texture);
@@ -2340,9 +2344,9 @@ Texture* Renderer::CreateDefaultNormalTexture() {
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
-Texture* Renderer::CreateDefaultLightingTexture() {
+Texture* Renderer::CreateDefaultDisplacementTexture() {
     std::vector<Rgba> data = {
-        Rgba::White
+        Rgba::Gray
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }

@@ -16,7 +16,7 @@ Material::Material(Renderer* renderer)
 {
     _textures[0] = _renderer->GetTexture("__diffuse");
     _textures[1] = _renderer->GetTexture("__normal");
-    _textures[2] = _renderer->GetTexture("__lighting");
+    _textures[2] = _renderer->GetTexture("__displacement");
     _textures[3] = _renderer->GetTexture("__specular");
     _textures[4] = _renderer->GetTexture("__occlusion");
     _textures[5] = _renderer->GetTexture("__emissive");
@@ -33,7 +33,7 @@ Material::Material(Renderer* renderer, const XMLElement& element)
 {
     _textures[0] = _renderer->GetTexture("__diffuse");
     _textures[1] = _renderer->GetTexture("__normal");
-    _textures[2] = _renderer->GetTexture("__lighting");
+    _textures[2] = _renderer->GetTexture("__displacement");
     _textures[3] = _renderer->GetTexture("__specular");
     _textures[4] = _renderer->GetTexture("__occlusion");
     _textures[5] = _renderer->GetTexture("__emissive");
@@ -119,8 +119,8 @@ bool Material::LoadFromXml(const XMLElement& element) {
             _textures[1] = tex;
         }
 
-        if(auto xml_lighting = xml_textures->FirstChildElement("lighting")) {
-            auto file = DataUtils::ParseXmlAttribute(*xml_lighting, "src", "");
+        if(auto xml_displacement = xml_textures->FirstChildElement("displacement")) {
+            auto file = DataUtils::ParseXmlAttribute(*xml_displacement, "src", "");
             FS::path p(file);
             p.make_preferred();
             const auto& p_str = p.string();

@@ -331,9 +331,6 @@
     <ClCompile Include="Profiling\Memory.cpp">
       <Filter>Profiling</Filter>
     </ClCompile>
-    <ClCompile Include="Profiling\MemoryPool.cpp">
-      <Filter>Profiling</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -642,8 +639,8 @@
     <ClInclude Include="Profiling\Memory.hpp">
       <Filter>Profiling</Filter>
     </ClInclude>
-    <ClInclude Include="Profiling\MemoryPool.hpp">
-      <Filter>Profiling</Filter>
+    <ClInclude Include="Memory\MemoryPool.hpp">
+      <Filter>Memory</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

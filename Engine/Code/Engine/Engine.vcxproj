@@ -79,7 +79,6 @@
     <ClCompile Include="Networking\Address.cpp" />
     <ClCompile Include="Networking\NetUtils.cpp" />
     <ClCompile Include="Profiling\Memory.cpp" />
-    <ClCompile Include="Profiling\MemoryPool.cpp" />
     <ClCompile Include="Profiling\ProfileLogScope.cpp" />
     <ClCompile Include="Profiling\StackTrace.cpp" />
     <ClCompile Include="Renderer\AnimatedSprite.cpp" />
@@ -179,10 +178,10 @@
     <ClInclude Include="Math\Vector2.hpp" />
     <ClInclude Include="Math\Vector3.hpp" />
     <ClInclude Include="Math\Vector4.hpp" />
+    <ClInclude Include="Memory\MemoryPool.hpp" />
     <ClInclude Include="Networking\Address.hpp" />
     <ClInclude Include="Networking\NetUtils.hpp" />
     <ClInclude Include="Profiling\Memory.hpp" />
-    <ClInclude Include="Profiling\MemoryPool.hpp" />
     <ClInclude Include="Profiling\ProfileLogScope.hpp" />
     <ClInclude Include="Profiling\StackTrace.hpp" />
     <ClInclude Include="Renderer\AnimatedSprite.hpp" />

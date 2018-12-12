@@ -73,9 +73,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\Run_x64\Data\Images\ceresasteroid_heightmap.jpg">
-      <Filter>Data\Images</Filter>
-    </Image>
     <Image Include="..\Run_x64\Data\Images\cute_sif.gif">
       <Filter>Data\Images</Filter>
     </Image>
@@ -83,6 +80,15 @@
       <Filter>Data\Images</Filter>
     </Image>
     <Image Include="..\Run_x64\Data\Images\Test_StbiAndDirectX.png">
+      <Filter>Data\Images</Filter>
+    </Image>
+    <Image Include="..\Run_x64\Data\Images\ceres.png">
+      <Filter>Data\Images</Filter>
+    </Image>
+    <Image Include="..\Run_x64\Data\Images\ceresd.png">
+      <Filter>Data\Images</Filter>
+    </Image>
+    <Image Include="..\Run_x64\Data\Images\ceresn.png">
       <Filter>Data\Images</Filter>
     </Image>
   </ItemGroup>

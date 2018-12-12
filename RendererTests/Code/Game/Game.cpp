@@ -260,16 +260,17 @@ void Game::DrawAxes() const {
 }
 
 void Game::DrawCeres() const {
-    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("ceres"));
-    auto dims = g_theRenderer->GetTexture("Data/Images/ceresasteroid_heightmap.jpg")->GetDimensions();
+    auto material = g_theRenderer->GetMaterial("ceres");
+    g_theRenderer->SetMaterial(material);
+    auto dims = material->GetTexture(0)->GetDimensions();
     auto x = static_cast<float>(dims.x);
     auto y = static_cast<float>(dims.y);
     auto half_dims_xz = Vector3(x, 0.0f, y) * 0.5f;
     Matrix4 T = Matrix4::CreateTranslationMatrix(half_dims_xz * 0.5f);
     Matrix4 R = Matrix4::Create3DXRotationDegreesMatrix(90.0f);
     Matrix4 S = Matrix4::CreateScaleMatrix(Vector2(x, y) * 0.5f);
-    Matrix4 m = T * R * S;
-    g_theRenderer->SetModelMatrix(m);
+    Matrix4 model = T * R * S;
+    g_theRenderer->SetModelMatrix(model);
     g_theRenderer->DrawQuad();
 }
 

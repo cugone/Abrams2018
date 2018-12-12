@@ -139,6 +139,7 @@ public:
         ,Custom121
         ,Custom122
     };
+
     Material(Renderer* renderer);
     Material(Renderer* renderer, const XMLElement& element);
     ~Material() = default;

@@ -134,19 +134,19 @@ void RHIDeviceContext::SetStructuredBuffer(unsigned int index, StructuredBuffer*
     ID3D11ShaderResourceView* const dx_buffer = buffer->dx_srv;
     ID3D11ShaderResourceView* nobuffer[1] = { nullptr };
     if(buffer) {
-        _dx_context->VSSetShaderResources(index + STRUCTURED_BUFFER_OFFSET, 1, &dx_buffer);
-        _dx_context->PSSetShaderResources(index + STRUCTURED_BUFFER_OFFSET, 1, &dx_buffer);
-        _dx_context->DSSetShaderResources(index + STRUCTURED_BUFFER_OFFSET, 1, &dx_buffer);
-        _dx_context->HSSetShaderResources(index + STRUCTURED_BUFFER_OFFSET, 1, &dx_buffer);
-        _dx_context->GSSetShaderResources(index + STRUCTURED_BUFFER_OFFSET, 1, &dx_buffer);
-        _dx_context->CSSetShaderResources(index + STRUCTURED_BUFFER_OFFSET, 1, &dx_buffer);
+        _dx_context->VSSetShaderResources(index + StructuredBufferSlotOffset, 1, &dx_buffer);
+        _dx_context->PSSetShaderResources(index + StructuredBufferSlotOffset, 1, &dx_buffer);
+        _dx_context->DSSetShaderResources(index + StructuredBufferSlotOffset, 1, &dx_buffer);
+        _dx_context->HSSetShaderResources(index + StructuredBufferSlotOffset, 1, &dx_buffer);
+        _dx_context->GSSetShaderResources(index + StructuredBufferSlotOffset, 1, &dx_buffer);
+        _dx_context->CSSetShaderResources(index + StructuredBufferSlotOffset, 1, &dx_buffer);
     } else {
-        _dx_context->VSSetShaderResources(index + STRUCTURED_BUFFER_OFFSET, 1, nobuffer);
-        _dx_context->PSSetShaderResources(index + STRUCTURED_BUFFER_OFFSET, 1, nobuffer);
-        _dx_context->DSSetShaderResources(index + STRUCTURED_BUFFER_OFFSET, 1, nobuffer);
-        _dx_context->HSSetShaderResources(index + STRUCTURED_BUFFER_OFFSET, 1, nobuffer);
-        _dx_context->GSSetShaderResources(index + STRUCTURED_BUFFER_OFFSET, 1, nobuffer);
-        _dx_context->CSSetShaderResources(index + STRUCTURED_BUFFER_OFFSET, 1, nobuffer);
+        _dx_context->VSSetShaderResources(index + StructuredBufferSlotOffset, 1, nobuffer);
+        _dx_context->PSSetShaderResources(index + StructuredBufferSlotOffset, 1, nobuffer);
+        _dx_context->DSSetShaderResources(index + StructuredBufferSlotOffset, 1, nobuffer);
+        _dx_context->HSSetShaderResources(index + StructuredBufferSlotOffset, 1, nobuffer);
+        _dx_context->GSSetShaderResources(index + StructuredBufferSlotOffset, 1, nobuffer);
+        _dx_context->CSSetShaderResources(index + StructuredBufferSlotOffset, 1, nobuffer);
     }
 }
 

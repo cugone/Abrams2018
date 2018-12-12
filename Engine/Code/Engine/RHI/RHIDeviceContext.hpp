@@ -61,7 +61,7 @@ private:
     void SetBlendState(BlendState* blendState = nullptr);
     void SetSampler(Sampler* sampler = nullptr);
 
-    static constexpr unsigned int STRUCTURED_BUFFER_OFFSET = 64;
+    static constexpr unsigned int StructuredBufferSlotOffset = (D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT / 2);
 
     const RHIDevice* _device = nullptr;
     ID3D11DeviceContext* _dx_context = nullptr;

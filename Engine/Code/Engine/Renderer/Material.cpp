@@ -12,7 +12,7 @@
 
 Material::Material(Renderer* renderer)
     : _renderer(renderer)
-    , _textures(CustomTextureIndexOffset, nullptr)
+    , _textures(CustomTextureIndexSlotOffset, nullptr)
 {
     _textures[0] = _renderer->GetTexture("__diffuse");
     _textures[1] = _renderer->GetTexture("__normal");
@@ -29,7 +29,7 @@ Material::Material(Renderer* renderer)
 
 Material::Material(Renderer* renderer, const XMLElement& element)
     : _renderer(renderer)
-    , _textures(CustomTextureIndexOffset, nullptr)
+    , _textures(CustomTextureIndexSlotOffset, nullptr)
 {
     _textures[0] = _renderer->GetTexture("__diffuse");
     _textures[1] = _renderer->GetTexture("__normal");
@@ -167,8 +167,8 @@ bool Material::LoadFromXml(const XMLElement& element) {
         }
         {
             auto numTextures = DataUtils::GetChildElementCount(*xml_textures, "texture");
-            if(numTextures >= MaxCustomTextureCount) {
-                DebuggerPrintf("Max custom texture count exceeded. Cannot bind more than %i custom textures.", MaxCustomTextureCount);
+            if(numTextures >= MaxCustomTextureSlotCount) {
+                DebuggerPrintf("Max custom texture count exceeded. Cannot bind more than %i custom textures.", MaxCustomTextureSlotCount);
             }
             AddTextureSlots(numTextures);
         }
@@ -176,8 +176,8 @@ bool Material::LoadFromXml(const XMLElement& element) {
         DataUtils::IterateAllChildElements(*xml_textures, "texture",
         [this, &loaded_textures, &invalid_tex](const XMLElement& elem) {
             DataUtils::ValidateXmlElement(elem, "texture", "", "index,src");
-            std::size_t index = CustomTextureIndexOffset + DataUtils::ParseXmlAttribute(elem, std::string("index"), 0u);
-            if(index >= CustomTextureIndexOffset + MaxCustomTextureCount) {
+            std::size_t index = CustomTextureIndexSlotOffset + DataUtils::ParseXmlAttribute(elem, std::string("index"), 0u);
+            if(index >= CustomTextureIndexSlotOffset + MaxCustomTextureSlotCount) {
                 return;
             }
             auto file = DataUtils::ParseXmlAttribute(elem, "src", "");
@@ -196,7 +196,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
 
 void Material::AddTextureSlots(std::size_t count) {
     std::size_t old_size = _textures.size();
-    std::size_t new_size = (std::min)(old_size + MaxCustomTextureCount, old_size + (std::min)(MaxCustomTextureCount, count));
+    std::size_t new_size = (std::min)(old_size + MaxCustomTextureSlotCount, old_size + (std::min)(MaxCustomTextureSlotCount, count));
     _textures.resize(new_size);
     for(std::size_t i = old_size; i < new_size; ++i) {
         _textures[i] = nullptr;

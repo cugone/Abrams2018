@@ -160,8 +160,8 @@ private:
     void AddTextureSlots(std::size_t count);
     void AddTextureSlot();
 
-    constexpr static std::size_t CustomTextureIndexOffset = 6u;
-    constexpr static std::size_t MaxCustomTextureCount = (D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT / 2) - CustomTextureIndexOffset;
+    constexpr static std::size_t CustomTextureIndexSlotOffset = 6u;
+    constexpr static std::size_t MaxCustomTextureSlotCount = (D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT / 2) - CustomTextureIndexSlotOffset;
     float _specularIntensity = 1.0f;
     float _specularPower = 8.0f;
     float _emissiveFactor = 0.0f;

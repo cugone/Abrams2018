@@ -21,7 +21,10 @@ std::string GetDateTimeStampFromNow(const DateTimeStampOptions& options /*= Date
 
     if(options.include_milliseconds) {
         auto ms = duration_cast<milliseconds>(now.time_since_epoch()) % 1s;
-        msg << '.' << std::fixed << std::setw(3) << std::setfill('0') << ms.count();
+        if(options.use_separator) {
+            msg << '.';
+        }
+        msg << std::fixed << std::setw(3) << std::setfill('0') << ms.count();
     }
 
     return msg.str();
@@ -40,7 +43,10 @@ std::string GetTimeStampFromNow(const DateTimeStampOptions& options /*= DateTime
 
     if(options.include_milliseconds) {
         auto ms = duration_cast<milliseconds>(now.time_since_epoch()) % 1s;
-        msg << '.' << std::fixed << std::setw(3) << std::setfill('0') << ms.count();
+        if(options.use_separator) {
+            msg << '.';
+        }
+        msg << std::fixed << std::setw(3) << std::setfill('0') << ms.count();
     }
 
     return msg.str();

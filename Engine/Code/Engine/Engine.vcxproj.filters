@@ -41,6 +41,9 @@
     <Filter Include="System">
       <UniqueIdentifier>{4b9283e1-491f-497b-8a6c-62833416b468}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Memory">
+      <UniqueIdentifier>{a31d06cf-99ee-41cf-af7f-63601f6c7be2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">

@@ -197,7 +197,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
 
 void Material::AddTextureSlots(std::size_t count) {
     std::size_t old_size = _textures.size();
-    std::size_t new_size = std::min(old_size + MAX_CUSTOM_TEXTURE_COUNT, old_size + std::min(MAX_CUSTOM_TEXTURE_COUNT, count));
+    std::size_t new_size = (std::min)(old_size + MAX_CUSTOM_TEXTURE_COUNT, old_size + (std::min)(MAX_CUSTOM_TEXTURE_COUNT, count));
     _textures.resize(new_size);
     for(std::size_t i = old_size; i < new_size; ++i) {
         _textures[i] = nullptr;
@@ -222,6 +222,10 @@ std::size_t Material::GetTextureCount() const {
 
 Texture* Material::GetTexture(std::size_t i) const {
     return _textures[i];
+}
+
+Texture* Material::GetTexture(const TextureID& id) const {
+    return GetTexture(std::underlying_type_t<TextureID>(id));
 }
 
 float Material::GetSpecularIntensity() const {

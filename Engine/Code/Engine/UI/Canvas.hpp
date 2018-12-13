@@ -1,10 +1,11 @@
 #pragma once
 
+#include "Engine/Renderer/Camera2D.hpp"
+
 #include "Engine/UI/Element.hpp"
 
 class Texture;
 class Renderer;
-class Camera2D;
 
 namespace UI {
 
@@ -16,7 +17,7 @@ public:
     virtual void Render(Renderer* renderer) const override;
     void SetupMVPFromTargetAndCamera(Renderer* renderer) const;
     virtual void DebugRender(Renderer* renderer, bool showSortOrder = false) const override;
-    const Camera2D* GetUICamera() const;
+    const Camera2D& GetUICamera() const;
 
     template<typename T>
     T* CreateChild();
@@ -36,7 +37,7 @@ private:
     void CalcDimensionsAndAspectRatio(Vector2& dimensions, float& aspectRatio);
     void SetTargetTexture(Renderer& renderer, Texture* target, Texture* depthstencil);
 
-    Camera2D* _camera = nullptr;
+    mutable Camera2D _camera{};
     Renderer* _renderer = nullptr;
     Texture* _target_texture = nullptr;
     Texture* _target_depthstencil = nullptr;

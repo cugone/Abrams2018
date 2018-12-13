@@ -2,7 +2,6 @@
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
 
-#include "Engine/Renderer/Camera2D.hpp"
 #include "Engine/Renderer/DepthStencilState.hpp"
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Texture.hpp"
@@ -37,7 +36,6 @@ Canvas::Canvas(Renderer& renderer, float reference_resolution, Texture* target_t
     CalcDimensionsAndAspectRatio(dimensions, _aspect_ratio);
     SetSize(Metric{ Ratio{}, dimensions });
 
-    _camera = new Camera2D;
     auto desc = DepthStencilDesc{};
     desc.stencil_enabled = true;
     desc.stencil_testFront = ComparisonFunction::Equal;
@@ -68,8 +66,8 @@ void Canvas::SetupMVPFromTargetAndCamera(Renderer* renderer) const {
     Vector2 leftBottom = Vector2(-0.5f, 0.5f) * target_dims;
     Vector2 rightTop = Vector2(0.5f, -0.5f) * target_dims;
     Vector2 nearFar{ 0.0f, 1.0f };
-    _camera->SetupView(leftBottom, rightTop, nearFar, _aspect_ratio);
-    renderer->SetCamera(Camera3D{ *_camera });
+    _camera.SetupView(leftBottom, rightTop, nearFar, _aspect_ratio);
+    renderer->SetCamera(Camera3D{ _camera });
     renderer->SetModelMatrix(GetWorldTransform());
 }
 
@@ -82,7 +80,7 @@ void Canvas::DebugRender(Renderer* renderer, bool showSortOrder /*= false*/) con
     renderer->SetMaterial(nullptr);
 }
 
-const Camera2D* Canvas::GetUICamera() const {
+const Camera2D& Canvas::GetUICamera() const {
     return _camera;
 }
 

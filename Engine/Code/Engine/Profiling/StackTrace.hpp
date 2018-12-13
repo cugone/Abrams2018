@@ -17,14 +17,6 @@ public:
     bool operator!=(const StackTrace& rhs);
 protected:
 private:
-
-    struct callstack_line_t {
-        std::string filename{};
-        std::string function_name{};
-        uint32_t line{};
-        uint32_t offset{};
-    };
-
     static void Initialize();
     static void Shutdown();
     static void GetLines([[maybe_unused]]StackTrace* st, [[maybe_unused]]unsigned long max_lines);

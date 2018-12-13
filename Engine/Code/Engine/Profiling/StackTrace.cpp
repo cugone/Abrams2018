@@ -5,11 +5,13 @@
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/Win.hpp"
 
+#include <cstdint>
 #include <algorithm>
 #include <functional>
 #include <iostream>
 #include <ostream>
 #include <sstream>
+#include <string_view>
 
 #ifdef PROFILE_BUILD
 #include <DbgHelp.h>
@@ -62,14 +64,7 @@ StackTrace::StackTrace([[maybe_unused]]unsigned long framesToSkip,
     }
     _frame_count = (std::min)(count, MAX_FRAMES_PER_CALLSTACK);
     
-    auto lines = GetLines(this, MAX_CALLSTACK_LINES);
-    if(lines.empty()) {
-        DebuggerPrintf("StackTrace unavailable. No stack to trace.\n");
-        return;
-    }
-    for(const auto& line : lines) {
-        DebuggerPrintf("\t%s(%d): %s\n", line.filename.c_str(), line.line, line.function_name.c_str());
-    }
+    GetLines(this, MAX_CALLSTACK_LINES);
 #else
     DebuggerPrintf("StackTrace unavailable. Attempting to call StackTrace in non-profile build. \n");
 #endif
@@ -113,15 +108,13 @@ void StackTrace::Initialize() {
     symbol = (SYMBOL_INFO*)std::malloc(SYMBOL_INFO_SIZE + MAX_FILENAME_LENGTH * sizeof(char));
     symbol->MaxNameLen = MAX_FILENAME_LENGTH;
     symbol->SizeOfStruct = SYMBOL_INFO_SIZE;
-    symbol->MaxNameLen = MAX_SYMBOL_NAME_LENGTH;
 #endif
 }
 
-[[maybe_unused]]
-std::vector<StackTrace::callstack_line_t> StackTrace::GetLines([[maybe_unused]]StackTrace* st,
-                                 [[maybe_unused]]unsigned long max_lines) {
+void StackTrace::GetLines([[maybe_unused]]StackTrace* st,
+                          [[maybe_unused]]unsigned long max_lines) {
 #ifndef PROFILE_BUILD
-    return {};
+    return;
 #else
     IMAGEHLP_LINE64 line_info{};
     DWORD line_offset = 0;
@@ -129,37 +122,39 @@ std::vector<StackTrace::callstack_line_t> StackTrace::GetLines([[maybe_unused]]S
 
     uint32_t count = std::min(max_lines, st->_frame_count);
     if(!count) {
-        return {};
+        DebuggerPrintf("StackTrace unavailable. No stack to trace.\n");
+        return;
     }
-    std::vector<StackTrace::callstack_line_t> lines(count);
-    std::size_t i = 0;
-    for(auto& line : lines) {
-        auto ptr = reinterpret_cast<DWORD64>(st->_frames[i++]);
+    for(uint32_t i = 0; i < count; ++i) {
+        auto ptr = reinterpret_cast<DWORD64>(st->_frames[i]);
         bool got_addr = false;
         {
             std::scoped_lock<std::shared_mutex> _lock(_cs);
             got_addr = LSymFromAddr(process, ptr, nullptr, symbol);
         }
         if(!got_addr) {
-            continue;
+            DebuggerPrintf("StackTrace unavailable. No stack to trace.\n");
+            return;
         }
-        line.function_name.assign(symbol->Name, symbol->NameLen);
         bool got_line = false;
         {
             std::scoped_lock<std::shared_mutex> _lock(_cs);
             got_line = LSymGetLineFromAddr64(process, ptr, &line_offset, &line_info);
         }
         if(got_line) {
-            line.line = line_info.LineNumber;
-            line.offset = line_offset;
-            line.filename.assign(line_info.FileName);
+            auto s = reinterpret_cast<char*>(std::malloc(symbol->NameLen + 1));
+            ::strcpy_s(s, symbol->NameLen + 1, symbol->Name);
+            s[symbol->NameLen] = '\0';
+            DebuggerPrintf("\t%s(%d): %s\n", line_info.FileName, line_info.LineNumber, s);
+            std::free(s);
         } else {
-            line.line = 0;
-            line.offset = 0;
-            line.filename = "N/A";
+            auto s = reinterpret_cast<char*>(std::malloc(symbol->NameLen + 1));
+            ::strcpy_s(s, symbol->NameLen + 1, symbol->Name);
+            s[symbol->NameLen] = '\0';
+            DebuggerPrintf("\tN/A(%d): %s\n", 0, s);
+            std::free(s);
         }
     }
-    return lines;
 #endif
 }
 
@@ -175,6 +170,7 @@ void StackTrace::Shutdown() {
 
     ::FreeLibrary(debugHelpModule);
     debugHelpModule = nullptr;
+    _did_init = false;
 #endif
 }
 

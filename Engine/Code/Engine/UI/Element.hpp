@@ -17,7 +17,7 @@ class Canvas;
 
 class Element {
 public:
-    Element();
+    Element() = default;
     explicit Element(UI::Canvas* parent_canvas);
     virtual ~Element() = 0;
 

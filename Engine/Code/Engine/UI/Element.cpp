@@ -13,12 +13,6 @@
 
 namespace UI {
 
-Element::Element()
-    : _parent_canvas(nullptr)
-{
-    /* DO NOTHING */
-}
-
 Element::Element(UI::Canvas* parent_canvas)
     : _parent_canvas(parent_canvas)
 {

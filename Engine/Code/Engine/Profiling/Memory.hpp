@@ -5,6 +5,8 @@
 #include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 
+#include "Engine/Profiling/StackTrace.hpp"
+
 #include <new>
 #include <sstream>
 
@@ -52,7 +54,7 @@ public:
     };
 
     [[nodiscard]] static void* allocate(std::size_t n) {
-        if(active) {
+        if(_active) {
             ++frameCount;
             frameSize += n;
             ++allocCount;
@@ -63,12 +65,15 @@ public:
             if(maxCount < allocCount) {
                 maxCount = allocCount;
             }
+            if(_trace) {
+                STACKTRACE
+            }
         }
         return std::malloc(n);
     }
 
     static void deallocate(void* ptr, std::size_t size) noexcept {
-        if(active) {
+        if(_active) {
             ++framefreeCount;
             framefreeSize += size;
             ++freeCount;
@@ -78,11 +83,15 @@ public:
     }
 
     static void enable(bool e) {
-        active = e;
+        _active = e;
     }
 
     static bool is_enabled() {
-        return active;
+        return _active;
+    }
+
+    static void trace(bool doTrace) {
+        _trace = doTrace;
     }
 
     static void tick() {
@@ -121,7 +130,8 @@ public:
     inline static std::size_t framefreeSize = 0;
 protected:
 private:
-    inline static bool active = false;
+    inline static bool _active = false;
+    inline static bool _trace = false;
 };
 
 #ifdef TRACK_MEMORY

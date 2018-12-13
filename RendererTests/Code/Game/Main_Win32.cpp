@@ -9,6 +9,7 @@
 
 #include "Engine/RHI/RHIOutput.hpp"
 
+#include "Engine/Profiling/Memory.hpp"
 #include "Engine/Profiling/ProfileLogScope.hpp"
 #include "Engine/Profiling/StackTrace.hpp"
 
@@ -25,6 +26,8 @@ void RunMessagePump();
 void Shutdown();
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int nShowCmd) {
+    Memory::enable(true);
+    Memory::trace(true);
     Initialize(hInstance, lpCmdLine, nShowCmd);
     MainLoop();
     Shutdown();
@@ -58,6 +61,7 @@ void MainLoop() {
         ::Sleep(0);
         RunMessagePump();
         g_theApp->RunFrame();
+        Memory::tick();
     }
 }
 

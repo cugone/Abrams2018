@@ -279,7 +279,6 @@
   <ItemGroup>
     <None Include="..\Run_x64\Data\Materials\ceres.material" />
     <None Include="..\Run_x64\Data\Materials\Test.material" />
-    <None Include="..\Run_x64\Data\Shaders\Ceres.shader" />
     <None Include="..\Run_x64\Data\Shaders\Test.shader" />
   </ItemGroup>
   <ItemGroup>
@@ -327,14 +326,6 @@
     </Object>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\Run_x64\Data\ShaderPrograms\Ceres.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugProfile|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastDebug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FinalBuild|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">true</ExcludedFromBuild>
-    </FxCompile>
     <FxCompile Include="..\Run_x64\Data\ShaderPrograms\Test.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugProfile|x64'">true</ExcludedFromBuild>

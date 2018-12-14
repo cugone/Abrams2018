@@ -71,9 +71,6 @@
     <None Include="..\Run_x64\Data\Shaders\Test.shader">
       <Filter>Data\Shaders</Filter>
     </None>
-    <None Include="..\Run_x64\Data\Shaders\Ceres.shader">
-      <Filter>Data\Shaders</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Run_x64\Data\Images\cute_sif.gif">
@@ -117,9 +114,6 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Run_x64\Data\ShaderPrograms\Test.hlsl">
-      <Filter>Data\ShaderPrograms</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Run_x64\Data\ShaderPrograms\Ceres.hlsl">
       <Filter>Data\ShaderPrograms</Filter>
     </FxCompile>
   </ItemGroup>

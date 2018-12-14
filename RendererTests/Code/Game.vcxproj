@@ -283,8 +283,10 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Run_x64\Data\Images\ceres.png" />
+    <Image Include="..\Run_x64\Data\Images\ceresao.png" />
     <Image Include="..\Run_x64\Data\Images\ceresd.png" />
     <Image Include="..\Run_x64\Data\Images\ceresn.png" />
+    <Image Include="..\Run_x64\Data\Images\ceress.png" />
     <Image Include="..\Run_x64\Data\Images\cute_sif.gif" />
     <Image Include="..\Run_x64\Data\Images\sauron.png" />
     <Image Include="..\Run_x64\Data\Images\Test_StbiAndDirectX.png" />

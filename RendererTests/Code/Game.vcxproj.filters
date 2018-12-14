@@ -91,6 +91,12 @@
     <Image Include="..\Run_x64\Data\Images\ceresn.png">
       <Filter>Data\Images</Filter>
     </Image>
+    <Image Include="..\Run_x64\Data\Images\ceresao.png">
+      <Filter>Data\Images</Filter>
+    </Image>
+    <Image Include="..\Run_x64\Data\Images\ceress.png">
+      <Filter>Data\Images</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Object Include="..\Run_x64\Data\Models\bunny.obj">

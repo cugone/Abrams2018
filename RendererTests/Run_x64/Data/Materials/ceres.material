@@ -4,5 +4,7 @@
 	    <diffuse src="Data/Images/ceres.png" />
         <normal src="Data/Images/ceresn.png" />
         <displacement src="Data/Images/ceresd.png" />
+        <specular src="Data/Images/ceress.png" />
+        <occlusion src="Data/Images/ceresao.png" />
 	</textures>
 </material>

@@ -487,6 +487,8 @@ ShaderProgram* RHIDevice::CreateShaderProgramFromHlslString(const std::string& n
         }
         ID3D11DomainShader* ds = nullptr;
         _dx_device->CreateDomainShader(ds_bytecode->GetBufferPointer(), ds_bytecode->GetBufferSize(), nullptr, &ds);
+        desc.ds = ds;
+        desc.ds_bytecode = ds_bytecode;
     }
 
     if(uses_gs_stage) {
@@ -497,6 +499,8 @@ ShaderProgram* RHIDevice::CreateShaderProgramFromHlslString(const std::string& n
         }
         ID3D11GeometryShader* gs = nullptr;
         _dx_device->CreateGeometryShader(gs_bytecode->GetBufferPointer(), gs_bytecode->GetBufferSize(), nullptr, &gs);
+        desc.gs = gs;
+        desc.gs_bytecode = gs_bytecode;
     }
 
     if(uses_cs_stage) {
@@ -507,6 +511,8 @@ ShaderProgram* RHIDevice::CreateShaderProgramFromHlslString(const std::string& n
         }
         ID3D11ComputeShader* cs = nullptr;
         _dx_device->CreateComputeShader(cs_bytecode->GetBufferPointer(), cs_bytecode->GetBufferSize(), nullptr, &cs);
+        desc.cs = cs;
+        desc.cs_bytecode = cs_bytecode;
     }
     ShaderProgram* new_sp = new ShaderProgram(std::move(desc));
     return new_sp;

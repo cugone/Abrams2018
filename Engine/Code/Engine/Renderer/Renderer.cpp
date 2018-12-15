@@ -2277,7 +2277,7 @@ void Renderer::RegisterFontsFromFolder(const std::filesystem::path& folderpath, 
     [this](const FS::path& p) {
         this->RegisterFont(p);
     };
-    FileUtils::IterateFilesInFolders(folderpath, ".fnt", cb, recursive);
+    FileUtils::ForEachFileInFolder(folderpath, ".fnt", cb, recursive);
 }
 
 void Renderer::CreateAndRegisterDefaultTextures() {
@@ -2579,7 +2579,7 @@ void Renderer::RegisterMaterialsFromFolder(const std::filesystem::path& folderpa
     [this](const FS::path& p) {
         this->RegisterMaterial(p);
     };
-    FileUtils::IterateFilesInFolders(folderpath, ".material", cb, recursive);
+    FileUtils::ForEachFileInFolder(folderpath, ".material", cb, recursive);
 }
 
 void Renderer::RegisterShaderProgram(const std::string& name, ShaderProgram * sp) {
@@ -2676,7 +2676,7 @@ void Renderer::RegisterShaderProgramsFromFolder(const std::filesystem::path& fol
     auto cb = [this, &entrypoint, target](const FS::path& p) {
         this->CreateAndRegisterShaderProgramFromHlslFile(p.string(), entrypoint, target);
     };
-    FileUtils::IterateFilesInFolders(folderpath, ".hlsl", cb, recursive);
+    FileUtils::ForEachFileInFolder(folderpath, ".hlsl", cb, recursive);
 }
 
 void Renderer::CreateAndRegisterRasterStateFromRasterDescription(const std::string& name, const RasterDesc& desc) {
@@ -2743,7 +2743,7 @@ void Renderer::RegisterShadersFromFolder(const std::filesystem::path& folderpath
         [this](const FS::path& p) {
         this->RegisterShader(p);
     };
-    FileUtils::IterateFilesInFolders(folderpath, ".shader", cb, recursive);
+    FileUtils::ForEachFileInFolder(folderpath, ".shader", cb, recursive);
 }
 
 std::size_t Renderer::GetFontCount() const {
@@ -3045,7 +3045,7 @@ void Renderer::RegisterTexturesFromFolder(const std::filesystem::path& folderpat
         [this](const FS::path& p) {
         this->RegisterTexture(p);
     };
-    FileUtils::IterateFilesInFolders(folderpath, std::string{}, cb, recursive);
+    FileUtils::ForEachFileInFolder(folderpath, std::string{}, cb, recursive);
 }
 
 bool Renderer::RegisterTexture(const std::filesystem::path& filepath) {

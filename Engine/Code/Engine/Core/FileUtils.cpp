@@ -130,7 +130,7 @@ std::filesystem::path GetExePath() {
     return result;
 }
 
-void IterateFilesInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, const std::function<void(const std::filesystem::path&)>& callback /*= [](const std::filesystem::path& p) { (void*)p; }*/, bool recursive /*= false*/) {
+void ForEachFileInFolder(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, const std::function<void(const std::filesystem::path&)>& callback /*= [](const std::filesystem::path& p) { (void*)p; }*/, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
     auto preferred_folderpath = folderpath;
     preferred_folderpath.make_preferred();
@@ -142,9 +142,9 @@ void IterateFilesInFolders(const std::filesystem::path& folderpath, const std::s
     }
     auto validExtensions = StringUtils::Split(StringUtils::ToLowerCase(validExtensionList));
     if(!recursive) {
-        detail::IterateFileInFolders<FS::directory_iterator>(preferred_folderpath, validExtensions, callback);
+        detail::ForEachFileInFolders<FS::directory_iterator>(preferred_folderpath, validExtensions, callback);
     } else {
-        detail::IterateFileInFolders<FS::recursive_directory_iterator>(preferred_folderpath, validExtensions, callback);
+        detail::ForEachFileInFolders<FS::recursive_directory_iterator>(preferred_folderpath, validExtensions, callback);
     }
 }
 
@@ -152,7 +152,7 @@ int CountFilesInFolders(const std::filesystem::path& folderpath, const std::stri
     namespace FS = std::filesystem;
     int count = 0;
     auto cb = [&count](const FS::path& /*p*/)->void { ++count; };
-    IterateFilesInFolders(folderpath, validExtensionList, cb, recursive);
+    ForEachFileInFolder(folderpath, validExtensionList, cb, recursive);
     return count;
 }
 
@@ -160,7 +160,7 @@ std::vector<std::filesystem::path> GetAllPathsInFolders(const std::filesystem::p
     namespace FS = std::filesystem;
     std::vector<FS::path> paths{};
     auto add_path_cb = [&paths](const FS::path& p) { paths.push_back(p); };
-    IterateFilesInFolders(folderpath, validExtensionList, add_path_cb, recursive);
+    ForEachFileInFolder(folderpath, validExtensionList, add_path_cb, recursive);
     return paths;
 }
 

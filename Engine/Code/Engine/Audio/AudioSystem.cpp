@@ -151,7 +151,7 @@ void AudioSystem::RegisterWavFilesFromFolder(const std::filesystem::path& folder
     [this](const std::filesystem::path& p) {
         this->RegisterWavFile(p);
     };
-    FileUtils::IterateFilesInFolders(folderpath, ".wav", cb, recursive);
+    FileUtils::ForEachFileInFolder(folderpath, ".wav", cb, recursive);
 }
 
 void AudioSystem::DeactivateChannel(Channel& channel) {

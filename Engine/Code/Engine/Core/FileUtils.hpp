@@ -14,14 +14,14 @@ bool ReadBufferFromFile(std::string& out_buffer, const std::string& filePath);
 bool CreateFolders(const std::string& filepath);
 std::filesystem::path GetAppDataPath();
 std::filesystem::path GetExePath();
-void IterateFilesInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList = std::string{}, const std::function<void(const std::filesystem::path&)>& callback = [](const std::filesystem::path& /*p*/) { /* DO NOTHING */ }, bool recursive = false);
+void ForEachFileInFolder(const std::filesystem::path& folderpath, const std::string& validExtensionList = std::string{}, const std::function<void(const std::filesystem::path&)>& callback = [](const std::filesystem::path& /*p*/) { /* DO NOTHING */ }, bool recursive = false);
 int CountFilesInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList = std::string{}, bool recursive = false);
 void RemoveExceptMostRecentFiles(const std::filesystem::path& folderpath, int mostRecentCountToKeep);
 std::vector<std::filesystem::path> GetAllPathsInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList = std::string{}, bool recursive = false);
 
 namespace detail {
     template<typename DirectoryIteratorType>
-    void IterateFileInFolders(const std::filesystem::path& preferred_folderpath, const std::vector<std::string>& validExtensions, const std::function<void(const std::filesystem::path&)>& callback) {
+    void ForEachFileInFolders(const std::filesystem::path& preferred_folderpath, const std::vector<std::string>& validExtensions, const std::function<void(const std::filesystem::path&)>& callback) {
         if(validExtensions.empty()) {
             std::for_each(DirectoryIteratorType{ preferred_folderpath }, DirectoryIteratorType{},
                 [&callback](const std::filesystem::directory_entry& entry) {

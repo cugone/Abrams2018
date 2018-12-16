@@ -144,13 +144,21 @@ std::istream& operator>>(std::istream& in_stream, Vector4& v) {
     return in_stream;
 }
 
-void Vector4::GetXYZ(float& out_x, float& out_y, float& out_z) {
+Vector2 Vector4::GetXY() const {
+    return Vector2(x, y);
+}
+
+Vector2 Vector4::GetZW() const {
+    return Vector2(z, w);
+}
+
+void Vector4::GetXYZ(float& out_x, float& out_y, float& out_z) const {
     out_x = x;
     out_y = y;
     out_z = z;
 }
 
-void Vector4::GetXYZW(float& out_x, float& out_y, float& out_z, float& out_w) {
+void Vector4::GetXYZW(float& out_x, float& out_y, float& out_z, float& out_w) const {
     out_x = x;
     out_y = y;
     out_z = z;

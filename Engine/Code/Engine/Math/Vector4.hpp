@@ -70,8 +70,11 @@ public:
     friend std::ostream& operator<<(std::ostream& out_stream, const Vector4& v);
     friend std::istream& operator>>(std::istream& in_stream, Vector4& v);
 
-    void GetXYZ(float& out_x, float& out_y, float& out_z);
-    void GetXYZW(float& out_x, float& out_y, float& out_z, float& out_w);
+    Vector2 GetXY() const;
+    Vector2 GetZW() const;
+
+    void GetXYZ(float& out_x, float& out_y, float& out_z) const;
+    void GetXYZW(float& out_x, float& out_y, float& out_z, float& out_w) const;
     void SetXYZ(float newX, float newY, float newZ);
     void SetXYZW(float newX, float newY, float newZ, float newW);
 

@@ -523,6 +523,20 @@ Vector2 InputSystem::GetWindowCenter(const Window& window) const {
     return Vector2::ZERO;
 }
 
+void InputSystem::HideMouseCursor() {
+    while(::ShowCursor(FALSE) >= 0);
+    _cursor_visible = false;
+}
+
+void InputSystem::ShowMouseCursor() {
+    while(::ShowCursor(TRUE) < 0);
+    _cursor_visible = true;
+}
+
+void InputSystem::ToggleMouseCursorVisibility() {
+    _cursor_visible ? HideMouseCursor() : ShowMouseCursor();
+}
+
 void InputSystem::SetCursorWindowPosition(const Window& window, const Vector2& window_pos) {
     POINT p;
     p.x = static_cast<long>(window_pos.x);

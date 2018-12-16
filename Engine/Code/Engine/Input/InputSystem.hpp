@@ -315,6 +315,10 @@ public:
     static unsigned char ConvertKeyCodeToWinVK(const KeyCode& code);
     static KeyCode ConvertWinVKToKeyCode(unsigned char winVK);
 
+    void ToggleMouseCursorVisibility();
+    void HideMouseCursor();
+    void ShowMouseCursor();
+
     void SetCursorScreenPosition(const Vector2& screen_pos);
     Vector2 GetCursorScreenPosition() const;
 
@@ -350,4 +354,5 @@ private:
     int _mouseWheelPosition = 0;
     int _mouseWheelHPosition = 0;
     int _connected_controller_count = 0;
+    bool _cursor_visible = true;
 };

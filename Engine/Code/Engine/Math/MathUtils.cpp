@@ -911,6 +911,48 @@ Rgba Interpolate(const Rgba& a, const Rgba& b, float t) {
     return result;
 }
 
+Vector2 RangeMap(const Vector2& valueToMap, const Vector2& minmaxInputRange, const Vector2& minmaxOutputRange) {
+    auto x = RangeMap(valueToMap.x, minmaxInputRange.x, minmaxInputRange.y, minmaxOutputRange.x, minmaxOutputRange.y);
+    auto y = RangeMap(valueToMap.y, minmaxInputRange.x, minmaxInputRange.y, minmaxOutputRange.x, minmaxOutputRange.y);
+    return Vector2{ x, y };
+}
+
+Vector3 RangeMap(const Vector3& valueToMap, const Vector2& minmaxInputRange, const Vector2& minmaxOutputRange) {
+    auto x = RangeMap(valueToMap.x, minmaxInputRange.x, minmaxInputRange.y, minmaxOutputRange.x, minmaxOutputRange.y);
+    auto y = RangeMap(valueToMap.y, minmaxInputRange.x, minmaxInputRange.y, minmaxOutputRange.x, minmaxOutputRange.y);
+    auto z = RangeMap(valueToMap.z, minmaxInputRange.x, minmaxInputRange.y, minmaxOutputRange.x, minmaxOutputRange.y);
+    return Vector3{ x, y, z };
+}
+
+Vector4 RangeMap(const Vector4& valueToMap, const Vector2& minmaxInputRange, const Vector2& minmaxOutputRange) {
+    auto x = RangeMap(valueToMap.x, minmaxInputRange.x, minmaxInputRange.y, minmaxOutputRange.x, minmaxOutputRange.y);
+    auto y = RangeMap(valueToMap.y, minmaxInputRange.x, minmaxInputRange.y, minmaxOutputRange.x, minmaxOutputRange.y);
+    auto z = RangeMap(valueToMap.z, minmaxInputRange.x, minmaxInputRange.y, minmaxOutputRange.x, minmaxOutputRange.y);
+    auto w = RangeMap(valueToMap.w, minmaxInputRange.x, minmaxInputRange.y, minmaxOutputRange.x, minmaxOutputRange.y);
+    return Vector4{ x, y, z, w };
+}
+
+IntVector2 RangeMap(const IntVector2& valueToMap, const IntVector2& minmaxInputRange, const IntVector2& minmaxOutputRange) {
+    auto x = RangeMap(valueToMap.x, minmaxInputRange.x, minmaxInputRange.y, minmaxOutputRange.x, minmaxOutputRange.y);
+    auto y = RangeMap(valueToMap.y, minmaxInputRange.x, minmaxInputRange.y, minmaxOutputRange.x, minmaxOutputRange.y);
+    return IntVector2{ x, y };
+}
+
+IntVector3 RangeMap(const IntVector3& valueToMap, const IntVector2& minmaxInputRange, const IntVector2& minmaxOutputRange) {
+    auto x = RangeMap(valueToMap.x, minmaxInputRange.x, minmaxInputRange.y, minmaxOutputRange.x, minmaxOutputRange.y);
+    auto y = RangeMap(valueToMap.y, minmaxInputRange.x, minmaxInputRange.y, minmaxOutputRange.x, minmaxOutputRange.y);
+    auto z = RangeMap(valueToMap.z, minmaxInputRange.x, minmaxInputRange.y, minmaxOutputRange.x, minmaxOutputRange.y);
+    return IntVector3{ x, y, z };
+}
+
+IntVector4 RangeMap(const IntVector4& valueToMap, const IntVector2& minmaxInputRange, const IntVector2& minmaxOutputRange) {
+    auto x = RangeMap(valueToMap.x, minmaxInputRange.x, minmaxInputRange.y, minmaxOutputRange.x, minmaxOutputRange.y);
+    auto y = RangeMap(valueToMap.y, minmaxInputRange.x, minmaxInputRange.y, minmaxOutputRange.x, minmaxOutputRange.y);
+    auto z = RangeMap(valueToMap.z, minmaxInputRange.x, minmaxInputRange.y, minmaxOutputRange.x, minmaxOutputRange.y);
+    auto w = RangeMap(valueToMap.w, minmaxInputRange.x, minmaxInputRange.y, minmaxOutputRange.x, minmaxOutputRange.y);
+    return IntVector4{ x, y, z, w };
+}
+
 template<>
 Vector4 Wrap(const Vector4& valuesToWrap, const Vector4& minValues, const Vector4& maxValues) {
     auto x = Wrap(valuesToWrap.x, minValues.x, maxValues.x);

@@ -116,5 +116,23 @@
     <FxCompile Include="..\Run_x64\Data\ShaderPrograms\Test.hlsl">
       <Filter>Data\ShaderPrograms</Filter>
     </FxCompile>
+    <FxCompile Include="..\Run_x64\Data\ShaderPrograms\clear.hlsl">
+      <Filter>Data\ShaderPrograms</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Run_x64\Data\ShaderPrograms\conway.hlsl">
+      <Filter>Data\ShaderPrograms</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Run_x64\Data\ShaderPrograms\lumosity.hlsl">
+      <Filter>Data\ShaderPrograms</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Run_x64\Data\ShaderPrograms\mandelbrot.hlsl">
+      <Filter>Data\ShaderPrograms</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Run_x64\Data\ShaderPrograms\scanline.hlsl">
+      <Filter>Data\ShaderPrograms</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Run_x64\Data\ShaderPrograms\sepia.hlsl">
+      <Filter>Data\ShaderPrograms</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

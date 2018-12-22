@@ -1,0 +1,7 @@
+<material name="mandelbrot">
+    <shader src="mandelbrot" />
+    <textures>
+        <diffuse src="mandelbrot_out" />
+        <texture index="0" src="Data/Images/mandelbrot_lookup.png" />
+    </textures>
+</material>

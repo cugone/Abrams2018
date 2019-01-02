@@ -2,9 +2,11 @@
     <shaderprogram src="Data/ShaderPrograms/mandelbrot.hlsl">
         <pipelinestages>
             <vertex entrypoint="VertexFunction" />
+<!--
             <hull />
             <domain />
             <geometry />
+-->
             <pixel entrypoint="PixelFunction" />
             <compute entrypoint="ComputeFunction" />
         </pipelinestages>

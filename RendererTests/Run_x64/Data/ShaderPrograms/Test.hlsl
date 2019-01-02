@@ -1,14 +1,20 @@
 
+float RangeMap(float valueToMap, float minInputRange, float maxInputRange, float minOutputRange, float maxOutputRange) {
+    return (valueToMap - minInputRange) * (maxOutputRange - minOutputRange) / (maxInputRange - minInputRange) + minOutputRange;
+}
+
 cbuffer matrix_cb : register(b0) {
     float4x4 g_MODEL;
     float4x4 g_VIEW;
     float4x4 g_PROJECTION;
 };
 
-cbuffer health_cb : register(b3) {
-    float4 g_test;
-};
-
+cbuffer time_cb : register(b1) {
+    float g_GAME_TIME;
+    float g_SYSTEM_TIME;
+    float g_GAME_FRAME_TIME;
+    float g_SYSTEM_FRAME_TIME;
+}
 
 struct vs_in_t {
     float3 position : POSITION;
@@ -24,9 +30,9 @@ struct ps_in_t {
 
 SamplerState sSampler : register(s0);
 
-Texture2D<float4> tImage    : register(t0);
+Texture2D<float4> tDiffuse    : register(t0);
 Texture2D<float4> tNormal   : register(t1);
-Texture2D<float4> tLighting : register(t2);
+Texture2D<float4> tDisplacement : register(t2);
 Texture2D<float4> tSpecular : register(t3);
 Texture2D<float4> tOcclusion : register(t4);
 Texture2D<float4> tEmissive : register(t5);
@@ -47,7 +53,7 @@ ps_in_t VertexFunction(vs_in_t input_vertex) {
     return output;
 }
 
-float4 PixelFunction(ps_in_t input_pixel) : SV_Target0{
-    float4 albedo = tImage.Sample(sSampler, input_pixel.uv);
-    return albedo * input_pixel.color * g_test.x;
+float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
+    float4 albedo = tDiffuse.Sample(sSampler, input_pixel.uv);
+    return albedo * input_pixel.color;
 }

@@ -94,21 +94,6 @@ float RangeMap(float valueToMap, const float minInputRange, const float maxInput
     return (valueToMap - minInputRange) * (maxOutputRange - minOutputRange) / (maxInputRange - minInputRange) + minOutputRange;
 }
 
-float3 GetLinearIntensity(float3 color) {
-    float3 result;
-    result.r = GetLinearIntensity(color.r);
-    result.g = GetLinearIntensity(color.g);
-    result.b = GetLinearIntensity(color.b);
-    return result;
-}
-
-float2 GetLinearIntensity(float2 color) {
-    float2 result;
-    result.r = GetLinearIntensity(color.r);
-    result.g = GetLinearIntensity(color.g);
-    return result;
-}
-
 float GetLinearIntensity(float channel) {
     float result = 0.0f;
     float LUM_BREAKPOINT = 0.04045f;
@@ -118,6 +103,30 @@ float GetLinearIntensity(float channel) {
     } else {
         result = channel / 12.92f;
     }
+    return result;
+}
+
+float4 GetLinearIntensity4(float4 color) {
+    float4 result;
+    result.r = GetLinearIntensity(color.r);
+    result.g = GetLinearIntensity(color.g);
+    result.b = GetLinearIntensity(color.b);
+    result.a = GetLinearIntensity(color.a);
+    return result;
+}
+
+float3 GetLinearIntensity3(float3 color) {
+    float3 result;
+    result.r = GetLinearIntensity(color.r);
+    result.g = GetLinearIntensity(color.g);
+    result.b = GetLinearIntensity(color.b);
+    return result;
+}
+
+float2 GetLinearIntensity2(float2 color) {
+    float2 result;
+    result.r = GetLinearIntensity(color.r);
+    result.g = GetLinearIntensity(color.g);
     return result;
 }
 
@@ -142,15 +151,15 @@ void ComputeFunction( compute_input_t input ) {
     uint2 center = uint2(x, y);
     uint2 right = uint2(x + 1, y);
 
-    float upleft_pixel = GetLinearIntensity(tOutput[upleft]).r;
-    float up_pixel = GetLinearIntensity(tOutput[up]).r;
-    float upright_pixel = GetLinearIntensity(tOutput[upright]).r;
-    float left_pixel = GetLinearIntensity(tOutput[left]).r;
-    float pixel = GetLinearIntensity(tOutput[uint2(x, y)]).r;
-    float right_pixel = GetLinearIntensity(tOutput[right]).r;
-    float downleft_pixel = GetLinearIntensity(tOutput[downleft]).r;
-    float down_pixel = GetLinearIntensity(tOutput[down]).r;
-    float downright_pixel = GetLinearIntensity(tOutput[downright]).r;
+    float upleft_pixel = GetLinearIntensity3(tOutput[upleft].rgb).r;
+    float up_pixel = GetLinearIntensity3(tOutput[up].rgb).r;
+    float upright_pixel = GetLinearIntensity3(tOutput[upright].rgb).r;
+    float left_pixel = GetLinearIntensity3(tOutput[left].rgb).r;
+    float pixel = GetLinearIntensity3(tOutput[center].rgb).r;
+    float right_pixel = GetLinearIntensity3(tOutput[right].rgb).r;
+    float downleft_pixel = GetLinearIntensity3(tOutput[downleft].rgb).r;
+    float down_pixel = GetLinearIntensity3(tOutput[down].rgb).r;
+    float downright_pixel = GetLinearIntensity3(tOutput[downright].rgb).r;
 
     float neighbors = upleft_pixel + up_pixel + upright_pixel +
                        left_pixel   + right_pixel +

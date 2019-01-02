@@ -15,10 +15,17 @@ struct vertex_to_fragment_t {
     //float3 world_position : WORLD_POSITION;
 };
 
+cbuffer matrix_cb : register(b0) {
+    float4x4 g_MODEL;
+    float4x4 g_VIEW;
+    float4x4 g_PROJECTION;
+};
+
 cbuffer time_cb : register(b1) {
-    float TIME;
-    float TIME_SQ;
-    float2 TIME_CB_PADDING;
+    float GAME_TIME;
+    float SYSTEM_TIME;
+    float GAME_FRAME_TIME;
+    float SYSTEM_FRAME_TIME;
 }
 
 //--------------------------------------------------------------------------------------
@@ -46,12 +53,12 @@ vertex_to_fragment_t VertexFunction(vertex_in_t input) {
 // If I'm only returning one value, I can optionally just mark the return value with
 // a SEMANTIC - in this case, SV_TARGET0, which means it is outputting to the first colour 
 // target.
-float4 FragmentFunction(vertex_to_fragment_t input) : SV_Target0 // semeantic of what I'm returning
+float4 PixelFunction(vertex_to_fragment_t input) : SV_Target0 // semeantic of what I'm returning
 {
     float width = 1.0f;
     float height = 1.0f;
     tImage.GetDimensions(width, height);
-    float t = frac(TIME);
+    float t = frac(GAME_TIME);
 
     // Sample the texture at the passed in UV coordinate
     float4 diffuse = tImage.Sample(texsampler, input.uv);

@@ -1,66 +1,70 @@
-//--------------------------------------------------------------------------------------
-struct vs_input_t
-{
-   float3 position : POSITION;
-   float2 uv0 : TEXCOORD0;
 
-   // float4x4 test_mat : SOME_MATRIX;
+cbuffer matrix_cb : register(b0) {
+    float4x4 g_MODEL;
+    float4x4 g_VIEW;
+    float4x4 g_PROJECTION;
 };
 
-//--------------------------------------------------------------------------------------
-struct v2f_t
-{
-   float4 position : SV_Position;
-   float2 uv : TEXCOORD;
+cbuffer time_cb : register(b1) {
+    float g_GAME_TIME;
+    float g_SYSTEM_TIME;
+    float g_GAME_FRAME_TIME;
+    float g_SYSTEM_FRAME_TIME;
+}
+
+struct vs_in_t {
+    float3 position : POSITION;
+    float4 color : COLOR;
+    float2 uv : UV;
 };
 
-Texture2D <float4> tTexture : register(t0);
+struct ps_in_t {
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
+    float2 uv : UV;
+};
+
 SamplerState sSampler : register(s0);
 
-//--------------------------------------------------------------------------------------
-// Vertex Shader
-//--------------------------------------------------------------------------------------
-v2f_t VertexFunction(vs_input_t input)
-{
-    v2f_t v2f = (v2f_t)0;
+Texture2D<float4> tDiffuse    : register(t0);
+Texture2D<float4> tNormal   : register(t1);
+Texture2D<float4> tDisplacement : register(t2);
+Texture2D<float4> tSpecular : register(t3);
+Texture2D<float4> tOcclusion : register(t4);
+Texture2D<float4> tEmissive : register(t5);
 
-    float4 final_pos = float4( input.position, 1.0f );
 
-    // Change the position vector to be 4 units for proper matrix calculations.
-    v2f.position = final_pos;
-    v2f.uv = input.uv0;
+ps_in_t VertexFunction(vs_in_t input_vertex) {
+    ps_in_t output;
 
-    return v2f;
+    float4 local = float4(input_vertex.position, 1.0f);
+    float4 world = mul(local, g_MODEL);
+    float4 view = mul(world, g_VIEW);
+    float4 clip = mul(view, g_PROJECTION);
+
+    output.position = clip;
+    output.color = input_vertex.color;
+    output.uv = input_vertex.uv;
+
+    return output;
 }
 
-
-//--------------------------------------------------------------------------------------
-// Pixel Shader
-//--------------------------------------------------------------------------------------
-float4 FragmentFunction(v2f_t input) : SV_Target0 // semeantic of what I'm returning
-{
-   float4 diffuse = tTexture.Sample( sSampler, input.uv );
-   
-   /* EXPLICIT WAY */
-   float3 sepia_r = float3( 0.393f, 0.769f, 0.189f );
-   float3 sepia_g = float3( 0.349f, 0.686f, 0.168f );
-   float3 sepia_b = float3( 0.272f, 0.534f, 0.131f );
-   float3 sepia = float3( 
-      dot( diffuse.xyz, sepia_r ),
-      dot( diffuse.xyz, sepia_g ),
-      dot( diffuse.xyz, sepia_b )
-   );
-   /**/
-   
-   /* MATRIX WAY *
-   float3x3 sepia_transform = float3x3( 
-      float3( 0.393f, 0.349f, 0.272f ),
-      float3( 0.769f, 0.686f, 0.534f ),
-      float3( 0.189f, 0.168f, 0.131f )
-   );
-   float3 sepia = mul( diffuse.xyz, sepia_transform );
-   /**/ 
-
-   float4 final_color = float4( sepia, 1.0f );
-   return final_color;
+float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
+    float4 albedo = tDiffuse.Sample(sSampler, input_pixel.uv);
+    return albedo * input_pixel.color;
 }
+
+//float4 PixelFunction(ps_in_t input) : SV_Target0 {
+//   float4 diffuse = tDiffuse.Sample( sSampler, input.uv );
+//   //float3x3 sepia_transform = float3x3( 
+//   //   float3( 1.0f, 0.0f, 0.0f ),
+//   //   float3( 0.0f, 1.0f, 0.0f ),
+//   //   float3( 0.0f, 0.0f, 1.0f )
+//   //   //float3( 0.393f, 0.349f, 0.272f ),
+//   //   //float3( 0.769f, 0.686f, 0.534f ),
+//   //   //float3( 0.189f, 0.168f, 0.131f )
+//   //);
+//   //float3 sepia = mul(diffuse.xyz, sepia_transform);
+//   //float4 final_color = float4( sepia, 1.0f);
+//   return final_color;
+//}

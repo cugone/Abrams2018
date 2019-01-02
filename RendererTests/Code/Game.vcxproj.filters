@@ -71,6 +71,12 @@
     <None Include="..\Run_x64\Data\Shaders\Test.shader">
       <Filter>Data\Shaders</Filter>
     </None>
+    <None Include="..\Run_x64\Data\Materials\Test2.material">
+      <Filter>Data\Materials</Filter>
+    </None>
+    <None Include="..\Run_x64\Data\Shaders\Test2.shader">
+      <Filter>Data\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Run_x64\Data\Images\cute_sif.gif">

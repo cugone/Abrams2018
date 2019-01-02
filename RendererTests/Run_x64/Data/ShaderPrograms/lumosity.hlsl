@@ -1,94 +1,65 @@
-// Texture - I put the <float4> at the end to really drive home this is a 4-channle texture
-Texture2D <float4> tImage : register(t0);
 
-// SamplerState - HOW do we sample the texture.  
+cbuffer matrix_cb : register(b0) {
+    float4x4 g_MODEL;
+    float4x4 g_VIEW;
+    float4x4 g_PROJECTION;
+};
+
+struct vs_in_t {
+    float3 position : POSITION;
+    float4 color : COLOR;
+    float2 uv : UV;
+};
+
+struct ps_in_t {
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
+    float2 uv : UV;
+};
+
 SamplerState sSampler : register(s0);
 
-// Input to vertex Shader
-struct vs_input_t {
-    float3 position : POSITION;
+Texture2D<float4> tDiffuse    : register(t0);
+Texture2D<float4> tNormal   : register(t1);
+Texture2D<float4> tDisplacement : register(t2);
+Texture2D<float4> tSpecular : register(t3);
+Texture2D<float4> tOcclusion : register(t4);
+Texture2D<float4> tEmissive : register(t5);
 
-    // NEW - UV Coordinate - textures are sampled using UV coordinates, which are coordinates that 
-    // span [0,1] over the whole of the texture.
-    // In D3D, <0,0> corresponds to to the TOP LEFT
-    //    and  <1,1> corresponds to the BOTTOM RIGHT 
-    float2 uv : TEXCOORD;
-};
 
-struct v2f_t {
-    // SV_POSITION is a semantic - or a name identifying this variable. 
-    // Usually a semantic can be any name we want - but the SV_* family
-    // usually denote special meaning (SV = System Variable I believe)
-    // SV_POSITION denotes that this is output in clip space, and will be 
-    // use for rasterization.  When it is the input (pixel shader stage), it will
-    // actually hold the pixel coordinates.
-    float4 position : SV_Position;
+ps_in_t VertexFunction(vs_in_t input_vertex) {
+    ps_in_t output;
 
-    // We can only pass data to the vertex shader - so to get to the fragment shader
-    // we must pass it through.
-    float2 uv : TEXCOORD;
-};
+    float4 local = float4(input_vertex.position, 1.0f);
+    float4 world = mul(local, g_MODEL);
+    float4 view = mul(world, g_VIEW);
+    float4 clip = mul(view, g_PROJECTION);
 
-//--------------------------------------------------------------------------------------
-// Vertex Shader
-//--------------------------------------------------------------------------------------
-v2f_t VertexFunction(vs_input_t input) {
-    v2f_t v2f = (v2f_t)0;
+    output.position = clip;
+    output.color = input_vertex.color;
+    output.uv = input_vertex.uv;
 
-    // The output of a vertex shader is in clip-space, which is a 4D vector
-    // so we need to convert out input to a 4D vector.
-    v2f.position = float4(input.position, 1.0f);
-
-    // do nothing but pass it through/
-    v2f.uv = input.uv;
-
-    // And return - this will pass it on to the next stage in the pipeline;
-    return v2f;
+    return output;
 }
 
 //See https://en.wikipedia.org/wiki/Grayscale#Converting_color_to_grayscale
-float4 GetLinearIntensity(float4 color) {
-    float4 result;
-    result.r = GetLinearIntensity(color.r);
-    result.g = GetLinearIntensity(color.g);
-    result.b = GetLinearIntensity(color.b);
-    result.a = GetLinearIntensity(color.a);
-    return result;
-}
-
-float3 GetLinearIntensity(float3 color) {
-    float3 result;
-    result.r = GetLinearIntensity(color.r);
-    result.g = GetLinearIntensity(color.g);
-    result.b = GetLinearIntensity(color.b);
-    return result;
-}
-
-float2 GetLinearIntensity(float2 color) {
-    float2 result;
-    result.r = GetLinearIntensity(color.r);
-    result.g = GetLinearIntensity(color.g);
-    return result;
-}
-
 float GetLinearIntensity(float channel) {
     float result = 0.0f;
     float LUM_BREAKPOINT = 0.04045f;
     channel = saturate(channel);
     if(channel > LUM_BREAKPOINT) {
-        result = pow((channel + 0.055f) / 1.055f, 2.4);
+        result = pow((channel + 0.055f) / 1.055f, 2.4f);
     } else {
         result = channel / 12.92f;
     }
     return result;
 }
 
-//--------------------------------------------------------------------------------------
-// Pixel Shader
-//--------------------------------------------------------------------------------------
-float4 FragmentFunction(v2f_t input) : SV_Target0 {
-    float4 diffuse = tImage.Sample(sSampler, input.uv);
-    float3 lin = GetLinearIntensity(diffuse.rgb);
-    float3 coefs = float3(0.2126f, 0.7152f, 0.0722f);
-    return float4(saturate(dot(coefs, lin)), 1.0f);
+float4 PixelFunction(ps_in_t input) : SV_Target0 {
+    float4 diffuse = tDiffuse.Sample(sSampler, input.uv);
+    float r_lin = GetLinearIntensity(diffuse.r);
+    float g_lin = GetLinearIntensity(diffuse.g);
+    float b_lin = GetLinearIntensity(diffuse.b);
+    float l = 0.2126f * r_lin + 0.7152f * g_lin + 0.0722f * b_lin;
+    return float4(l, l, l, 1.0f);
 }

@@ -1,14 +1,5 @@
 <shader name="Test">
-    <shaderprogram src="Data/ShaderPrograms/Test.hlsl">
-        <pipelinestages>
-            <vertex entrypoint="VertexFunction" />
-            <hull />
-            <domain />
-            <geometry />
-            <pixel entrypoint="PixelFunction"/>
-            <compute />
-        </pipelinestages>
-    </shaderprogram>
+    <shaderprogram src="__unlit" />
     <raster src="__solid" />
     <sampler src="__default" />
     <blends>

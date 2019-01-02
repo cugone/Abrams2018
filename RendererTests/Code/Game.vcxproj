@@ -279,7 +279,9 @@
   <ItemGroup>
     <None Include="..\Run_x64\Data\Materials\ceres.material" />
     <None Include="..\Run_x64\Data\Materials\Test.material" />
+    <None Include="..\Run_x64\Data\Materials\Test2.material" />
     <None Include="..\Run_x64\Data\Shaders\Test.shader" />
+    <None Include="..\Run_x64\Data\Shaders\Test2.shader" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Run_x64\Data\Images\ceres.png" />

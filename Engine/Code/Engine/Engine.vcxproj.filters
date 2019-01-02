@@ -331,6 +331,12 @@
     <ClCompile Include="Profiling\Memory.cpp">
       <Filter>Profiling</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\RenderTargetStack.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\OBB2.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -641,6 +647,12 @@
     </ClInclude>
     <ClInclude Include="Memory\MemoryPool.hpp">
       <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderTargetStack.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\OBB2.hpp">
+      <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -354,5 +354,5 @@ private:
     int _mouseWheelPosition = 0;
     int _mouseWheelHPosition = 0;
     int _connected_controller_count = 0;
-    bool _cursor_visible = false;
+    bool _cursor_visible = true;
 };

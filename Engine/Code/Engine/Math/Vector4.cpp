@@ -5,6 +5,7 @@
 
 #include "Engine/Core/StringUtils.hpp"
 
+#include "Engine/Math/IntVector4.hpp"
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"
 
@@ -90,6 +91,15 @@ Vector4::Vector4(const std::string& value)
     }
 }
 
+
+Vector4::Vector4(const IntVector4& intvec4)
+    : x(static_cast<float>(intvec4.x))
+    , y(static_cast<float>(intvec4.y))
+    , z(static_cast<float>(intvec4.z))
+    , w(static_cast<float>(intvec4.w))
+{
+    /* DO NOTHING */
+}
 
 Vector4& Vector4::operator+=(const Vector4& rhs) {
     x += rhs.x;

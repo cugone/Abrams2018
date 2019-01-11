@@ -2,6 +2,7 @@
 
 #include "Engine/Core/StringUtils.hpp"
 
+#include "Engine/Math/IntVector2.hpp"
 #include "Engine/Math/MathUtils.hpp"
 
 #include <cmath>
@@ -46,6 +47,13 @@ Vector2::Vector2(const std::string& value)
     }
 }
 
+
+Vector2::Vector2(const IntVector2& intvec2)
+    : x(static_cast<float>(intvec2.x))
+    , y(static_cast<float>(intvec2.y))
+{
+    /* DO NOTHING */
+}
 
 Vector2 Vector2::operator+(const Vector2& rhs) const {
     return Vector2(x + rhs.x, y + rhs.y);

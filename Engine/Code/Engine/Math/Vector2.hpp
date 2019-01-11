@@ -3,6 +3,7 @@
 #include <string>
 
 class Vector3;
+class IntVector2;
 
 class Vector2 {
 public:
@@ -22,6 +23,7 @@ public:
     explicit Vector2(const std::string& value);
     explicit Vector2(float initialX, float initialY);
     explicit Vector2(const Vector3& rhs);
+    explicit Vector2(const IntVector2& intvec2);
 
     Vector2 operator+(const Vector2& rhs) const;
     Vector2& operator+=(const Vector2& rhs);

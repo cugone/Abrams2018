@@ -8,9 +8,9 @@ class RHIDevice;
 struct ID3D11SamplerState;
 
 struct SamplerDesc {
-    FilterMode min_filter = FilterMode::Linear;
-    FilterMode mag_filter = FilterMode::Linear;
-    FilterMode mip_filter = FilterMode::Linear;
+    FilterMode min_filter = FilterMode::Point;
+    FilterMode mag_filter = FilterMode::Point;
+    FilterMode mip_filter = FilterMode::Point;
     FilterComparisonMode compare_mode = FilterComparisonMode::None;
     TextureAddressMode UaddressMode = TextureAddressMode::Clamp;
     TextureAddressMode VaddressMode = TextureAddressMode::Clamp;

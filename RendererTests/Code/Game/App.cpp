@@ -6,6 +6,8 @@
 
 #include "Engine/Math/MathUtils.hpp"
 
+#include "Engine/Profiling/ProfileLogScope.hpp"
+
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Window.hpp"
 
@@ -108,7 +110,7 @@ void App::Initialize() {
 
 void App::RunFrame() {
     using namespace TimeUtils;
-
+    PROFILE_LOG_SCOPE_FUNCTION();
     BeginFrame();
     static FPSeconds previousFrameTime = TimeUtils::GetCurrentTimeElapsed();
     FPSeconds currentFrameTime = TimeUtils::GetCurrentTimeElapsed();

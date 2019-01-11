@@ -11,6 +11,8 @@
 #include "Engine/Math/Noise.hpp"
 
 #include "Engine/Renderer/AnimatedSprite.hpp"
+#include "Engine/Renderer/ArrayBuffer.hpp"
+#include "Engine/Renderer/Buffer.hpp"
 #include "Engine/Renderer/Camera2D.hpp"
 #include "Engine/Renderer/Camera3D.hpp"
 #include "Engine/Renderer/ConstantBuffer.hpp"
@@ -41,6 +43,9 @@
 Game::~Game() {
     delete _canvas;
     _canvas = nullptr;
+
+    delete _mandelbrot_cb;
+    _mandelbrot_cb = nullptr;
 }
 
 void Game::Initialize() {
@@ -49,7 +54,31 @@ void Game::Initialize() {
 }
 
 void Game::InitializeData() {
-    g_theRenderer->RegisterTexturesFromFolder(std::string{ "Data/Images" });
+
+    _obb.half_extents = Vector2{ 50.0f, 50.0f };
+    _mandelbrot_cb = g_theRenderer->CreateConstantBuffer(&_mandelbrot_data, sizeof(_mandelbrot_data));
+    _mandelbrot_data.escapeColor = Rgba::White.GetRgbaAsFloats();
+    _mandelbrot_data.convergeColor = Rgba::Black.GetRgbaAsFloats();
+    _mandelbrot_data.use_escape_color = 1u;
+
+    {
+        const auto& window_dimensions = g_theRenderer->GetOutput()->GetDimensions();
+        std::vector<Rgba> data{};
+        data.resize(window_dimensions.x * window_dimensions.y);
+        std::fill(std::begin(data), std::end(data), Rgba::White);
+        auto t = g_theRenderer->Create2DTextureFromMemory(data, window_dimensions.x, window_dimensions.y, BufferUsage::Dynamic, BufferBindUsage::Unordered_Access);
+        g_theRenderer->RegisterTexture("mandelbrot", t);
+    }
+    {
+        const auto& window_dimensions = g_theRenderer->GetOutput()->GetDimensions();
+        std::vector<Rgba> data{};
+        data.resize(window_dimensions.x * window_dimensions.y);
+        std::fill(std::begin(data), std::end(data), Rgba::White);
+        auto t = g_theRenderer->Create2DTextureFromMemory(data, window_dimensions.x, window_dimensions.y, BufferUsage::Staging, BufferBindUsage::Shader_Resource);
+        g_theRenderer->RegisterTexture("mandelbrot_out", t);
+    }
+
+    g_theRenderer->RegisterTexturesFromFolder(std::string{ "Data/Images" }, true);
     g_theRenderer->RegisterShadersFromFolder(std::string{ "Data/Shaders" });
     g_theRenderer->RegisterMaterialsFromFolder(std::string{ "Data/Materials" });
     g_theRenderer->RegisterFontsFromFolder(std::string{ "Data/Fonts" });
@@ -63,14 +92,27 @@ void Game::InitializeUI() {
     auto reference_resolution = (std::min)(static_cast<float>(g_theRenderer->GetOutput()->GetDimensions().x), static_cast<float>(g_theRenderer->GetOutput()->GetDimensions().y));
     _canvas = new UI::Canvas(*g_theRenderer, reference_resolution);
     _canvas->SetBorderColor(Rgba::Cyan);
-    _canvas->SetPivot(UI::PivotPosition::Center);
+    _canvas->SetPivot(UI::PivotPosition::TopLeft);
+    _canvas->SetPivotColor(Rgba::Cyan);
 
     _panel = _canvas->CreateChild<UI::Panel>();
-    _panel->SetBorderColor(Rgba::NoAlpha);
-    _panel->SetSize(UI::Metric{ UI::Ratio{Vector2::ONE * 0.5f}, {} });
-    _panel->SetPivot(UI::PivotPosition::Center);
+    _panel->SetBorderColor(Rgba::Orange);
+    _panel->SetPivot(UI::PivotPosition::TopLeft);
+    _panel->SetSize(UI::Metric{ UI::Ratio{Vector2(0.5f, 0.5f)}, {} });
+    _panel->SetPivotColor(Rgba::Orange);
 
     _label = _panel->CreateChild<UI::Label>(_canvas, g_theRenderer->GetFont("System32"));
+    _label->SetBorderColor(Rgba::White);
+    _label->SetPivot(UI::PivotPosition::TopLeft);
+    _label->SetPosition({});
+    _label->SetPivotColor(Rgba::White);
+
+    auto anim = g_theRenderer->CreateAnimatedSprite(g_theRenderer->CreateSpriteSheet("Data/Images/sauron.png"));
+    anim->SetMaterial(g_theRenderer->GetMaterial("Sauron"));
+    _sprite = _panel->CreateChild<UI::Sprite>(_canvas, anim);
+    _sprite->SetBorderColor(Rgba::ForestGreen);
+    _sprite->SetPivot(UI::PivotPosition::TopLeft);
+    _sprite->SetPosition(Vector4::ZERO);
 }
 
 void Game::BeginFrame() {
@@ -89,8 +131,12 @@ void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
     }
 
     g_theRenderer->UpdateGameTime(_slowmo ? deltaSeconds * 0.10f : deltaSeconds);
-    UpdateCameraFromKeyboard(deltaSeconds);
-    UpdateCameraFromMouse(deltaSeconds);
+    UpdateCameraFromKeyboard(g_theRenderer->GetGameFrameTime());
+    UpdateCameraFromMouse(g_theRenderer->GetGameFrameTime());
+
+    if(g_theInput->WasKeyJustPressed(KeyCode::H)) {
+        g_theInput->ToggleMouseCursorVisibility();
+    }
 
     if(g_theInput->WasKeyJustPressed(KeyCode::F1)) {
         _debug = !_debug;
@@ -104,10 +150,11 @@ void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
         _panel->ToggleEnabled();
     }
 
-    _camera2.Update(deltaSeconds);
-    _camera3.Update(deltaSeconds);
+    _obb.orientationDegrees += 360.0f * deltaSeconds.count();
+    _camera2.Update(g_theRenderer->GetGameFrameTime());
+    _camera3.Update(g_theRenderer->GetGameFrameTime());
 
-    _canvas->Update(deltaSeconds);
+    _canvas->Update(g_theRenderer->GetGameFrameTime());
 
 }
 
@@ -151,10 +198,11 @@ void Game::UpdateCameraFromKeyboard(TimeUtils::FPSeconds deltaSeconds) {
     }
 
     if(g_theInput->WasKeyJustPressed(KeyCode::R)) {
-        _camera3.SetPosition(Vector3(230.0f, 270.0f, -180.0f));
-        _camera3.SetEulerAngles(Vector3(-45.0f, 0.0f, 0.0f));
+        _camera3.SetPosition(Vector3::ZERO);
+        _camera3.SetEulerAngles(Vector3::ZERO);
         _camera2.SetPosition(Vector2::ZERO);
         _camera2.SetOrientationDegrees(0.0f);
+        _fovV = _default_fovV;
     }
 }
 
@@ -178,6 +226,21 @@ void Game::UpdateCameraFromMouse(TimeUtils::FPSeconds deltaSeconds) {
     auto moved_y = mouse_delta_pos.y;
     Vector3 angles = Vector3{ _camera3.GetPitchDegrees() - moved_y, _camera3.GetYawDegrees() - moved_x, _camera3.GetRollDegrees() };
     _camera3.SetEulerAnglesDegrees(angles);
+    if(g_theInput->WasKeyJustPressed(KeyCode::MButton)) {
+        _fovV = _default_fovV;
+    }
+    if(g_theInput->WasMouseWheelJustScrolledUp()) {
+        _fovV *= 0.90f;
+        if(_fovV < 0.0001f) {
+            _fovV = 0.0001f;
+        }
+    }
+    if(g_theInput->WasMouseWheelJustScrolledDown()) {
+        _fovV *= 1.10f;
+        if(_fovV > 179.90f) {
+            _fovV = 179.90f;
+        }
+    }
     if(g_theInput->WasMouseWheelJustScrolledLeft()) {
         _camera3.Translate(-_camera3.GetRight() * camera_move_speed);
     }
@@ -187,33 +250,37 @@ void Game::UpdateCameraFromMouse(TimeUtils::FPSeconds deltaSeconds) {
 }
 
 void Game::Render() const {
+
     g_theRenderer->SetRenderTarget();
     g_theRenderer->ClearColor(Rgba::Black);
     g_theRenderer->ClearDepthStencilBuffer();
 
-    g_theRenderer->SetViewport(0, 0, static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
-
+    ViewportDesc view_desc{};
+    view_desc.width = GRAPHICS_OPTION_WINDOW_WIDTH;
+    view_desc.height = GRAPHICS_OPTION_WINDOW_HEIGHT;
+    g_theRenderer->SetViewport(view_desc);
+    
     g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
     g_theRenderer->SetViewMatrix(Matrix4::GetIdentity());
     g_theRenderer->SetProjectionMatrix(Matrix4::GetIdentity());
 
-    _camera3.SetupView(45.0f, MathUtils::M_16_BY_9_RATIO, 0.01f, 1000.0f);
+    _camera3.SetupView(_fovV, MathUtils::M_16_BY_9_RATIO, 0.01f, 1000.0f);
     g_theRenderer->SetCamera(_camera3);
 
-    g_theRenderer->SetAmbientLight(Rgba::Grey, 0.2f);
+    g_theRenderer->SetAmbientLight(Rgba::Grey, 1.0f);
     g_theRenderer->SetLightingEyePosition(_camera3.GetPosition());
 
     DirectionalLightDesc dl_desc{};
     dl_desc.color = Rgba::White;
     dl_desc.direction = (Vector3(-1.0f, -1.0f, 0.0f)).GetNormalize();
-    dl_desc.intensity = 0.2f;
+    dl_desc.intensity = 0.0f;
     g_theRenderer->SetDirectionalLight(0, dl_desc);
 
     SpotLightDesc sp_desc{};
     sp_desc.position = _camera3.GetPosition();
     auto dir = (_camera3.GetForward() + -_camera3.GetUp()).GetNormalize();
     sp_desc.direction = dir;
-    sp_desc.intensity = 100.0f;
+    sp_desc.intensity = 1.0f;
     sp_desc.inner_outer_anglesDegrees = Vector2(80.0f, 160.0f);
     g_theRenderer->SetSpotlight(1, sp_desc);
 
@@ -227,11 +294,17 @@ void Game::Render() const {
 
     Vector2 view_leftBottom = Vector2(-view_half_width, view_half_height);
     Vector2 view_rightTop = Vector2(view_half_width, -view_half_height);
+    Vector2 view_topLeft = Vector2(-view_half_width, -view_half_height);
+    Vector2 view_bottomRight = Vector2(view_half_width, view_half_height);
+    Vector2 view_bottom = Vector2(0.0f, view_half_height);
     Vector2 view_nearFar = Vector2(0.0f, 1.0f);
-    auto cam_pos2 = Vector2(_camera2.GetPosition());
 
     _camera2.SetupView(view_leftBottom, view_rightTop, view_nearFar, MathUtils::M_16_BY_9_RATIO);
-    g_theRenderer->SetCamera(Camera3D{_camera2});
+    g_theRenderer->SetCamera(_camera2);
+
+    g_theRenderer->SetModelMatrix(Matrix4::CreateScaleMatrix(_obb.half_extents));
+    //g_theRenderer->DrawOBB2(_obb, Rgba::Red, Rgba::NoAlpha);
+    g_theRenderer->DrawOBB2(_obb.orientationDegrees, Rgba::Red, Rgba::Cyan);
 
     _canvas->Render(g_theRenderer);
     if(_debug) {
@@ -241,12 +314,16 @@ void Game::Render() const {
 }
 
 void Game::RenderStuff() const {
+    g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
+    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
     DrawCube();
-    DrawCeres();
+    //g_theRenderer->SetModelMatrix(Matrix4::CreateTranslationMatrix(Vector3::X_AXIS));
+    //g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Stone"));
+    //DrawCube();
+
     DrawWorldGrid();
     DrawAxes();
 
-    g_theRenderer->EnableDepth();
 }
 
 void Game::EndFrame() {
@@ -265,21 +342,6 @@ void Game::DrawAxes() const {
         return;
     }
     g_theRenderer->DrawAxes();
-}
-
-void Game::DrawCeres() const {
-    auto material = g_theRenderer->GetMaterial("ceres");
-    g_theRenderer->SetMaterial(material);
-    auto dims = material->GetTexture(0)->GetDimensions();
-    auto x = static_cast<float>(dims.x);
-    auto y = static_cast<float>(dims.y);
-    auto half_dims_xz = Vector3(x, 0.0f, y) * 0.5f;
-    Matrix4 T = Matrix4::CreateTranslationMatrix(half_dims_xz * 0.5f);
-    Matrix4 R = Matrix4::Create3DXRotationDegreesMatrix(90.0f);
-    Matrix4 S = Matrix4::CreateScaleMatrix(Vector2(x, y) * 0.5f);
-    Matrix4 model = T * R * S;
-    g_theRenderer->SetModelMatrix(model);
-    g_theRenderer->DrawQuad();
 }
 
 void Game::DrawCube() const {
@@ -331,8 +393,5 @@ void Game::DrawCube() const {
         16, 17, 18, 16, 18, 19,
         20, 21, 22, 20, 22, 23,
     };
-
-    g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
-    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
     g_theRenderer->DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
 }

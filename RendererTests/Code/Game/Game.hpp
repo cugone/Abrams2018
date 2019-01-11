@@ -6,6 +6,7 @@
 
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/AABB3.hpp"
+#include "Engine/Math/OBB2.hpp"
 
 #include "Engine/Renderer/Camera2D.hpp"
 #include "Engine/Renderer/Camera3D.hpp"
@@ -25,6 +26,17 @@ class Panel;
 class Label;
 class Sprite;
 }
+
+struct mandelbrot_t {
+    Vector4 escapeColor{};
+    Vector4 convergeColor{};
+    Vector2 mouseDelta{};
+    Vector2 padding{};
+    unsigned int maxIterations{};
+    float power{};
+    float zoom{};
+    unsigned int use_escape_color{};
+};
 
 class Game {
 public:
@@ -48,11 +60,16 @@ private:
     void DrawWorldGrid() const;
     void DrawAxes() const;
     void DrawCube() const;
-    void DrawCeres() const;
 
+    OBB2 _obb{};
+    ConstantBuffer* _mandelbrot_cb = nullptr;
+    mandelbrot_t _mandelbrot_data{};
     UI::Canvas* _canvas = nullptr;
     UI::Panel* _panel = nullptr;
     UI::Label* _label = nullptr;
+    UI::Sprite* _sprite = nullptr;
+    const float _default_fovV = 45.0f;
+    float _fovV = _default_fovV;
     const float _cameraSpeed = 10.0f;
     const float _camera_move_speed_multiplier = 10.0f;
     mutable Camera2D _camera2{};

@@ -15,8 +15,8 @@ std::string GetDateTimeStampFromNow(const DateTimeStampOptions& options /*= Date
     std::tm tm;
     ::localtime_s(&tm, &t);
     std::stringstream msg;
-    std::string fmt = options.use_24_hour_clock ? (options.use_separator ? "%Y-%m-%d %H:%M:%S" : "%Y%m%d%H%M%S")
-                                                : (options.use_separator ? "%Y-%m-%d %I:%M:%S" : "%Y%m%d%I%M%S");
+    std::string fmt = options.use_24_hour_clock ? (options.use_separator ? (options.is_filename ? "%Y-%m-%d_%H%M%S" : "%Y-%m-%d %H:%M:%S") : "%Y%m%d%H%M%S")
+                                                : (options.use_separator ? (options.is_filename ? "%Y-%m-%d_%I%M%S" : "%Y-%m-%d %I:%M:%S") : "%Y%m%d%I%M%S");
     msg << std::put_time(&tm, fmt.c_str());
 
     if(options.include_milliseconds) {

@@ -28,6 +28,7 @@ struct DateTimeStampOptions {
     bool use_separator = false;
     bool use_24_hour_clock = true;
     bool include_milliseconds = true;
+    bool is_filename = false;
 };
 
 std::string GetDateTimeStampFromNow(const DateTimeStampOptions& options = DateTimeStampOptions{});

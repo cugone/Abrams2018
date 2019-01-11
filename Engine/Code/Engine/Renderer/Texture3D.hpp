@@ -18,6 +18,8 @@ public:
 
     virtual ~Texture3D();
 
+    virtual ID3D11Resource* GetDxResource() const override;
+
 protected:
 private:
     ID3D11Texture3D* _dx_tex = nullptr;

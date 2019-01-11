@@ -29,6 +29,10 @@ TextureArray2D::~TextureArray2D() {
     }
 }
 
+ID3D11Resource* TextureArray2D::GetDxResource() const {
+    return _dx_tex;
+}
+
 TextureArray2D::TextureArray2D(TextureArray2D&& r_other) noexcept
     : Texture(std::move(r_other))
     , _dx_tex(std::move(r_other._dx_tex))

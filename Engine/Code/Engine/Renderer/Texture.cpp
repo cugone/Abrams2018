@@ -66,6 +66,10 @@ const IntVector3& Texture::GetDimensions() const noexcept {
     return _dimensions;
 }
 
+ID3D11Resource* Texture::GetDxResource() const {
+    return nullptr;
+}
+
 void Texture::IsLoaded(bool is_loaded) noexcept {
     _isLoaded = is_loaded;
 }
@@ -88,4 +92,8 @@ ID3D11RenderTargetView* Texture::GetRenderTargetView() {
 
 ID3D11ShaderResourceView* Texture::GetShaderResourceView() {
     return _srv;
+}
+
+ID3D11UnorderedAccessView* Texture::GetUnorderedAccessView() {
+    return _uav;
 }

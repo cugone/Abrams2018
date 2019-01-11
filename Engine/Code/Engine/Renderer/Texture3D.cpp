@@ -24,6 +24,10 @@ Texture3D::~Texture3D() {
     }
 }
 
+ID3D11Resource* Texture3D::GetDxResource() const {
+    return _dx_tex;
+}
+
 Texture3D::Texture3D(Texture3D&& r_other) noexcept
     : Texture(std::move(r_other))
     , _dx_tex(std::move(r_other._dx_tex))

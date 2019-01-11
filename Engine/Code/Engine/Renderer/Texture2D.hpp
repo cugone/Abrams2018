@@ -3,6 +3,7 @@
 #include "Engine/Renderer/Texture.hpp"
 
 class RHIDevice;
+class IntVector2;
 
 struct ID3D11Texture2D;
 
@@ -18,6 +19,10 @@ public:
 
     virtual ~Texture2D();
 
+    IntVector2 GetDimensions() const noexcept;
+
+    virtual ID3D11Resource* GetDxResource() const override;
+    ID3D11Texture2D* GetDxTexture();
 protected:
 private:
     ID3D11Texture2D* _dx_tex = nullptr;

@@ -10,6 +10,7 @@ struct ID3D11DepthStencilView;
 struct ID3D11RenderTargetView;
 struct ID3D11ShaderResourceView;
 struct ID3D11UnorderedAccessView;
+struct ID3D11Resource;
 
 class Texture {
 public:
@@ -30,8 +31,10 @@ public:
     ID3D11DepthStencilView* GetDepthStencilView();
     ID3D11RenderTargetView* GetRenderTargetView();
     ID3D11ShaderResourceView* GetShaderResourceView();
+    ID3D11UnorderedAccessView* GetUnorderedAccessView();
 
     virtual void SetDebugName([[maybe_unused]] const std::string& name) const noexcept = 0;
+    virtual ID3D11Resource* GetDxResource() const = 0;
 
 protected:
     const RHIDevice* _device = nullptr;

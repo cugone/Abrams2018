@@ -29,6 +29,18 @@ Texture2D::~Texture2D() {
     }
 }
 
+IntVector2 Texture2D::GetDimensions() const noexcept {
+    return IntVector2(this->_dimensions);
+}
+
+ID3D11Resource* Texture2D::GetDxResource() const {
+    return _dx_tex;
+}
+
+ID3D11Texture2D* Texture2D::GetDxTexture() {
+    return reinterpret_cast<ID3D11Texture2D*>(this->GetDxResource());
+}
+
 Texture2D::Texture2D(Texture2D&& r_other) noexcept
     : Texture(std::move(r_other))
     , _dx_tex(std::move(r_other._dx_tex))

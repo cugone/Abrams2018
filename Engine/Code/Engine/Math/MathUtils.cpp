@@ -6,6 +6,7 @@
 
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/AABB3.hpp"
+#include "Engine/Math/OBB2.hpp"
 #include "Engine/Math/Capsule2.hpp"
 #include "Engine/Math/Capsule3.hpp"
 #include "Engine/Math/Disc2.hpp"
@@ -372,6 +373,10 @@ bool IsPointInside(const AABB3& aabb, const Vector3& point) {
     if(aabb.maxs.z < point.z) return false;
     if(point.z < aabb.mins.z) return false;
     return true;
+}
+
+bool IsPointInside(const OBB2& /*obb*/, const Vector2& /*point*/) {
+    return false;
 }
 
 bool IsPointInside(const Disc2& disc, const Vector2& point) {

@@ -18,6 +18,7 @@ class Capsule2;
 class Disc2;
 class LineSegment2;
 class LineSegment3;
+class OBB2;
 class Sphere3;
 class Capsule3;
 class Plane2;
@@ -158,6 +159,7 @@ unsigned int CalculateManhattanDistance(const IntVector4& start, const IntVector
 
 bool IsPointInside(const AABB2& aabb, const Vector2& point);
 bool IsPointInside(const AABB3& aabb, const Vector3& point);
+bool IsPointInside(const OBB2& obb, const Vector2& point);
 bool IsPointInside(const Disc2& disc, const Vector2& point);
 bool IsPointInside(const Capsule2& capsule, const Vector2& point);
 bool IsPointInside(const Sphere3& sphere, const Vector3& point);

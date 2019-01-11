@@ -2,6 +2,7 @@
 
 #include <sstream>
 
+#include "Engine/Math/AABB3.hpp"
 #include "Engine/Math/MathUtils.hpp"
 
 Matrix4::Matrix4()
@@ -399,6 +400,10 @@ Matrix4 Matrix4::CreateDXOrthographicProjection(float nx, float fx, float ny, fl
                 0.0f, 0.0f, 0.0f, 1.0f
     );
     return mat;
+}
+
+Matrix4 Matrix4::CreateDXOrthographicProjection(const AABB3& extents) {
+    return CreateDXOrthographicProjection(extents.mins.x, extents.maxs.x, extents.mins.y, extents.maxs.y, extents.mins.z, extents.maxs.z);
 }
 
 Matrix4 Matrix4::CreateDXPerspectiveProjection(float vfovDegrees, float aspect, float nz, float fz) {

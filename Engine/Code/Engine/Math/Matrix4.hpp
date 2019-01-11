@@ -8,6 +8,7 @@
 #include "Engine/Math/Vector4.hpp"
 #include "Engine/Math/Quaternion.hpp"
 
+class AABB3;
 class Camera3D;
 
 class Matrix4 {
@@ -33,6 +34,7 @@ public:
     static Matrix4 CreateHPerspectiveProjectionMatrix(float fov, float aspect_ratio, float nearZ, float farZ);
     static Matrix4 CreateVPerspectiveProjectionMatrix(float fov, float aspect_ratio, float nearZ, float farZ);
     static Matrix4 CreateDXOrthographicProjection(float nx, float fx, float ny, float fy, float nz, float fz);
+    static Matrix4 CreateDXOrthographicProjection(const AABB3& extents);
     static Matrix4 CreateDXPerspectiveProjection(float vfovDegrees, float aspect, float nz, float fz);
     static Matrix4 CreateOrthographicProjectionMatrix(float top, float bottom, float right, float left, float nearZ, float farZ);
     static Matrix4 CreateLookAtMatrix(const Vector3& cameraPosition, const Vector3& lookAt, const Vector3& worldUp);

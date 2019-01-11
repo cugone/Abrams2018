@@ -2,6 +2,8 @@
 
 #include "Engine/Renderer/Camera2D.hpp"
 
+#include <algorithm>
+
 Camera3D::Camera3D(const Camera2D& camera2D)
     : trauma(camera2D.trauma)
     , trauma_recovery_rate(camera2D.trauma_recovery_rate)
@@ -27,7 +29,7 @@ Camera3D& Camera3D::operator=(const Camera2D& camera2D) {
     trauma_recovery_rate = camera2D.trauma_recovery_rate;
     aspect_ratio = camera2D.GetAspectRatio();
     far_distance = camera2D.GetFarDistance();
-    near_distance = camera2D.GetNearDistance();
+    near_distance = (std::max)(0.01f, camera2D.GetNearDistance());
     position = Vector3{camera2D.GetPosition()};
     rotationRoll = camera2D.GetOrientation();
     view_matrix = camera2D.GetViewMatrix();
@@ -44,7 +46,7 @@ Camera3D& Camera3D::operator=(const Camera2D& camera2D) {
 void Camera3D::SetupView(float fovVerticalDegrees, float aspectRatio /*= MathUtils::M_16_BY_9_RATIO*/, float nearDistance /*= 0.01f*/, float farDistance /*= 1.0f*/, const Vector3& worldUp /*= Vector3::Y_AXIS*/) {
     fov_vertical_degrees = fovVerticalDegrees;
     aspect_ratio = aspectRatio;
-    near_distance = nearDistance;
+    near_distance = (std::max)(0.01f, nearDistance);
     far_distance = farDistance;
     world_up = worldUp.GetNormalize();
     near_view_height = 2.0f * near_distance * std::tan(0.5f * fov_vertical_degrees);

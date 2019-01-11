@@ -22,6 +22,7 @@ public:
     };
 
     AnimatedSprite(Renderer& renderer, const XMLElement& elem);
+    AnimatedSprite(Renderer& renderer, SpriteSheet* sheet);
     ~AnimatedSprite();
 
     void Update(TimeUtils::FPSeconds deltaSeconds);

@@ -32,6 +32,12 @@ AnimatedSprite::AnimatedSprite(Renderer& renderer, const XMLElement& elem)
     LoadFromXml(*_renderer, elem);
 }
 
+AnimatedSprite::AnimatedSprite(Renderer& renderer, SpriteSheet* sheet)
+    : AnimatedSprite(renderer, sheet, TimeUtils::FPFrames{1}, 0, 0)
+{
+    /* DO NOTHING */
+}
+
 AnimatedSprite::~AnimatedSprite() {
     _renderer = nullptr;
     delete _sheet;

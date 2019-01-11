@@ -37,10 +37,15 @@ public:
 
     void SetMaterial(Material* material);
     void SetTexture(unsigned int index, Texture* texture);
+    void SetUnorderedAccessView(unsigned int index, Texture* texture);
     void SetVertexBuffer(unsigned int startIndex, VertexBuffer* buffer);
     void SetIndexBuffer(IndexBuffer* buffer);
     void SetConstantBuffer(unsigned int index, ConstantBuffer* buffer);
     void SetStructuredBuffer(unsigned int index, StructuredBuffer* buffer);
+
+    void SetComputeTexture(unsigned int index, Texture* texture);
+    void SetComputeConstantBuffer(unsigned int index, ConstantBuffer* buffer);
+    void SetComputeStructuredBuffer(unsigned int index, StructuredBuffer* buffer);
 
     void Draw(std::size_t vertexCount, std::size_t startVertex = 0);
     void DrawIndexed(std::size_t vertexCount, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0);
@@ -49,13 +54,21 @@ public:
     ID3D11DeviceContext* GetDxContext();
 
     void UnbindAllShaderResources();
+    void UnbindAllConstantBuffers();
+
+    void UnbindConstantBuffers();
+    void UnbindShaderResources();
     void UnbindAllCustomConstantBuffers();
+    void UnbindComputeShaderResources();
+    void UnbindAllComputeUAVs();
+    void UnbindComputeCustomConstantBuffers();
+    void UnbindAllComputeConstantBuffers();
 
 private:
-    void UnbindAllConstantBuffers();
 
     void SetShader(Shader* shader);
     void SetShaderProgram(ShaderProgram* shaderProgram = nullptr);
+    void SetComputeShaderProgram(ShaderProgram* shaderProgram = nullptr);
     void SetDepthStencilState(DepthStencilState* depthStencilState = nullptr);
     void SetRasterState(RasterState* rasterState = nullptr);
     void SetBlendState(BlendState* blendState = nullptr);

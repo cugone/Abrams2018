@@ -40,6 +40,8 @@ public:
 
     float trauma = 0.0f;
     float trauma_recovery_rate = 1.0f;
+    Vector2 position = Vector2::ZERO;
+    float orientation_degrees = 0.0f;
 protected:
 private:
     void CalcViewMatrix();
@@ -57,7 +59,5 @@ private:
     Vector2 leftBottom_view = Vector2{ -1.0f, 1.0f };
     Vector2 rightTop_view = Vector2{ 1.0f, -1.0f };
     Vector2 nearFar_distance = Vector2{ 0.0f, 1.0f };
-    Vector2 position = Vector2::ZERO;
     float aspect_ratio = MathUtils::M_16_BY_9_RATIO;
-    float orientation_degrees = 0.0f;
 };

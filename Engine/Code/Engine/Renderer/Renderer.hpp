@@ -11,6 +11,7 @@
 
 #include "Engine/Renderer/Camera3D.hpp"
 #include "Engine/Renderer/IndexBuffer.hpp"
+#include "Engine/Renderer/RenderTargetStack.hpp"
 #include "Engine/Renderer/StructuredBuffer.hpp"
 #include "Engine/Renderer/VertexBuffer.hpp"
 
@@ -19,6 +20,7 @@
 #include <filesystem>
 #include <map>
 #include <string>
+#include <vector>
 
 class AABB2;
 class AnimatedSprite;
@@ -30,8 +32,10 @@ class IndexBuffer;
 class IntVector3;
 class KerningFont;
 class Material;
+class OBB2;
 class RasterState;
 struct RasterDesc;
+class Renderer;
 class Rgba;
 class RHIDeviceContext;
 class RHIDevice;
@@ -106,6 +110,25 @@ struct lighting_buffer_t {
     float padding[3] = {0.0f, 0.0f, 0.0f};
 };
 
+struct ComputeJob {
+    Renderer* renderer = nullptr;
+    std::size_t uavCount = 0;
+    std::vector<Texture*> uavTextures{};
+    Shader* computeShader = nullptr;
+    unsigned int threadGroupCountX = 1;
+    unsigned int threadGroupCountY = 1;
+    unsigned int threadGroupCountZ = 1;
+    ComputeJob() = default;
+    ComputeJob(Renderer* renderer,
+               std::size_t uavCount,
+               const std::vector<Texture*> uavTextures,
+               Shader* computeShader,
+               unsigned int threadGroupCountX,
+               unsigned int threadGroupCountY,
+               unsigned int threadGroupCountZ);
+    ~ComputeJob();
+};
+
 class Renderer {
 public:
     Renderer() = default;
@@ -135,6 +158,7 @@ public:
     IndexBuffer* CreateIndexBuffer(const IndexBuffer::buffer_t& ibo) const;
     ConstantBuffer* CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) const;
     StructuredBuffer* CreateStructuredBuffer(const StructuredBuffer::buffer_t& sbo, std::size_t element_size, std::size_t element_count) const;
+
 
     Texture* CreateOrGetTexture(const std::string& filepath, const IntVector3& dimensions);
     void RegisterTexturesFromFolder(const std::string& folderpath, bool recursive = false);
@@ -166,17 +190,22 @@ public:
     Texture* Create3DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
     Texture* Create3DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
     Texture* CreateTexture(const std::string& filepath
-                           , const IntVector3& dimensions
-                           , const BufferUsage& bufferUsage = BufferUsage::Static
-                           , const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource
-                           , const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
+        , const IntVector3& dimensions
+        , const BufferUsage& bufferUsage = BufferUsage::Static
+        , const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource
+        , const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
 
     SpriteSheet* CreateSpriteSheet(const std::string& filepath, unsigned int width = 1, unsigned int height = 1);
     SpriteSheet* CreateSpriteSheet(const XMLElement& elem);
     AnimatedSprite* CreateAnimatedSprite(const std::string& filepath);
+    AnimatedSprite* CreateAnimatedSprite(SpriteSheet* sheet);
     AnimatedSprite* CreateAnimatedSprite(const XMLElement& elem);
 
+    const RenderTargetStack& GetRenderTargetStack() const;
+    void PushRenderTarget(const RenderTargetStack::Node& newRenderTarget = RenderTargetStack::Node{});
+    void PopRenderTarget();
     void SetRenderTarget(Texture* color_target = nullptr, Texture* depthstencil_target = nullptr);
+    void SetViewport(const ViewportDesc& desc);
     void SetViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
     void SetViewportAndScissor(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
     void SetViewports(const std::vector<AABB3>& viewports);
@@ -246,6 +275,8 @@ public:
     std::size_t GetShaderCount() const;
     Shader* GetShader(const std::string& nameOrFile);
     void RegisterShadersFromFolder(const std::string& filepath, bool recursive = false);
+    void SetComputeShader(Shader* shader);
+    void DispatchComputeJob(const ComputeJob& job);
 
     std::size_t GetFontCount() const;
     KerningFont* GetFont(const std::string& nameOrFile);
@@ -267,10 +298,13 @@ public:
     void SetPerspectiveProjection(const Vector2& vfovDegrees_aspect, const Vector2& nz_fz);
     void SetPerspectiveProjectionFromCamera(const Camera3D& camera);
     void SetCamera(const Camera3D& camera);
+    void SetCamera(const Camera2D& camera);
     Camera3D GetCamera() const;
 
     void SetConstantBuffer(unsigned int index, ConstantBuffer* buffer);
     void SetStructuredBuffer(unsigned int index, StructuredBuffer* buffer);
+    void SetComputeConstantBuffer(unsigned int index, ConstantBuffer* buffer);
+    void SetComputeStructuredBuffer(unsigned int index, StructuredBuffer* buffer);
 
     void DrawQuad(const Vector3& position = Vector3::ZERO, const Vector3& halfExtents = Vector3::XY_AXIS * 0.5f, const Rgba& color = Rgba::White, const Vector4& texCoords = Vector4::ZW_AXIS, const Vector3& normalFront = Vector3::Z_AXIS, const Vector3& worldUp = Vector3::Y_AXIS);
     void DrawQuad(const Rgba& frontColor, const Rgba& backColor, const Vector3& position = Vector3::ZERO, const Vector3& halfExtents = Vector3::XY_AXIS * 0.5f, const Vector4& texCoords = Vector4::ZW_AXIS, const Vector3& normalFront = Vector3::Z_AXIS, const Vector3& worldUp = Vector3::Y_AXIS);
@@ -288,6 +322,8 @@ public:
     void DrawFilledCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::White);
     void DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents = Vector2::ZERO);
     void DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor);
+    void DrawOBB2(const OBB2& obb, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents = Vector2::ZERO);
+    void DrawOBB2(float orientationDegrees, const Rgba& edgeColor, const Rgba& fillColor);
     void DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White);
     void DrawPolygon2D(const Vector2& center, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White);
     void DrawX2D(const Vector2& position = Vector2::ZERO, const Vector2& half_extents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::White);
@@ -306,6 +342,7 @@ public:
     std::vector<ConstantBuffer*> CreateConstantBuffersFromShaderProgram(const ShaderProgram* _shader_program) const;
 
     void SetWinProc(const std::function<bool(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) >& windowProcedure);
+
 protected:
 private:
     void UpdateSystemTime(TimeUtils::FPSeconds deltaSeconds);
@@ -394,6 +431,8 @@ private:
 
     void UnbindAllShaderResources();
     void UnbindAllConstantBuffers();
+    void UnbindComputeShaderResources();
+    void UnbindComputeConstantBuffers();
 
     Camera3D _camera{};
     matrix_buffer_t _matrix_data{};
@@ -401,6 +440,7 @@ private:
     lighting_buffer_t _lighting_data{};
     std::size_t _current_vbo_size = 0;
     std::size_t _current_ibo_size = 0;
+    RenderTargetStack* _target_stack = nullptr;
     RHIDeviceContext* _rhi_context = nullptr;
     RHIDevice* _rhi_device = nullptr;
     RHIOutput* _rhi_output = nullptr;

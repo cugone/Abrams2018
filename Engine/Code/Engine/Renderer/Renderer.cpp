@@ -13,6 +13,7 @@
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/Frustum.hpp"
 #include "Engine/Math/MathUtils.hpp"
+#include "Engine/Math/OBB2.hpp"
 #include "Engine/Math/Vector2.hpp"
 
 #include "Engine/Profiling/ProfileLogScope.hpp"
@@ -23,11 +24,13 @@
 #include "Engine/RHI/RHIOutput.hpp"
 
 #include "Engine/Renderer/AnimatedSprite.hpp"
+#include "Engine/Renderer/Camera2D.hpp"
 #include "Engine/Renderer/Camera3D.hpp"
 #include "Engine/Renderer/ConstantBuffer.hpp"
 #include "Engine/Renderer/DepthStencilState.hpp"
 #include "Engine/Renderer/InputLayout.hpp"
 #include "Engine/Renderer/Material.hpp"
+#include "Engine/Renderer/RenderTargetStack.hpp"
 #include "Engine/Renderer/RasterState.hpp"
 #include "Engine/Renderer/Sampler.hpp"
 #include "Engine/Renderer/Shader.hpp"
@@ -50,6 +53,34 @@
 #include <fstream>
 #include <sstream>
 
+ComputeJob::ComputeJob(Renderer* renderer,
+                       std::size_t uavCount,
+                       const std::vector<Texture*> uavTextures,
+                       Shader* computeShader,
+                       unsigned int threadGroupCountX,
+                       unsigned int threadGroupCountY,
+                       unsigned int threadGroupCountZ)
+:renderer(renderer)
+,uavCount(uavCount)
+,uavTextures{uavTextures}
+,computeShader(computeShader)
+,threadGroupCountX(threadGroupCountX)
+,threadGroupCountY(threadGroupCountY)
+,threadGroupCountZ(threadGroupCountZ)
+{
+    /* DO NOTHING */
+}
+
+ComputeJob::~ComputeJob() {
+    if(renderer) {
+        auto dc = renderer->GetDeviceContext();
+        dc->UnbindAllComputeConstantBuffers();
+        dc->UnbindComputeShaderResources();
+        dc->UnbindAllComputeUAVs();
+        renderer->SetComputeShader(nullptr);
+    }
+}
+
 Renderer::Renderer(unsigned int width, unsigned int height)
     : _window_dimensions(width, height)
 {
@@ -59,7 +90,12 @@ Renderer::Renderer(unsigned int width, unsigned int height)
 Renderer::~Renderer() {
 
     UnbindAllConstantBuffers();
+    UnbindComputeConstantBuffers();
     UnbindAllShaderResources();
+    UnbindComputeShaderResources();
+
+    delete _target_stack;
+    _target_stack = nullptr;
 
     for(auto& texture : _textures) {
         delete texture.second;
@@ -178,6 +214,8 @@ void Renderer::Initialize(bool headless /*= false*/) {
     CreateAndRegisterDefaultShaders();
     CreateAndRegisterDefaultMaterials();
     CreateAndRegisterDefaultDepthStencil();
+
+    _target_stack = new RenderTargetStack(this);
 
     SetDepthStencilState(GetDepthStencilState("__default"));
     SetRasterState(GetRasterState("__solid"));
@@ -655,6 +693,22 @@ AnimatedSprite* Renderer::CreateAnimatedSprite(const XMLElement& elem) {
     return new AnimatedSprite(*this, elem);
 }
 
+AnimatedSprite* Renderer::CreateAnimatedSprite(SpriteSheet* sheet) {
+    return new AnimatedSprite(*this, sheet);
+}
+
+const RenderTargetStack& Renderer::GetRenderTargetStack() const {
+    return *_target_stack;
+}
+
+void Renderer::PushRenderTarget(const RenderTargetStack::Node& newRenderTarget /*= RenderTargetStack::Node{}*/) {
+    _target_stack->Push(newRenderTarget);
+}
+
+void Renderer::PopRenderTarget() {
+    _target_stack->Pop();
+}
+
 SpriteSheet* Renderer::CreateSpriteSheet(const XMLElement& elem) {
     return new SpriteSheet(*this, elem);
 }
@@ -920,6 +974,66 @@ void Renderer::DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor) {
     DrawAABB2(bounds, edgeColor, fillColor, edge_half_extents);
 }
 
+void Renderer::DrawOBB2(const OBB2& obb, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents /*= Vector2::ZERO*/) {
+    const auto left = obb.position + obb.half_extents.x * obb.GetLeft();
+    const auto right = obb.position + obb.half_extents.x * obb.GetRight();
+    const auto up = obb.position + obb.half_extents.y * obb.GetUp();
+    const auto down = obb.position + obb.half_extents.y * obb.GetDown();
+
+    Vector2 lt(left + obb.half_extents.y * obb.GetUp());
+    Vector2 lb(left + obb.half_extents.y * obb.GetDown());
+    Vector2 rt(right + obb.half_extents.y * obb.GetUp());
+    Vector2 rb(right + obb.half_extents.y * obb.GetDown());
+    Vector2 lt_inner(lt);
+    Vector2 lb_inner(lb);
+    Vector2 rt_inner(rt);
+    Vector2 rb_inner(rb);
+    Vector2 lt_outer(lt.x - edgeHalfExtents.x, lt.y - edgeHalfExtents.y);
+    Vector2 lb_outer(lb.x - edgeHalfExtents.x, lb.y + edgeHalfExtents.y);
+    Vector2 rt_outer(rt.x + edgeHalfExtents.x, rt.y - edgeHalfExtents.y);
+    Vector2 rb_outer(rb.x + edgeHalfExtents.x, rb.y + edgeHalfExtents.y);
+    std::vector<Vertex3D> vbo = {
+        Vertex3D(Vector3(rt_outer, 0.0f), edgeColor),
+        Vertex3D(Vector3(lt_outer, 0.0f), edgeColor),
+        Vertex3D(Vector3(lt_inner, 0.0f), edgeColor),
+        Vertex3D(Vector3(rt_inner, 0.0f), edgeColor),
+        Vertex3D(Vector3(rb_outer, 0.0f), edgeColor),
+        Vertex3D(Vector3(rb_inner, 0.0f), edgeColor),
+        Vertex3D(Vector3(lb_outer, 0.0f), edgeColor),
+        Vertex3D(Vector3(lb_inner, 0.0f), edgeColor),
+        Vertex3D(Vector3(rt_inner, 0.0f), fillColor),
+        Vertex3D(Vector3(lt_inner, 0.0f), fillColor),
+        Vertex3D(Vector3(lb_inner, 0.0f), fillColor),
+        Vertex3D(Vector3(rb_inner, 0.0f), fillColor),
+    };
+
+    std::vector<unsigned int> ibo = {
+        8, 9, 10,
+        8, 10, 11,
+        0, 1, 2,
+        0, 2, 3,
+        4, 0, 3,
+        4, 3, 5,
+        6, 4, 5,
+        6, 5, 7,
+        1, 6, 7,
+        1, 7, 2,
+    };
+    if(edgeHalfExtents == Vector2::ZERO) {
+        DrawIndexed(PrimitiveType::Lines, vbo, ibo, ibo.size() - 6, 6);
+    } else {
+        DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
+    }
+}
+
+void Renderer::DrawOBB2(float orientationDegrees, const Rgba& edgeColor, const Rgba& fillColor) {
+    OBB2 obb;
+    obb.half_extents = Vector2(0.5f, 0.5f);
+    obb.SetOrientationDegrees(orientationDegrees);
+    auto edge_half_extents = Vector2::ZERO;
+    DrawOBB2(obb, edgeColor, fillColor, edge_half_extents);
+}
+
 void Renderer::DrawX2D(const Vector2& position /*= Vector2::ZERO*/, const Vector2& half_extents /*= Vector2(0.5f, 0.5f)*/, const Rgba& color /*= Rgba::WHITE*/) {
     float left = position.x - half_extents.x;
     float top = position.y - half_extents.y;
@@ -1139,6 +1253,16 @@ void Renderer::SetWinProc(const std::function<bool(HWND hwnd, UINT msg, WPARAM w
     }
 }
 
+void Renderer::DispatchComputeJob(const ComputeJob& job) {
+    SetComputeShader(job.computeShader);
+    auto dc = GetDeviceContext();
+    auto dx_dc = dc->GetDxContext();
+    for(auto i = 0u; i < job.uavCount; ++i) {
+        dc->SetUnorderedAccessView(i, job.uavTextures[i]);
+    }
+    dx_dc->Dispatch(job.threadGroupCountX, job.threadGroupCountY, job.threadGroupCountZ);
+}
+
 Texture* Renderer::GetDefaultDepthStencil() const {
     return _default_depthstencil;
 }
@@ -1268,9 +1392,9 @@ struct ps_in_t {
 
 SamplerState sSampler : register(s0);
 
-Texture2D<float4> tImage    : register(t0);
+Texture2D<float4> tDiffuse    : register(t0);
 Texture2D<float4> tNormal   : register(t1);
-Texture2D<float4> tLighting : register(t2);
+Texture2D<float4> tDisplacement : register(t2);
 Texture2D<float4> tSpecular : register(t3);
 Texture2D<float4> tOcclusion : register(t4);
 Texture2D<float4> tEmissive : register(t5);
@@ -1296,7 +1420,7 @@ ps_in_t VertexFunction(vs_in_t input_vertex) {
 float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
 
     float2 uv = input_pixel.uv;
-    float4 albedo = tImage.Sample(sSampler, uv);
+    float4 albedo = tDiffuse.Sample(sSampler, uv);
     float4 tinted_color = albedo * input_pixel.color;
     
     float use_vertex_normals = (float)g_lightUseVertexNormals;
@@ -1433,9 +1557,9 @@ struct ps_in_t {
 
 SamplerState sSampler : register(s0);
 
-Texture2D<float4> tImage    : register(t0);
+Texture2D<float4> tDiffuse    : register(t0);
 Texture2D<float4> tNormal   : register(t1);
-Texture2D<float4> tLighting : register(t2);
+Texture2D<float4> tDisplacement : register(t2);
 Texture2D<float4> tSpecular : register(t3);
 Texture2D<float4> tOcclusion : register(t4);
 Texture2D<float4> tEmissive : register(t5);
@@ -1457,7 +1581,7 @@ ps_in_t VertexFunction(vs_in_t input_vertex) {
 }
 
 float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
-    float4 albedo = tImage.Sample(sSampler, input_pixel.uv);
+    float4 albedo = tDiffuse.Sample(sSampler, input_pixel.uv);
     return albedo * input_pixel.color;
 }
 
@@ -1552,9 +1676,9 @@ struct ps_in_t {
 
 SamplerState sSampler : register(s0);
 
-Texture2D<float4> tImage    : register(t0);
+Texture2D<float4> tDiffuse    : register(t0);
 Texture2D<float4> tNormal   : register(t1);
-Texture2D<float4> tLighting : register(t2);
+Texture2D<float4> tDisplacement : register(t2);
 Texture2D<float4> tSpecular : register(t3);
 Texture2D<float4> tOcclusion : register(t4);
 Texture2D<float4> tEmissive : register(t5);
@@ -1580,7 +1704,7 @@ ps_in_t VertexFunction(vs_in_t input_vertex) {
 float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
 
     float2 uv = input_pixel.uv;
-    float4 albedo = tImage.Sample(sSampler, uv);
+    float4 albedo = tDiffuse.Sample(sSampler, uv);
     float4 tinted_color = albedo * input_pixel.color;
 
     float3 normal_as_color = NormalAsColor(input_pixel.normal.xyz);
@@ -1683,9 +1807,9 @@ struct ps_in_t {
 
 SamplerState sSampler : register(s0);
 
-Texture2D<float4> tImage    : register(t0);
+Texture2D<float4> tDiffuse    : register(t0);
 Texture2D<float4> tNormal   : register(t1);
-Texture2D<float4> tLighting : register(t2);
+Texture2D<float4> tDisplacement : register(t2);
 Texture2D<float4> tSpecular : register(t3);
 Texture2D<float4> tOcclusion : register(t4);
 Texture2D<float4> tEmissive : register(t5);
@@ -1711,7 +1835,7 @@ ps_in_t VertexFunction(vs_in_t input_vertex) {
 float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
 
     float2 uv = input_pixel.uv;
-    float4 albedo = tImage.Sample(sSampler, uv);
+    float4 albedo = tDiffuse.Sample(sSampler, uv);
     float4 tinted_color = albedo * input_pixel.color;
 
     float3 normal_as_color = tNormal.Sample(sSampler, uv).rgb;
@@ -2100,6 +2224,18 @@ void Renderer::UnbindAllShaderResources() {
 }
 
 void Renderer::UnbindAllConstantBuffers() {
+    if(_rhi_context) {
+        _rhi_context->UnbindAllConstantBuffers();
+    }
+}
+
+void Renderer::UnbindComputeShaderResources() {
+    if(_rhi_context) {
+        _rhi_context->UnbindAllShaderResources();
+    }
+}
+
+void Renderer::UnbindComputeConstantBuffers() {
     if(_rhi_context) {
         _rhi_context->UnbindAllConstantBuffers();
     }
@@ -2638,11 +2774,12 @@ ShaderProgram* Renderer::GetShaderProgram(const std::string& nameOrFile) {
 
 ShaderProgram* Renderer::CreateShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPointList, const PipelineStage& target) const {
     bool requested_retry = false;
+    ShaderProgram* sp = nullptr;
     do {
-        ShaderProgram* sp = nullptr;
         std::string contents{};
         if(FileUtils::ReadBufferFromFile(contents, filepath)) {
                 sp = _rhi_device->CreateShaderProgramFromHlslString(filepath, contents, entryPointList, nullptr, target);
+                requested_retry = false;
 #ifdef RENDER_DEBUG
                 if(sp == nullptr) {
                     std::ostringstream error_msg{};
@@ -2653,14 +2790,18 @@ ShaderProgram* Renderer::CreateShaderProgramFromHlslFile(const std::string& file
                     requested_retry = button_id == IDRETRY;
                 }
 #endif
-            return sp;
         }
     } while(requested_retry);
-    return nullptr;
+    return sp;
 }
 
 void Renderer::CreateAndRegisterShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPointList, const PipelineStage& target) {
     auto sp = CreateShaderProgramFromHlslFile(filepath, entryPointList, target);
+    if(!sp) {
+        std::ostringstream oss;
+        oss << filepath << " failed to compile.\n";
+        ERROR_AND_DIE(oss.str().c_str());
+    }
     RegisterShaderProgram(filepath, sp);
 }
 
@@ -2744,6 +2885,14 @@ void Renderer::RegisterShadersFromFolder(const std::filesystem::path& folderpath
         this->RegisterShader(p);
     };
     FileUtils::ForEachFileInFolder(folderpath, ".shader", cb, recursive);
+}
+
+void Renderer::SetComputeShader(Shader* shader) {
+    if(shader == nullptr) {
+        _rhi_context->SetComputeShaderProgram(nullptr);
+    } else {
+        _rhi_context->SetComputeShaderProgram(shader->GetShaderProgram());
+    }
 }
 
 std::size_t Renderer::GetFontCount() const {
@@ -2833,8 +2982,14 @@ void Renderer::SetPerspectiveProjectionFromCamera(const Camera3D& camera) {
 
 void Renderer::SetCamera(const Camera3D& camera) {
     _camera = camera;
-    SetViewMatrix(_camera.GetViewMatrix());
-    SetProjectionMatrix(_camera.GetProjectionMatrix());
+    SetViewMatrix(camera.GetViewMatrix());
+    SetProjectionMatrix(camera.GetProjectionMatrix());
+}
+
+void Renderer::SetCamera(const Camera2D& camera) {
+    _camera = camera;
+    SetViewMatrix(camera.GetViewMatrix());
+    SetProjectionMatrix(camera.GetProjectionMatrix());
 }
 
 Camera3D Renderer::GetCamera() const {
@@ -2845,8 +3000,16 @@ void Renderer::SetConstantBuffer(unsigned int index, ConstantBuffer* buffer) {
     _rhi_context->SetConstantBuffer(index, buffer);
 }
 
+void Renderer::SetComputeConstantBuffer(unsigned int index, ConstantBuffer* buffer) {
+    _rhi_context->SetComputeConstantBuffer(index, buffer);
+}
+
 void Renderer::SetStructuredBuffer(unsigned int index, StructuredBuffer* buffer) {
     _rhi_context->SetStructuredBuffer(index, buffer);
+}
+
+void Renderer::SetComputeStructuredBuffer(unsigned int index, StructuredBuffer* buffer) {
+    _rhi_context->SetComputeStructuredBuffer(index, buffer);
 }
 
 void Renderer::DrawQuad(const Vector3& position /*= Vector3::ZERO*/, const Vector3& halfExtents /*= Vector3::XY_AXIS * 0.5f*/, const Rgba& color /*= Rgba::WHITE*/, const Vector4& texCoords /*= Vector4::ZW_AXIS*/, const Vector3& normalFront /*= Vector3::Z_AXIS*/, const Vector3& worldUp /*= Vector3::Y_AXIS*/) {
@@ -2934,6 +3097,13 @@ void Renderer::SetRenderTarget(Texture* color_target /*= nullptr*/, Texture* dep
     ID3D11DepthStencilView* dsv = _current_depthstencil->GetDepthStencilView();
     ID3D11RenderTargetView* rtv = _current_target->GetRenderTargetView();
     _rhi_context->GetDxContext()->OMSetRenderTargets(1, &rtv, dsv);
+}
+
+void Renderer::SetViewport(const ViewportDesc& desc) {
+    SetViewport(static_cast<unsigned int>(desc.x),
+                static_cast<unsigned int>(desc.y),
+                static_cast<unsigned int>(desc.width),
+                static_cast<unsigned int>(desc.height));
 }
 
 void Renderer::SetViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height) {
@@ -3430,6 +3600,9 @@ Texture* Renderer::Create2DTextureFromMemory(const std::vector<Rgba>& data, unsi
     if((bindUsage & BufferBindUsage::Unordered_Access) == BufferBindUsage::Unordered_Access) {
         tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
         tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
+    }
+    if((bufferUsage & BufferUsage::Staging) == BufferUsage::Staging) {
+        tex_desc.BindFlags = 0;
     }
     tex_desc.MiscFlags = 0;
     tex_desc.SampleDesc.Count = 1;

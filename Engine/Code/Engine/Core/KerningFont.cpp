@@ -183,48 +183,51 @@ bool KerningFont::LoadFromText(std::vector<unsigned char>& buffer) {
     std::string bufferAsStr = std::string(buffer.begin(), buffer.end());
     buffer.clear();
     buffer.shrink_to_fit();
-    std::istringstream ss;
-    ss.str(bufferAsStr);
-    std::string cur_line{};
-    while(std::getline(ss, cur_line)) {
-        if(cur_line.empty()) {
-            continue;
-        }
-        if(IsInfoLine(cur_line)) {
-            if(!ParseInfoLine(cur_line)) {
-                return false;
+    unsigned int kerning_count = 0u;
+    {
+        std::istringstream ss;
+        ss.str(bufferAsStr);
+        std::string cur_line{};
+        while(std::getline(ss, cur_line)) {
+            if(cur_line.empty()) {
+                continue;
             }
-        } else
-            if(IsCommonLine(cur_line)) {
-            if(!ParseCommonLine(cur_line)) {
-                return false;
-            }
-        } else
-        if(IsPageLine(cur_line)) {
-            if(!ParsePageLine(cur_line)) {
-                return false;
-            }
-        } else
-        if(IsCharsLine(cur_line)) {
-            if(!ParseCharsLine(cur_line)) {
-                return false;
-            }
-        } else
-        if(IsCharLine(cur_line)) {
-            if(!ParseCharLine(cur_line)) {
-                return false;
-            }
-        } else
-        if(IsKerningsLine(cur_line)) {
-            if(!ParseKerningsLine(cur_line)) {
-                return false;
-            }
-        } else
-        if(IsKerningLine(cur_line)) {
-            if(!ParseKerningLine(cur_line)) {
-                return false;
+            if(IsInfoLine(cur_line)) {
+                if(!ParseInfoLine(cur_line)) {
+                    return false;
+                }
+            } else if(IsCommonLine(cur_line)) {
+                if(!ParseCommonLine(cur_line)) {
+                    return false;
+                }
+            } else if(IsPageLine(cur_line)) {
+                if(!ParsePageLine(cur_line)) {
+                    return false;
+                }
+            } else if(IsCharsLine(cur_line)) {
+                if(!ParseCharsLine(cur_line)) {
+                    return false;
+                }
+            } else if(IsCharLine(cur_line)) {
+                if(!ParseCharLine(cur_line)) {
+                    return false;
+                }
+            } else if(IsKerningsLine(cur_line)) {
+                if(!ParseKerningsLine(cur_line)) {
+                    return false;
+                }
+            } else if(IsKerningLine(cur_line)) {
+                if(!ParseKerningLine(cur_line)) {
+                    return false;
+                }
+                ++kerning_count;
             }
         }
+    }
+    if(!kerning_count) {
+        std::ostringstream ss;
+        ss << "No kerning pairs found in font \"" << _name << "\"\n";
+        DebuggerPrintf(ss.str().c_str());
     }
     return true;
 }
@@ -552,115 +555,104 @@ bool KerningFont::LoadFromXml(std::vector<unsigned char>& buffer) {
 
     DataUtils::ValidateXmlElement(*xml_root, "font", "info,common,pages,chars", "", "kernings");
 
-    auto xml_info = xml_root->FirstChildElement("info");
-    if(xml_info == nullptr) {
-        return false;
-    }
+    if(auto xml_info = xml_root->FirstChildElement("info")) {
+        DataUtils::ValidateXmlElement(*xml_info, "info", "", "face,size,bold,italic,charset,unicode,stretchH,smooth,aa,padding,spacing,outline");
 
-    _info.face = DataUtils::ParseXmlAttribute(*xml_info, "face", _info.face);
-    _info.em_size = DataUtils::ParseXmlAttribute(*xml_info, "size", _info.em_size);
-    _info.is_bold = DataUtils::ParseXmlAttribute(*xml_info, "bold", _info.is_bold);
-    _info.is_italic = DataUtils::ParseXmlAttribute(*xml_info, "italic", _info.is_italic);
-    _info.charset = DataUtils::ParseXmlAttribute(*xml_info, "charset", _info.charset);
-    _info.is_unicode = DataUtils::ParseXmlAttribute(*xml_info, "unicode", _info.is_unicode);
-    _info.stretch_height = DataUtils::ParseXmlAttribute(*xml_info, "stretchH", _info.stretch_height) / 100.0f;
-    _info.is_smoothed = DataUtils::ParseXmlAttribute(*xml_info, "smooth", _info.is_smoothed);
-    
-    {
-    std::ostringstream ss;
-    ss << _info.face << _info.em_size;
-    _name = ss.str();
-    }
-
-    {
-        std::string padding_str{};
-        auto padding = StringUtils::Split(DataUtils::ParseXmlAttribute(*xml_info, "padding", padding_str));
-        ASSERT_OR_DIE(padding.size() == 4, "FONT FORMAT INFO PADDING CHANGED");
-        _info.padding.x = std::stoi(padding[0]);
-        _info.padding.y = std::stoi(padding[1]);
-        _info.padding.z = std::stoi(padding[2]);
-        _info.padding.w = std::stoi(padding[3]);
-    }
-
-    {
-        std::string spacing_str{};
-        auto spacing = StringUtils::Split(DataUtils::ParseXmlAttribute(*xml_info, "spacing", spacing_str));
-        ASSERT_OR_DIE(spacing.size() == 2, "FONT FORMAT INFO SPACING CHANGED");
-        _info.spacing.x = std::stoi(spacing[0]);
-        _info.spacing.y = std::stoi(spacing[1]);
-    }
-
-    _info.outline = DataUtils::ParseXmlAttribute(*xml_info, "outline", _info.outline);
-
-
-    auto xml_common = xml_root->FirstChildElement("common");
-    if(xml_common == nullptr) {
-        return false;
-    }
-
-    _common.line_height = DataUtils::ParseXmlAttribute(*xml_common, "lineHeight", _common.line_height);
-    _common.base = DataUtils::ParseXmlAttribute(*xml_common, "base", _common.base);
-    _common.scale.x = DataUtils::ParseXmlAttribute(*xml_common, "scaleW", _common.scale.x);
-    _common.scale.y = DataUtils::ParseXmlAttribute(*xml_common, "scaleH", _common.scale.y); 
-    _common.page_count = DataUtils::ParseXmlAttribute(*xml_common, "pages", _common.page_count);
-    _common.is_packed = DataUtils::ParseXmlAttribute(*xml_common, "packed", _common.is_packed);
-    _common.alpha_channel = DataUtils::ParseXmlAttribute(*xml_common, "alphaChnl", _common.alpha_channel);
-    _common.red_channel = DataUtils::ParseXmlAttribute(*xml_common, "redChnl", _common.red_channel);
-    _common.green_channel = DataUtils::ParseXmlAttribute(*xml_common, "greenChnl", _common.green_channel);
-    _common.blue_channel = DataUtils::ParseXmlAttribute(*xml_common, "blueChnl", _common.blue_channel);
-
-    auto xml_pages = xml_root->FirstChildElement("pages");
-    if(xml_pages == nullptr) {
-        return false;
-    }
-
-    _image_paths.resize(_common.page_count);
-    {//Scope constraint
-        namespace FS = std::filesystem;
-        FS::path p{};
-        for(auto xml_page = xml_pages->FirstChildElement("page");
-            xml_page != nullptr;
-            xml_page = xml_page->NextSiblingElement("page"))
+        _info.face = DataUtils::ParseXmlAttribute(*xml_info, "face", _info.face);
+        _info.em_size = DataUtils::ParseXmlAttribute(*xml_info, "size", _info.em_size);
+        _info.is_bold = DataUtils::ParseXmlAttribute(*xml_info, "bold", _info.is_bold);
+        _info.is_italic = DataUtils::ParseXmlAttribute(*xml_info, "italic", _info.is_italic);
+        _info.charset = DataUtils::ParseXmlAttribute(*xml_info, "charset", _info.charset);
+        _info.is_unicode = DataUtils::ParseXmlAttribute(*xml_info, "unicode", _info.is_unicode);
+        _info.stretch_height = DataUtils::ParseXmlAttribute(*xml_info, "stretchH", _info.stretch_height) / 100.0f;
+        _info.is_smoothed = DataUtils::ParseXmlAttribute(*xml_info, "smooth", _info.is_smoothed);
+        _info.is_aliased = DataUtils::ParseXmlAttribute(*xml_info, "aa", _info.is_aliased);
         {
-            unsigned int page_id = DataUtils::ParseXmlAttribute(*xml_page, "id", 0u);
-            FS::path page_file = xml_page->Attribute("file");
-            page_file.make_preferred();
-            p += page_file;
-            p.make_preferred();
-            _image_paths[page_id] = p.string();
+            std::ostringstream ss;
+            ss << _info.face << _info.em_size;
+            _name = ss.str();
+        }
+        {
+            std::string padding_str{};
+            auto padding = StringUtils::Split(DataUtils::ParseXmlAttribute(*xml_info, "padding", padding_str));
+            ASSERT_OR_DIE(padding.size() == 4, "FONT FORMAT INFO PADDING CHANGED");
+            _info.padding.x = std::stoi(padding[0]);
+            _info.padding.y = std::stoi(padding[1]);
+            _info.padding.z = std::stoi(padding[2]);
+            _info.padding.w = std::stoi(padding[3]);
+        }
+        {
+            std::string spacing_str{};
+            auto spacing = StringUtils::Split(DataUtils::ParseXmlAttribute(*xml_info, "spacing", spacing_str));
+            ASSERT_OR_DIE(spacing.size() == 2, "FONT FORMAT INFO SPACING CHANGED");
+            _info.spacing.x = std::stoi(spacing[0]);
+            _info.spacing.y = std::stoi(spacing[1]);
+        }
+        _info.outline = DataUtils::ParseXmlAttribute(*xml_info, "outline", _info.outline);
+    }
+
+    if(auto xml_common = xml_root->FirstChildElement("common")) {
+        DataUtils::ValidateXmlElement(*xml_common, "common", "", "lineHeight,base,scaleW,scaleH,pages,packed,alphaChnl,redChnl,greenChnl,blueChnl");
+        _common.line_height = DataUtils::ParseXmlAttribute(*xml_common, "lineHeight", _common.line_height);
+        _common.base = DataUtils::ParseXmlAttribute(*xml_common, "base", _common.base);
+        _common.scale.x = DataUtils::ParseXmlAttribute(*xml_common, "scaleW", _common.scale.x);
+        _common.scale.y = DataUtils::ParseXmlAttribute(*xml_common, "scaleH", _common.scale.y);
+        _common.page_count = DataUtils::ParseXmlAttribute(*xml_common, "pages", _common.page_count);
+        _common.is_packed = DataUtils::ParseXmlAttribute(*xml_common, "packed", _common.is_packed);
+        _common.alpha_channel = DataUtils::ParseXmlAttribute(*xml_common, "alphaChnl", _common.alpha_channel);
+        _common.red_channel = DataUtils::ParseXmlAttribute(*xml_common, "redChnl", _common.red_channel);
+        _common.green_channel = DataUtils::ParseXmlAttribute(*xml_common, "greenChnl", _common.green_channel);
+        _common.blue_channel = DataUtils::ParseXmlAttribute(*xml_common, "blueChnl", _common.blue_channel);
+    }
+    if(auto xml_pages = xml_root->FirstChildElement("pages")) {
+        DataUtils::ValidateXmlElement(*xml_pages, "pages", "page", "");
+        _image_paths.resize(_common.page_count);
+        {//Scope constraint
+            namespace FS = std::filesystem;
+            FS::path p{};
+            for(auto xml_page = xml_pages->FirstChildElement("page");
+                xml_page != nullptr;
+                xml_page = xml_page->NextSiblingElement("page")) {
+                DataUtils::ValidateXmlElement(*xml_page, "page", "", "id,file");
+                unsigned int page_id = DataUtils::ParseXmlAttribute(*xml_page, "id", 0u);
+                FS::path page_file = DataUtils::ParseXmlAttribute(*xml_page, "file", std::string{});
+                page_file.make_preferred();
+                p += page_file;
+                p.make_preferred();
+                _image_paths[page_id] = p.string();
+            }
         }
     }
+    if(auto xml_chars = xml_root->FirstChildElement("chars")) {
+        DataUtils::ValidateXmlElement(*xml_chars, "chars", "char", "count");
 
-    auto xml_chars = xml_root->FirstChildElement("chars");
-    if(xml_chars == nullptr) {
-        return false;
+        _char_count = DataUtils::ParseXmlAttribute(*xml_chars, "count", _char_count);
+        for(auto xml_char = xml_chars->FirstChildElement("char");
+            xml_char != nullptr;
+            xml_char = xml_char->NextSiblingElement("char")) {
+            DataUtils::ValidateXmlElement(*xml_char, "char", "", "id,x,y,width,height,xoffset,yoffset,xadvance,page,chnl");
+            int id = DataUtils::ParseXmlAttribute(*xml_char, "id", 0u);
+            CharDef t;
+            t.position.x = DataUtils::ParseXmlAttribute(*xml_char, "x", t.position.x);
+            t.position.y = DataUtils::ParseXmlAttribute(*xml_char, "y", t.position.y);
+            t.dimensions.x = DataUtils::ParseXmlAttribute(*xml_char, "width", t.dimensions.x);
+            t.dimensions.y = DataUtils::ParseXmlAttribute(*xml_char, "height", t.dimensions.y);
+            t.offsets.x = DataUtils::ParseXmlAttribute(*xml_char, "xoffset", t.offsets.x);
+            t.offsets.y = DataUtils::ParseXmlAttribute(*xml_char, "yoffset", t.offsets.y);
+            t.xadvance = DataUtils::ParseXmlAttribute(*xml_char, "xadvance", t.xadvance);
+            t.page_id = DataUtils::ParseXmlAttribute(*xml_char, "page", t.page_id);
+            t.channel_id = DataUtils::ParseXmlAttribute(*xml_char, "chnl", t.channel_id);
+
+            _charmap.insert_or_assign(id, t);
+        }
     }
-    _char_count = DataUtils::ParseXmlAttribute(*xml_chars, "count", _char_count);
-
-    for(auto xml_char = xml_chars->FirstChildElement("char");
-        xml_char != nullptr;
-        xml_char = xml_char->NextSiblingElement("char"))
-    {
-        int id = DataUtils::ParseXmlAttribute(*xml_char, "id", 0u);
-        CharDef t;
-        t.position.x = DataUtils::ParseXmlAttribute(*xml_char, "x", t.position.x);
-        t.position.y = DataUtils::ParseXmlAttribute(*xml_char, "y", t.position.y);
-        t.dimensions.x = DataUtils::ParseXmlAttribute(*xml_char, "width", t.dimensions.x);
-        t.dimensions.y = DataUtils::ParseXmlAttribute(*xml_char, "height", t.dimensions.y);
-        t.offsets.x = DataUtils::ParseXmlAttribute(*xml_char, "xoffset", t.offsets.x);
-        t.offsets.y = DataUtils::ParseXmlAttribute(*xml_char, "yoffset", t.offsets.y);
-        t.xadvance = DataUtils::ParseXmlAttribute(*xml_char, "xadvance", t.xadvance);
-        t.page_id = DataUtils::ParseXmlAttribute(*xml_char, "page", t.page_id);
-        t.channel_id = DataUtils::ParseXmlAttribute(*xml_char, "chnl", t.channel_id);
-
-        _charmap.insert_or_assign(id, t);
-    }
-
-
-    auto xml_kernings = xml_root->FirstChildElement("kernings");
-    if(xml_kernings) {
+    if(auto xml_kernings = xml_root->FirstChildElement("kernings")) {
+        DataUtils::ValidateXmlElement(*xml_kernings, "kernings", "kerning", "count");
         _kerns_count = DataUtils::ParseXmlAttribute(*xml_kernings, "count", _char_count);
-        for(auto xml_kern = xml_kernings->FirstChildElement("kerning"); xml_kern != nullptr; xml_kern = xml_kern->NextSiblingElement("kerning")) {
+        for(auto xml_kern = xml_kernings->FirstChildElement("kerning");
+            xml_kern != nullptr;
+            xml_kern = xml_kern->NextSiblingElement("kerning")) {
+            DataUtils::ValidateXmlElement(*xml_kern, "kerning", "", "first,second,amount");
             KerningDef def{};
             def.first = DataUtils::ParseXmlAttribute(*xml_kernings, "first", def.first);
             def.second = DataUtils::ParseXmlAttribute(*xml_kernings, "second", def.second);
@@ -668,8 +660,11 @@ bool KerningFont::LoadFromXml(std::vector<unsigned char>& buffer) {
 
             _kernmap.insert_or_assign(std::make_pair(def.first, def.second), def.amount);
         }
+    } else {
+        std::ostringstream ss;
+        ss << "No kerning pairs found in font \"" << _name << "\"\n";
+        DebuggerPrintf(ss.str().c_str());
     }
-
     return true;
 }
 

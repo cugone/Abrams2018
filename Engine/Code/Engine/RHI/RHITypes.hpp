@@ -6,6 +6,15 @@
 #include <type_traits>
 #include <utility>
 
+struct ViewportDesc {
+    float x = 0.0f;
+    float y = 0.0f;
+    float width = 0.0f;
+    float height = 0.0f;
+    float minDepth = 0.0f;
+    float maxDepth = 1.0f;
+};
+
 struct DisplayDesc {
     unsigned int width = 0u;
     unsigned int height = 0u;
@@ -264,6 +273,11 @@ enum class BufferUsage : unsigned int {
     , Dynamic
     , Staging
 };
+
+BufferUsage& operator&=(BufferUsage& a, const BufferUsage& b);
+BufferUsage& operator|=(BufferUsage& a, const BufferUsage& b);
+BufferUsage operator&(BufferUsage a, const BufferUsage& b);
+BufferUsage operator|(BufferUsage a, const BufferUsage& b);
 
 enum class BufferBindUsage : uint32_t {
     Vertex_Buffer = 0x001

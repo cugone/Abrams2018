@@ -70,6 +70,32 @@ RHIOutputMode operator++(RHIOutputMode& mode, int) {
     return result;
 }
 
+BufferUsage& operator&=(BufferUsage& a, const BufferUsage& b) {
+    using underlying = std::underlying_type_t<BufferUsage>;
+    auto underlying_a = static_cast<underlying>(a);
+    auto underlying_b = static_cast<underlying>(b);
+    a = static_cast<BufferUsage>(underlying_a & underlying_b);
+    return a;
+}
+
+BufferUsage& operator|=(BufferUsage& a, const BufferUsage& b) {
+    using underlying = std::underlying_type_t<BufferUsage>;
+    auto underlying_a = static_cast<underlying>(a);
+    auto underlying_b = static_cast<underlying>(b);
+    a = static_cast<BufferUsage>(underlying_a | underlying_b);
+    return a;
+}
+
+BufferUsage operator&(BufferUsage a, const BufferUsage& b) {
+    a &= b;
+    return a;
+}
+
+BufferUsage operator|(BufferUsage a, const BufferUsage& b) {
+    a |= b;
+    return a;
+}
+
 BufferBindUsage& operator|=(BufferBindUsage& a, const BufferBindUsage& b) {
     using underlying = std::underlying_type_t<BufferBindUsage>;
     auto underlying_a = static_cast<underlying>(a);

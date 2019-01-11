@@ -37,6 +37,12 @@ private:
 #define STACKTRACE_WITH_ARGS(skip, capture) { StackTrace TOKEN_PASTE(st,__LINE__)(skip, capture);}
 #define UNIQUE_STACKTRACE_WITH_ARGS(skip, capture) {static StackTrace TOKEN_PASTE(st,__LINE__)(skip, capture);}
 #else
+#undef UNIQUE_STACKTRACE_WITH_ARGS
+#define UNIQUE_STACKTRACE_WITH_ARGS(skip, capture)
+#undef STACKTRACE_WITH_ARGS
+#define STACKTRACE_WITH_ARGS
+#undef STACKTRACE
+#define STACKTRACE
 #undef UNIQUE_STACKTRACE
 #define UNIQUE_STACKTRACE
 #endif

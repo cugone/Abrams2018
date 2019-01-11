@@ -68,12 +68,12 @@ public:
 
 
     void SetSize(const Metric& size);
-    Vector2 GetSize() const;
+    Vector2 GetSize() const noexcept;
 
-    const UI::Metric& GetPosition() const;
-    virtual void SetPosition(const Metric& position);
+    const Vector4& GetPosition() const;
+    virtual void SetPosition(const Vector4& position);
     virtual void SetPositionOffset(const Vector2& offset);
-    virtual void SetPositionRatio(const UI::Ratio& ratio);
+    virtual void SetPositionRatio(const Vector2& ratio);
 
     void SetPivot(const Vector2& pivotPosition);
     const Vector2& GetPivot() const;
@@ -88,7 +88,7 @@ public:
     std::size_t GetOrder() const;
 
     bool HasParent() const;
-    AABB2 GetParentBounds() const;
+    AABB2 GetParentBounds() const noexcept;
 
     bool IsHidden() const;
     bool IsVisible() const;
@@ -117,20 +117,20 @@ protected:
     Vector2 CalcRelativePosition() const;
     Vector2 CalcRelativePosition(const Vector2& position) const;
 
-    void CalcBounds();
-    AABB2 CalcBoundsRelativeToParent();
+    void CalcBounds() noexcept;
+    AABB2 CalcBoundsRelativeToParent() const noexcept;
 
-    void CalcBoundsForChildren();
-    void CalcBoundsForMeThenMyChildren();
-    AABB2 AlignBoundsToContainer(AABB2 bounds, AABB2 container, const Vector2& alignment) noexcept;
-    AABB2 CalcRelativeBounds();
-    AABB2 CalcAbsoluteBounds();
-    AABB2 CalcAlignedAbsoluteBounds();
-    AABB2 CalcLocalBounds() const;
+    void CalcBoundsForChildren() noexcept;
+    void CalcBoundsForMeThenMyChildren() noexcept;
+    AABB2 AlignBoundsToContainer(AABB2 bounds, AABB2 container, const Vector2& alignment) const noexcept;
+    AABB2 CalcRelativeBounds() const noexcept;
+    AABB2 CalcAbsoluteBounds() const noexcept;
+    AABB2 CalcAlignedAbsoluteBounds() const noexcept;
+    AABB2 CalcLocalBounds() const noexcept;
 
-    Matrix4 GetLocalTransform() const;
-    Matrix4 GetWorldTransform() const;
-    Matrix4 GetParentWorldTransform() const;
+    Matrix4 GetLocalTransform() const noexcept;
+    Matrix4 GetWorldTransform() const noexcept;
+    Matrix4 GetParentWorldTransform() const noexcept;
 
     void DirtyElement();
     bool IsDirty() const;
@@ -171,8 +171,8 @@ protected:
     Rgba _edge_color = Rgba::White;
 
 private:
-    Metric _position{};
-    HalfExtent _pivot{};
+    Vector4 _position{};
+    Vector2 _pivot{};
     PositionMode _mode{};
     Rgba _pivot_color = Rgba::Red;
     Element* _parent = nullptr;

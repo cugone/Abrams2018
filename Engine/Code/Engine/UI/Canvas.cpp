@@ -53,7 +53,7 @@ void Canvas::Render(Renderer* renderer) const {
     if(IsHidden()) {
         return;
     }
-    const auto old_camera = renderer->GetCamera();
+    auto old_camera = renderer->GetCamera();
     SetupMVPFromTargetAndCamera(renderer);
     renderer->SetRenderTarget(_target_texture, _target_depthstencil);
     RenderChildren(renderer);
@@ -63,11 +63,11 @@ void Canvas::Render(Renderer* renderer) const {
 void Canvas::SetupMVPFromTargetAndCamera(Renderer* renderer) const {
     auto texture_dims = _target_texture->GetDimensions();
     auto target_dims = Vector2((float)texture_dims.x, (float)texture_dims.y);
-    Vector2 leftBottom = Vector2(-0.5f, 0.5f) * target_dims;
-    Vector2 rightTop = Vector2(0.5f, -0.5f) * target_dims;
+    Vector2 leftBottom = Vector2(0.0f, 1.0f) * target_dims;
+    Vector2 rightTop = Vector2(1.0f, 0.0f) * target_dims;
     Vector2 nearFar{ 0.0f, 1.0f };
     _camera.SetupView(leftBottom, rightTop, nearFar, _aspect_ratio);
-    renderer->SetCamera(Camera3D{ _camera });
+    renderer->SetCamera(_camera);
     renderer->SetModelMatrix(GetWorldTransform());
 }
 

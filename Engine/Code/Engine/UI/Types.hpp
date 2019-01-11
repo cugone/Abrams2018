@@ -26,20 +26,6 @@ struct Metric {
     Vector2 unit{};
 };
 
-class HalfExtent {
-public:
-    explicit HalfExtent(const Vector2& newValue = Vector2::ZERO);
-    HalfExtent(const HalfExtent& rhs);
-    HalfExtent(HalfExtent&& rhs);
-    HalfExtent& operator=(const HalfExtent& rhs);
-    HalfExtent& operator=(HalfExtent&& rhs);
-    ~HalfExtent() = default;
-    const Vector2& GetValue() const;
-    void SetValue(const Vector2& newValue);
-private:
-    Vector2 value{};
-};
-
 enum class PositionMode {
     Absolute,
     Relative,

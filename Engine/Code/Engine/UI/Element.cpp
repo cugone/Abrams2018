@@ -125,7 +125,7 @@ void Element::SetDebugColors(const Rgba& edge, const Rgba& fill, const Rgba& piv
 
 Vector2 Element::CalcLocalPosition() const {
     AABB2 local_bounds = GetParentBounds();
-    return MathUtils::CalcPointFromNormalizedPoint(_position.ratio.GetValue(), local_bounds) + _position.unit;
+    return MathUtils::CalcPointFromNormalizedPoint(_position.GetXY(), local_bounds) + _position.GetZW();
 }
 
 Vector2 Element::CalcRelativePosition(const Vector2& position) const {
@@ -135,61 +135,61 @@ Vector2 Element::CalcRelativePosition(const Vector2& position) const {
 
 Vector2 Element::CalcRelativePosition() const {
     AABB2 parent_bounds = GetParentLocalBounds();
-    return MathUtils::CalcPointFromNormalizedPoint(_pivot.GetValue(), parent_bounds);
+    return MathUtils::CalcPointFromNormalizedPoint(_pivot, parent_bounds);
 }
 
-const UI::Metric& Element::GetPosition() const {
+const Vector4& Element::GetPosition() const {
     return _position;
 }
 
-void Element::SetPosition(const Metric& position) {
+void Element::SetPosition(const Vector4& position) {
     _dirty_bounds = true;
     _position = position;
     CalcBoundsForMeThenMyChildren();
 }
 
-void Element::SetPositionRatio(const UI::Ratio& ratio) {
-    Element::SetPosition(UI::Metric{ ratio, _position.unit });
+void Element::SetPositionRatio(const Vector2& ratio) {
+    Element::SetPosition(Vector4{ ratio, _position.GetZW() });
 }
 
 void Element::SetPositionOffset(const Vector2& offset) {
-    Element::SetPosition(UI::Metric{ _position.ratio, MathUtils::CalcNormalizedHalfExtentsFromPoint(offset, GetParentBounds()) });
+    Element::SetPosition(Vector4{ _position.GetXY(), offset });
 }
 
 void Element::SetPivot(const Vector2& pivotPosition) {
     _dirty_bounds = true;
-    _pivot.SetValue(pivotPosition);
+    _pivot = pivotPosition;
     CalcBoundsForMeThenMyChildren();
 }
 
 void Element::SetPivot(const PivotPosition& pivotPosition) {
     switch(pivotPosition) {
     case PivotPosition::Center:
-        SetPivot(Vector2(0.0f, 0.0f));
-        break;
-    case PivotPosition::TopLeft:
-        SetPivot(Vector2(-0.5f, -0.5f));
-        break;
-    case PivotPosition::Top:
-        SetPivot(Vector2(0.0f, -0.5f));
-        break;
-    case PivotPosition::TopRight:
-        SetPivot(Vector2(0.5f, -0.5f));
-        break;
-    case PivotPosition::Right:
-        SetPivot(Vector2(0.5f, 0.0f));
-        break;
-    case PivotPosition::BottomRight:
         SetPivot(Vector2(0.5f, 0.5f));
         break;
+    case PivotPosition::TopLeft:
+        SetPivot(Vector2(0.0f, 0.0f));
+        break;
+    case PivotPosition::Top:
+        SetPivot(Vector2(0.5f, 0.0f));
+        break;
+    case PivotPosition::TopRight:
+        SetPivot(Vector2(1.0f, 0.0f));
+        break;
+    case PivotPosition::Right:
+        SetPivot(Vector2(1.0f, 0.5f));
+        break;
+    case PivotPosition::BottomRight:
+        SetPivot(Vector2(1.0f, 1.0f));
+        break;
     case PivotPosition::Bottom:
-        SetPivot(Vector2(0.0f, 0.5f));
+        SetPivot(Vector2(0.5f, 1.0f));
         break;
     case PivotPosition::BottomLeft:
-        SetPivot(Vector2(-0.5f, 0.5f));
+        SetPivot(Vector2(0.0f, 1.0f));
         break;
     case PivotPosition::Left:
-        SetPivot(Vector2(-0.5f, 0.0f));
+        SetPivot(Vector2(0.0f, 0.5f));
         break;
     default:
         std::ostringstream ss;
@@ -200,7 +200,7 @@ void Element::SetPivot(const PivotPosition& pivotPosition) {
 }
 
 const Vector2& Element::GetPivot() const {
-    return _pivot.GetValue();
+    return _pivot;
 }
 
 void Element::Update(TimeUtils::FPSeconds /*deltaSeconds*/) {
@@ -218,7 +218,7 @@ void Element::DebugRender(Renderer* renderer, bool showSortOrder /*= false*/) co
     }
 }
 
-Matrix4 Element::GetLocalTransform() const {
+Matrix4 Element::GetLocalTransform() const noexcept {
     auto t = Matrix4::CreateTranslationMatrix(CalcLocalPosition());
     auto r = Matrix4::Create2DRotationMatrix(CalcLocalRotationRadians());
     auto s = Matrix4::CreateScaleMatrix(CalcLocalScale());
@@ -238,11 +238,11 @@ Vector2 Element::CalcLocalScale() const {
     return _parent ? Vector2(width_scale, height_scale) : _size.unit;
 }
 
-Matrix4 Element::GetWorldTransform() const {
+Matrix4 Element::GetWorldTransform() const noexcept {
     return GetParentWorldTransform() * GetLocalTransform();
 }
 
-Matrix4 Element::GetParentWorldTransform() const {
+Matrix4 Element::GetParentWorldTransform() const noexcept {
     return _parent ? _parent->GetWorldTransform() : Matrix4::GetIdentity();
 }
 
@@ -260,8 +260,7 @@ void Element::DebugRenderPivot(Renderer* renderer) const {
     auto scale = world_transform.GetScale();
     auto inv_scale_matrix = Matrix4::CalculateInverse(Matrix4::CreateScaleMatrix(Vector3(scale.x * 0.10f, scale.y * 0.10f, 1.0f)));
     auto extents = GetSize();
-    auto pivot = GetPivot();
-    auto pivot_pos = world_transform.GetTranslation() + Vector3(extents, 0.0f) * Vector3(pivot, 0.0f);
+    auto pivot_pos = MathUtils::CalcPointFromNormalizedPoint(_pivot, _bounds);
     auto pivot_pos_matrix = Matrix4::CreateTranslationMatrix(pivot_pos);
     auto transform = pivot_pos_matrix * world_transform * inv_scale_matrix;
     renderer->SetMaterial(renderer->GetMaterial("__2D"));
@@ -298,7 +297,7 @@ void Element::DebugRenderOrder(Renderer* renderer) const {
     renderer->DrawTextLine(font, text);
 }
 
-AABB2 Element::GetParentBounds() const {
+AABB2 Element::GetParentBounds() const noexcept {
     return _parent ? _parent->_bounds : AABB2{ 0.0f, 0.0f, _size.unit.x, _size.unit.y };
 }
 
@@ -354,7 +353,7 @@ void Element::ToggleEnabled() {
     _enabled = !_enabled;
 }
 
-void Element::CalcBounds() {
+void Element::CalcBounds() noexcept {
     _dirty_bounds = false;
     switch(_mode) {
     case UI::PositionMode::Absolute:
@@ -373,13 +372,13 @@ void Element::CalcBounds() {
     }
 }
 
-AABB2 Element::CalcBoundsRelativeToParent() {
+AABB2 Element::CalcBoundsRelativeToParent() const noexcept {
     Vector2 my_size = GetSize();
 
     AABB2 parent_bounds = _parent ? _parent->CalcLocalBounds() : CalcLocalBounds();
     Vector2 parent_size = parent_bounds.CalcDimensions();
 
-    Vector2 pivot_position = parent_bounds.mins + (parent_size * _position.ratio.GetValue() + _position.unit);
+    Vector2 pivot_position = parent_bounds.mins + (parent_size * _position.GetXY() + _position.GetZW());
 
     AABB2 my_local_bounds = CalcLocalBounds();
     my_local_bounds.Translate(pivot_position);
@@ -387,7 +386,7 @@ AABB2 Element::CalcBoundsRelativeToParent() {
     return my_local_bounds;
 }
 
-void Element::CalcBoundsForChildren() {
+void Element::CalcBoundsForChildren() noexcept {
     for(auto& c : _children) {
         if(c) {
             c->CalcBounds();
@@ -395,14 +394,14 @@ void Element::CalcBoundsForChildren() {
     }
 }
 
-void Element::CalcBoundsForMeThenMyChildren() {
+void Element::CalcBoundsForMeThenMyChildren() noexcept {
     CalcBounds();
     CalcBoundsForChildren();
 }
 
-AABB2 Element::CalcRelativeBounds() {
+AABB2 Element::CalcRelativeBounds() const noexcept {
     Vector2 size = GetSize();
-    Vector2 pivot_position = size * _pivot.GetValue();
+    Vector2 pivot_position = size * _pivot;
 
     AABB2 bounds;
     bounds.StretchToIncludePoint(Vector2::ZERO);
@@ -411,42 +410,39 @@ AABB2 Element::CalcRelativeBounds() {
     return bounds;
 }
 
-AABB2 Element::CalcAbsoluteBounds() {
-    Vector2 size = GetSize();
-    Vector2 pivot = _pivot.GetValue();
-    float pivot_x = pivot.x;
-    float pivot_y = pivot.y;
-    Vector2 mins{ { -(size.x * pivot_x) },{ -(size.y * pivot_y) } };
-    Vector2 maxs{ { size.x * (1.0f - pivot_y) },{ size.y * (1.0f - pivot_y) } };
-    return AABB2(mins, maxs);
+AABB2 Element::CalcAbsoluteBounds() const noexcept {
+    auto size = GetSize();
+    auto parent_bounds = GetParentBounds();
+    auto pivot_position = MathUtils::CalcPointFromNormalizedPoint(_pivot, parent_bounds);
+    AABB2 bounds;
+    bounds.StretchToIncludePoint(Vector2::ZERO);
+    bounds.StretchToIncludePoint(size);
+    return CalcAlignedAbsoluteBounds();
 }
 
-AABB2 Element::AlignBoundsToContainer(AABB2 bounds, AABB2 container, const Vector2& alignment) noexcept {
+AABB2 Element::AlignBoundsToContainer(AABB2 bounds, AABB2 container, const Vector2& alignment) const noexcept {
     Vector2 max_distance = MathUtils::CalcPointFromNormalizedPoint(alignment, bounds);
     Vector2 distance = MathUtils::CalcPointFromNormalizedPoint(alignment, container) + max_distance;
     bounds.Translate(distance);
     return bounds;
 }
 
-AABB2 Element::CalcAlignedAbsoluteBounds() {
+AABB2 Element::CalcAlignedAbsoluteBounds() const noexcept {
     AABB2 parent_bounds = GetParentLocalBounds();
-    const auto& ratio = _position.ratio;
-    const auto& ratio_v = ratio.GetValue();
-    AABB2 alignedBounds = AlignBoundsToContainer(CalcBoundsRelativeToParent(), parent_bounds, ratio_v);
+    auto ratio = _position.GetXY();
+    AABB2 alignedBounds = AlignBoundsToContainer(CalcBoundsRelativeToParent(), parent_bounds, ratio);
 
-    auto unit = _position.unit;
-    float normalized_ratio_x = MathUtils::RangeMap(ratio_v.x, 0.0f, 1.0f, 1.0f, -1.0f);
-    float normalized_ratio_y = MathUtils::RangeMap(ratio_v.y, 0.0f, 1.0f, 1.0f, -1.0f);
-    float scaled_x = normalized_ratio_x * unit.x;
-    float scaled_y = normalized_ratio_y * unit.y;
-    Vector2 offset(scaled_x, scaled_y);
+    auto unit = _position.GetZW();
+    Vector2 normalized_ratio = MathUtils::RangeMap(ratio, Vector2(0.0f, 1.0f), Vector2(-1.0f, 1.0f));
+    Vector2 scaled_ratio = normalized_ratio * unit;
+    Vector2 offset(scaled_ratio);
 
     alignedBounds.Translate(offset);
 
     return alignedBounds;
 }
 
-AABB2 Element::CalcLocalBounds() const {
+AABB2 Element::CalcLocalBounds() const noexcept {
     return { Vector2::ZERO, GetSize() };
 }
 
@@ -618,7 +614,7 @@ float Element::CalcWorldRotationDegrees() const {
     return GetParentOrientationDegrees() + GetOrientationDegrees();
 }
 
-Vector2 Element::GetSize() const {
+Vector2 Element::GetSize() const noexcept {
     return _parent ? (_parent->GetSize() * _size.ratio.GetValue() + _size.unit) : _size.unit;
 }
 

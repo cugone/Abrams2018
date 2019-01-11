@@ -34,9 +34,9 @@ public:
     float GetScale() const;
     float GetScale();
 
-    virtual void SetPosition(const Metric& position) override;
+    virtual void SetPosition(const Vector4& position) override;
     virtual void SetPositionOffset(const Vector2& offset) override;
-    virtual void SetPositionRatio(const UI::Ratio& ratio) override;
+    virtual void SetPositionRatio(const Vector2& ratio) override;
 
 protected:
     void CalcBoundsFromFont(KerningFont* font);

@@ -30,17 +30,10 @@ void Label::Render(Renderer* renderer) const {
         return;
     }
     auto world_transform = GetWorldTransform();
-    auto world_transform_scale = world_transform.GetScale();
-    auto inv_scale_x = 1.0f / world_transform_scale.x;
-    auto inv_scale_y = 1.0f / world_transform_scale.y;
-    auto inv_scale_z = 1.0f / world_transform_scale.z;
-    auto inv_scale = Vector3(inv_scale_x, inv_scale_y, inv_scale_z);
+    auto inv_scale = 1.0f / world_transform.GetScale();
     auto inv_scale_matrix = Matrix4::CreateScaleMatrix(inv_scale);
-    Vector2 extents = GetSize();
-    Vector2 half_extents = extents * 0.5f;
-    auto inv_half_extents = Vector2(-half_extents.x, -half_extents.y);
-    auto inv_half_extents_matrix = Matrix4::CreateTranslationMatrix(inv_half_extents);
-    renderer->SetModelMatrix(world_transform * inv_scale_matrix * inv_half_extents_matrix);
+    auto model = world_transform * inv_scale_matrix;
+    renderer->SetModelMatrix(model);
     renderer->SetMaterial(_font->GetMaterial());
     renderer->DrawMultilineText(_font, _text, _color);
 }
@@ -95,7 +88,7 @@ float Label::GetScale() {
     return static_cast<const UI::Label&>(*this).GetScale();
 }
 
-void Label::SetPosition(const Metric& position) {
+void Label::SetPosition(const Vector4& position) {
     Element::SetPosition(position);
     CalcBoundsFromFont(_font);
 }
@@ -105,7 +98,7 @@ void Label::SetPositionOffset(const Vector2& offset) {
     CalcBoundsFromFont(_font);
 }
 
-void Label::SetPositionRatio(const UI::Ratio& ratio) {
+void Label::SetPositionRatio(const Vector2& ratio) {
     Element::SetPositionRatio(ratio);
     CalcBoundsFromFont(_font);
 }

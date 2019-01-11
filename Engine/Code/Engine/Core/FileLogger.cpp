@@ -100,7 +100,11 @@ void FileLogger::FinalizeLog() {
     std::filesystem::path from_p = _current_log_path;
     from_p.make_preferred();
     std::filesystem::path to_p = from_p;
-    to_p.replace_filename(TimeUtils::GetDateTimeStampFromNow() + ".log");
+    auto logname = to_p.filename().stem().string();
+    TimeUtils::DateTimeStampOptions opts;
+    opts.use_separator = true;
+    opts.is_filename = true;
+    to_p.replace_filename(logname + "_" + TimeUtils::GetDateTimeStampFromNow(opts) + ".log");
     to_p.make_preferred();
     _stream.flush();
     _stream.close();

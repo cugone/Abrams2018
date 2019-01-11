@@ -7,6 +7,7 @@
 
 #include "Engine/Math/MathUtils.hpp"
 
+#include "Engine/Math/IntVector3.hpp"
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector4.hpp"
 #include "Engine/Math/Quaternion.hpp"
@@ -82,6 +83,14 @@ Vector3::Vector3(const std::string& value)
     }
 }
 
+Vector3::Vector3(const IntVector3& intvec3)
+    : x(static_cast<float>(intvec3.x))
+    , y(static_cast<float>(intvec3.y))
+    , z(static_cast<float>(intvec3.z))
+{
+    /* DO NOTHING */
+}
+
 Vector3 Vector3::operator+(const Vector3& rhs) const {
     return Vector3(x + rhs.x, y + rhs.y, z + rhs.z);
 }
@@ -132,6 +141,10 @@ Vector3& Vector3::operator*=(const Vector3& rhs) {
     y *= rhs.y;
     z *= rhs.z;
     return *this;
+}
+
+Vector3 operator/(float lhs, const Vector3& v) {
+    return Vector3(lhs / v.x, lhs / v.y, lhs / v.z);
 }
 
 Vector3 Vector3::operator/(float scalar) const {

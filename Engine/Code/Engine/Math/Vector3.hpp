@@ -3,6 +3,7 @@
 #include <string>
 
 class Vector2;
+class IntVector3;
 class Vector4;
 class Quaternion;
 
@@ -29,6 +30,7 @@ public:
     explicit Vector3(const std::string& value);
     explicit Vector3(float initialX, float initialY, float initialZ);
     explicit Vector3(const Vector2& vec2);
+    explicit Vector3(const IntVector3& intvec3);
     explicit Vector3(const Vector2& xy, float initialZ);
     explicit Vector3(const Vector4& vec4);
     explicit Vector3(const Quaternion& q);
@@ -46,6 +48,7 @@ public:
     Vector3 operator*(const Vector3& rhs) const;
     Vector3& operator*=(const Vector3& rhs);
 
+    friend Vector3 operator/(float lhs, const Vector3& v);
     Vector3 operator/(float scalar) const;
     Vector3 operator/=(float scalar);
     Vector3 operator/(const Vector3& rhs) const;

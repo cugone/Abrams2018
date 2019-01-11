@@ -72,20 +72,20 @@ bool Material::LoadFromXml(const XMLElement& element) {
     if(auto xml_lighting = element.FirstChildElement("lighting")) {
         DataUtils::ValidateXmlElement(*xml_lighting, "lighting", "", "", "specularIntensity,specularFactor,specularPower,glossFactor,emissiveFactor");
         //specularIntensity and specularFactor are synonyms
-        if(auto xml_specInt = element.FirstChildElement("specularIntensity")) {
+        if(auto xml_specInt = xml_lighting->FirstChildElement("specularIntensity")) {
             _specularIntensity = DataUtils::ParseXmlElementText(*xml_specInt, _specularIntensity);
         }
-        if(auto xml_specFactor = element.FirstChildElement("specularFactor")) {
+        if(auto xml_specFactor = xml_lighting->FirstChildElement("specularFactor")) {
             _specularIntensity = DataUtils::ParseXmlElementText(*xml_specFactor, _specularIntensity);
         }
         //specularPower and glossFactor are synonyms
-        if(auto xml_specPower = element.FirstChildElement("specularPower")) {
+        if(auto xml_specPower = xml_lighting->FirstChildElement("specularPower")) {
             _specularPower = DataUtils::ParseXmlElementText(*xml_specPower, _specularPower);
         }
-        if(auto xml_glossFactor = element.FirstChildElement("glossFactor")) {
+        if(auto xml_glossFactor = xml_lighting->FirstChildElement("glossFactor")) {
             _specularPower = DataUtils::ParseXmlElementText(*xml_glossFactor, _specularPower);
         }
-        if(auto xml_emissiveFactor = element.FirstChildElement("emissiveFactor")) {
+        if(auto xml_emissiveFactor = xml_lighting->FirstChildElement("emissiveFactor")) {
             _emissiveFactor = DataUtils::ParseXmlElementText(*xml_emissiveFactor, _emissiveFactor);
         }
     }

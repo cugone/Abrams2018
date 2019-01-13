@@ -59,13 +59,10 @@ bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::strin
         return false;
     }
 
+    std::size_t byte_size = FS::file_size(p);
+    out_buffer.resize(byte_size);
     std::ifstream ifs;
     ifs.open(p, std::ios_base::binary);
-    ifs.seekg(0, std::ios_base::end);
-    std::size_t byte_size = ifs.tellg();
-    ifs.seekg(0, std::ios_base::beg);
-    ifs.clear();
-    out_buffer.resize(byte_size);
     ifs.read(reinterpret_cast<char*>(out_buffer.data()), out_buffer.size());
     ifs.close();
     return true;
@@ -84,12 +81,9 @@ bool ReadBufferFromFile(std::string& out_buffer, const std::string& filePath) {
     }
 
     std::ifstream ifs;
-    ifs.open(p);
-    ifs.seekg(0, std::ios_base::end);
-    std::size_t byte_size = ifs.tellg();
-    ifs.seekg(0, std::ios_base::beg);
-    ifs.clear();
+    std::size_t byte_size = FS::file_size(p);
     out_buffer.resize(byte_size);
+    ifs.open(p);
     ifs.read(out_buffer.data(), byte_size);
     ifs.close();
     return true;

@@ -22,12 +22,8 @@ public:
         operator std::string() {
             std::ostringstream ss;
             ss << "Leaked objects: " << leaked_objs << " for " << leaked_bytes << " bytes.\n";
-            return ss.str();
-        }
-        operator const char*() {
-            std::ostringstream ss;
-            ss << "Leaked objects: " << leaked_objs << " for " << leaked_bytes << " bytes.\n";
-            return ss.str().c_str();
+            std::string s = ss.str();
+            return s;
         }
         friend std::ostream& operator<<(std::ostream& os, const status_t s) {
             os << "Leaked objects: " << s.leaked_objs << " for " << s.leaked_bytes << " bytes.\n";
@@ -44,12 +40,8 @@ public:
         operator std::string() {
             std::ostringstream ss;
             ss << "Frame " << frame_id << ": Leaked objects: " << leaked_objs << " for " << leaked_bytes << " bytes.\n";
-            return ss.str();
-        }
-        operator const char*() {
-            std::ostringstream ss;
-            ss << "Frame " << frame_id << ": Leaked objects: " << leaked_objs << " for " << leaked_bytes << " bytes.\n";
-            return ss.str().c_str();
+            std::string s = ss.str();
+            return s;
         }
     };
 
@@ -64,9 +56,6 @@ public:
             }
             if(maxCount < allocCount) {
                 maxCount = allocCount;
-            }
-            if(_trace) {
-                STACKTRACE
             }
         }
         return std::malloc(n);
@@ -96,7 +85,8 @@ public:
 
     static void tick() {
         if(auto f = Memory::frame_status()) {
-            DebuggerPrintf(f);
+            std::string status = f;
+            DebuggerPrintf(status.c_str(), "%s");
         }
         ++frameCounter;
         resetframecounters();

@@ -166,15 +166,13 @@ void AudioSystem::DeactivateChannel(Channel& channel) {
 
 void AudioSystem::Play(Sound& snd) {
     std::scoped_lock<std::mutex> _lock(_cs);
-    if(_idle_channels.size() == _max_channels) {
+    if(_max_channels <= _idle_channels.size()) {
         return;
     }
-    if(_active_channels.size() == _max_channels) {
+    if(_max_channels <= _active_channels.size()) {
         return;
     }
-    if(_idle_channels.size() < _max_channels) {
-        _idle_channels.push_back(std::make_unique<Channel>(*this));
-    }
+    _idle_channels.push_back(std::make_unique<Channel>(*this));
     _active_channels.push_back(std::move(_idle_channels.back()));
     _active_channels.back()->Play(snd);
 }
@@ -201,7 +199,7 @@ void AudioSystem::RegisterWavFile(const std::string& filepath) {
     namespace FS = std::filesystem;
     FS::path p{ filepath };
     p.make_preferred();
-    return RegisterWavFile(p);
+    RegisterWavFile(p);
 }
 
 void AudioSystem::RegisterWavFile(const std::filesystem::path& filepath) {
@@ -270,12 +268,14 @@ AudioSystem::Channel::~Channel() {
 void AudioSystem::Channel::Play(Sound& snd) {
     snd.AddChannel(this);
     _sound = &snd;
-    _buffer.pAudioData = snd.GetWav()->GetDataBuffer();
-    _buffer.AudioBytes = snd.GetWav()->GetDataBufferSize();
-    {
-        std::scoped_lock<std::mutex> _lock(_cs);
-        _voice->SubmitSourceBuffer(&_buffer, nullptr);
-        _voice->Start();
+    if(auto wav = snd.GetWav()) {
+        _buffer.pAudioData = wav->GetDataBuffer();
+        _buffer.AudioBytes = wav->GetDataBufferSize();
+        {
+            std::scoped_lock<std::mutex> _lock(_cs);
+            _voice->SubmitSourceBuffer(&_buffer, nullptr);
+            _voice->Start();
+        }
     }
 }
 
@@ -306,8 +306,10 @@ AudioSystem::Sound::Sound(AudioSystem& audiosystem, const std::string& filepath)
         _audio_system->RegisterWavFile(path.string());
         found_iter = _audio_system->_wave_files.find(path.string());
     }
-    _my_id = _id++;
-    _wave_file = found_iter->second.get();
+    if(found_iter != _audio_system->_wave_files.end()) {
+        _my_id = _id++;
+        _wave_file = found_iter->second.get();
+    }
 }
 
 AudioSystem::Sound::~Sound() {

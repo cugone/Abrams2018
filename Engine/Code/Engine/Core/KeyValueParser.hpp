@@ -4,10 +4,12 @@
 #include <fstream>
 #include <istream>
 #include <map>
+#include <filesystem>
 
 class KeyValueParser {
 public:
     KeyValueParser() = default;
+    explicit KeyValueParser(const std::filesystem::path& filepath);
     explicit KeyValueParser(const std::string& str);
     explicit KeyValueParser(std::ifstream& file_input);
     explicit KeyValueParser(std::istream& input);

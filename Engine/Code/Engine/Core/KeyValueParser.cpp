@@ -1,10 +1,21 @@
 #include "Engine/Core/KeyValueParser.hpp"
 
+#include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/StringUtils.hpp"
 
 #include <algorithm>
 #include <locale>
 #include <sstream>
+
+KeyValueParser::KeyValueParser(const std::filesystem::path& filepath) {
+    namespace FS = std::filesystem;
+    if(FS::exists(filepath)) {
+        std::string contents{};
+        if(FileUtils::ReadBufferFromFile(contents, filepath.string())) {
+            Parse(contents);
+        }
+    }
+}
 
 KeyValueParser::KeyValueParser(const std::string& str) {
     Parse(str);
@@ -23,61 +34,59 @@ bool KeyValueParser::HasKey(const std::string& key) const {
 }
 
 bool KeyValueParser::Parse(const std::string& input) {
-    //Strip comments.
-    std::string cur_line = input.substr(0, input.find_first_of('#'));
-    if(cur_line.empty()) {
-        return true;
-    }
-    std::size_t eq_count = std::count(cur_line.begin(), cur_line.end(), '=');
-    std::size_t true_count = std::count(cur_line.begin(), cur_line.end(), '+');
-    std::size_t false_count = std::count(cur_line.begin(), cur_line.end(), '-');
-    std::size_t nl_count = std::count(cur_line.begin(), cur_line.end(), '\n');
-    bool probably_multiline = nl_count == 0 && (eq_count > 1 || true_count > 1 || false_count > 1);
-    if(probably_multiline) {
-        return ParseMultiParams(cur_line);
-    }
+    auto lines = StringUtils::Split(input, '\n', false);
 
-
-    //Get raw key-value pairs split on first equals.
-    auto key_value = StringUtils::Split(cur_line, '=');
-    auto cur_line_eq = cur_line.find_first_of('=');
-    std::string key = cur_line.substr(0, cur_line_eq);
-    std::string value = cur_line.substr(cur_line_eq + 1);
-    //Trim whitespace
-    key = StringUtils::TrimWhitespace(key);
-    value = StringUtils::TrimWhitespace(value);
-
-    //Shorthand cases
-    if(StringUtils::StartsWith(key, "-")) {
-        std::string sub_key = key.substr(1);
-        SetValue(sub_key, false);
-        return true;
-    }
-    if(StringUtils::StartsWith(key, "+")) {
-        std::string sub_key = key.substr(1);
-        SetValue(sub_key, true);
-        return true;
-    }
-
-    if(key.find('"') != std::string::npos) {
-        key = key.substr(key.find_first_not_of("\""), key.find_last_not_of("\""));
-    }
-    if(value.find('"') != std::string::npos) {
-        auto ffno = value.find_first_not_of('"');
-        auto flno = value.find_last_not_of('"');
-        if(ffno == std::string::npos || flno == std::string::npos) {
-            if(ffno == std::string::npos) {
-                value = value.substr(1);
-            }
-            if(flno == std::string::npos) {
-                value.pop_back();
-            }
-        } else {
-            value = value.substr(ffno, flno);
+    for(auto& cur_line : lines) {
+        cur_line = cur_line.substr(0, cur_line.find_first_of('#'));
+        if(cur_line.empty()) {
+            continue;
         }
-    }
+        std::size_t eq_count = std::count(cur_line.begin(), cur_line.end(), '=');
+        std::size_t true_count = std::count(cur_line.begin(), cur_line.end(), '+');
+        std::size_t false_count = std::count(cur_line.begin(), cur_line.end(), '-');
+        std::size_t nl_count = std::count(cur_line.begin(), cur_line.end(), '\n');
+        bool probably_multiline = nl_count == 0 && (eq_count > 1 || true_count > 1 || false_count > 1);
+        if(probably_multiline) {
+            return ParseMultiParams(cur_line);
+        }
 
-    SetValue(key, value);
+        auto [key, value] = StringUtils::SplitOnFirst(cur_line, '=');
+
+        key = StringUtils::TrimWhitespace(key);
+        value = StringUtils::TrimWhitespace(value);
+
+        //Shorthand cases
+        if(StringUtils::StartsWith(key, "-")) {
+            std::string sub_key = key.substr(1);
+            SetValue(sub_key, false);
+            continue;
+        }
+        if(StringUtils::StartsWith(key, "+")) {
+            std::string sub_key = key.substr(1);
+            SetValue(sub_key, true);
+            continue;
+        }
+
+        if(key.find('"') != std::string::npos) {
+            key = key.substr(key.find_first_not_of("\""), key.find_last_not_of("\""));
+        }
+        if(value.find('"') != std::string::npos) {
+            auto ffno = value.find_first_not_of('"');
+            auto flno = value.find_last_not_of('"');
+            if(ffno == std::string::npos || flno == std::string::npos) {
+                if(ffno == std::string::npos) {
+                    value = value.substr(1);
+                }
+                if(flno == std::string::npos) {
+                    value.pop_back();
+                }
+            } else {
+                value = value.substr(ffno, flno);
+            }
+        }
+
+        SetValue(key, value);
+    }
     return true;
 }
 

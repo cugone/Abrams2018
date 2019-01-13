@@ -150,6 +150,16 @@ std::vector<std::string> Split(const std::string& string, char delim /*= ','*/, 
     return result;
 }
 
+std::pair<std::string, std::string> SplitOnFirst(const std::string& string, char delim) {
+    auto eq_loc = string.find_first_of(delim);
+    return std::make_pair(string.substr(0, eq_loc), string.substr(eq_loc + 1));
+}
+
+std::pair<std::string, std::string> SplitOnLast(const std::string& string, char delim) {
+    auto eq_loc = string.find_last_of(delim);
+    return std::make_pair(string.substr(0, eq_loc), string.substr(eq_loc + 1));
+}
+
 std::string Join(const std::vector<std::string>& strings, char delim, bool skip_empty /*= true*/) {
     auto acc_op = [](const std::size_t& a, const std::string& b)->std::size_t { return a + static_cast<std::size_t>(1u) + b.size(); };
     auto total_size = std::accumulate(std::begin(strings), std::end(strings), static_cast<std::size_t>(0u), acc_op);

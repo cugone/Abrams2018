@@ -6,9 +6,13 @@
 #include "Engine/Core/Rgba.hpp"
 #include "Engine/Core/StringUtils.hpp"
 
+#include "Engine/Math/AABB3.hpp"
+#include "Engine/Math/Disc2.hpp"
 #include "Engine/Math/IntVector2.hpp"
+#include "Engine/Math/LineSegment3.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Noise.hpp"
+#include "Engine/Math/Sphere3.hpp"
 
 #include "Engine/Renderer/AnimatedSprite.hpp"
 #include "Engine/Renderer/ArrayBuffer.hpp"
@@ -315,11 +319,15 @@ void Game::Render() const {
 
 void Game::RenderStuff() const {
     g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
-    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
-    DrawCube();
+    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__2D"));
+    DrawPointCloud();
+    //g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
+    //DrawCube();
     //g_theRenderer->SetModelMatrix(Matrix4::CreateTranslationMatrix(Vector3::X_AXIS));
     //g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Stone"));
     //DrawCube();
+
+
 
     DrawWorldGrid();
     DrawAxes();
@@ -345,14 +353,14 @@ void Game::DrawAxes() const {
 }
 
 void Game::DrawCube() const {
-    auto aabb2 = AABB2::ZERO_TO_ONE;
-    auto mins = aabb2.mins;
-    auto maxs = aabb2.maxs;
-    auto tex_left_bottom = Vector2{ mins.x, maxs.y };
-    auto tex_left_top = Vector2{ mins.x, mins.y };
-    auto tex_right_top = Vector2{ maxs.x, mins.y };
-    auto tex_right_bottom = Vector2{ maxs.x, maxs.y };
-    std::vector<Vertex3D> vbo = {
+    static const auto aabb2 = AABB2::ZERO_TO_ONE;
+    static const auto mins = aabb2.mins;
+    static const auto maxs = aabb2.maxs;
+    static const auto tex_left_bottom = Vector2{ mins.x, maxs.y };
+    static const auto tex_left_top = Vector2{ mins.x, mins.y };
+    static const auto tex_right_top = Vector2{ maxs.x, mins.y };
+    static const auto tex_right_bottom = Vector2{ maxs.x, maxs.y };
+    static std::vector<Vertex3D> vbo = {
         //Bottom
         Vertex3D(Vector3(-0.5f, -0.5f,  0.5f), Rgba::White, tex_left_bottom, -Vector3::Y_AXIS),
         Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::White, tex_left_top, -Vector3::Y_AXIS),
@@ -385,7 +393,7 @@ void Game::DrawCube() const {
         Vertex3D(Vector3(-0.5f, -0.5f, 0.5f), Rgba::White, tex_right_bottom, Vector3::Z_AXIS),
     };
 
-    std::vector<unsigned int> ibo = {
+    static std::vector<unsigned int> ibo = {
          0,  1,  2,  0,  2,  3,
          4,  5,  6,  4,  6,  7,
          8,  9, 10,  8, 10, 11,
@@ -394,4 +402,32 @@ void Game::DrawCube() const {
         20, 21, 22, 20, 22, 23,
     };
     g_theRenderer->DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
+}
+
+void Game::DrawPointCloud() const {
+    static bool is_init = false;
+    static std::vector<Vertex3D> vbo{};
+    static std::vector<unsigned int> ibo{};
+    if(!is_init) {
+        is_init = true;
+        static std::vector<Vector3> verts{};
+        static std::size_t size = 10000;
+        verts.reserve(size);
+        //static const AABB3 sphere{ -Vector3::ONE * 50.0f, Vector3::ONE * 50.0f };
+        static const Sphere3 sphere{ Vector3::ZERO, 50.0f};
+        //static const LineSegment3 sphere{ -Vector3::ONE * 50.0f, Vector3::ONE * 50.0f};
+        //static const Disc2 sphere{ Vector2::ZERO, 50.0f };
+        //static const AABB2 sphere{ -Vector2::ONE * 50.0f, Vector2::ONE * 50.0f };
+        for(int i = 0; i < size; ++i) {
+            verts.push_back(MathUtils::GetRandomPointInside(sphere));
+        }
+        vbo.resize(verts.size());
+        for(std::size_t i = 0; i < vbo.size(); ++i) {
+            vbo[i].position = verts[i];
+            vbo[i].color = Rgba::Orange;
+        }
+        ibo.resize(vbo.size());
+        std::iota(std::begin(ibo), std::end(ibo), 0);
+    }
+    g_theRenderer->DrawIndexed(PrimitiveType::Points, vbo, ibo);
 }

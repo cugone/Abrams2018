@@ -60,6 +60,7 @@ private:
     void DrawWorldGrid() const;
     void DrawAxes() const;
     void DrawCube() const;
+    void DrawPointCloud() const;
 
     OBB2 _obb{};
     ConstantBuffer* _mandelbrot_cb = nullptr;
@@ -75,5 +76,5 @@ private:
     mutable Camera2D _camera2{};
     mutable Camera3D _camera3{};
     bool _debug = true;
-    bool _slowmo = false;
+    bool _slowmo = false;    
 };

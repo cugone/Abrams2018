@@ -79,6 +79,8 @@ std::pair<long double, long double> SplitFloatingPointValue(long double value);
 float ConvertDegreesToRadians(float degrees);
 float ConvertRadiansToDegrees(float radians);
 
+bool GetRandomBool();
+
 int GetRandomIntLessThan(int maxValueNotInclusive);
 int GetRandomIntInRange(int minInclusive, int maxInclusive);
 
@@ -156,6 +158,21 @@ Vector4 ProjectAlongPlane(const Vector4& v, const Vector4& n);
 unsigned int CalculateManhattanDistance(const IntVector2& start, const IntVector2& end);
 unsigned int CalculateManhattanDistance(const IntVector3& start, const IntVector3& end);
 unsigned int CalculateManhattanDistance(const IntVector4& start, const IntVector4& end);
+
+Vector2 GetRandomPointOn(const AABB2& aabb);
+Vector2 GetRandomPointOn(const Disc2& disc);
+Vector2 GetRandomPointOn(const LineSegment2& line);
+
+Vector3 GetRandomPointOn(const AABB3& aabb);
+Vector3 GetRandomPointOn(const Sphere3& sphere);
+Vector3 GetRandomPointOn(const LineSegment3& line);
+
+Vector2 GetRandomPointInside(const AABB2& aabb);
+Vector2 GetRandomPointInside(const Disc2& disc);
+
+Vector3 GetRandomPointInside(const AABB3& aabb);
+Vector3 GetRandomPointInside(const Sphere3& sphere);
+
 
 bool IsPointInside(const AABB2& aabb, const Vector2& point);
 bool IsPointInside(const AABB3& aabb, const Vector3& point);

@@ -71,6 +71,10 @@ std::mt19937_64& GetMT64RandomEngine(unsigned int seed /*= 0*/) {
     return e;
 }
 
+bool GetRandomBool() {
+    return MathUtils::GetRandomIntLessThan(2) == 0;
+}
+
 int GetRandomIntLessThan(int maxValueNotInclusive) {
     std::uniform_int_distribution<int> d(0, maxValueNotInclusive - 1);
     return d(GetMTRandomEngine(MT_RANDOM_SEED));
@@ -355,6 +359,93 @@ unsigned int CalculateManhattanDistance(const IntVector3& start, const IntVector
 
 unsigned int CalculateManhattanDistance(const IntVector4& start, const IntVector4& end) {
     return std::abs(end.x - start.x) + std::abs(end.y - start.y) + std::abs(end.z - start.z) + std::abs(end.w - start.w);
+}
+
+Vector2 GetRandomPointOn(const AABB2& aabb) {
+    float result[2]{ 0.0f, 0.0f };
+    int s = MathUtils::GetRandomIntLessThan(4);
+    int c = s % 2;
+    result[(c + 0) % 2] = s > 1 ? 1.0f : 0.0f;
+    result[(c + 1) % 2] = s > 1 ? 1.0f : 0.0f;
+    Vector2 point{ result[0], result[1]};
+    return aabb.CalcCenter() + (point * aabb.CalcDimensions());
+}
+
+Vector2 GetRandomPointOn(const Disc2& disc) {
+    Vector2 point{};
+    point.SetLengthAndHeadingDegrees(MathUtils::GetRandomFloatZeroToOne() * 360.0f, disc.radius);
+    return disc.center + point;
+}
+
+Vector2 GetRandomPointOn(const LineSegment2& line) {
+    auto dir = line.CalcDirection();
+    auto len = line.CalcLength() * MathUtils::GetRandomFloatZeroToOne();
+    return line.start + (dir * len);
+}
+
+Vector3 GetRandomPointOn(const AABB3& aabb) {
+    float result[3]{ 0.0f, 0.0f, 0.0f };
+    int s = MathUtils::GetRandomIntLessThan(6);
+    int c = s % 3;
+    result[(c + 0) % 3] = s > 2 ? 1.0f : 0.0f;
+    result[(c + 1) % 3] = MathUtils::GetRandomFloatZeroToOne();
+    result[(c + 2) % 3] = MathUtils::GetRandomFloatZeroToOne();
+    Vector3 point{ result[0], result[1], result[2] };
+    return aabb.CalcCenter() + (point * aabb.CalcDimensions());
+}
+
+Vector3 GetRandomPointOn(const Sphere3& sphere) {
+    //See: https://karthikkaranth.me/blog/generating-random-points-in-a-sphere/
+    float u = MathUtils::GetRandomFloatZeroToOne();
+    float v = MathUtils::GetRandomFloatZeroToOne();
+    float theta = MathUtils::M_2PI * u;
+    float phi = std::acos(2.0f * v - 1.0f);
+    float r = sphere.radius;
+    float sin_theta = std::sin(theta);
+    float cos_theta = std::cos(theta);
+    float sin_phi = std::sin(phi);
+    float cos_phi = std::cos(phi);
+    float x = r * sin_phi * cos_theta;
+    float y = r * sin_phi * sin_theta;
+    float z = r * cos_phi;
+    return sphere.center + Vector3{x,y,z};
+}
+
+Vector3 GetRandomPointOn(const LineSegment3& line) {
+    auto dir = line.CalcDirection();
+    auto len = line.CalcLength() * MathUtils::GetRandomFloatZeroToOne();
+    return line.start + (dir * len);
+}
+
+Vector2 GetRandomPointInside(const AABB2& aabb) {
+    return Vector2{ MathUtils::GetRandomFloatInRange(aabb.mins.x, aabb.maxs.x), MathUtils::GetRandomFloatInRange(aabb.mins.y, aabb.maxs.y)};
+}
+
+Vector2 GetRandomPointInside(const Disc2& disc) {
+    Vector2 point{};
+    point.SetLengthAndHeadingDegrees(MathUtils::GetRandomFloatZeroToOne() * 360.0f, std::sqrt(MathUtils::GetRandomFloatZeroToOne()) * disc.radius);
+    return disc.center + point;
+}
+
+Vector3 GetRandomPointInside(const AABB3& aabb) {
+    return Vector3{ MathUtils::GetRandomFloatInRange(aabb.mins.x, aabb.maxs.x), MathUtils::GetRandomFloatInRange(aabb.mins.y, aabb.maxs.y),MathUtils::GetRandomFloatInRange(aabb.mins.z, aabb.maxs.z) };
+}
+
+Vector3 GetRandomPointInside(const Sphere3& sphere) {
+    //See: https://karthikkaranth.me/blog/generating-random-points-in-a-sphere/
+    float u = MathUtils::GetRandomFloatZeroToOne();
+    float v = MathUtils::GetRandomFloatZeroToOne();
+    float theta = MathUtils::M_2PI * u;
+    float phi = std::acos(2.0f * v - 1.0f);
+    float r = sphere.radius * std::pow(MathUtils::GetRandomFloatZeroToOne(), 1.0f / 3.0f);
+    float sin_theta = std::sin(theta);
+    float cos_theta = std::cos(theta);
+    float sin_phi = std::sin(phi);
+    float cos_phi = std::cos(phi);
+    float x = r * sin_phi * cos_theta;
+    float y = r * sin_phi * sin_theta;
+    float z = r * cos_phi;
+    return sphere.center + Vector3{ x,y,z };
 }
 
 bool IsPointInside(const AABB2& aabb, const Vector2& point) {

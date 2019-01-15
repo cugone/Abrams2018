@@ -358,7 +358,7 @@ void Renderer::DrawFrustum(const Frustum& frustum, const Rgba& color /*= Rgba::Y
 }
 
 void Renderer::DrawWorldGridXZ(float radius /*= 500.0f*/, float major_gridsize /*= 20.0f*/, float minor_gridsize /*= 5.0f*/, const Rgba& major_color /*= Rgba::WHITE*/, const Rgba& minor_color /*= Rgba::DARK_GRAY*/) {
-    static std::vector<Vertex3D> vbo;
+    static std::vector<Vertex3D> vbo{};
     float half_length = radius;
     float length = radius * 2.0f;
     float space_between_majors = length * (major_gridsize / length);

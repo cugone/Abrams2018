@@ -520,12 +520,12 @@ void Renderer::DrawDebugSphere(const Rgba& color) {
         float pY = std::sin(radians) + centerY;
         verts.emplace_back(Vector2(pX, 0.0f), pY);
     }
-    {
-        float radians = MathUtils::ConvertDegreesToRadians(360.0f);
-        float pX = std::cos(radians) + centerX;
-        float pY = std::sin(radians) + centerY;
-        verts.emplace_back(Vector2(pX, 0.0f), pY);
-    }
+    //{
+    //    float radians = MathUtils::ConvertDegreesToRadians(360.0f);
+    //    float pX = std::cos(radians) + centerX;
+    //    float pY = std::sin(radians) + centerY;
+    //    verts.emplace_back(Vector2(pX, 0.0f), pY);
+    //}
 
     for(float degrees = 0.0f; degrees < 360.0f; degrees += anglePerVertex) {
         float radians = MathUtils::ConvertDegreesToRadians(degrees);
@@ -533,22 +533,30 @@ void Renderer::DrawDebugSphere(const Rgba& color) {
         float pY = std::sin(radians) + centerY;
         verts.emplace_back(Vector2(0.0f, pX), pY);
     }
-    {
-        float radians = MathUtils::ConvertDegreesToRadians(360.0f);
-        float pX = std::cos(radians) + centerX;
-        float pY = std::sin(radians) + centerY;
-        verts.emplace_back(Vector2(0.0f, pX), pY);
-    }
+    //{
+    //    float radians = MathUtils::ConvertDegreesToRadians(360.0f);
+    //    float pX = std::cos(radians) + centerX;
+    //    float pY = std::sin(radians) + centerY;
+    //    verts.emplace_back(Vector2(0.0f, pX), pY);
+    //}
     std::vector<Vertex3D> vbo;
     vbo.resize(verts.size());
     for(std::size_t i = 0; i < vbo.size(); ++i) {
-        vbo[i] = Vertex3D(verts[i], color);
+        vbo[i].position = verts[i];
+        vbo[i].color = color.GetRgbaAsFloats();
     }
 
     std::vector<unsigned int> ibo;
-    ibo.resize(verts.size());
-    std::iota(std::begin(ibo), std::end(ibo), 0);
-    DrawIndexed(PrimitiveType::LinesStrip, vbo, ibo);
+    ibo.resize(verts.size() * 2 - 2);
+    unsigned int idx = 0;
+    for(std::size_t i = 0; i < ibo.size(); i += 2) {
+        ibo[i + 0] = idx + 0;
+        ibo[i + 1] = idx + 1;
+        ++idx;
+    }
+    //ibo[ibo.size() - 2] = idx;
+    //ibo[ibo.size() - 1] = idx + 1;
+    DrawIndexed(PrimitiveType::Lines, vbo, ibo);
 
 }
 
@@ -1253,6 +1261,14 @@ void Renderer::SetWinProc(const std::function<bool(HWND hwnd, UINT msg, WPARAM w
     }
 }
 
+void Renderer::CopyTexture(Texture* src, Texture* dst) {
+    if((src && dst) && src != dst) {
+        auto dc = GetDeviceContext();
+        auto dx_dc = dc->GetDxContext();
+        dx_dc->CopyResource(dst->GetDxResource(), src->GetDxResource());
+    }
+}
+
 void Renderer::DispatchComputeJob(const ComputeJob& job) {
     SetComputeShader(job.computeShader);
     auto dc = GetDeviceContext();
@@ -1504,7 +1520,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     auto uv_offset = offsetof(Vertex3D, texcoords);
     auto normal = offsetof(Vertex3D, normal);
     il->AddElement(pos_offset, ImageFormat::R32G32B32_Float, "POSITION");
-    il->AddElement(color_offset, ImageFormat::R8G8B8A8_UNorm, "COLOR");
+    il->AddElement(color_offset, ImageFormat::R32G32B32A32_Float, "COLOR");
     il->AddElement(uv_offset, ImageFormat::R32G32_Float, "UV");
     il->AddElement(normal, ImageFormat::R32G32B32_Float, "NORMAL");
     auto vs_bytecode = _rhi_device->CompileShader("__defaultVS", program.data(), program.size(), "VertexFunction", PipelineStage::Vs);
@@ -1592,7 +1608,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     auto color_offset = offsetof(Vertex3D, color);
     auto uv_offset = offsetof(Vertex3D, texcoords);
     il->AddElement(pos_offset, ImageFormat::R32G32B32_Float, "POSITION");
-    il->AddElement(color_offset, ImageFormat::R8G8B8A8_UNorm, "COLOR");
+    il->AddElement(color_offset, ImageFormat::R32G32B32A32_Float, "COLOR");
     il->AddElement(uv_offset, ImageFormat::R32G32_Float, "UV");
     auto vs_bytecode = _rhi_device->CompileShader("__unlitVS", program.data(), program.size(), "VertexFunction", PipelineStage::Vs);
     ID3D11VertexShader* vs = nullptr;
@@ -1723,7 +1739,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     auto uv_offset = offsetof(Vertex3D, texcoords);
     auto normal = offsetof(Vertex3D, normal);
     il->AddElement(pos_offset, ImageFormat::R32G32B32_Float, "POSITION");
-    il->AddElement(color_offset, ImageFormat::R8G8B8A8_UNorm, "COLOR");
+    il->AddElement(color_offset, ImageFormat::R32G32B32A32_Float, "COLOR");
     il->AddElement(uv_offset, ImageFormat::R32G32_Float, "UV");
     il->AddElement(normal, ImageFormat::R32G32B32_Float, "NORMAL");
     auto vs_bytecode = _rhi_device->CompileShader("__normalVS", program.data(), program.size(), "VertexFunction", PipelineStage::Vs);
@@ -1854,7 +1870,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     auto uv_offset = offsetof(Vertex3D, texcoords);
     auto normal = offsetof(Vertex3D, normal);
     il->AddElement(pos_offset, ImageFormat::R32G32B32_Float, "POSITION");
-    il->AddElement(color_offset, ImageFormat::R8G8B8A8_UNorm, "COLOR");
+    il->AddElement(color_offset, ImageFormat::R32G32B32A32_Float, "COLOR");
     il->AddElement(uv_offset, ImageFormat::R32G32_Float, "UV");
     il->AddElement(normal, ImageFormat::R32G32B32_Float, "NORMAL");
     auto vs_bytecode = _rhi_device->CompileShader("__normalmapVS", program.data(), program.size(), "VertexFunction", PipelineStage::Vs);

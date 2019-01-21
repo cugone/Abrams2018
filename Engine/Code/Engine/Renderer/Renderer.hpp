@@ -343,6 +343,7 @@ public:
 
     void SetWinProc(const std::function<bool(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) >& windowProcedure);
 
+    void CopyTexture(Texture* src, Texture* dst);
 protected:
 private:
     void UpdateSystemTime(TimeUtils::FPSeconds deltaSeconds);

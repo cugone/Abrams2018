@@ -59,11 +59,11 @@ void Game::Initialize() {
 
 void Game::InitializeData() {
 
-    _obb.half_extents = Vector2{ 50.0f, 50.0f };
     _mandelbrot_cb = g_theRenderer->CreateConstantBuffer(&_mandelbrot_data, sizeof(_mandelbrot_data));
     _mandelbrot_data.escapeColor = Rgba::White.GetRgbaAsFloats();
     _mandelbrot_data.convergeColor = Rgba::Black.GetRgbaAsFloats();
     _mandelbrot_data.use_escape_color = 1u;
+    _mandelbrot_cb->Update(g_theRenderer->GetDeviceContext(), &_mandelbrot_data);
 
     {
         const auto& window_dimensions = g_theRenderer->GetOutput()->GetDimensions();
@@ -154,12 +154,13 @@ void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
         _panel->ToggleEnabled();
     }
 
-    _obb.orientationDegrees += 360.0f * deltaSeconds.count();
     _camera2.Update(g_theRenderer->GetGameFrameTime());
     _camera3.Update(g_theRenderer->GetGameFrameTime());
 
     _canvas->Update(g_theRenderer->GetGameFrameTime());
 
+    g_theRenderer->DispatchComputeJob(ComputeJob{ g_theRenderer, 1, {g_theRenderer->GetTexture("mandelbrot_out") }, g_theRenderer->GetShader("Test2"), 16, 16, 1 });
+    g_theRenderer->CopyTexture(g_theRenderer->GetTexture("mandelbrot"), g_theRenderer->GetTexture("mandelbrot_out"));
 }
 
 void Game::UpdateCameraFromKeyboard(TimeUtils::FPSeconds deltaSeconds) {
@@ -256,7 +257,7 @@ void Game::UpdateCameraFromMouse(TimeUtils::FPSeconds deltaSeconds) {
 void Game::Render() const {
 
     g_theRenderer->SetRenderTarget();
-    g_theRenderer->ClearColor(Rgba::Black);
+    g_theRenderer->ClearColor(Rgba::Grey);
     g_theRenderer->ClearDepthStencilBuffer();
 
     ViewportDesc view_desc{};
@@ -306,10 +307,6 @@ void Game::Render() const {
     _camera2.SetupView(view_leftBottom, view_rightTop, view_nearFar, MathUtils::M_16_BY_9_RATIO);
     g_theRenderer->SetCamera(_camera2);
 
-    g_theRenderer->SetModelMatrix(Matrix4::CreateScaleMatrix(_obb.half_extents));
-    //g_theRenderer->DrawOBB2(_obb, Rgba::Red, Rgba::NoAlpha);
-    g_theRenderer->DrawOBB2(_obb.orientationDegrees, Rgba::Red, Rgba::Cyan);
-
     _canvas->Render(g_theRenderer);
     if(_debug) {
         _canvas->DebugRender(g_theRenderer);
@@ -319,16 +316,18 @@ void Game::Render() const {
 
 void Game::RenderStuff() const {
     g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
-    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__2D"));
-    DrawPointCloud();
-    //g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
-    //DrawCube();
+    //g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__2D"));
+    //DrawPointCloud();
     //g_theRenderer->SetModelMatrix(Matrix4::CreateTranslationMatrix(Vector3::X_AXIS));
     //g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Stone"));
     //DrawCube();
 
-
-
+    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
+    //DrawCube();
+    //g_theRenderer->SetModelMatrix(Matrix4::Create3DXRotationDegreesMatrix(180.0f));
+    //TODO: Fix UVs upside-down
+    //DrawCube();
+    g_theRenderer->DrawDebugSphere(Rgba::Red);
     DrawWorldGrid();
     DrawAxes();
 
@@ -360,7 +359,7 @@ void Game::DrawCube() const {
     static const auto tex_left_top = Vector2{ mins.x, mins.y };
     static const auto tex_right_top = Vector2{ maxs.x, mins.y };
     static const auto tex_right_bottom = Vector2{ maxs.x, maxs.y };
-    static std::vector<Vertex3D> vbo = {
+    static std::vector<Vertex3D> vbo{
         //Bottom
         Vertex3D(Vector3(-0.5f, -0.5f,  0.5f), Rgba::White, tex_left_bottom, -Vector3::Y_AXIS),
         Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::White, tex_left_top, -Vector3::Y_AXIS),
@@ -368,14 +367,14 @@ void Game::DrawCube() const {
         Vertex3D(Vector3(0.5f,  -0.5f,  0.5f), Rgba::White, tex_right_bottom, -Vector3::Y_AXIS),
         //Top
         Vertex3D(Vector3(-0.5f, 0.5f, -0.5f), Rgba::White, tex_left_bottom, Vector3::Y_AXIS),
-        Vertex3D(Vector3(-0.5f, 0.5f, 0.5f), Rgba::White,  tex_left_top, Vector3::Y_AXIS),
-        Vertex3D(Vector3(0.5f,  0.5f, 0.5f), Rgba::White,  tex_right_top, Vector3::Y_AXIS),
+        Vertex3D(Vector3(-0.5f, 0.5f, 0.5f),  Rgba::White,  tex_left_top, Vector3::Y_AXIS),
+        Vertex3D(Vector3(0.5f,  0.5f, 0.5f),  Rgba::White,  tex_right_top, Vector3::Y_AXIS),
         Vertex3D(Vector3(0.5f,  0.5f, -0.5f), Rgba::White, tex_right_bottom, Vector3::Y_AXIS),
         //Left
-        Vertex3D(Vector3(-0.5f, 0.5f, -0.5f), Rgba::White,  tex_right_top, -Vector3::X_AXIS),
+        Vertex3D(Vector3(-0.5f, 0.5f, -0.5f),  Rgba::White,  tex_right_top, -Vector3::X_AXIS),
         Vertex3D(Vector3(-0.5f, -0.5f, -0.5f), Rgba::White, tex_right_bottom, -Vector3::X_AXIS),
-        Vertex3D(Vector3(-0.5f, -0.5f, 0.5f), Rgba::White,  tex_left_bottom, -Vector3::X_AXIS),
-        Vertex3D(Vector3(-0.5f, 0.5f, 0.5f), Rgba::White,   tex_left_top, -Vector3::X_AXIS),
+        Vertex3D(Vector3(-0.5f, -0.5f, 0.5f),  Rgba::White,  tex_left_bottom, -Vector3::X_AXIS),
+        Vertex3D(Vector3(-0.5f, 0.5f, 0.5f),   Rgba::White,   tex_left_top, -Vector3::X_AXIS),
         //Right
         Vertex3D(Vector3(0.5f, -0.5f, -0.5f), Rgba::White, tex_left_bottom, Vector3::X_AXIS),
         Vertex3D(Vector3(0.5f,  0.5f, -0.5f), Rgba::White, tex_left_top, Vector3::X_AXIS),
@@ -393,7 +392,7 @@ void Game::DrawCube() const {
         Vertex3D(Vector3(-0.5f, -0.5f, 0.5f), Rgba::White, tex_right_bottom, Vector3::Z_AXIS),
     };
 
-    static std::vector<unsigned int> ibo = {
+    static std::vector<unsigned int> ibo{
          0,  1,  2,  0,  2,  3,
          4,  5,  6,  4,  6,  7,
          8,  9, 10,  8, 10, 11,
@@ -423,8 +422,7 @@ void Game::DrawPointCloud() const {
         }
         vbo.resize(verts.size());
         for(std::size_t i = 0; i < vbo.size(); ++i) {
-            vbo[i].position = verts[i];
-            vbo[i].color = Rgba::Orange;
+            vbo[i] = Vertex3D{verts[i], Rgba::Orange};
         }
         ibo.resize(vbo.size());
         std::iota(std::begin(ibo), std::end(ibo), 0);

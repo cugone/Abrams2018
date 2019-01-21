@@ -107,43 +107,43 @@ uint CheckMandlebrotSet(float x0, float y0) {
 
 //Escape coloring from https://solarianprogrammer.com/2013/02/28/mandelbrot-set-cpp-11/
 bool ImageGenerateMandlebrot(float x, float y, uint width, uint height) {
-    tOutput[uint2(x, y)] = float4(1.0f, 0.0f, 1.0f, 1.0f);
-    //float x0 = RangeMap((float) x, 0.0f, (float) width, -2.5f * ZOOM_SETTING + MOUSE_DELTA.x * ZOOM_SETTING, 1.0f * ZOOM_SETTING + MOUSE_DELTA.x * ZOOM_SETTING); //-2.5f, 1.0f
-    //float y0 = RangeMap((float) y, 0.0f, (float) height, -1.0f * ZOOM_SETTING + MOUSE_DELTA.y * ZOOM_SETTING, 1.0f * ZOOM_SETTING + MOUSE_DELTA.y * ZOOM_SETTING); //-1.0f, 1.0f
-    //uint iterations = CheckMandlebrotSet(x0, y0);
+    //tOutput[uint2(x, y)] = float4(1.0f, 0.0f, 1.0f, 1.0f);
+    float x0 = RangeMap((float) x, 0.0f, (float) width, -2.5f * ZOOM_SETTING + MOUSE_DELTA.x * ZOOM_SETTING, 1.0f * ZOOM_SETTING + MOUSE_DELTA.x * ZOOM_SETTING); //-2.5f, 1.0f
+    float y0 = RangeMap((float) y, 0.0f, (float) height, -1.0f * ZOOM_SETTING + MOUSE_DELTA.y * ZOOM_SETTING, 1.0f * ZOOM_SETTING + MOUSE_DELTA.y * ZOOM_SETTING); //-1.0f, 1.0f
+    uint iterations = CheckMandlebrotSet(x0, y0);
 
-    ////Bernstien Distributions
-    //if(USE_ESCAPE_COLORING == 1) {
-    // 
-    //    float t = (float) iterations / (float) MAX_ITERATIONS;
+    //Bernstien Distributions
+    if(USE_ESCAPE_COLORING == 1) {
+     
+        float t = (float) iterations / (float) MAX_ITERATIONS;
 
-    //    float4 escape_color;
-    //    escape_color.a = 1.0f;
-    //    escape_color.r = (19.0f * (1.0f - t) * t * t * t);
-    //    escape_color.g = (25.0f * (1.0f - t) * (1.0f - t) * t * t);
-    //    escape_color.b = (18.5f * (1.0f - t) * (1.0f - t) * (1.0f - t) * t);
-    //    tOutput[uint2(x, y)] = escape_color;
+        float4 escape_color;
+        escape_color.a = 1.0f;
+        escape_color.r = (19.0f * (1.0f - t) * t * t * t);
+        escape_color.g = (25.0f * (1.0f - t) * (1.0f - t) * t * t);
+        escape_color.b = (18.5f * (1.0f - t) * (1.0f - t) * (1.0f - t) * t);
+        tOutput[uint2(x, y)] = escape_color;
 
-    //} else if (USE_ESCAPE_COLORING == 2) {
-    //    
-    //    float red_scale = 19.0f;
-    //    float green_scale = 25.0f;
-    //    float blue_scale = 18.5f;
+    } else if (USE_ESCAPE_COLORING == 2) {
+        
+        float red_scale = 19.0f;
+        float green_scale = 25.0f;
+        float blue_scale = 18.5f;
 
-    //    float t = (float) iterations / (float) MAX_ITERATIONS;
+        float t = (float) iterations / (float) MAX_ITERATIONS;
 
-    //    float4 diffuse = tLinear.SampleLevel(sSampler, float2(t, 0.0f), 0);
-    //    
-    //    float4 escape_color = diffuse;
-    //    tOutput[uint2(x, y)] = escape_color;
+        float4 diffuse = tLinear.SampleLevel(sSampler, float2(t, 0.0f), 0);
+        
+        float4 escape_color = diffuse;
+        tOutput[uint2(x, y)] = escape_color;
 
-    //} else {
-    //    if (iterations == MAX_ITERATIONS) {
-    //        tOutput[uint2(x, y)] = ESCAPE_COLOR;
-    //    } else {
-    //        tOutput[uint2(x, y)] = CONVERGE_COLOR;
-    //    }
-    //}
+    } else {
+        if (iterations == MAX_ITERATIONS) {
+            tOutput[uint2(x, y)] = ESCAPE_COLOR;
+        } else {
+            tOutput[uint2(x, y)] = CONVERGE_COLOR;
+        }
+    }
 
     return true;
 }

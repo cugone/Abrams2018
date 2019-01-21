@@ -1,12 +1,14 @@
 <shader name="Test2">
-    <shaderprogram src="Data/ShaderPrograms/scanline.hlsl">
+    <!--<shaderprogram src="__unlit">-->
+    <shaderprogram src="Data/ShaderPrograms/mandelbrot.hlsl">
         <pipelinestages>
             <vertex entrypoint="VertexFunction" />
             <pixel entrypoint="PixelFunction" />
+            <compute entrypoint="ComputeFunction" />
         </pipelinestages>
     </shaderprogram>
     <raster src="__solid" />
-    <sampler src="__default" />
+    <sampler src="__point" />
     <blends>
         <blend enable="true">
             <color src="src_alpha" dest="inv_src_alpha" op="add" />

@@ -62,7 +62,6 @@ private:
     void DrawCube() const;
     void DrawPointCloud() const;
 
-    OBB2 _obb{};
     ConstantBuffer* _mandelbrot_cb = nullptr;
     mandelbrot_t _mandelbrot_data{};
     UI::Canvas* _canvas = nullptr;

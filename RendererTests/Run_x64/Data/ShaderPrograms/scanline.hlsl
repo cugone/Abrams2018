@@ -2,17 +2,16 @@ Texture2D <float4> tImage : register(t0);
 
 SamplerState texsampler : register(s0);
 
-struct vertex_in_t {
+struct vs_in_t {
     float3 position : POSITION;
     float4 color : COLOR;
-    float2 uv : TEXCOORD;
+    float2 uv : UV;
 };
 
-struct vertex_to_fragment_t {
+struct ps_in_t {
     float4 position : SV_POSITION;
     float4 color : COLOR;
-    float2 uv : TEXCOORD;
-    //float3 world_position : WORLD_POSITION;
+    float2 uv : UV;
 };
 
 cbuffer matrix_cb : register(b0) {
@@ -28,33 +27,22 @@ cbuffer time_cb : register(b1) {
     float SYSTEM_FRAME_TIME;
 }
 
-//--------------------------------------------------------------------------------------
-// Vertex Shader
-//--------------------------------------------------------------------------------------
-vertex_to_fragment_t VertexFunction(vertex_in_t input) {
-    vertex_to_fragment_t v2f = (vertex_to_fragment_t)0;
+ps_in_t VertexFunction(vs_in_t input_vertex) {
+    ps_in_t output;
 
-    // The output of a vertex shader is in clip-space, which is a 4D vector
-    // so we need to convert out input to a 4D vector.
-    v2f.position = float4(input.position, 1.0f);
+    float4 local = float4(input_vertex.position, 1.0f);
+    float4 world = mul(local, g_MODEL);
+    float4 view = mul(world, g_VIEW);
+    float4 clip = mul(view, g_PROJECTION);
 
-    v2f.color = input.color;
-    // do nothing but pass it through/
-    v2f.uv = input.uv;
+    output.position = clip;
+    output.color = input_vertex.color;
+    output.uv = input_vertex.uv;
 
-    // And return - this will pass it on to the next stage in the pipeline;
-    return v2f;
+    return output;
 }
 
-
-//--------------------------------------------------------------------------------------
-// Pixel Shader
-//--------------------------------------------------------------------------------------
-// If I'm only returning one value, I can optionally just mark the return value with
-// a SEMANTIC - in this case, SV_TARGET0, which means it is outputting to the first colour 
-// target.
-float4 PixelFunction(vertex_to_fragment_t input) : SV_Target0 // semeantic of what I'm returning
-{
+float4 PixelFunction(ps_in_t input) : SV_Target0 {
     float width = 1.0f;
     float height = 1.0f;
     tImage.GetDimensions(width, height);

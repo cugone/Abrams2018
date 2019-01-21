@@ -1,6 +1,6 @@
 <material name="Test2">
     <shader src="Test2" />
     <textures>
-        <diffuse src="Data/Images/Test_StbiAndDirectX.png" />
+        <diffuse src="mandelbrot_out" />
     </textures>
 </material>

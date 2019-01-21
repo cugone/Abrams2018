@@ -49,22 +49,15 @@ ps_in_t VertexFunction(vs_in_t input_vertex) {
     return output;
 }
 
-float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
-    float4 albedo = tDiffuse.Sample(sSampler, input_pixel.uv);
-    return albedo * input_pixel.color;
-}
 
-//float4 PixelFunction(ps_in_t input) : SV_Target0 {
-//   float4 diffuse = tDiffuse.Sample( sSampler, input.uv );
-//   //float3x3 sepia_transform = float3x3( 
-//   //   float3( 1.0f, 0.0f, 0.0f ),
-//   //   float3( 0.0f, 1.0f, 0.0f ),
-//   //   float3( 0.0f, 0.0f, 1.0f )
-//   //   //float3( 0.393f, 0.349f, 0.272f ),
-//   //   //float3( 0.769f, 0.686f, 0.534f ),
-//   //   //float3( 0.189f, 0.168f, 0.131f )
-//   //);
-//   //float3 sepia = mul(diffuse.xyz, sepia_transform);
-//   //float4 final_color = float4( sepia, 1.0f);
-//   return final_color;
-//}
+float4 PixelFunction(ps_in_t input) : SV_Target0 {
+   float4 diffuse = tDiffuse.Sample( sSampler, input.uv );
+   float3x3 sepia_transform = float3x3( 
+      float3( 0.393f, 0.349f, 0.272f ),
+      float3( 0.769f, 0.686f, 0.534f ),
+      float3( 0.189f, 0.168f, 0.131f )
+   );
+   float3 sepia = mul(diffuse.xyz, sepia_transform);
+   float4 final_color = float4( sepia, diffuse.a);
+   return final_color;
+}

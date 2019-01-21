@@ -690,6 +690,19 @@ bool DoAABBsOverlap(const AABB3& a, const AABB3& b) {
     return true;
 }
 
+bool DoOBBsOverlap(const OBB2& a, const OBB2& b) {
+    auto a_top    = a.GetUp();
+    auto a_bottom = a.GetDown();
+    auto a_left = a.GetLeft();
+    auto a_right = a.GetRight();
+
+    auto b_top = b.GetUp();
+    auto b_bottom = b.GetDown();
+    auto b_left = b.GetLeft();
+    auto b_right = b.GetRight();
+
+}
+
 bool DoLineSegmentOverlap(const Disc2& a, const LineSegment2& b) {
     return CalcDistanceSquared(a.center, b) < a.radius * a.radius;
 }

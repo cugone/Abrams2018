@@ -214,6 +214,9 @@ bool DoSpheresOverlap(const Sphere3& a, const Capsule3& b);
 bool DoAABBsOverlap(const AABB2& a, const AABB2& b);
 bool DoAABBsOverlap(const AABB3& a, const AABB3& b);
 
+bool DoOBBsOverlap(const OBB2& a, const OBB2& b);
+
+
 bool DoLineSegmentOverlap(const Disc2& a, const LineSegment2& b);
 bool DoLineSegmentOverlap(const Sphere3& a, const LineSegment3& b);
 

@@ -17,6 +17,7 @@ struct RasterDesc {
     bool scissorEnable = false;
     bool multisampleEnable = false;
     bool antialiasedLineEnable = false;
+    bool frontCounterClockwise = false;
     RasterDesc() = default;
     explicit RasterDesc(const XMLElement& element);
 };

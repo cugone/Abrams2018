@@ -57,7 +57,7 @@ bool RasterState::CreateRasterState(const RHIDevice* device, const RasterDesc& r
 
     desc.FillMode = FillModeToD3DFillMode(raster_desc.fillmode);
     desc.CullMode = CullModeToD3DCullMode(raster_desc.cullmode);
-    desc.FrontCounterClockwise = false;
+    desc.FrontCounterClockwise = raster_desc.frontCounterClockwise;
     desc.AntialiasedLineEnable = raster_desc.antialiasedLineEnable;
     desc.DepthBias = raster_desc.depthBias;
     desc.DepthBiasClamp = raster_desc.depthBiasClamp;
@@ -71,7 +71,7 @@ bool RasterState::CreateRasterState(const RHIDevice* device, const RasterDesc& r
 
 RasterDesc::RasterDesc(const XMLElement& element) {
     if(auto xml_raster = element.FirstChildElement("raster")) {
-        DataUtils::ValidateXmlElement(*xml_raster, "raster", "fill,cull", "", "antialiasing,depthbias,depthclip,scissor,msaa");
+        DataUtils::ValidateXmlElement(*xml_raster, "raster", "fill,cull", "", "windingorder,antialiasing,depthbias,depthclip,scissor,msaa");
         auto xml_fill = xml_raster->FirstChildElement("fill");
         std::string fill_str = "solid";
         fill_str = DataUtils::ParseXmlElementText(*xml_fill, fill_str);
@@ -114,6 +114,20 @@ RasterDesc::RasterDesc(const XMLElement& element) {
         if(auto xml_msaa = xml_raster->FirstChildElement("msaa")) {
             DataUtils::ValidateXmlElement(*xml_msaa, "msaa", "", "");
             this->multisampleEnable = DataUtils::ParseXmlElementText(*xml_msaa, this->multisampleEnable);
+        }
+
+        this->frontCounterClockwise = false;
+        if(auto xml_windingorder = xml_raster->FirstChildElement("windingorder")) {
+            DataUtils::ValidateXmlElement(*xml_windingorder, "windingorder", "", "");
+            std::string value{"cw"};
+            value = DataUtils::ParseXmlElementText(*xml_raster, value);
+            if(value == "cw") {
+                this->frontCounterClockwise = false;
+            } else if(value == "ccw") {
+                this->frontCounterClockwise = true;
+            } else {
+                this->frontCounterClockwise = false;
+            }
         }
     }
 }

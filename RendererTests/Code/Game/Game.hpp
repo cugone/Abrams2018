@@ -62,12 +62,16 @@ private:
     void DrawCube() const;
     void DrawPointCloud() const;
 
+    AABB2 _aabb2{};
+    OBB2 _obb1{};
+    OBB2 _obb2{};
     ConstantBuffer* _mandelbrot_cb = nullptr;
     mandelbrot_t _mandelbrot_data{};
     UI::Canvas* _canvas = nullptr;
     UI::Panel* _panel = nullptr;
     UI::Label* _label = nullptr;
     UI::Sprite* _sprite = nullptr;
+    std::vector<Vertex3D> _pos{};
     const float _default_fovV = 45.0f;
     float _fovV = _default_fovV;
     const float _cameraSpeed = 10.0f;

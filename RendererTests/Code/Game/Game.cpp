@@ -90,6 +90,10 @@ void Game::InitializeData() {
     _camera3.SetPosition(Vector3(230.0f, 270.0f, -180.0f));
     _camera3.SetEulerAngles(Vector3(-45.0f, 0.0f, 0.0f));
 
+    _obb1.half_extents = Vector2::ONE * 25.0f;
+    _obb2.half_extents = Vector2::ONE * 25.0f;
+    _aabb2.AddPaddingToSides(25.0f, 25.0f);
+    _pos.reserve(1000);
 }
 
 void Game::InitializeUI() {
@@ -161,6 +165,14 @@ void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
 
     g_theRenderer->DispatchComputeJob(ComputeJob{ g_theRenderer, 1, {g_theRenderer->GetTexture("mandelbrot_out") }, g_theRenderer->GetShader("Test2"), 16, 16, 1 });
     g_theRenderer->CopyTexture(g_theRenderer->GetTexture("mandelbrot"), g_theRenderer->GetTexture("mandelbrot_out"));
+
+    {
+        float t = g_theRenderer->GetGameTime().count();
+        float x = std::cos(t) * 50.0f;
+        float y = std::sin(t) * 50.0f;
+        float z = std::cos(t) * std::sin(t) * 50.0f;
+        _pos.push_back(Vertex3D(Vector3(x, y, z), Rgba::Blue));
+    }
 }
 
 void Game::UpdateCameraFromKeyboard(TimeUtils::FPSeconds deltaSeconds) {
@@ -252,6 +264,7 @@ void Game::UpdateCameraFromMouse(TimeUtils::FPSeconds deltaSeconds) {
     if(g_theInput->WasMouseWheelJustScrolledRight()) {
         _camera3.Translate(_camera3.GetRight() * camera_move_speed);
     }
+
 }
 
 void Game::Render() const {
@@ -307,17 +320,27 @@ void Game::Render() const {
     _camera2.SetupView(view_leftBottom, view_rightTop, view_nearFar, MathUtils::M_16_BY_9_RATIO);
     g_theRenderer->SetCamera(_camera2);
 
-    _canvas->Render(g_theRenderer);
-    if(_debug) {
-        _canvas->DebugRender(g_theRenderer);
-    }
+    //g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__2D"));
+    //g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
+    //g_theRenderer->DrawOBB2(_obb1, Rgba::Blue, Rgba::NoAlpha, Vector2::ONE * 0.001f);
+    //g_theRenderer->DrawOBB2(_obb2, Rgba::Green, Rgba::NoAlpha, Vector2::ONE * 0.001f);
+    //g_theRenderer->DrawAABB2(_aabb2, Rgba::Green, Rgba::NoAlpha);
 
+    //_canvas->Render(g_theRenderer);
+    //if(_debug) {
+    //    _canvas->DebugRender(g_theRenderer);
+    //}
 }
 
 void Game::RenderStuff() const {
-    g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
-    //g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__2D"));
-    //DrawPointCloud();
+    g_theRenderer->SetModelMatrix(Matrix4::CreateTranslationMatrix(_pos.back().position));
+    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__2D"));
+    DrawPointCloud();
+
+    g_theRenderer->SetModelMatrix();
+    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__2D"));
+    g_theRenderer->Draw(PrimitiveType::Points, _pos);
+
     //g_theRenderer->SetModelMatrix(Matrix4::CreateTranslationMatrix(Vector3::X_AXIS));
     //g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Stone"));
     //DrawCube();
@@ -327,6 +350,7 @@ void Game::RenderStuff() const {
     //g_theRenderer->SetModelMatrix(Matrix4::Create3DXRotationDegreesMatrix(180.0f));
     //TODO: Fix UVs upside-down
     //DrawCube();
+    g_theRenderer->SetModelMatrix(Matrix4::I);
     g_theRenderer->DrawDebugSphere(Rgba::Red);
     DrawWorldGrid();
     DrawAxes();
@@ -410,7 +434,7 @@ void Game::DrawPointCloud() const {
     if(!is_init) {
         is_init = true;
         static std::vector<Vector3> verts{};
-        static std::size_t size = 10000;
+        static std::size_t size = 1000000;
         verts.reserve(size);
         //static const AABB3 sphere{ -Vector3::ONE * 50.0f, Vector3::ONE * 50.0f };
         static const Sphere3 sphere{ Vector3::ZERO, 50.0f};
@@ -422,7 +446,7 @@ void Game::DrawPointCloud() const {
         }
         vbo.resize(verts.size());
         for(std::size_t i = 0; i < vbo.size(); ++i) {
-            vbo[i] = Vertex3D{verts[i], Rgba::Orange};
+            vbo[i] = Vertex3D{verts[i], Rgba::White};
         }
         ibo.resize(vbo.size());
         std::iota(std::begin(ibo), std::end(ibo), 0);

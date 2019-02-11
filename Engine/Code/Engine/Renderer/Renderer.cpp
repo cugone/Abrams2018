@@ -2923,19 +2923,19 @@ KerningFont* Renderer::GetFont(const std::string& nameOrFile) {
     return found_iter->second;
 }
 
-void Renderer::SetModelMatrix(const Matrix4& mat) {
+void Renderer::SetModelMatrix(const Matrix4& mat /*= Matrix4::I*/) {
     _matrix_data.model = mat;
     _matrix_cb->Update(_rhi_context, &_matrix_data);
     SetConstantBuffer(MATRIX_BUFFER_INDEX, _matrix_cb);
 }
 
-void Renderer::SetViewMatrix(const Matrix4& mat) {
+void Renderer::SetViewMatrix(const Matrix4& mat /*= Matrix4::I*/) {
     _matrix_data.view = mat;
     _matrix_cb->Update(_rhi_context, &_matrix_data);
     SetConstantBuffer(MATRIX_BUFFER_INDEX, _matrix_cb);
 }
 
-void Renderer::SetProjectionMatrix(const Matrix4& mat) {
+void Renderer::SetProjectionMatrix(const Matrix4& mat /*= Matrix4::I*/) {
     _matrix_data.projection = mat;
     _matrix_cb->Update(_rhi_context, &_matrix_data);
     SetConstantBuffer(MATRIX_BUFFER_INDEX, _matrix_cb);

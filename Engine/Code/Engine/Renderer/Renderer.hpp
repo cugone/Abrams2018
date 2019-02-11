@@ -287,9 +287,9 @@ public:
     void UpdateGameTime(TimeUtils::FPSeconds deltaSeconds);
 
     void AppendModelMatrix(const Matrix4& modelMatrix);
-    void SetModelMatrix(const Matrix4& mat);
-    void SetViewMatrix(const Matrix4& mat);
-    void SetProjectionMatrix(const Matrix4& mat);
+    void SetModelMatrix(const Matrix4& mat = Matrix4::I);
+    void SetViewMatrix(const Matrix4& mat = Matrix4::I);
+    void SetProjectionMatrix(const Matrix4& mat = Matrix4::I);
     void SetOrthoProjection(const Vector2& leftBottom, const Vector2& rightTop, const Vector2& near_far);
     void SetOrthoProjection(const Vector2& dimensions, const Vector2& origin, float nearz, float farz);
     void SetOrthoProjectionFromViewHeight(float viewHeight, float aspectRatio, float nearz, float farz);

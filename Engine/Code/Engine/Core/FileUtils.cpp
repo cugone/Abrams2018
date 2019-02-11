@@ -158,9 +158,15 @@ std::vector<std::filesystem::path> GetAllPathsInFolders(const std::filesystem::p
     return paths;
 }
 
-void FileUtils::RemoveExceptMostRecentFiles(const std::filesystem::path& folderpath, int mostRecentCountToKeep) {
+void FileUtils::RemoveExceptMostRecentFiles(const std::filesystem::path& folderpath, int mostRecentCountToKeep, const std::string& validExtensionList /*= std::string{}*/) {
+    auto working_dir = std::filesystem::current_path();
+    auto working_dir_string = StringUtils::ToLowerCase(std::filesystem::absolute(working_dir).string());
+    auto folderpath_string = StringUtils::ToLowerCase(std::filesystem::absolute(folderpath).string());
+    if(folderpath_string.find(working_dir_string) == std::string::npos) {
+        return;
+    }
     namespace FS = std::filesystem;
-    if(mostRecentCountToKeep < CountFilesInFolders(folderpath)) {
+    if(mostRecentCountToKeep < CountFilesInFolders(folderpath, validExtensionList)) {
         std::vector<FS::path> paths = GetAllPathsInFolders(folderpath);
         auto sort_pred = [](const FS::path& a, const FS::path& b) { return FS::last_write_time(a) > FS::last_write_time(b); };
         std::sort(std::begin(paths), std::end(paths), sort_pred);

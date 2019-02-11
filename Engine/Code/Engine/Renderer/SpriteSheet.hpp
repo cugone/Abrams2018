@@ -13,7 +13,7 @@ class Texture;
 class SpriteSheet {
 public:
     SpriteSheet(Renderer& renderer, const XMLElement& elem);
-    ~SpriteSheet();
+    ~SpriteSheet() = default;
 
     AABB2 GetTexCoordsFromSpriteCoords(int spriteX, int spriteY) const;
     AABB2 GetTexCoordsFromSpriteCoords(const IntVector2& spriteCoords) const;

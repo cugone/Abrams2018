@@ -5,7 +5,6 @@
 class OBB2 {
 public:
 
-    Vector2 up = -Vector2::Y_AXIS;
     Vector2 half_extents{};
     Vector2 position{};
     float orientationDegrees = 0.0f;

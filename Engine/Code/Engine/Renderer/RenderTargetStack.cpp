@@ -9,12 +9,6 @@ RenderTargetStack::RenderTargetStack(Renderer* renderer)
     /* DO NOTHING */
 }
 
-RenderTargetStack::~RenderTargetStack() {
-    _stack.clear();
-    _stack.shrink_to_fit();
-    _renderer = nullptr;
-}
-
 void RenderTargetStack::Push(const RenderTargetStack::Node& node) {
     _stack.push_back(node);
     const auto& top = _stack.back();

@@ -32,15 +32,11 @@ public:
     struct RiffSubChunk {
         char fourcc[4];
         std::unique_ptr<uint8_t[]> data{};
-        ~RiffSubChunk() = default;
     };
     struct RiffChunk {
         RiffHeader header{};
         std::unique_ptr<RiffSubChunk> data{};
-        ~RiffChunk() = default;
     };
-    Riff() = default;
-    ~Riff();
 
     RiffChunk* GetNextChunk();
     unsigned int Load(const std::string& filename);

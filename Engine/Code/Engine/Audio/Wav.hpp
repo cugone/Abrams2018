@@ -17,9 +17,6 @@ namespace WavChunkID {
 class Wav {
 public:
 
-    Wav() = default;
-    ~Wav() = default;
-
     struct WavHeader {
         char fourcc[4]{};
         uint32_t length{};
@@ -45,7 +42,6 @@ public:
     struct WavDataChunk {
         uint32_t length{};
         std::unique_ptr<uint8_t[]> data;
-        ~WavDataChunk() = default;
     };
 
     static constexpr const unsigned int WAV_SUCCESS = 0;

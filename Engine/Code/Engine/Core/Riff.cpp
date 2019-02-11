@@ -18,11 +18,6 @@ constexpr const bool IsValid(const char* id) {
 }
 } //End RiffChunkID
 
-Riff::~Riff() {
-    _chunks.clear();
-    _chunks.shrink_to_fit();
-}
-
 bool Riff::ParseDataIntoChunks(std::vector<unsigned char>& buffer) {
     std::stringstream stream(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     stream.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());

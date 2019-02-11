@@ -5,20 +5,10 @@
 #include "Engine/Math/AABB3.hpp"
 #include "Engine/Math/MathUtils.hpp"
 
-Matrix4::Matrix4()
-    : m_indicies{ 1.0f, 0.0f, 0.0f, 0.0f,
-    0.0f, 1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 0.0f, 1.0f } {
-    /* DO NOTHING */
-}
-
+const Matrix4 Matrix4::I{};
 
 Matrix4::Matrix4(const std::string& value)
-    : m_indicies{ 1.0f, 0.0f, 0.0f, 0.0f,
-    0.0f, 1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 0.0f, 1.0f } {
+{
     if(value[0] == '[') {
         if(value.back() == ']') {
             std::stringstream ss(value.substr(1, value.size() - 1));
@@ -45,10 +35,6 @@ Matrix4::Matrix4(const Vector4& iBasis, const Vector4& jBasis, const Vector4& kB
     m_indicies[4] = iBasis.y; m_indicies[5] = jBasis.y; m_indicies[6] = kBasis.y; m_indicies[7] = translation.y;
     m_indicies[8] = iBasis.z; m_indicies[9] = jBasis.z; m_indicies[10] = kBasis.z; m_indicies[11] = translation.z;
     m_indicies[12] = iBasis.w; m_indicies[13] = jBasis.w; m_indicies[14] = kBasis.w; m_indicies[15] = translation.w;
-}
-
-Matrix4::Matrix4(const Matrix4& other) : m_indicies(other.m_indicies) {
-    /* DO NOTHING */
 }
 
 Matrix4::Matrix4(const float* arrayOfFloats) {
@@ -94,9 +80,6 @@ Matrix4::Matrix4(const Vector3& iBasis, const Vector3& jBasis, const Vector3& kB
     iBasis.y, jBasis.y, kBasis.y, translation.y,
     iBasis.z, jBasis.z, kBasis.z, translation.z,
     0.0f,     0.0f,     0.0f,          1.0f } {
-    /* DO NOTHING */
-}
-Matrix4::~Matrix4() {
     /* DO NOTHING */
 }
 
@@ -316,14 +299,6 @@ float Matrix4::GetIndex(unsigned int index) {
 
 float Matrix4::GetIndex(unsigned int col, unsigned int row) const {
     return GetIndex(4 * col + row);
-}
-
-Matrix4& Matrix4::operator=(const Matrix4& rhs) {
-    if(this == &rhs) return *this;
-
-    this->m_indicies = rhs.m_indicies;
-
-    return *this;
 }
 
 void Matrix4::Identity() {
@@ -709,6 +684,14 @@ Vector4 Matrix4::TransformVector(const Vector4& homogeneousVector) const {
     return this->operator*(homogeneousVector);
 }
 
+Vector3 Matrix4::TransformVector(const Vector3& homogeneousVector) const {
+    return this->operator*(homogeneousVector);
+}
+
+Vector2 Matrix4::TransformVector(const Vector2& homogeneousVector) const {
+    return this->operator*(homogeneousVector);
+}
+
 Vector4 Matrix4::GetDiagonal() const {
     return Matrix4::GetDiagonal(*this);
 }
@@ -863,6 +846,22 @@ Vector4 Matrix4::operator*(const Vector4& rhs) const {
                    MathUtils::DotProduct(this->GetWComponents(), rhs));
 }
 
+Vector3 Matrix4::operator*(const Vector3& rhs) const {
+    const Vector3 my_x(this->GetXComponents());
+    const Vector3 my_y(this->GetYComponents());
+    const Vector3 my_z(this->GetZComponents());
+    return Vector3(MathUtils::DotProduct(my_x, rhs)
+                   ,MathUtils::DotProduct(my_y, rhs)
+                   ,MathUtils::DotProduct(my_z, rhs));
+}
+
+Vector2 Matrix4::operator*(const Vector2& rhs) const {
+    const Vector2 my_x(Vector3(this->GetXComponents()));
+    const Vector2 my_y(Vector3(this->GetYComponents()));
+    return Vector2(MathUtils::DotProduct(my_x, rhs)
+                   ,MathUtils::DotProduct(my_y, rhs));
+}
+
 Matrix4& Matrix4::operator*=(const Matrix4& rhs) {
 
     using namespace MathUtils;
@@ -925,6 +924,7 @@ const float * Matrix4::operator*() const {
 float* Matrix4::operator*() {
     return const_cast<float*>(static_cast<const Matrix4&>(*this).operator*());
 }
+
 Matrix4 Matrix4::operator+(const Matrix4& rhs) const {
     return Matrix4(this->m_indicies[0] + rhs.m_indicies[0], this->m_indicies[1] + rhs.m_indicies[1], this->m_indicies[2] + rhs.m_indicies[2], this->m_indicies[3] + rhs.m_indicies[3],
                    this->m_indicies[4] + rhs.m_indicies[4], this->m_indicies[5] + rhs.m_indicies[5], this->m_indicies[6] + rhs.m_indicies[6], this->m_indicies[7] + rhs.m_indicies[7],

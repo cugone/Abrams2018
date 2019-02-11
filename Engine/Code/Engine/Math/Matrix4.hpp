@@ -13,6 +13,8 @@ class Camera3D;
 
 class Matrix4 {
 public:
+    static const Matrix4 I;
+
     static Matrix4 GetIdentity();
     static Matrix4 CreateTranslationMatrix(const Vector2& position);
     static Matrix4 CreateTranslationMatrix(const Vector3& position);
@@ -40,11 +42,13 @@ public:
     static Matrix4 CreateLookAtMatrix(const Vector3& cameraPosition, const Vector3& lookAt, const Vector3& worldUp);
     static Matrix4 CalculateChangeOfBasisMatrix(const Matrix4& output_basis, const Matrix4& input_basis = Matrix4::GetIdentity());
 
-    Matrix4();
+    Matrix4() = default;
     explicit Matrix4(const std::string& value);
-    Matrix4(const Matrix4& other);
-    Matrix4& operator=(const Matrix4& rhs);
-    ~Matrix4();
+    Matrix4(const Matrix4& other) = default;
+    Matrix4(Matrix4&& other) = default;
+    Matrix4& operator=(Matrix4&& rhs) = default;
+    Matrix4& operator=(const Matrix4& rhs) = default;
+    ~Matrix4() = default;
 
     explicit Matrix4(const Quaternion& q);
     explicit Matrix4(const Vector2& iBasis, const Vector2& jBasis, const Vector2& translation = Vector2::ZERO);
@@ -98,6 +102,8 @@ public:
     Vector3 TransformDirection(const Vector3& direction) const;
 
     Vector4 TransformVector(const Vector4& homogeneousVector) const;
+    Vector3 TransformVector(const Vector3& homogeneousVector) const;
+    Vector2 TransformVector(const Vector2& homogeneousVector) const;
 
     const float* GetAsFloatArray() const;
     float* GetAsFloatArray();
@@ -115,6 +121,8 @@ public:
 
     Matrix4 operator*(const Matrix4& rhs) const;
     Vector4 operator*(const Vector4& rhs) const;
+    Vector3 operator*(const Vector3& rhs) const;
+    Vector2 operator*(const Vector2& rhs) const;
     Matrix4& operator*=(const Matrix4& rhs);
     friend Matrix4 operator*(float lhs, const Matrix4& rhs);
     const float * operator*() const;
@@ -197,7 +205,10 @@ private:
     //[20 21 22 23] [8   9 10 11]
     //[30 31 32 33] [12 13 14 15]
 
-    std::array<float, 16> m_indicies;
+    std::array<float, 16> m_indicies{ 1.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 1.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 1.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 1.0f };
 
     friend class Quaternion;
 

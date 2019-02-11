@@ -10,9 +10,7 @@ public:
         Riff,
         Ogg,
     };
-    Audio() = default;
     Audio(const std::string& filename);
-    ~Audio();
 
     BufferType GetType() const;
     const std::vector<unsigned char>& GetBuffer() const;

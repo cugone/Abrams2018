@@ -40,7 +40,6 @@ public:
     class Sound {
     public:
         Sound(AudioSystem& audiosystem, const std::string& filepath);
-        ~Sound();
         void AddChannel(Channel* channel);
         void RemoveChannel(Channel* channel);
         const std::size_t GetId() const;

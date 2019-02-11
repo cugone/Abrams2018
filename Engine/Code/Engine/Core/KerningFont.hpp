@@ -81,7 +81,7 @@ using KerningMap = std::map<std::pair<int, int>, int>;
     KerningFont(KerningFont&& font) = default;
     KerningFont& operator=(KerningFont&& font) = default;
     KerningFont& operator=(const KerningFont& font) = default;
-    KerningFont(Renderer* renderer);
+    explicit KerningFont(Renderer* renderer);
     ~KerningFont() = default;
 
     static float CalculateTextWidth(const KerningFont& font, const std::string& text, float scale = 1.0f);

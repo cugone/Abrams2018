@@ -312,12 +312,6 @@ AudioSystem::Sound::Sound(AudioSystem& audiosystem, const std::string& filepath)
     }
 }
 
-AudioSystem::Sound::~Sound() {
-    _channels.clear();
-    _channels.shrink_to_fit();
-    _wave_file = nullptr;
-}
-
 void AudioSystem::Sound::AddChannel(Channel* channel) {
     std::scoped_lock<std::mutex> _lock(_cs);
     _channels.push_back(channel);

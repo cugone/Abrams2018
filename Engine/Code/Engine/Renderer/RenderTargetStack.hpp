@@ -18,7 +18,7 @@ public:
     };
 
 	RenderTargetStack(Renderer* renderer);
-	~RenderTargetStack();
+    ~RenderTargetStack() = default;
 
     void Push(const RenderTargetStack::Node& node = RenderTargetStack::Node{});
     void Pop();

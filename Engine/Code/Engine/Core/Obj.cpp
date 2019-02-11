@@ -158,10 +158,6 @@ bool Obj::IsSaved() const {
     return _is_saved;
 }
 
-Obj::~Obj() {
-    Unload();
-}
-
 const std::vector<Vertex3D>& Obj::GetVbo() const {
     return _vbo;
 }

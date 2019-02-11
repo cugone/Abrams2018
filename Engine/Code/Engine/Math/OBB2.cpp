@@ -1,13 +1,14 @@
 #include "Engine/Math/OBB2.hpp"
 
 #include "Engine/Math/MathUtils.hpp"
+#include "Engine/Math/Matrix4.hpp"
 
 OBB2::OBB2(const Vector2& center, const Vector2& halfExtents, float orientationDegrees)
     : half_extents(halfExtents)
     , position(center)
     , orientationDegrees(orientationDegrees)
 {
-    up.SetHeadingDegrees(orientationDegrees);
+    /* DO NOTHING */
 }
 
 OBB2::OBB2(const Vector2& center, float halfExtentX, float halfExtentY, float orientationDegrees)
@@ -15,26 +16,25 @@ OBB2::OBB2(const Vector2& center, float halfExtentX, float halfExtentY, float or
     , position(center)
     , orientationDegrees(orientationDegrees)
 {
-    up.SetHeadingDegrees(orientationDegrees);
+    /* DO NOTHING */
 }
 
 OBB2::OBB2(const Vector2& initialPosition, float initialOrientationDegrees)
     : position(initialPosition)
     , orientationDegrees(initialOrientationDegrees)
 {
-    up.SetHeadingDegrees(orientationDegrees);
+    /* DO NOTHING */
 }
 
 OBB2::OBB2(float initialX, float initialY, float initialOrientationDegrees)
     : position(initialX, initialY)
     , orientationDegrees(initialOrientationDegrees)
 {
-    up.SetHeadingDegrees(orientationDegrees);
+    /* DO NOTHING */
 }
 
 void OBB2::SetOrientationDegrees(float newOrientationDegrees) {
     orientationDegrees = newOrientationDegrees;
-    up.SetHeadingDegrees(orientationDegrees);
 }
 
 void OBB2::SetOrientation(float newOrientationRadians) {
@@ -43,7 +43,6 @@ void OBB2::SetOrientation(float newOrientationRadians) {
 
 void OBB2::RotateDegrees(float rotationDegrees) {
     orientationDegrees += rotationDegrees;
-    up.SetHeadingDegrees(orientationDegrees);
 }
 
 void OBB2::Rotate(float rotationRadians) {
@@ -89,12 +88,13 @@ void OBB2::Translate(const Vector2& translation) {
 }
 
 Vector2 OBB2::GetRight() const {
-    auto right = up;
-    right.Rotate90Degrees();
-    return right;
+    auto R = Matrix4::Create2DRotationDegreesMatrix(orientationDegrees);
+    return R.TransformDirection(Vector2::X_AXIS);
 }
 
 Vector2 OBB2::GetUp() const {
+    auto up = GetRight();
+    up.Rotate90Degrees();
     return up;
 }
 
@@ -103,7 +103,7 @@ Vector2 OBB2::GetLeft() const {
 }
 
 Vector2 OBB2::GetDown() const {
-    return -up;
+    return -GetUp();
 }
 
 Vector2 OBB2::CalcDimensions() const {

@@ -13,6 +13,7 @@
 #include "Engine/Math/Sphere3.hpp"
 #include "Engine/Math/LineSegment2.hpp"
 #include "Engine/Math/LineSegment3.hpp"
+#include "Engine/Math/Matrix4.hpp"
 #include "Engine/Math/Plane2.hpp"
 #include "Engine/Math/Plane3.hpp"
 #include "Engine/Math/Quaternion.hpp"
@@ -691,16 +692,66 @@ bool DoAABBsOverlap(const AABB3& a, const AABB3& b) {
 }
 
 bool DoOBBsOverlap(const OBB2& a, const OBB2& b) {
-    auto a_top    = a.GetUp();
-    auto a_bottom = a.GetDown();
-    auto a_left = a.GetLeft();
-    auto a_right = a.GetRight();
+    std::vector<Vector2> a_normals{};
+    a_normals.reserve(4);
+    a_normals.push_back(a.GetLeft());
+    a_normals.push_back(a.GetUp());
+    a_normals.push_back(a.GetRight());
+    a_normals.push_back(a.GetDown());
 
-    auto b_top = b.GetUp();
-    auto b_bottom = b.GetDown();
-    auto b_left = b.GetLeft();
-    auto b_right = b.GetRight();
+	const auto a_mat_R = Matrix4::Create2DRotationDegreesMatrix(a.orientationDegrees);
+    const auto a_mat_T = Matrix4::CreateTranslationMatrix(a.position);
+    const auto a_model = a_mat_T * a_mat_R;
+    
+    std::vector<Vector2> a_verts{};
+    a_verts.reserve(4);
+    a_verts.push_back(a_model * a_model.TransformPosition(Vector2(-a.half_extents.x, +a.half_extents.y)));
+    a_verts.push_back(a_model * a_model.TransformPosition(Vector2(-a.half_extents.x, -a.half_extents.y)));
+    a_verts.push_back(a_model * a_model.TransformPosition(Vector2(+a.half_extents.x, -a.half_extents.y)));
+    a_verts.push_back(a_model * a_model.TransformPosition(Vector2(+a.half_extents.x, +a.half_extents.y)));
 
+    std::vector<Vector2> b_normals{};
+    b_normals.reserve(4);
+    b_normals.push_back(b.GetLeft());
+    b_normals.push_back(b.GetUp());
+    b_normals.push_back(b.GetRight());
+    b_normals.push_back(b.GetDown());
+
+    const auto b_mat_R = Matrix4::Create2DRotationDegreesMatrix(b.orientationDegrees);
+    const auto b_mat_T = Matrix4::CreateTranslationMatrix(b.position);
+    const auto b_model   = b_mat_T * b_mat_R;
+
+    std::vector<Vector2> b_verts{};
+    b_verts.reserve(4);
+    b_verts.push_back(b_model * b_model.TransformPosition(Vector2(-b.half_extents.x, +b.half_extents.y)));
+    b_verts.push_back(b_model * b_model.TransformPosition(Vector2(-b.half_extents.x, -b.half_extents.y)));
+    b_verts.push_back(b_model * b_model.TransformPosition(Vector2(+b.half_extents.x, -b.half_extents.y)));
+    b_verts.push_back(b_model * b_model.TransformPosition(Vector2(+b.half_extents.x, +b.half_extents.y)));
+
+    for (const auto& an : a_normals) {
+        for (const auto& av : a_verts) {
+            float a_min = std::numeric_limits<float>::infinity();
+            float a_max = -std::numeric_limits<float>::infinity();
+            auto a_dp = MathUtils::DotProduct(av, an);
+            a_min = (std::min)(a_min, a_dp);
+            a_max = (std::max)(a_max, a_dp);
+
+            float b_min = std::numeric_limits<float>::infinity();
+            float b_max = -std::numeric_limits<float>::infinity();
+            for (const auto& bn : b_normals) {
+                for (const auto& bv : b_verts) {
+                    auto b_dp = MathUtils::DotProduct(bv, bn);
+                    b_min = (std::min)(b_min, b_dp);
+                    b_max = (std::max)(b_max, b_dp);
+                }
+            }
+
+            if (!(a_max < b_min && b_max < a_min)) {
+                return false;
+            }
+        }
+    }
+	return true;
 }
 
 bool DoLineSegmentOverlap(const Disc2& a, const LineSegment2& b) {

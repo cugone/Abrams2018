@@ -21,7 +21,7 @@ namespace FileUtils {
         Obj& operator=(const Obj& rhs) = default;
         Obj& operator=(Obj&& rhs) = default;
         explicit Obj(const std::string& filepath);
-        ~Obj();
+        ~Obj() = default;
 
         const std::vector<Vertex3D>& GetVbo() const;
         const std::vector<unsigned int>& GetIbo() const;

@@ -8,11 +8,6 @@ Audio::Audio(const std::string& filename) {
 
 }
 
-Audio::~Audio() {
-    _buffer.clear();
-    _buffer.shrink_to_fit();
-}
-
 Audio::BufferType Audio::GetType() const {
     return _type;
 }

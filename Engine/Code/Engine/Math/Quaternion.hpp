@@ -8,8 +8,8 @@ class Matrix4;
 
 class Quaternion {
 public:
-    float w;
-    Vector3 axis;
+    float w = 1.0f;
+    Vector3 axis = Vector3::ZERO;
 
     static Quaternion GetIdentity();
     static Quaternion CreateRealQuaternion(float scalar);
@@ -19,7 +19,7 @@ public:
     static Quaternion CreateFromEulerAnglesRadians(float pitch, float yaw, float roll);
     static Quaternion CreateFromEulerAngles(float pitch, float yaw, float roll, bool degrees);
 
-    Quaternion();
+    Quaternion() = default;
     explicit Quaternion(const std::string& value);
     explicit Quaternion(const Matrix4& mat);
     explicit Quaternion(const Vector3& rotations);

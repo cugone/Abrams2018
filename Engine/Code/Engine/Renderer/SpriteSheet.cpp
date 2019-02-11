@@ -22,10 +22,6 @@ SpriteSheet::SpriteSheet(Renderer& renderer, const std::string& texturePath, int
 
 }
 
-SpriteSheet::~SpriteSheet() {
-    _spriteSheetTexture = nullptr;
-}
-
 AABB2 SpriteSheet::GetTexCoordsFromSpriteCoords(int spriteX, int spriteY) const {
     Vector2 texCoords(1.0f / _spriteLayout.x, 1.0f / _spriteLayout.y);
     return AABB2(Vector2(texCoords.x * spriteX, texCoords.y * spriteY), Vector2(texCoords.x * (spriteX + 1), texCoords.y * (spriteY + 1)));

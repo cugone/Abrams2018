@@ -6,11 +6,6 @@
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Matrix4.hpp"
 
-Quaternion::Quaternion()
-    : w(1.0f)
-    , axis(Vector3::ZERO) {
-    /* DO NOTHING */
-}
 Quaternion::Quaternion(const Matrix4& mat)
     : w(1.0f)
     , axis(Vector3::ZERO) {

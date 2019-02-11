@@ -25,7 +25,6 @@ private:
     union address_t {
         uint32_t ipv6[4] = { 0u, 0u, 0u, 0u };
         uint32_t ipv4;
-        ~address_t() {};
     };
     address_t address{};
     uint16_t port = 0;

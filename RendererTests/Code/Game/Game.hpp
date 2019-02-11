@@ -71,8 +71,7 @@ private:
     UI::Panel* _panel = nullptr;
     UI::Label* _label = nullptr;
     UI::Sprite* _sprite = nullptr;
-    std::vector<Vertex3D> _pos{};
-    const float _default_fovV = 45.0f;
+      const float _default_fovV = 45.0f;
     float _fovV = _default_fovV;
     const float _cameraSpeed = 10.0f;
     const float _camera_move_speed_multiplier = 10.0f;

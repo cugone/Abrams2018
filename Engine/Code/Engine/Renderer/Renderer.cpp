@@ -52,6 +52,8 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <ostream>
+#include <iostream>
 
 ComputeJob::ComputeJob(Renderer* renderer,
                        std::size_t uavCount,
@@ -192,6 +194,16 @@ void Renderer::Initialize(bool headless /*= false*/) {
     }
     _rhi_output = _rhi_device->CreateOutput(_window_dimensions);
     _rhi_context = _rhi_device->GetImmediateContext();
+    {
+        std::ostringstream ss;
+        ss << std::setw(60) << std::setfill('-') << '\n';
+        ss << "Available Display Dimensions:\n";
+        for (const auto& display : _rhi_device->displayModes) {
+            ss << display.width << 'x' << display.height << 'x' << display.refreshRateHz << '\n';
+        }
+        ss << std::setw(60) << std::setfill('-') << '\n';
+        std::cout << ss.str();
+    }
 
     {
     VertexBuffer::buffer_t default_vbo(1024);

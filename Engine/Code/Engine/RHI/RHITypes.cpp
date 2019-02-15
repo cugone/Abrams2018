@@ -1,5 +1,7 @@
 #include "Engine/RHI/RHITypes.hpp"
 
+#include "Engine/Math/MathUtils.hpp"
+
 #include <iomanip>
 #include <type_traits>
 
@@ -17,11 +19,11 @@ std::ostream& operator<<(std::ostream& out_stream, const GraphicsCardDesc& graph
     out_stream << std::left << std::setw(22) << "Revision:" << std::right << std::setw(30) << revision << '\n';
     out_stream << std::dec << std::nouppercase;
     auto ded_vid_mem = graphicsCardDesc.DedicatedVideoMemory;
-    out_stream << std::left << std::setw(22) << "Video Memory:" << std::right << std::setw(30) << ded_vid_mem << '\n';
+    out_stream << std::left << std::setw(22) << "Video Memory:" << std::right << std::setw(30) << std::fixed << std::setprecision(1) << ded_vid_mem * MathUtils::GIB_BYTES_RATIO << " GB\n";
     auto ded_sys_mem = graphicsCardDesc.DedicatedSystemMemory;
-    out_stream << std::left << std::setw(22) << "System Memory:" << std::right << std::setw(30) << ded_sys_mem << '\n';
+    out_stream << std::left << std::setw(22) << "System Memory:" << std::right << std::setw(30) << std::fixed << std::setprecision(1) << ded_sys_mem * MathUtils::GIB_BYTES_RATIO << " GB\n";
     auto shared_mem = graphicsCardDesc.SharedSystemMemory;
-    out_stream << std::left << std::setw(22) << "Shared System Memory:" << std::right << std::setw(30) << shared_mem << '\n';
+    out_stream << std::left << std::setw(22) << "Shared System Memory:" << std::right << std::setw(30) << std::fixed << std::setprecision(1) << shared_mem * MathUtils::GIB_BYTES_RATIO << " GB\n";
     bool is_unspecified = graphicsCardDesc.is_unspecified;
     bool is_software = graphicsCardDesc.is_software;
     bool is_remote = graphicsCardDesc.is_remote;

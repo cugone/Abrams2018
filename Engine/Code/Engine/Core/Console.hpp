@@ -123,7 +123,7 @@ private:
     std::string::const_iterator _cursor_position{};
     std::string::const_iterator _selection_position{};
     decltype(_entryline_buffer)::const_iterator _current_history_position{};
-    unsigned int _default_blink_rate = 3u;
+    unsigned int _default_blink_rate = 4u;
     unsigned int _blink_rate = _default_blink_rate;
     Stopwatch _cursor_timer = Stopwatch(_blink_rate);
     uint8_t _show_cursor             : 1;

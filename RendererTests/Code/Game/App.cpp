@@ -54,6 +54,8 @@ App::App(std::unique_ptr<JobSystem> jobSystem, std::unique_ptr<FileLogger> fileL
 }
 
 App::~App() {
+    g_theSubsystemHead = g_theApp;
+
     _theGame.reset();
     _theConsole.reset();
     _theInputSystem.reset();
@@ -69,6 +71,7 @@ App::~App() {
     g_theInput = nullptr;
     g_theRenderer = nullptr;
     g_theConfig = nullptr;
+    g_theApp = nullptr;
 
 }
 

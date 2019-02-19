@@ -83,7 +83,6 @@ void RunMessagePump() {
 
 void Shutdown() {
     //Required due to WinProc needing to post destroy window message.
-    g_theSubsystemHead = g_theApp;
     delete g_theApp;
     g_theApp = nullptr;
 }

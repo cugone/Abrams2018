@@ -291,10 +291,8 @@ bool Console::HandleClipboardCopy() const {
         auto hwnd = _renderer->GetOutput()->GetWindow()->GetWindowHandle();
         if(::OpenClipboard(hwnd)) {
             if(::EmptyClipboard()) {
-                auto hgblcopy = ::GlobalAlloc(GMEM_MOVEABLE, (copied_text.size() + 1) * sizeof(std::string::value_type));
-                if(hgblcopy) {
-                    auto lpstrcopy = reinterpret_cast<LPTSTR>(::GlobalLock(hgblcopy));
-                    if(lpstrcopy) {
+                if(auto hgblcopy = ::GlobalAlloc(GMEM_MOVEABLE, (copied_text.size() + 1) * sizeof(std::string::value_type))) {
+                    if(auto lpstrcopy = reinterpret_cast<LPTSTR>(::GlobalLock(hgblcopy))) {
                         std::memcpy(lpstrcopy, copied_text.data(), copied_text.size() + 1);
                         lpstrcopy[copied_text.size() + 1] = '\0';
                     }
@@ -313,10 +311,8 @@ void Console::HandleClipboardPaste() {
     if(::IsClipboardFormatAvailable(CF_TEXT)) {
         auto hwnd = _renderer->GetOutput()->GetWindow()->GetWindowHandle();
         if(::OpenClipboard(hwnd)) {
-            HGLOBAL hglb = ::GetClipboardData(CF_TEXT);
-            if(hglb) {
-                auto lpstrpaste = reinterpret_cast<LPTSTR>(::GlobalLock(hglb));
-                if(lpstrpaste) {
+            if(HGLOBAL hglb = ::GetClipboardData(CF_TEXT)) {
+                if(auto lpstrpaste = reinterpret_cast<LPTSTR>(::GlobalLock(hglb))) {
                     std::string text_to_paste = lpstrpaste;
                     PasteText(text_to_paste, _cursor_position);
                     ::GlobalUnlock(hglb);
@@ -682,23 +678,17 @@ void Console::RegisterDefaultCommands() {
             line = StringUtils::TrimWhitespace(line);
             auto found_iter = _commands.find(line);
             if(found_iter != _commands.end()) {
-                std::ostringstream ss;
-                ss << found_iter->second.command_name << ": " << found_iter->second.help_text_long;
-                PrintMsg(ss.str());
+                PrintMsg(std::string{ found_iter->second.command_name + ": " + found_iter->second.help_text_short });
                 return;
             }
             for(auto& entry : _commands) {
-                if(StringUtils::StartsWith(entry.first, line)) {
-                    std::ostringstream ss;
-                    ss << entry.second.command_name << ": " << entry.second.help_text_short;
-                    PrintMsg(ss.str());
+                if(StringUtils::StartsWith(entry.first, line)) {             
+                    PrintMsg(std::string{ entry.second.command_name + ": " + entry.second.help_text_short });
                 }
             }
         } else {
             for(auto& entry : _commands) {
-                std::ostringstream ss;
-                ss << entry.second.command_name << ": " << entry.second.help_text_short;
-                PrintMsg(ss.str());
+                PrintMsg(std::string{ entry.second.command_name + ": " + entry.second.help_text_short });
             }
         }
     };
@@ -712,9 +702,8 @@ void Console::RegisterDefaultCommands() {
         ArgumentParser arg_set(args);
         std::string cur_arg{};
         while(arg_set >> cur_arg) {
-            std::ostringstream ss;
-            ss << cur_arg;
-            PrintMsg(ss.str());
+            PrintMsg(cur_arg);
+            cur_arg.clear();
         }
     };
     RegisterCommand(echo);

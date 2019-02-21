@@ -11,9 +11,7 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		DebugProfile|x64 = DebugProfile|x64
-		FastDebug|x64 = FastDebug|x64
 		FinalBuild|x64 = FinalBuild|x64
-		Profile|x64 = Profile|x64
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
@@ -21,24 +19,16 @@ Global
 		{ACBDA225-83DE-4FBA-A746-0135429FB391}.Debug|x64.Build.0 = Debug|x64
 		{ACBDA225-83DE-4FBA-A746-0135429FB391}.DebugProfile|x64.ActiveCfg = DebugProfile|x64
 		{ACBDA225-83DE-4FBA-A746-0135429FB391}.DebugProfile|x64.Build.0 = DebugProfile|x64
-		{ACBDA225-83DE-4FBA-A746-0135429FB391}.FastDebug|x64.ActiveCfg = FastDebug|x64
-		{ACBDA225-83DE-4FBA-A746-0135429FB391}.FastDebug|x64.Build.0 = FastDebug|x64
 		{ACBDA225-83DE-4FBA-A746-0135429FB391}.FinalBuild|x64.ActiveCfg = FinalBuild|x64
 		{ACBDA225-83DE-4FBA-A746-0135429FB391}.FinalBuild|x64.Build.0 = FinalBuild|x64
-		{ACBDA225-83DE-4FBA-A746-0135429FB391}.Profile|x64.ActiveCfg = Profile|x64
-		{ACBDA225-83DE-4FBA-A746-0135429FB391}.Profile|x64.Build.0 = Profile|x64
 		{ACBDA225-83DE-4FBA-A746-0135429FB391}.Release|x64.ActiveCfg = Release|x64
 		{ACBDA225-83DE-4FBA-A746-0135429FB391}.Release|x64.Build.0 = Release|x64
 		{7BFFD950-482F-406D-9C4C-4AC500A9521B}.Debug|x64.ActiveCfg = Debug|x64
 		{7BFFD950-482F-406D-9C4C-4AC500A9521B}.Debug|x64.Build.0 = Debug|x64
 		{7BFFD950-482F-406D-9C4C-4AC500A9521B}.DebugProfile|x64.ActiveCfg = DebugProfile|x64
 		{7BFFD950-482F-406D-9C4C-4AC500A9521B}.DebugProfile|x64.Build.0 = DebugProfile|x64
-		{7BFFD950-482F-406D-9C4C-4AC500A9521B}.FastDebug|x64.ActiveCfg = FastDebug|x64
-		{7BFFD950-482F-406D-9C4C-4AC500A9521B}.FastDebug|x64.Build.0 = FastDebug|x64
 		{7BFFD950-482F-406D-9C4C-4AC500A9521B}.FinalBuild|x64.ActiveCfg = FinalBuild|x64
 		{7BFFD950-482F-406D-9C4C-4AC500A9521B}.FinalBuild|x64.Build.0 = FinalBuild|x64
-		{7BFFD950-482F-406D-9C4C-4AC500A9521B}.Profile|x64.ActiveCfg = Profile|x64
-		{7BFFD950-482F-406D-9C4C-4AC500A9521B}.Profile|x64.Build.0 = Profile|x64
 		{7BFFD950-482F-406D-9C4C-4AC500A9521B}.Release|x64.ActiveCfg = Release|x64
 		{7BFFD950-482F-406D-9C4C-4AC500A9521B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection

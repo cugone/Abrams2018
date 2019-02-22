@@ -79,6 +79,9 @@ PipelineStage& operator|=(PipelineStage& a, const PipelineStage& b);
 PipelineStage operator|(PipelineStage a, const PipelineStage& b);
 PipelineStage& operator&=(PipelineStage& a, const PipelineStage& b);
 PipelineStage operator&(PipelineStage a, const PipelineStage& b);
+PipelineStage operator^(PipelineStage a, const PipelineStage& b);
+PipelineStage& operator^=(PipelineStage& a, const PipelineStage& b);
+
 
 enum class ComparisonFunction {
     Never
@@ -266,12 +269,12 @@ enum class PrimitiveType : uint32_t {
     , Control_Point_PatchList_32
 };
 
-enum class BufferUsage : unsigned int {
-    Default
-    , Gpu
-    , Static
-    , Dynamic
-    , Staging
+enum class BufferUsage : uint8_t {
+    Default   = 0b00000000
+    , Gpu     = 0b00000001
+    , Static  = 0b00000010
+    , Dynamic = 0b00000100
+    , Staging = 0b00001000
 };
 
 BufferUsage& operator&=(BufferUsage& a, const BufferUsage& b);

@@ -150,6 +150,19 @@ PipelineStage operator&(PipelineStage a, const PipelineStage& b) {
     return a;
 }
 
+PipelineStage& operator^=(PipelineStage& a, const PipelineStage& b) {
+    using underlying = std::underlying_type_t<PipelineStage>;
+    auto underlying_a = static_cast<underlying>(a);
+    auto underlying_b = static_cast<underlying>(b);
+    a = static_cast<PipelineStage>(underlying_a ^ underlying_b);
+    return a;
+}
+
+PipelineStage operator^(PipelineStage a, const PipelineStage& b) {
+    a ^= b;
+    return a;
+}
+
 BlendColorWriteEnable operator~(BlendColorWriteEnable a) {
     using underlying = std::underlying_type_t<BlendColorWriteEnable>;
     auto underlying_a = static_cast<underlying>(a);

@@ -2670,7 +2670,19 @@ Shader* Renderer::CreateDefaultNormalMapShader() {
     if(parse_result != tinyxml2::XML_SUCCESS) {
         return nullptr;
     }
+    return new Shader(this, *doc.RootElement());
+}
 
+Shader* Renderer::CreateShaderFromFile(const std::string& filePath) {
+    std::string buffer{};
+    if(!FileUtils::ReadBufferFromFile(buffer, filePath)) {
+        return nullptr;
+    }
+    tinyxml2::XMLDocument doc;
+    auto parse_result = doc.Parse(buffer.c_str(), buffer.size());
+    if(parse_result != tinyxml2::XML_SUCCESS) {
+        return nullptr;
+    }
     return new Shader(this, *doc.RootElement());
 }
 

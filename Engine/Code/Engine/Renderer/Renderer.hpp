@@ -15,7 +15,7 @@
 #include "Engine/Renderer/StructuredBuffer.hpp"
 #include "Engine/Renderer/VertexBuffer.hpp"
 
-#include "Engine/RHI/RHITypes.hpp"
+#include "Engine/RHI/RHI.hpp"
 
 #include <filesystem>
 #include <map>
@@ -37,10 +37,6 @@ class RasterState;
 struct RasterDesc;
 class Renderer;
 class Rgba;
-class RHIDeviceContext;
-class RHIDevice;
-class RHIOutput;
-class RHIInstance;
 class Sampler;
 struct SamplerDesc;
 class Shader;
@@ -401,6 +397,7 @@ private:
     Shader* CreateDefault2DShader();
     Shader* CreateDefaultNormalShader();
     Shader* CreateDefaultNormalMapShader();
+    Shader* CreateShaderFromFile(const std::string& filePath);
 
     void CreateAndRegisterDefaultMaterials();
     Material* CreateDefaultMaterial();

@@ -12,6 +12,8 @@ class Renderer;
 class Sampler;
 class ConstantBuffer;
 
+enum class PipelineStage : uint8_t;
+
 class Shader {
 public:
     Shader(Renderer* renderer, ShaderProgram* shaderProgram = nullptr, DepthStencilState* depthStencil = nullptr, RasterState* rasterState = nullptr, BlendState* blendState = nullptr, Sampler* sampler = nullptr);
@@ -36,6 +38,11 @@ public:
 protected:
 private:
     bool LoadFromXml(Renderer* renderer, const XMLElement& element);
+
+    PipelineStage ParseTargets(const XMLElement& element);
+    std::string ParseEntrypointList(const XMLElement& element);
+
+    void ValidatePipelineStages(const PipelineStage& targets);
 
     void CreateAndRegisterNewSamplerFromXml(const XMLElement& element);
     void CreateAndRegisterNewRasterFromXml(const XMLElement& element);

@@ -147,69 +147,19 @@ bool Shader::LoadFromXml(Renderer* renderer, const XMLElement& element) {
             ss << "Intrinsic ShaderProgram referenced in Shader file \"" << _name << "\" does not already exist.";
             ERROR_AND_DIE(ss.str().c_str());
         }
+        else {
+            const auto& children = DataUtils::GetChildElementNames(*xml_SP);
+            if(std::find(std::begin(children), std::end(children), "pipelinestages") == std::end(children)) {
+                std::ostringstream ss;
+                ss << "User-defined ShaderProgram referenced in Shader file \"" << _name << "\" must declare pipelinestages in use.";
+                ERROR_AND_DIE(ss.str().c_str());
+            }
+        }
         bool is_hlsl = p.has_extension() && StringUtils::ToLowerCase(p.extension().string()) == ".hlsl";
         if(is_hlsl) {
             if(auto xml_pipelinestages = xml_SP->FirstChildElement("pipelinestages")) {
-                
                 DataUtils::ValidateXmlElement(*xml_pipelinestages, "pipelinestages", "", "", "vertex,hull,domain,geometry,pixel,compute", "");
-                PipelineStage targets = PipelineStage::None;
-                std::string entrypointList{};
-
-                if(auto xml_vertex = xml_pipelinestages->FirstChildElement("vertex")) {
-                    auto entrypoint = DataUtils::ParseXmlAttribute(*xml_vertex, "entrypoint", "");
-                    entrypoint += ",";
-                    entrypointList += entrypoint;
-                    targets |= PipelineStage::Vs;
-                } else {
-                    targets |= PipelineStage::None;
-                    entrypointList += ",";
-                }
-                if(auto xml_hull = xml_pipelinestages->FirstChildElement("hull")) {
-                    auto entrypoint = DataUtils::ParseXmlAttribute(*xml_hull, "entrypoint", "");
-                    entrypoint += ",";
-                    entrypointList += entrypoint;
-                    targets |= PipelineStage::Hs;
-                } else {
-                    targets |= PipelineStage::None;
-                    entrypointList += ",";
-                }
-                if(auto xml_domain = xml_pipelinestages->FirstChildElement("domain")) {
-                    auto entrypoint = DataUtils::ParseXmlAttribute(*xml_domain, "entrypoint", "");
-                    entrypoint += ",";
-                    entrypointList += entrypoint;
-                    targets |= PipelineStage::Ds;
-                } else {
-                    targets |= PipelineStage::None;
-                    entrypointList += ",";
-                }
-                if(auto xml_geometry = xml_pipelinestages->FirstChildElement("geometry")) {
-                    auto entrypoint = DataUtils::ParseXmlAttribute(*xml_geometry, "entrypoint", "");
-                    entrypoint += ",";
-                    entrypointList += entrypoint;
-                    targets |= PipelineStage::Gs;
-                } else {
-                    targets |= PipelineStage::None;
-                    entrypointList += ",";
-                }
-                if(auto xml_pixel = xml_pipelinestages->FirstChildElement("pixel")) {
-                    auto entrypoint = DataUtils::ParseXmlAttribute(*xml_pixel, "entrypoint", "");
-                    entrypoint += ",";
-                    entrypointList += entrypoint;
-                    targets |= PipelineStage::Ps;
-                } else {
-                    targets |= PipelineStage::None;
-                    entrypointList += ",";
-                }
-                if(auto xml_compute = xml_pipelinestages->FirstChildElement("compute")) {
-                    auto entrypoint = DataUtils::ParseXmlAttribute(*xml_compute, "entrypoint", "");
-                    entrypoint += ",";
-                    entrypointList += entrypoint;
-                    targets |= PipelineStage::Cs;
-                } else {
-                    targets |= PipelineStage::None;
-                    entrypointList += ",";
-                }
-                _renderer->CreateAndRegisterShaderProgramFromHlslFile(p.string(), entrypointList, targets);
+                _renderer->CreateAndRegisterShaderProgramFromHlslFile(p.string(), ParseEntrypointList(*xml_pipelinestages), ParseTargets(*xml_pipelinestages));
                 _shader_program = _renderer->GetShaderProgram(p.string());
             }
         }
@@ -238,6 +188,100 @@ bool Shader::LoadFromXml(Renderer* renderer, const XMLElement& element) {
         }
     }
     return true;
+}
+
+PipelineStage Shader::ParseTargets(const XMLElement& element) {
+    auto targets = PipelineStage::None;
+    if(auto xml_vertex = element.FirstChildElement("vertex")) {
+        targets |= PipelineStage::Vs;
+    }
+    if(auto xml_hull = element.FirstChildElement("hull")) {
+        targets |= PipelineStage::Hs;
+    }
+    if(auto xml_domain = element.FirstChildElement("domain")) {
+        targets |= PipelineStage::Ds;
+    }
+    if(auto xml_geometry = element.FirstChildElement("geometry")) {
+        targets |= PipelineStage::Gs;
+    }
+    if(auto xml_pixel = element.FirstChildElement("pixel")) {
+        targets |= PipelineStage::Ps;
+    }
+    if(auto xml_compute = element.FirstChildElement("compute")) {
+        targets |= PipelineStage::Cs;
+    }
+    ValidatePipelineStages(targets);
+    return targets;
+}
+
+std::string Shader::ParseEntrypointList(const XMLElement& element) {
+    std::string entrypointList{};
+    if(auto xml_vertex = element.FirstChildElement("vertex")) {
+        auto entrypoint = DataUtils::ParseXmlAttribute(*xml_vertex, "entrypoint", "");
+        entrypoint += ",";
+        entrypointList += entrypoint;
+    } else {
+        entrypointList += ",";
+    }
+    if(auto xml_hull = element.FirstChildElement("hull")) {
+        auto entrypoint = DataUtils::ParseXmlAttribute(*xml_hull, "entrypoint", "");
+        entrypoint += ",";
+        entrypointList += entrypoint;
+    } else {
+        entrypointList += ",";
+    }
+    if(auto xml_domain = element.FirstChildElement("domain")) {
+        auto entrypoint = DataUtils::ParseXmlAttribute(*xml_domain, "entrypoint", "");
+        entrypoint += ",";
+        entrypointList += entrypoint;
+    } else {
+        entrypointList += ",";
+    }
+    if(auto xml_geometry = element.FirstChildElement("geometry")) {
+        auto entrypoint = DataUtils::ParseXmlAttribute(*xml_geometry, "entrypoint", "");
+        entrypoint += ",";
+        entrypointList += entrypoint;
+    } else {
+        entrypointList += ",";
+    }
+    if(auto xml_pixel = element.FirstChildElement("pixel")) {
+        auto entrypoint = DataUtils::ParseXmlAttribute(*xml_pixel, "entrypoint", "");
+        entrypoint += ",";
+        entrypointList += entrypoint;
+    } else {
+        entrypointList += ",";
+    }
+    if(auto xml_compute = element.FirstChildElement("compute")) {
+        auto entrypoint = DataUtils::ParseXmlAttribute(*xml_compute, "entrypoint", "");
+        entrypoint += ",";
+        entrypointList += entrypoint;
+    } else {
+        entrypointList += ",";
+    }
+    return entrypointList;
+}
+
+void Shader::ValidatePipelineStages(const PipelineStage& targets) {
+    bool result = false;
+    if(targets == PipelineStage::None) {
+        result = false;
+    } else if(targets == PipelineStage::All) {
+        result = true;
+    } else {
+        //geometry and compute stages are entirely optional and do not rely on each other.
+        bool has_vs = (targets & PipelineStage::Vs) == PipelineStage::Vs;
+        bool has_ps = (targets & PipelineStage::Ps) == PipelineStage::Ps;
+        bool has_hs = (targets & PipelineStage::Hs) == PipelineStage::Hs;
+        bool has_ds = (targets & PipelineStage::Ds) == PipelineStage::Ds;
+        bool valid_vsps = !(has_vs ^ has_ps);
+        bool valid_hsds = !(has_hs ^ has_ds);
+        result = valid_vsps && valid_hsds;
+    }
+    if(!result) {
+        std::ostringstream ss;
+        ss << "Error in shader file: \"" << _name << "\": Pipeline stages must include at least compute stage, geometry stage, or both vertex and pixel stages, or both hull and domain stages.";
+        ERROR_AND_DIE(ss.str().c_str());
+    }
 }
 
 void Shader::CreateAndRegisterNewSamplerFromXml(const XMLElement& element) {

@@ -139,7 +139,7 @@ void ValidateXmlElement(const XMLElement& element,
 #endif //#if _DEBUG
 }
 
-void IterateAllAttributes(const XMLElement& element, const std::function<void(const XMLAttribute&)>& callback /*= [](const XMLAttribute&) { / * DO NOTHING * / }*/) {
+void ForEachAttribute(const XMLElement& element, const std::function<void(const XMLAttribute&)>& callback /*= [](const XMLAttribute&) { / * DO NOTHING * / }*/) {
     for(auto attribute = element.FirstAttribute(); attribute != nullptr; attribute = attribute->Next()) {
         callback(*attribute);
     }
@@ -147,7 +147,7 @@ void IterateAllAttributes(const XMLElement& element, const std::function<void(co
 
 unsigned int GetAttributeCount(const XMLElement &element) {
     unsigned int attributeCount = 0;
-    IterateAllAttributes(element,
+    ForEachAttribute(element,
     [&](const XMLAttribute& /*attribute*/) {
         ++attributeCount;
     });
@@ -157,7 +157,7 @@ unsigned int GetAttributeCount(const XMLElement &element) {
 std::vector<std::string> GetAttributeNames(const XMLElement& element) {
     std::vector<std::string> attributeNames{};
     attributeNames.reserve(GetAttributeCount(element));
-    IterateAllAttributes(element,
+    ForEachAttribute(element,
     [&](const XMLAttribute& attribute) {
         attributeNames.emplace_back(attribute.Name());
     });
@@ -166,7 +166,7 @@ std::vector<std::string> GetAttributeNames(const XMLElement& element) {
 
 unsigned int GetChildElementCount(const XMLElement &element, const std::string& elementName /*= std::string("")*/) {
     unsigned int childCount = 0;
-    IterateAllChildElements(element, elementName,
+    ForEachChildElement(element, elementName,
     [&](const XMLElement& /*elem*/) {
         ++childCount;
     });
@@ -176,7 +176,7 @@ unsigned int GetChildElementCount(const XMLElement &element, const std::string& 
 std::vector<std::string> GetChildElementNames(const XMLElement& element) {
     std::vector<std::string> childElementNames{};
     childElementNames.reserve(GetChildElementCount(element));
-    IterateAllChildElements(element, std::string{},
+    ForEachChildElement(element, std::string{},
     [&](const XMLElement& elem) {
         childElementNames.emplace_back(elem.Name());
     });
@@ -370,7 +370,7 @@ std::string ParseXmlElementText(const XMLElement& element, const std::string& de
     }
 }
 
-void IterateAllChildElements(const XMLElement& element, const std::string& childname /*= std::string{}*/, const std::function<void(const XMLElement&)>& callback /*= [](const XMLElement&) { / * DO NOTHING * / }*/) {
+void ForEachChildElement(const XMLElement& element, const std::string& childname /*= std::string{}*/, const std::function<void(const XMLElement&)>& callback /*= [](const XMLElement&) { / * DO NOTHING * / }*/) {
     auto childNameAsCStr = childname.empty() ? nullptr : childname.c_str();
     for(auto xml_iter = element.FirstChildElement(childNameAsCStr);
         xml_iter != nullptr;

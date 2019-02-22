@@ -174,7 +174,7 @@ Matrix4 ParseXmlElementText(const XMLElement& element, const Matrix4& defaultVal
 std::string ParseXmlElementText(const XMLElement& element, const char* defaultValue);
 std::string ParseXmlElementText(const XMLElement& element, const std::string& defaultValue);
 
-void IterateAllChildElements(const XMLElement& element, const std::string& childname = std::string{}, const std::function<void(const XMLElement&)>& callback = [](const XMLElement&) { /* DO NOTHING */ });
-void IterateAllAttributes(const XMLElement& element, const std::string& attributename = std::string{}, const std::function<void(const XMLAttribute&)>& callback = [](const XMLAttribute&) { /* DO NOTHING */ });
+void ForEachChildElement(const XMLElement& element, const std::string& childname = std::string{}, const std::function<void(const XMLElement&)>& callback = [](const XMLElement&) { /* DO NOTHING */ });
+void ForEachAttribute(const XMLElement& element, const std::string& attributename = std::string{}, const std::function<void(const XMLAttribute&)>& callback = [](const XMLAttribute&) { /* DO NOTHING */ });
 
 }

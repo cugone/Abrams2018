@@ -173,7 +173,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
             AddTextureSlots(numTextures);
         }
 
-        DataUtils::IterateAllChildElements(*xml_textures, "texture",
+        DataUtils::ForEachChildElement(*xml_textures, "texture",
         [this, &loaded_textures, &invalid_tex](const XMLElement& elem) {
             DataUtils::ValidateXmlElement(elem, "texture", "", "index,src");
             std::size_t index = CustomTextureIndexSlotOffset + DataUtils::ParseXmlAttribute(elem, std::string("index"), 0u);

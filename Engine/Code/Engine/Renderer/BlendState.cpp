@@ -42,7 +42,7 @@ BlendState::BlendState(const RHIDevice* device, const XMLElement& element) {
         this->_alpha_to_coverage_enable = DataUtils::ParseXmlAttribute(element, "alphacoverage", this->_alpha_to_coverage_enable);
         this->_independant_blend_enable = DataUtils::ParseXmlAttribute(element, "independantblend", this->_independant_blend_enable);
 
-        DataUtils::IterateAllChildElements(*xml_blends, "blend",
+        DataUtils::ForEachChildElement(*xml_blends, "blend",
                                            [this](const XMLElement& element) {
             _descs.push_back(BlendDesc{ element });
         });

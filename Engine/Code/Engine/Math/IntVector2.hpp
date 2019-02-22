@@ -52,8 +52,12 @@ public:
     IntVector2 operator/(float scalar) const;
     IntVector2& operator/=(float scalar);
 
-    bool operator==(const IntVector2& rhs)const;
-    bool operator!=(const IntVector2& rhs)const;
+    bool operator==(const IntVector2& rhs) const;
+    bool operator!=(const IntVector2& rhs) const;
+    bool operator<(const IntVector2& rhs) const;
+    bool operator>=(const IntVector2& rhs) const;
+    bool operator>(const IntVector2& rhs) const;
+    bool operator<=(const IntVector2& rhs) const;
 
     friend std::ostream& operator<<(std::ostream& out_stream, const IntVector2& v);
     friend std::istream& operator>>(std::istream& in_stream, IntVector2& v);

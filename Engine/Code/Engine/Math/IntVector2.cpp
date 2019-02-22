@@ -184,3 +184,22 @@ bool IntVector2::operator!=(const IntVector2& rhs) const {
 bool IntVector2::operator==(const IntVector2& rhs) const {
     return x == rhs.x && y == rhs.y;
 }
+
+bool IntVector2::operator<(const IntVector2& rhs) const {
+    if(x < rhs.x) return true;
+    if(rhs.x < x) return false;
+    if(y < rhs.y) return true;
+    return false;
+}
+
+bool IntVector2::operator>=(const IntVector2& rhs) const {
+    return !(*this < rhs);
+}
+
+bool IntVector2::operator>(const IntVector2& rhs) const {
+    return rhs < *this;
+}
+
+bool IntVector2::operator<=(const IntVector2& rhs) const {
+    return !(*this > rhs);
+}

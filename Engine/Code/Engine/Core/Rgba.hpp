@@ -71,6 +71,18 @@ public:
     bool operator!=(const Rgba& rhs) const;
     bool operator<(const Rgba& rhs) const;
 
+    Rgba& operator+=(const Rgba& rhs);
+    friend Rgba operator+(Rgba lhs, const Rgba& rhs);
+
+    Rgba& operator-=(const Rgba& rhs);
+    friend Rgba operator-(Rgba lhs, const Rgba& rhs);
+
+    Rgba& operator++();
+    Rgba operator++(int);
+
+    Rgba& operator--();
+    Rgba operator--(int);
+
     unsigned char r = 255;
     unsigned char g = 255;
     unsigned char b = 255;

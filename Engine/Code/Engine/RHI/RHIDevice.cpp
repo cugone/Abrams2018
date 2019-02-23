@@ -11,6 +11,7 @@
 
 #include "Engine/RHI/RHIOutput.hpp"
 #include "Engine/RHI/RHIDeviceContext.hpp"
+#include "Engine/RHI/RHIFactory.hpp"
 
 #include "Engine/Renderer/DepthStencilState.hpp"
 #include "Engine/Renderer/InputLayout.hpp"
@@ -87,41 +88,13 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
     }
 
     window->Open();
+    RHIFactory factory{};
+    factory.RestrictAltEnterToggle(*window);
 
-    IDXGIFactory6* dxgi_factory = nullptr;
-    {
-        #ifdef RENDER_DEBUG
-        auto hr_factory = ::CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, __uuidof(IDXGIFactory6), reinterpret_cast<void**>(&dxgi_factory));
-        #else
-        auto hr_factory = ::CreateDXGIFactory2(0, __uuidof(IDXGIFactory6), reinterpret_cast<void**>(&dxgi_factory));
-        #endif
-        GUARANTEE_OR_DIE(SUCCEEDED(hr_factory), "Failed to create DXGIFactory6 from CreateDXGIFactory2.");
-
-        auto hr_mwa = dxgi_factory->MakeWindowAssociation(window->GetWindowHandle(), DXGI_MWA_NO_ALT_ENTER);
-        GUARANTEE_OR_DIE(SUCCEEDED(hr_mwa), "Failed to restrict Alt+Enter usage.");
-    }
-
-    std::vector<AdapterInfo> adapters{};
-    {
-        IDXGIAdapter4* cur_adapter = nullptr;
-        for(unsigned int i = 0u;
-            SUCCEEDED(dxgi_factory->EnumAdapterByGpuPreference(
-                        i,
-                        DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
-                        __uuidof(IDXGIAdapter4),
-                        reinterpret_cast<void**>(&cur_adapter)
-                        )
-                     );
-            ++i) {
-            AdapterInfo cur_info{};
-            cur_info.adapter = cur_adapter;
-            cur_adapter->GetDesc3(&cur_info.desc);
-            adapters.push_back(cur_info);
-        }
-    }
+    std::vector<AdapterInfo> adapters = factory.GetAdaptersByHighPerformancePreference();
     if(adapters.empty()) {
-        window->Close();
         delete window;
+        window = nullptr;
         DebuggerPrintf("No graphics cards installed!");
         return nullptr;
     }
@@ -163,6 +136,7 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
         DebuggerPrintf(ss.str().c_str());
         auto first_adapter = first_adapter_info->adapter;
         bool has_adapter = first_adapter != nullptr;
+        ID3D11Device* temp_device{};
         auto hr_device = ::D3D11CreateDevice(has_adapter ? first_adapter : nullptr
             , has_adapter ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE
             , nullptr
@@ -170,11 +144,16 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
             , feature_levels.data()
             , static_cast<unsigned int>(feature_levels.size())
             , D3D11_SDK_VERSION
-            , reinterpret_cast<ID3D11Device**>(&dx_device)
+            , &temp_device
             , &supported_feature_level
             , &dx_context);
         GUARANTEE_OR_DIE(SUCCEEDED(hr_device), "Failed to create device.");
+        auto hr_dxdevice5i = temp_device->QueryInterface(__uuidof(ID3D11Device5), (void**)&dx_device);
+        GUARANTEE_OR_DIE(SUCCEEDED(hr_dxdevice5i), "Failed to upgrade to ID3D11Device5.");
+        temp_device->Release();
+        temp_device = nullptr;
     }
+    
     _dx_device = dx_device;
     _dx_highestSupportedFeatureLevel = supported_feature_level;
     _immediate_context = new RHIDeviceContext(this, dx_context);
@@ -196,17 +175,9 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
     swap_chain_desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
     swap_chain_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
-    IDXGISwapChain4* dxgi_swap_chain = nullptr;
-    {
-    auto hr_createsc4hwnd = dxgi_factory->CreateSwapChainForHwnd(dx_device
-        , window->GetWindowHandle()
-        , &swap_chain_desc
-        , nullptr
-        , nullptr
-        , reinterpret_cast<IDXGISwapChain1**>(&dxgi_swap_chain));
-    GUARANTEE_OR_DIE(SUCCEEDED(hr_createsc4hwnd), "Failed to create swap chain.");
-    }
-    _allow_tearing_supported = QueryForAllowTearingSupport(dxgi_factory);
+    IDXGISwapChain4* dxgi_swap_chain = factory.CreateSwapChainForHwnd(this, *window, swap_chain_desc);
+    _allow_tearing_supported = factory.QueryForAllowTearingSupport();
+
     for(auto& a : adapters) {
         auto&& outputs = GetOutputsFromAdapter(a);
         for(const auto& o : outputs) {
@@ -221,8 +192,6 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
         info.adapter->Release();
         info.adapter = nullptr;
     }
-    dxgi_factory->Release();
-    dxgi_factory = nullptr;
 #ifdef RENDER_DEBUG
     ID3D11Debug* _dx_debug = nullptr;
     if(SUCCEEDED(_dx_device->QueryInterface(__uuidof(ID3D11Debug), (void**)&_dx_debug))) {
@@ -250,16 +219,6 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
 #endif
 
     return new RHIOutput(this, window, dxgi_swap_chain);
-}
-
-bool RHIDevice::QueryForAllowTearingSupport(IDXGIFactory6* dxgi_factory) const {
-    BOOL allow_tearing = {};
-    HRESULT hr_cfs = dxgi_factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allow_tearing, sizeof(allow_tearing));
-    bool cfs_call_succeeded = SUCCEEDED(hr_cfs);
-    if(cfs_call_succeeded) {
-        return allow_tearing == TRUE;
-    }
-    return false;
 }
 
 std::vector<OutputInfo> RHIDevice::GetOutputsFromAdapter(const AdapterInfo& a) const noexcept {
@@ -297,10 +256,14 @@ void RHIDevice::GetDisplayModeDescriptions(const AdapterInfo& adapter, const Out
     }
     unsigned int display_count = 0u;
     unsigned int display_mode_flags = DXGI_ENUM_MODES_SCALING | DXGI_ENUM_MODES_INTERLACED | DXGI_ENUM_MODES_STEREO | DXGI_ENUM_MODES_DISABLED_STEREO;
+
+    //Call with nullptr to get display count;
     output.output->GetDisplayModeList1(DXGI_FORMAT_R8G8B8A8_UNORM, display_mode_flags, &display_count, nullptr);
     if(display_count == 0) {
         return;
     }
+
+    //Call again to fill array.
     std::vector<DXGI_MODE_DESC1> dxgi_descriptions(static_cast<std::size_t>(display_count), DXGI_MODE_DESC1{});
     output.output->GetDisplayModeList1(DXGI_FORMAT_R8G8B8A8_UNORM, display_mode_flags, &display_count, dxgi_descriptions.data());
 

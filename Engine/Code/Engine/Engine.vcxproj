@@ -104,6 +104,7 @@
     <ClCompile Include="Renderer\Window.cpp" />
     <ClCompile Include="RHI\RHIDevice.cpp" />
     <ClCompile Include="RHI\RHIDeviceContext.cpp" />
+    <ClCompile Include="RHI\RHIFactory.cpp" />
     <ClCompile Include="RHI\RHIInstance.cpp" />
     <ClCompile Include="RHI\RHIOutput.cpp" />
     <ClCompile Include="RHI\RHITypes.cpp" />
@@ -210,6 +211,7 @@
     <ClInclude Include="RHI\RHI.hpp" />
     <ClInclude Include="RHI\RHIDevice.hpp" />
     <ClInclude Include="RHI\RHIDeviceContext.hpp" />
+    <ClInclude Include="RHI\RHIFactory.hpp" />
     <ClInclude Include="RHI\RHIInstance.hpp" />
     <ClInclude Include="RHI\RHIOutput.hpp" />
     <ClInclude Include="RHI\RHITypes.hpp" />

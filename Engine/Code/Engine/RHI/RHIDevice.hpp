@@ -58,7 +58,6 @@ private:
     std::vector<ConstantBuffer*> CreateConstantBuffersUsingReflection(ID3D11ShaderReflection& cbufferReflection) const;
     InputLayout* CreateInputLayoutFromByteCode(ID3DBlob* bytecode) const;
 
-    bool QueryForAllowTearingSupport(IDXGIFactory6* dxgi_factory) const;
     std::vector<OutputInfo> GetOutputsFromAdapter(const AdapterInfo& a) const noexcept;
     void GetPrimaryDisplayModeDescriptions(const AdapterInfo& adapter, decltype(displayModes)& descriptions) const;
     void GetDisplayModeDescriptions(const AdapterInfo& adapter, const OutputInfo& output, decltype(displayModes)& descriptions) const;

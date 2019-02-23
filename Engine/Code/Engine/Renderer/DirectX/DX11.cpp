@@ -278,21 +278,21 @@ ComparisonFunction ComparisonFunctionFromString(const char* str) {
 
 ComparisonFunction ComparisonFunctionFromString(std::string str) {
     str = StringUtils::ToLowerCase(str);
-    if(str == "never") {
+    if(str == "never" || str == "0") {
         return ComparisonFunction::Never;
-    } else if(str == "less") {
+    } else if(str == "less" || str == "<") {
         return ComparisonFunction::Less;
-    } else if(str == "equal") {
+    } else if(str == "equal" || str == "==") {
         return ComparisonFunction::Equal;
-    } else if(str == "lessequal" || str == "le" || str == "leq") {
+    } else if(str == "lessequal" || str == "le" || str == "leq" || str == "<=") {
         return ComparisonFunction::Less_Equal;
-    } else if(str == "greater") {
+    } else if(str == "greater" || str == ">") {
         return ComparisonFunction::Greater;
-    } else if(str == "notequal" || str == "ne" || str == "neq") {
+    } else if(str == "notequal" || str == "ne" || str == "neq" || str == "!=") {
         return ComparisonFunction::Not_Equal;
-    } else if(str == "greaterequal" || str == "ge" || str == "geq") {
+    } else if(str == "greaterequal" || str == "ge" || str == "geq" || str == ">=") {
         return ComparisonFunction::Greater_Equal;
-    } else if(str == "always") {
+    } else if(str == "always" || str == "1") {
         return ComparisonFunction::Always;
     } else {
         return ComparisonFunction::Never;

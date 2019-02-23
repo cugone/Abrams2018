@@ -139,6 +139,15 @@ void ValidateXmlElement(const XMLElement& element,
 #endif //#if _DEBUG
 }
 
+void ForEachChildElement(const XMLElement& element, const std::string& childname /*= std::string{}*/, const std::function<void(const XMLElement&)>& callback /*= [](const XMLElement&) { / * DO NOTHING * / }*/) {
+    auto childNameAsCStr = childname.empty() ? nullptr : childname.c_str();
+    for(auto xml_iter = element.FirstChildElement(childNameAsCStr);
+        xml_iter != nullptr;
+        xml_iter = xml_iter->NextSiblingElement(childNameAsCStr)) {
+        callback(*xml_iter);
+    }
+}
+
 void ForEachAttribute(const XMLElement& element, const std::function<void(const XMLAttribute&)>& callback /*= [](const XMLAttribute&) { / * DO NOTHING * / }*/) {
     for(auto attribute = element.FirstAttribute(); attribute != nullptr; attribute = attribute->Next()) {
         callback(*attribute);
@@ -367,15 +376,6 @@ std::string ParseXmlElementText(const XMLElement& element, const std::string& de
         return defaultValue;
     } else {
         return textVal;
-    }
-}
-
-void ForEachChildElement(const XMLElement& element, const std::string& childname /*= std::string{}*/, const std::function<void(const XMLElement&)>& callback /*= [](const XMLElement&) { / * DO NOTHING * / }*/) {
-    auto childNameAsCStr = childname.empty() ? nullptr : childname.c_str();
-    for(auto xml_iter = element.FirstChildElement(childNameAsCStr);
-        xml_iter != nullptr;
-        xml_iter = xml_iter->NextSiblingElement(childNameAsCStr)) {
-        callback(*xml_iter);
     }
 }
 

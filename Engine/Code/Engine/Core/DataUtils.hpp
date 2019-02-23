@@ -53,36 +53,52 @@ namespace DataUtils {
     return __popcnt64(value);
 }
 
-[[nodiscard]] constexpr inline auto Shift(uint8_t value, uint8_t distance) noexcept -> uint8_t {
+[[nodiscard]] constexpr inline auto ShiftLeft(uint8_t value, uint8_t distance) noexcept -> uint8_t {
     return value << distance;
 }
 
-[[nodiscard]] constexpr inline auto Shift(uint16_t value, uint16_t distance) noexcept -> uint16_t {
+[[nodiscard]] constexpr inline auto ShiftLeft(uint16_t value, uint16_t distance) noexcept -> uint16_t {
     return value << distance;
 }
 
-[[nodiscard]] constexpr inline auto Shift(uint32_t value, uint32_t distance) noexcept -> uint32_t {
+[[nodiscard]] constexpr inline auto ShiftLeft(uint32_t value, uint32_t distance) noexcept -> uint32_t {
     return value << distance;
 }
 
-[[nodiscard]] constexpr inline auto Shift(uint64_t value, uint64_t distance) noexcept -> uint64_t {
+[[nodiscard]] constexpr inline auto ShiftLeft(uint64_t value, uint64_t distance) noexcept -> uint64_t {
     return value << distance;
+}
+
+[[nodiscard]] constexpr inline auto ShiftRight(uint8_t value, uint8_t distance) noexcept -> uint8_t {
+    return value >> distance;
+}
+
+[[nodiscard]] constexpr inline auto ShiftRight(uint16_t value, uint16_t distance) noexcept -> uint16_t {
+    return value >> distance;
+}
+
+[[nodiscard]] constexpr inline auto ShiftRight(uint32_t value, uint32_t distance) noexcept -> uint32_t {
+    return value >> distance;
+}
+
+[[nodiscard]] constexpr inline auto ShiftRight(uint64_t value, uint64_t distance) noexcept -> uint64_t {
+    return value >> distance;
 }
 
 [[nodiscard]] constexpr inline auto Bit(uint8_t n) noexcept -> uint8_t {
-    return Shift(1, n);
+    return ShiftLeft(1, n);
 }
 
 [[nodiscard]] constexpr inline auto Bit(uint16_t n) noexcept -> uint16_t {
-    return Shift(1, n);
+    return ShiftLeft(1, n);
 }
 
 [[nodiscard]] constexpr inline auto Bit(uint32_t n) noexcept -> uint32_t {
-    return Shift(1, n);
+    return ShiftLeft(1, n);
 }
 
 [[nodiscard]] constexpr inline auto Bit(uint64_t n) noexcept -> uint64_t {
-    return Shift(1, n);
+    return ShiftLeft(1, n);
 }
 
 void ValidateXmlElement(const XMLElement& element,
@@ -175,6 +191,6 @@ std::string ParseXmlElementText(const XMLElement& element, const char* defaultVa
 std::string ParseXmlElementText(const XMLElement& element, const std::string& defaultValue);
 
 void ForEachChildElement(const XMLElement& element, const std::string& childname = std::string{}, const std::function<void(const XMLElement&)>& callback = [](const XMLElement&) { /* DO NOTHING */ });
-void ForEachAttribute(const XMLElement& element, const std::string& attributename = std::string{}, const std::function<void(const XMLAttribute&)>& callback = [](const XMLAttribute&) { /* DO NOTHING */ });
+void ForEachAttribute(const XMLElement& element, const std::function<void(const XMLAttribute&)>& callback = [](const XMLAttribute&) { /* DO NOTHING */ });
 
 }

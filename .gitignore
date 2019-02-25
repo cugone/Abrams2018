@@ -22,7 +22,7 @@ desktop.ini
 [Rr]elease/
 [Rr]eleases/
 Temporary/
-Run_*/
+Run_*/*.exe
 x64/
 x86/
 bld/

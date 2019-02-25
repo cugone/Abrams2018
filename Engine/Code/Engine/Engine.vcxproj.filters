@@ -44,16 +44,22 @@
     <Filter Include="Memory">
       <UniqueIdentifier>{a31d06cf-99ee-41cf-af7f-63601f6c7be2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Thirdparty\ImGui">
+      <UniqueIdentifier>{d5225282-fa33-496b-86e0-f07cc09a88cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\STB">
+      <UniqueIdentifier>{e149fa05-7429-4c7c-990d-fd2a519b9e67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\JSON">
+      <UniqueIdentifier>{f7bb36e2-3e60-4ae8-a74e-343b056bf2c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\TinyXML">
+      <UniqueIdentifier>{fc6e0dc4-15c5-48ae-8ba2-c91568d1c50c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">
       <Filter>Math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Thirdparty\stb\stb.cpp">
-      <Filter>Thirdparty</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Thirdparty\TinyXML2\tinyxml2.cpp">
-      <Filter>Thirdparty</Filter>
     </ClCompile>
     <ClCompile Include="Math\MathUtils.cpp">
       <Filter>Math</Filter>
@@ -340,19 +346,28 @@
     <ClCompile Include="RHI\RHIFactory.cpp">
       <Filter>RHI</Filter>
     </ClCompile>
+    <ClCompile Include="..\Thirdparty\ImGui\imgui.cpp">
+      <Filter>Thirdparty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Thirdparty\ImGui\imgui_demo.cpp">
+      <Filter>Thirdparty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Thirdparty\ImGui\imgui_draw.cpp">
+      <Filter>Thirdparty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Thirdparty\ImGui\imgui_widgets.cpp">
+      <Filter>Thirdparty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Thirdparty\stb\stb.cpp">
+      <Filter>Thirdparty\STB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Thirdparty\TinyXML2\tinyxml2.cpp">
+      <Filter>Thirdparty\TinyXML</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
       <Filter>Math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h">
-      <Filter>Thirdparty</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Thirdparty\stb\stb_image.h">
-      <Filter>Thirdparty</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Thirdparty\stb\stb_image_write.h">
-      <Filter>Thirdparty</Filter>
     </ClInclude>
     <ClInclude Include="Math\MathUtils.hpp">
       <Filter>Math</Filter>
@@ -609,9 +624,6 @@
     <ClInclude Include="Networking\NetUtils.hpp">
       <Filter>Networking</Filter>
     </ClInclude>
-    <ClInclude Include="..\Thirdparty\nlohmann\json\json.hpp">
-      <Filter>Thirdparty</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\Model.hpp">
       <Filter>Renderer\Core</Filter>
     </ClInclude>
@@ -659,6 +671,36 @@
     </ClInclude>
     <ClInclude Include="RHI\RHIFactory.hpp">
       <Filter>RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\ImGui\imgui.h">
+      <Filter>Thirdparty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\ImGui\imconfig.h">
+      <Filter>Thirdparty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\ImGui\imgui_internal.h">
+      <Filter>Thirdparty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\ImGui\imstb_rectpack.h">
+      <Filter>Thirdparty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\ImGui\imstb_textedit.h">
+      <Filter>Thirdparty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\ImGui\imstb_truetype.h">
+      <Filter>Thirdparty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\stb\stb_image.h">
+      <Filter>Thirdparty\STB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\stb\stb_image_write.h">
+      <Filter>Thirdparty\STB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\nlohmann\json\json.hpp">
+      <Filter>Thirdparty\JSON</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h">
+      <Filter>Thirdparty\TinyXML</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

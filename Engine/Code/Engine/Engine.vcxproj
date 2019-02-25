@@ -121,6 +121,7 @@
     <ClCompile Include="UI\Panel.cpp" />
     <ClCompile Include="UI\Label.cpp" />
     <ClCompile Include="UI\Types.cpp" />
+    <ClCompile Include="UI\UISystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Thirdparty\ImGui\imconfig.h" />
@@ -235,6 +236,7 @@
     <ClInclude Include="UI\Label.hpp" />
     <ClInclude Include="UI\Types.hpp" />
     <ClInclude Include="UI\UI.hpp" />
+    <ClInclude Include="UI\UISystem.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

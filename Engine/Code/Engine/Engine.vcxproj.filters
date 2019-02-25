@@ -364,6 +364,9 @@
     <ClCompile Include="..\Thirdparty\TinyXML2\tinyxml2.cpp">
       <Filter>Thirdparty\TinyXML</Filter>
     </ClCompile>
+    <ClCompile Include="UI\UISystem.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -701,6 +704,9 @@
     </ClInclude>
     <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h">
       <Filter>Thirdparty\TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UISystem.hpp">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

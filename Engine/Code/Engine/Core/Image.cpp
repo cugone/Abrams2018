@@ -250,3 +250,8 @@ Image* Image::CreateImageFromFileBuffer(const std::vector<unsigned char>& data) 
     }
     return result;
 }
+
+std::string Image::GetSupportedExtensionsList() {
+    return std::string(".png,.bmp,.tga,.jpg");
+
+}

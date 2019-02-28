@@ -1,6 +1,6 @@
-
-#ifndef ABRAMS2018_BUILDCONFIG_CPP
-#define ABRAMS2018_BUILDCONFIG_CPP
+#pragma once
+#ifndef ABRAMS2018_BUILDCONFIG_HPP
+#define ABRAMS2018_BUILDCONFIG_HPP
 
 #define TRACK_MEMORY_BASIC (0)
 #define TRACK_MEMORY_VERBOSE (1)
@@ -12,13 +12,15 @@
     #define AUDIO_DEBUG
     #define RENDER_DEBUG
     #define PROFILE_BUILD
+    #define UI_DEBUG
 #elif defined(FINAL_BUILD)
+    #undef UI_DEBUG
     #undef TRACK_MEMORY
     #undef PROFILE_BUILD
-    #define DISABLE_ASSERTS
 #else
     #define TRACK_MEMORY TRACK_MEMORY_BASIC
     #define PROFILE_BUILD
+    #define UI_DEBUG
 #endif
 
 #define MAX_LOGS 3u

@@ -54,6 +54,12 @@ App::App(std::unique_ptr<JobSystem> jobSystem, std::unique_ptr<FileLogger> fileL
     g_theInput = _theInputSystem.get();
     g_theConsole = _theConsole.get();
     g_theGame = _theGame.get();
+    g_theApp = this;
+    g_theConsole->SetNextHandler(g_theUI);
+    g_theUI->SetNextHandler(g_theInput);
+    g_theInput->SetNextHandler(g_theApp);
+    g_theApp->SetNextHandler(nullptr);
+    g_theSubsystemHead = g_theConsole;
 }
 
 App::~App() {
@@ -119,7 +125,6 @@ void App::Initialize() {
 
 void App::RunFrame() {
     using namespace TimeUtils;
-    PROFILE_LOG_SCOPE_FUNCTION();
     BeginFrame();
     static FPSeconds previousFrameTime = TimeUtils::GetCurrentTimeElapsed();
     FPSeconds currentFrameTime = TimeUtils::GetCurrentTimeElapsed();

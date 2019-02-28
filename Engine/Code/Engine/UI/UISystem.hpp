@@ -2,9 +2,17 @@
 
 #include "Engine/Core/EngineSubsystem.hpp"
 
+#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+#ifdef UI_DEBUG
+#define IMGUI_DISABLE_DEMO_WINDOWS
+#endif
+
+#include "Thirdparty/Imgui/imgui.h"
+#include "Thirdparty/Imgui/imgui_impl_dx11.h"
+#include "Thirdparty/Imgui/imgui_impl_win32.h"
+#include "Thirdparty/Imgui/imgui_stdlib.h"
+
 class Renderer;
-struct ImGuiContext;
-struct ImGuiIO;
 
 class UISystem : public EngineSubsystem {
 public:
@@ -28,3 +36,17 @@ private:
     ImGuiContext* _context{};
     ImGuiIO* _io{};
 };
+
+class Texture;
+class Rgba;
+class Vector2;
+class Vector4;
+//Custom ImGui overloads
+namespace ImGui {
+    void Image(Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Rgba& tint_col, const Rgba& border_col);
+    bool ColorEdit3(const char* label, Rgba& color, ImGuiColorEditFlags flags = 0);
+    bool ColorEdit4(const char* label, Rgba& color, ImGuiColorEditFlags flags = 0);
+    bool ColorPicker3(const char* label, Rgba& color, ImGuiColorEditFlags flags = 0);
+    bool ColorPicker4(const char* label, Rgba& color, ImGuiColorEditFlags flags = 0, Rgba* refColor = nullptr);
+    bool ColorButton(const char* desc_id, Rgba& color, ImGuiColorEditFlags flags = 0, Vector2 size = Vector2::ZERO);
+}

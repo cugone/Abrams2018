@@ -1,21 +1,73 @@
 #include "Engine/UI/UISystem.hpp"
 
+#include "Engine/Core/BuildConfig.hpp"
+#include "Engine/Core/FileUtils.hpp"
+
 #include "Engine/Renderer/Renderer.hpp"
+#include "Engine/Renderer/Texture.hpp"
 #include "Engine/Renderer/Window.hpp"
 
-#include "Thirdparty/Imgui/imgui.h"
-#include "Thirdparty/Imgui/imgui_impl_dx11.h"
-#include "Thirdparty/Imgui/imgui_impl_win32.h"
-
 IMGUI_IMPL_API LRESULT  ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+namespace ImGui {
+    void Image(Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Rgba& tint_col, const Rgba& border_col) {
+        ImGui::Image(reinterpret_cast<void*>(texture->GetShaderResourceView()), size, uv0, uv1, tint_col.GetRgbaAsFloats(), border_col.GetRgbaAsFloats());
+    }
+    bool ColorEdit3(const char* label, Rgba& color, ImGuiColorEditFlags flags /*= 0*/) {
+        auto colorAsFloats = color.GetRgbAsFloats();
+        if(ImGui::ColorEdit3(label, colorAsFloats.GetAsFloatArray(), flags)) {
+            color.SetRgbFromFloats(colorAsFloats);
+            return true;
+        }
+        return false;
+    }
+    bool ColorEdit4(const char* label, Rgba& color, ImGuiColorEditFlags flags /*= 0*/) {
+        auto colorAsFloats = color.GetRgbaAsFloats();
+        if(ImGui::ColorEdit4(label, colorAsFloats.GetAsFloatArray(), flags)) {
+            color.SetRgbaFromFloats(colorAsFloats);
+            return true;
+        }
+        return false;
+    }
+    bool ColorPicker3(const char* label, Rgba& color, ImGuiColorEditFlags flags /*= 0*/) {
+        auto colorAsFloats = color.GetRgbAsFloats();
+        if(ImGui::ColorPicker3(label, colorAsFloats.GetAsFloatArray(), flags)) {
+            color.SetRgbFromFloats(colorAsFloats);
+            return true;
+        }
+        return false;
+    }
+    bool ColorPicker4(const char* label, Rgba& color, ImGuiColorEditFlags flags /*= 0*/, Rgba* refColor /*= nullptr*/) {
+        auto colorAsFloats = color.GetRgbaAsFloats();
+        Vector4 refColorAsFloats{};
+        if(refColor) {
+            refColorAsFloats = refColor->GetRgbaAsFloats();
+        }
+        if(ImGui::ColorPicker4(label, colorAsFloats.GetAsFloatArray(), flags, refColor ? refColorAsFloats.GetAsFloatArray() : nullptr)) {
+            color.SetRgbaFromFloats(colorAsFloats);
+            if(refColor) {
+                refColor->SetRgbaFromFloats(refColorAsFloats);
+            }
+            return true;
+        }
+        return false;
+    }
+    bool ColorButton(const char* desc_id, const Rgba& color, ImGuiColorEditFlags flags /*= 0*/, Vector2 size /*= Vector2::ZERO*/) {
+        auto colorAsFloats = color.GetRgbaAsFloats();
+        return ImGui::ColorButton(desc_id, colorAsFloats, flags, size);
+    }
+}
 
 UISystem::UISystem(Renderer* renderer)
     : EngineSubsystem()
     , _renderer(renderer)
+    , _context(ImGui::CreateContext())
+    , _io(&ImGui::GetIO())
 {
+#ifdef UI_DEBUG
+#define IMGUI_DISABLE_DEMO_WINDOWS
     IMGUI_CHECKVERSION();
-    _context = ImGui::CreateContext();
-    _io = &ImGui::GetIO();
+#endif
 }
 
 UISystem::~UISystem() {
@@ -30,6 +82,10 @@ UISystem::~UISystem() {
 }
 
 void UISystem::Initialize() {
+    
+    FileUtils::CreateFolders("Engine/Config/");
+    _io->IniFilename = "Engine/Config/imgui.ini";
+
     auto hwnd = _renderer->GetOutput()->GetWindow()->GetWindowHandle();
     auto dx_device = _renderer->GetDevice()->GetDxDevice();
     auto dx_context = _renderer->GetDeviceContext()->GetDxContext();
@@ -60,9 +116,7 @@ void UISystem::EndFrame() {
 }
 
 bool UISystem::ProcessSystemMessage(const EngineMessage& msg) {
-    if(_io->WantCaptureKeyboard || _io->WantCaptureMouse) {
-        return ImGui_ImplWin32_WndProcHandler(reinterpret_cast<HWND>(msg.hWnd), msg.nativeMessage, msg.wparam, msg.lparam);
-    }
-    return false;
+    auto handled = ImGui_ImplWin32_WndProcHandler(reinterpret_cast<HWND>(msg.hWnd), msg.nativeMessage, msg.wparam, msg.lparam);
+    return handled != 0;
 }
 

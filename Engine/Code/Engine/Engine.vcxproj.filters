@@ -373,6 +373,9 @@
     <ClCompile Include="..\Thirdparty\Imgui\imgui_impl_win32.cpp">
       <Filter>Thirdparty\ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="..\Thirdparty\Imgui\imgui_stdlib.cpp">
+      <Filter>Thirdparty\ImGui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -718,6 +721,9 @@
       <Filter>Thirdparty\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="..\Thirdparty\Imgui\imgui_impl_win32.h">
+      <Filter>Thirdparty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\Imgui\imgui_stdlib.h">
       <Filter>Thirdparty\ImGui</Filter>
     </ClInclude>
   </ItemGroup>

@@ -860,7 +860,8 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             }
             }
             key = ConvertKeyCodeToWinVK(my_key);
-            RegisterKeyUp(key); return true;
+            RegisterKeyUp(key);
+            return true;
         }
         case WindowsSystemMessage::Keyboard_SysKeyDown:
         {
@@ -922,7 +923,8 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                 }
             }
             key = ConvertKeyCodeToWinVK(my_key);
-            RegisterKeyDown(key); return true;
+            RegisterKeyDown(key);
+            return true;
         }
         case WindowsSystemMessage::Keyboard_SysKeyUp:
         {
@@ -975,7 +977,6 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                     if(my_key != KeyCode::Unknown) {
                         RegisterKeyUp(alt_key);
                     }
-
                     break;
                 }
                 case KeyCode::F10:
@@ -985,7 +986,8 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                 }
             }
             key = ConvertKeyCodeToWinVK(my_key);
-            RegisterKeyUp(key); return true;
+            RegisterKeyUp(key);
+            return true;
         }
         case WindowsSystemMessage::Mouse_LButtonDown:
         {

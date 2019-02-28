@@ -49,6 +49,9 @@ public:
 
     void BeginFrame();
     void Update(TimeUtils::FPSeconds deltaSeconds);
+
+    void ShowFileDialog();
+
     void Render() const;
     void RenderStuff() const;
     void EndFrame();
@@ -73,6 +76,9 @@ private:
     mutable Camera3D _camera3{};
     bool _lock_mouse_to_center{ false };
     Rgba clear_color = Rgba::Grey;
+    Rgba img_tint_color = Rgba::White;
+    Rgba img_border_color = Rgba::NoAlpha;
     bool _debug = true;
     bool _slowmo = false;    
+    std::string _img_path{ "Data/Images/Test_StbiAndDirectX.png" };
 };

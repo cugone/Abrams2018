@@ -1,6 +1,7 @@
 #include "Game/Game.hpp"
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/Image.hpp"
 #include "Engine/Core/KerningFont.hpp"
 #include "Engine/Core/Rgba.hpp"
@@ -107,52 +108,48 @@ void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
     _camera2.Update(g_theRenderer->GetGameFrameTime());
     _camera3.Update(g_theRenderer->GetGameFrameTime());
 
-    // Our state
-    static bool show_demo_window = true;
-    static bool show_another_window = false;
+    ImGui::ShowDemoWindow();
 
-    // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-    if(show_demo_window) {
-        ImGui::ShowDemoWindow(&show_demo_window);
-    }
-
-    // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
     {
         static float f = 0.0f;
+        static float a_d = 0.0f;
+        static float a_r = 0.0f;
         static int counter = 0;
+        static int i = 0;
 
-        ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+        ImGui::Begin("Hello, world!");
 
-        ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-        ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-        ImGui::Checkbox("Another Window", &show_another_window);
-
-        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        Vector3 cc = clear_color.GetRgbAsFloats();
-        ImGui::ColorEdit3("clear color", (float*)&cc); // Edit 3 floats representing a color
-        clear_color.SetRgbFromFloats(cc);
-
-        if(ImGui::Button("Button")) {                            // Buttons return true when clicked (most widgets return true when edited/activated)
-            counter++;
+        ImGui::Checkbox("Lock Mouse to center", &_lock_mouse_to_center);
+        ImGui::Checkbox("Debug Mode", &_debug);
+        ImGui::ColorEdit3("clear color", clear_color);
+        ImGui::Text("Image: %s", _img_path.c_str());
+        ImGui::Image(g_theRenderer->GetTexture(_img_path), Vector2::ONE * 250.0f, Vector2::ZERO, Vector2::ONE, img_tint_color, img_border_color);
+        if(ImGui::Button("New Image")) {
+            ShowFileDialog();
         }
-        ImGui::SameLine();
-        ImGui::Text("counter = %d", counter);
-
+        ImGui::ColorEdit4("tint", img_tint_color);
+        ImGui::ColorEdit4("border", img_border_color);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
         ImGui::End();
     }
 
-    // 3. Show another simple window.
-    if(show_another_window) {
-        ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-        ImGui::Text("Hello from another window!");
-        if(ImGui::Button("Close Me")) {
-            show_another_window = false;
+}
+
+
+void Game::ShowFileDialog() {
+    ImGui::OpenPopup("SI");
+    if(ImGui::BeginPopupModal("SI", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text("Select an image to show in the box...");
+        const auto& paths = FileUtils::GetAllPathsInFolders("Data/Images/", Image::GetSupportedExtensionsList());
+        for(const auto& t : paths) {
+            if(ImGui::Button(t.string().c_str())) {
+                _img_path = t.string();
+                ImGui::CloseCurrentPopup();
+            }
         }
-        ImGui::End();
+        ImGui::EndPopup();
     }
-
-
 }
 
 void Game::UpdateCameraFromKeyboard(TimeUtils::FPSeconds deltaSeconds) {

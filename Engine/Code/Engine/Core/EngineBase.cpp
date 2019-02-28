@@ -43,4 +43,3 @@ LRESULT CALLBACK EngineMessageHandlingProcedure(HWND windowHandle, UINT wmMessag
             return DefWindowProc(windowHandle, wmMessageCode, wParam, lParam);
     }
 }
-

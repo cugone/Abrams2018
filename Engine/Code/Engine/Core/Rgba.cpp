@@ -187,6 +187,21 @@ void Rgba::SetRGBFromRawValue(uint32_t value) {
     b = static_cast<uint8_t>((value & 0x0000ffu) >> 0);
 }
 
+
+void Rgba::SetRgbFromFloats(const Vector3& value) {
+    r = static_cast<unsigned char>(value.x * 255.0f);
+    g = static_cast<unsigned char>(value.y * 255.0f);
+    b = static_cast<unsigned char>(value.z * 255.0f);
+}
+
+
+void Rgba::SetRgbaFromFloats(const Vector4& value) {
+    r = static_cast<unsigned char>(value.x * 255.0f);
+    g = static_cast<unsigned char>(value.y * 255.0f);
+    b = static_cast<unsigned char>(value.z * 255.0f);
+    a = static_cast<unsigned char>(value.w * 255.0f);
+}
+
 void Rgba::SetValueFromName(std::string name) {
     name = StringUtils::ToUpperCase(name);
     if(name == "WHITE") {

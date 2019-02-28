@@ -65,7 +65,8 @@ public:
     void SetFromRawValue(uint32_t value);
     void SetRGBAFromRawValue(uint32_t value);
     void SetRGBFromRawValue(uint32_t value);
-
+    void SetRgbFromFloats(const Vector3& value);
+    void SetRgbaFromFloats(const Vector4& value);
     bool IsRgbEqual(const Rgba& rhs) const;
     bool operator==(const Rgba& rhs) const;
     bool operator!=(const Rgba& rhs) const;

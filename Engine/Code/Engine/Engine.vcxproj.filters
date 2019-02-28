@@ -367,6 +367,12 @@
     <ClCompile Include="UI\UISystem.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="..\Thirdparty\Imgui\imgui_impl_dx11.cpp">
+      <Filter>Thirdparty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Thirdparty\Imgui\imgui_impl_win32.cpp">
+      <Filter>Thirdparty\ImGui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -707,6 +713,12 @@
     </ClInclude>
     <ClInclude Include="UI\UISystem.hpp">
       <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\Imgui\imgui_impl_dx11.h">
+      <Filter>Thirdparty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\Imgui\imgui_impl_win32.h">
+      <Filter>Thirdparty\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

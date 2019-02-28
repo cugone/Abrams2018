@@ -12,6 +12,7 @@ class InputSystem;
 class JobSystem;
 class Renderer;
 class FileLogger;
+class UISystem;
 
 class App : public EngineSubsystem {
 public:
@@ -45,6 +46,7 @@ private:
     std::unique_ptr<Config> _theConfig{};
     std::unique_ptr<Renderer> _theRenderer{};
     std::unique_ptr<InputSystem> _theInputSystem{};
+    std::unique_ptr<UISystem> _theUI{};
     std::unique_ptr<Console> _theConsole{};
     std::unique_ptr<Game> _theGame{};
 };

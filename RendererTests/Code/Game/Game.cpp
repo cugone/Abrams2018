@@ -36,6 +36,8 @@
 
 #include "Engine/UI/UI.hpp"
 
+#include "Thirdparty/Imgui/imgui.h"
+
 #include "Game/GameCommon.hpp"
 #include "Game/GameConfig.hpp"
 
@@ -45,11 +47,7 @@
 #include <sstream>
 
 Game::~Game() {
-    delete _canvas;
-    _canvas = nullptr;
-
-    delete _mandelbrot_cb;
-    _mandelbrot_cb = nullptr;
+    /* DO NOTHING */
 }
 
 void Game::Initialize() {
@@ -58,30 +56,6 @@ void Game::Initialize() {
 }
 
 void Game::InitializeData() {
-
-    _mandelbrot_cb = g_theRenderer->CreateConstantBuffer(&_mandelbrot_data, sizeof(_mandelbrot_data));
-    _mandelbrot_data.escapeColor = Rgba::White.GetRgbaAsFloats();
-    _mandelbrot_data.convergeColor = Rgba::Black.GetRgbaAsFloats();
-    _mandelbrot_data.use_escape_color = 1u;
-    _mandelbrot_cb->Update(g_theRenderer->GetDeviceContext(), &_mandelbrot_data);
-
-    {
-        const auto& window_dimensions = g_theRenderer->GetOutput()->GetDimensions();
-        std::vector<Rgba> data{};
-        data.resize(window_dimensions.x * window_dimensions.y);
-        std::fill(std::begin(data), std::end(data), Rgba::White);
-        auto t = g_theRenderer->Create2DTextureFromMemory(data, window_dimensions.x, window_dimensions.y, BufferUsage::Dynamic, BufferBindUsage::Unordered_Access);
-        g_theRenderer->RegisterTexture("mandelbrot", t);
-    }
-    {
-        const auto& window_dimensions = g_theRenderer->GetOutput()->GetDimensions();
-        std::vector<Rgba> data{};
-        data.resize(window_dimensions.x * window_dimensions.y);
-        std::fill(std::begin(data), std::end(data), Rgba::White);
-        auto t = g_theRenderer->Create2DTextureFromMemory(data, window_dimensions.x, window_dimensions.y, BufferUsage::Staging, BufferBindUsage::Shader_Resource);
-        g_theRenderer->RegisterTexture("mandelbrot_out", t);
-    }
-
     g_theRenderer->RegisterTexturesFromFolder(std::string{ "Data/Images" }, true);
     g_theRenderer->RegisterShadersFromFolder(std::string{ "Data/Shaders" });
     g_theRenderer->RegisterMaterialsFromFolder(std::string{ "Data/Materials" });
@@ -96,30 +70,7 @@ void Game::InitializeData() {
 }
 
 void Game::InitializeUI() {
-    auto reference_resolution = (std::min)(static_cast<float>(g_theRenderer->GetOutput()->GetDimensions().x), static_cast<float>(g_theRenderer->GetOutput()->GetDimensions().y));
-    _canvas = new UI::Canvas(*g_theRenderer, reference_resolution);
-    _canvas->SetBorderColor(Rgba::Cyan);
-    _canvas->SetPivot(UI::PivotPosition::TopLeft);
-    _canvas->SetPivotColor(Rgba::Cyan);
-
-    _panel = _canvas->CreateChild<UI::Panel>();
-    _panel->SetBorderColor(Rgba::Orange);
-    _panel->SetPivot(UI::PivotPosition::TopLeft);
-    _panel->SetSize(UI::Metric{ UI::Ratio{Vector2(0.5f, 0.5f)}, {} });
-    _panel->SetPivotColor(Rgba::Orange);
-
-    _label = _panel->CreateChild<UI::Label>(_canvas, g_theRenderer->GetFont("System32"));
-    _label->SetBorderColor(Rgba::White);
-    _label->SetPivot(UI::PivotPosition::TopLeft);
-    _label->SetPosition({});
-    _label->SetPivotColor(Rgba::White);
-
-    auto anim = g_theRenderer->CreateAnimatedSprite(g_theRenderer->CreateSpriteSheet("Data/Images/sauron.png"));
-    anim->SetMaterial(g_theRenderer->GetMaterial("Sauron"));
-    _sprite = _panel->CreateChild<UI::Sprite>(_canvas, anim);
-    _sprite->SetBorderColor(Rgba::ForestGreen);
-    _sprite->SetPivot(UI::PivotPosition::TopLeft);
-    _sprite->SetPosition(Vector4::ZERO);
+    /* DO NOTHING */
 }
 
 void Game::BeginFrame() {
@@ -153,17 +104,54 @@ void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
         MathUtils::SetRandomEngineSeed(1729);
     }
 
-    if(g_theInput->WasKeyJustPressed(KeyCode::Enter)) {
-        _panel->ToggleEnabled();
-    }
-
     _camera2.Update(g_theRenderer->GetGameFrameTime());
     _camera3.Update(g_theRenderer->GetGameFrameTime());
 
-    _canvas->Update(g_theRenderer->GetGameFrameTime());
+    // Our state
+    static bool show_demo_window = true;
+    static bool show_another_window = false;
 
-    g_theRenderer->DispatchComputeJob(ComputeJob{ g_theRenderer, 1, {g_theRenderer->GetTexture("mandelbrot_out") }, g_theRenderer->GetShader("Test2"), 16, 16, 1 });
-    g_theRenderer->CopyTexture(g_theRenderer->GetTexture("mandelbrot"), g_theRenderer->GetTexture("mandelbrot_out"));
+    // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+    if(show_demo_window) {
+        ImGui::ShowDemoWindow(&show_demo_window);
+    }
+
+    // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+    {
+        static float f = 0.0f;
+        static int counter = 0;
+
+        ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+        ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+        ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+        ImGui::Checkbox("Another Window", &show_another_window);
+
+        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        Vector3 cc = clear_color.GetRgbAsFloats();
+        ImGui::ColorEdit3("clear color", (float*)&cc); // Edit 3 floats representing a color
+        clear_color.SetRgbFromFloats(cc);
+
+        if(ImGui::Button("Button")) {                            // Buttons return true when clicked (most widgets return true when edited/activated)
+            counter++;
+        }
+        ImGui::SameLine();
+        ImGui::Text("counter = %d", counter);
+
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        ImGui::End();
+    }
+
+    // 3. Show another simple window.
+    if(show_another_window) {
+        ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+        ImGui::Text("Hello from another window!");
+        if(ImGui::Button("Close Me")) {
+            show_another_window = false;
+        }
+        ImGui::End();
+    }
+
 
 }
 
@@ -213,6 +201,10 @@ void Game::UpdateCameraFromKeyboard(TimeUtils::FPSeconds deltaSeconds) {
         _camera2.SetOrientationDegrees(0.0f);
         _fovV = _default_fovV;
     }
+
+    if(g_theInput->WasKeyJustPressed(KeyCode::L)) {
+        _lock_mouse_to_center = !_lock_mouse_to_center;
+    }
 }
 
 void Game::UpdateCameraFromMouse(TimeUtils::FPSeconds deltaSeconds) {
@@ -229,7 +221,9 @@ void Game::UpdateCameraFromMouse(TimeUtils::FPSeconds deltaSeconds) {
     }
     const auto& window = *(g_theRenderer->GetOutput()->GetWindow());
     auto mouse_pos = g_theInput->GetCursorWindowPosition(window);
-    g_theInput->SetCursorToWindowCenter(window);
+    if(_lock_mouse_to_center) {
+        g_theInput->SetCursorToWindowCenter(window);
+    }
     auto mouse_delta_pos = (mouse_pos - g_theInput->GetCursorWindowPosition(window));
     auto moved_x = mouse_delta_pos.x;
     auto moved_y = mouse_delta_pos.y;
@@ -256,13 +250,12 @@ void Game::UpdateCameraFromMouse(TimeUtils::FPSeconds deltaSeconds) {
     if(g_theInput->WasMouseWheelJustScrolledRight()) {
         _camera3.Translate(_camera3.GetRight() * camera_move_speed);
     }
-
 }
 
 void Game::Render() const {
 
     g_theRenderer->SetRenderTarget();
-    g_theRenderer->ClearColor(Rgba::Grey);
+    g_theRenderer->ClearColor(clear_color);
     g_theRenderer->ClearDepthStencilBuffer();
 
     ViewportDesc view_desc{};

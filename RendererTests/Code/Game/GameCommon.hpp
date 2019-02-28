@@ -6,6 +6,7 @@
 #include "Engine/Core/JobSystem.hpp"
 #include "Engine/Input/InputSystem.hpp"
 #include "Engine/Renderer/Renderer.hpp"
+#include "Engine/UI/UISystem.hpp"
 #include "Game/App.hpp"
 #include "Game/Game.hpp"
 
@@ -18,3 +19,4 @@ extern EngineSubsystem* g_theSubsystemHead;
 extern App* g_theApp;
 extern JobSystem* g_theJobSystem;
 extern FileLogger* g_theFileLogger;
+extern UISystem* g_theUI;

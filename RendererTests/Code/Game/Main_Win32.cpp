@@ -46,7 +46,8 @@ App* CreateApp() {
 }
 
 void SetupCoR() {
-    g_theConsole->SetNextHandler(g_theInput);
+    g_theConsole->SetNextHandler(g_theUI);
+    g_theUI->SetNextHandler(g_theInput);
     g_theInput->SetNextHandler(g_theApp);
     g_theApp->SetNextHandler(nullptr);
     g_theSubsystemHead = g_theConsole;

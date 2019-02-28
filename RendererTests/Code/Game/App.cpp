@@ -24,6 +24,7 @@ bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
     EngineMessage msg = {};
     msg.hWnd = hwnd;
+    msg.nativeMessage = uMsg;
     msg.wmMessageCode = EngineSubsystem::GetWindowsSystemMessageFromUintMessage(uMsg);
     msg.wparam = wParam;
     msg.lparam = lParam;
@@ -41,6 +42,7 @@ App::App(std::unique_ptr<JobSystem> jobSystem, std::unique_ptr<FileLogger> fileL
     , _theConfig(std::make_unique<Config>())
     , _theRenderer{ std::make_unique<Renderer>(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT)) }
     , _theInputSystem{ std::make_unique<InputSystem>() }
+    , _theUI{ std::make_unique<UISystem>(_theRenderer.get()) }
     , _theConsole{ std::make_unique<Console>(_theRenderer.get()) }
     , _theGame{ std::make_unique<Game>() }
 {
@@ -48,6 +50,7 @@ App::App(std::unique_ptr<JobSystem> jobSystem, std::unique_ptr<FileLogger> fileL
     g_theFileLogger = _theFileLogger.get();
     g_theConfig = _theConfig.get();
     g_theRenderer = _theRenderer.get();
+    g_theUI = _theUI.get();
     g_theInput = _theInputSystem.get();
     g_theConsole = _theConsole.get();
     g_theGame = _theGame.get();
@@ -59,6 +62,7 @@ App::~App() {
     _theGame.reset();
     _theConsole.reset();
     _theInputSystem.reset();
+    _theUI.reset();
     _theRenderer.reset();
     _theConfig.reset();
     _theFileLogger.reset();
@@ -69,6 +73,7 @@ App::~App() {
     g_theGame = nullptr;
     g_theConsole = nullptr;
     g_theInput = nullptr;
+    g_theUI = nullptr;
     g_theRenderer = nullptr;
     g_theConfig = nullptr;
     g_theApp = nullptr;
@@ -98,6 +103,7 @@ void App::Initialize() {
     g_theRenderer->SetWindowTitle("Test Title");
     g_theRenderer->SetWinProc(WindowProc);
     g_theRenderer->SetFullscreen(GRAPHICS_OPTION_FULLSCREEN);
+    g_theUI->Initialize();
     g_theInput->Initialize();
     g_theConsole->Initialize();
     g_theGame->Initialize();
@@ -192,6 +198,7 @@ void App::BeginFrame() {
     g_theJobSystem->BeginFrame();
     g_theInput->BeginFrame();
     g_theConsole->BeginFrame();
+    g_theUI->BeginFrame();
     g_theGame->BeginFrame();
     g_theRenderer->BeginFrame();
 }
@@ -199,12 +206,14 @@ void App::BeginFrame() {
 void App::Update([[maybe_unused]]TimeUtils::FPSeconds deltaSeconds) {
     g_theInput->Update(deltaSeconds);
     g_theConsole->Update(deltaSeconds);
+    g_theUI->Update(deltaSeconds);
     g_theGame->Update(deltaSeconds);
     g_theRenderer->Update(deltaSeconds);
 }
 
 void App::Render() const {
     g_theGame->Render();
+    g_theUI->Render();
     g_theConsole->Render();
     g_theInput->Render();
     g_theRenderer->Render();
@@ -212,6 +221,7 @@ void App::Render() const {
 
 void App::EndFrame() {
     g_theGame->EndFrame();
+    g_theUI->EndFrame();
     g_theConsole->EndFrame();
     g_theInput->EndFrame();
     g_theRenderer->EndFrame();

@@ -109,12 +109,14 @@ enum class WindowsSystemMessage : unsigned int {
 
 struct EngineMessage64 {
     WindowsSystemMessage wmMessageCode;
+    unsigned int nativeMessage;
     void* hWnd;
     unsigned __int64 wparam;
     __int64 lparam;
 };
 struct EngineMessage {
     WindowsSystemMessage wmMessageCode;
+    unsigned int nativeMessage;
     void* hWnd;
     unsigned int wparam;
     long lparam;

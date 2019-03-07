@@ -106,7 +106,7 @@ using KerningMap = std::map<std::pair<int, int>, int>;
     Material* GetMaterial() const;
     void SetMaterial(Material* mat);
 
-    int GetKerningValue(int first, int second);
+    int GetKerningValue(int first, int second) const;
 
 protected:
 private:

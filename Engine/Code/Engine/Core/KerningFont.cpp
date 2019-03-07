@@ -154,7 +154,7 @@ void KerningFont::SetMaterial(Material* mat) {
     _material = mat;
 }
 
-int KerningFont::GetKerningValue(int first, int second) {
+int KerningFont::GetKerningValue(int first, int second) const {
     auto iter = _kernmap.find(std::make_pair(first, second));
     if(iter != _kernmap.end()) {
         return (*iter).second;

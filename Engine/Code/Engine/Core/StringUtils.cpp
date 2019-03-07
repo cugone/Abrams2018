@@ -246,6 +246,26 @@ std::string ReplaceAll(std::string string, const std::string& from, const std::s
     return string;
 }
 
+
+std::vector<std::size_t> FindAll(std::string string, const char c) {
+    std::vector<std::size_t> results{};
+    std::size_t offset = 0;
+    while((offset = string.find(c, offset)) != std::string::npos) {
+        results.push_back(offset++);
+    }
+    return results;
+}
+
+
+std::vector<std::size_t> FindAll(std::string string, const std::string& sequence) {
+    std::vector<std::size_t> results{};
+    std::size_t offset = 0;
+    while((offset = string.find(sequence, offset)) != std::string::npos) {
+        results.push_back(offset);
+    }
+    return results;
+}
+
 std::string TrimWhitespace(std::string string) {
     auto first_non_space = string.find_first_not_of(" \r\n\t\v\f");
     auto last_non_space = string.find_last_not_of(" \r\n\t\v\f");

@@ -56,6 +56,15 @@ namespace ImGui {
         auto colorAsFloats = color.GetRgbaAsFloats();
         return ImGui::ColorButton(desc_id, colorAsFloats, flags, size);
     }
+
+    void TextColored(const Rgba& color, const char* fmt, ...) {
+        auto colorAsFloats = color.GetRgbaAsFloats();
+        va_list args;
+        va_start(args, fmt);
+        ImGui::TextColoredV(colorAsFloats, fmt, args);
+        va_end(args);
+    }
+
 }
 
 UISystem::UISystem(Renderer* renderer)
@@ -116,7 +125,13 @@ void UISystem::EndFrame() {
 }
 
 bool UISystem::ProcessSystemMessage(const EngineMessage& msg) {
-    auto handled = ImGui_ImplWin32_WndProcHandler(reinterpret_cast<HWND>(msg.hWnd), msg.nativeMessage, msg.wparam, msg.lparam);
-    return handled != 0;
+    return ImGui_ImplWin32_WndProcHandler(reinterpret_cast<HWND>(msg.hWnd), msg.nativeMessage, msg.wparam, msg.lparam);
 }
 
+bool UISystem::HasFocus() const {
+    return _io->WantCaptureKeyboard || _io->WantCaptureMouse;
+}
+
+ImGuiIO& UISystem::GetIO() const {
+    return *_io;
+}

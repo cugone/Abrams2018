@@ -2,11 +2,6 @@
 
 #include "Engine/Core/EngineSubsystem.hpp"
 
-#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
-#ifdef UI_DEBUG
-#define IMGUI_DISABLE_DEMO_WINDOWS
-#endif
-
 #include "Thirdparty/Imgui/imgui.h"
 #include "Thirdparty/Imgui/imgui_impl_dx11.h"
 #include "Thirdparty/Imgui/imgui_impl_win32.h"
@@ -30,6 +25,9 @@ public:
     virtual void EndFrame() override;
     virtual bool ProcessSystemMessage(const EngineMessage& msg) override;
 
+    bool HasFocus() const;
+
+    ImGuiIO& GetIO() const;
 protected:
 private:
     Renderer* _renderer{};
@@ -49,4 +47,5 @@ namespace ImGui {
     bool ColorPicker3(const char* label, Rgba& color, ImGuiColorEditFlags flags = 0);
     bool ColorPicker4(const char* label, Rgba& color, ImGuiColorEditFlags flags = 0, Rgba* refColor = nullptr);
     bool ColorButton(const char* desc_id, Rgba& color, ImGuiColorEditFlags flags = 0, Vector2 size = Vector2::ZERO);
+    void TextColored(const Rgba& color, const char* fmt, ...);
 }

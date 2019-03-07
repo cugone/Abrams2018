@@ -475,6 +475,37 @@ void Renderer::DrawWorldGridXY(float radius /*= 500.0f*/, float major_gridsize /
     DrawIndexed(PrimitiveType::Lines, vbo, ibo, minor_count, minor_start);
 }
 
+void Renderer::DrawWorldGrid2D(int width, int height, const Rgba& color /*= Rgba::White*/) {
+    std::vector<Vertex3D> vbo{};
+    std::vector<unsigned int> ibo{};
+    const auto y_start = 0;
+    const auto y_end = height;
+    const auto x_start = 0;
+    const auto x_end = width;
+    const auto y_first = 0;
+    const auto y_last = height + 1;
+    const auto x_first = 0;
+    const auto x_last = width + 1;
+    vbo.reserve(2 + width + height);
+    for(int x = x_first; x < x_last; ++x) {
+        vbo.push_back(Vertex3D{ Vector3{static_cast<float>(x), static_cast<float>(y_start), 0.0f}, color });
+        vbo.push_back(Vertex3D{ Vector3{static_cast<float>(x), static_cast<float>(y_end), 0.0f}, color });
+    }
+    for(int y = y_first; y < y_last; ++y) {
+        vbo.push_back(Vertex3D{ Vector3{static_cast<float>(x_start), static_cast<float>(y), 0.0f}, color });
+        vbo.push_back(Vertex3D{ Vector3{static_cast<float>(x_end), static_cast<float>(y), 0.0f}, color });
+    }
+    ibo.resize(vbo.size());
+    std::iota(std::begin(ibo), std::end(ibo), 0);
+    SetMaterial(GetMaterial("__2D"));
+    DrawIndexed(PrimitiveType::Lines, vbo, ibo);
+}
+
+
+void Renderer::DrawWorldGrid2D(const IntVector2& dimensions, const Rgba& color /*= Rgba::White*/) {
+    DrawWorldGrid2D(dimensions.x, dimensions.y, color);
+}
+
 void Renderer::DrawAxes(float maxlength /*= 1000.0f*/, bool disable_unit_depth /*= true*/) {
     static std::vector<Vertex3D> vbo{
         Vertex3D{Vector3::ZERO, Rgba::Red},
@@ -1111,7 +1142,7 @@ void Renderer::DrawPolygon2D(const Vector2& center, float radius, std::size_t nu
     DrawPolygon2D(center.x, center.y, radius, numSides, color);
 }
 
-void Renderer::DrawTextLine(KerningFont* font, const std::string& text, const Rgba& color /*= Rgba::WHITE*/) {
+void Renderer::DrawTextLine(const KerningFont* font, const std::string& text, const Rgba& color /*= Rgba::WHITE*/) {
     if(font == nullptr) {
         return;
     }

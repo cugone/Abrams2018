@@ -222,6 +222,9 @@ public:
     void DrawFrustum(const Frustum& frustum, const Rgba& color = Rgba::Yellow, const Vector2& tex_coords = Vector2::ZERO);
     void DrawWorldGridXZ(float radius = 500.0f, float major_gridsize = 20.0f, float minor_gridsize = 5.0f, const Rgba& major_color = Rgba::White, const Rgba& minor_color = Rgba::DarkGray);
     void DrawWorldGridXY(float radius = 500.0f, float major_gridsize = 20.0f, float minor_gridsize = 5.0f, const Rgba& major_color = Rgba::White, const Rgba& minor_color = Rgba::DarkGray);
+    void DrawWorldGrid2D(const IntVector2& dimensions, const Rgba& color = Rgba::White);
+    void DrawWorldGrid2D(int width, int height, const Rgba& color = Rgba::White);
+
     void DrawAxes(float maxlength = 1000.0f, bool disable_unit_depth = true);
     void DrawDebugSphere(const Rgba& color);
 
@@ -324,7 +327,7 @@ public:
     void DrawPolygon2D(const Vector2& center, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White);
     void DrawX2D(const Vector2& position = Vector2::ZERO, const Vector2& half_extents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::White);
     void DrawX2D(const Rgba& color);
-    void DrawTextLine(KerningFont* font, const std::string& text, const Rgba& color = Rgba::White);
+    void DrawTextLine(const KerningFont* font, const std::string& text, const Rgba& color = Rgba::White);
     void DrawMultilineText(KerningFont* font, const std::string& text, const Rgba& color = Rgba::White);
     void AppendMultiLineTextBuffer(KerningFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo);
 

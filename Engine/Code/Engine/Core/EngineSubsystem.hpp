@@ -114,7 +114,7 @@ struct EngineMessage64 {
     unsigned __int64 wparam;
     __int64 lparam;
 };
-struct EngineMessage {
+struct EngineMessage32 {
     WindowsSystemMessage wmMessageCode;
     unsigned int nativeMessage;
     void* hWnd;
@@ -125,7 +125,7 @@ struct EngineMessage {
 #ifdef _WIN64
 #define EngineMessage EngineMessage64
 #else
-#define EngineMessage EngineMessage
+#define EngineMessage EngineMessage32
 #endif
 
 class EngineSubsystem {

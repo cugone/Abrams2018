@@ -184,6 +184,8 @@ __declspec(noreturn) void FatalError(const char* filePath, const char* functionN
     DebuggerPrintf("%s(%d): %s\n", filePath, lineNum, errorMessage.c_str()); // Use this specific format so Visual Studio users can double-click to jump to file-and-line of error
     DebuggerPrintf("==============================================================================\n\n");
 
+    std::cout << fullMessageText;
+
     if(isDebuggerPresent) {
         bool isAnswerYes = SystemDialogue_YesNo(fullMessageTitle, fullMessageText, SEVERITY_FATAL);
         ShowCursor(TRUE);
@@ -194,7 +196,6 @@ __declspec(noreturn) void FatalError(const char* filePath, const char* functionN
         SystemDialogue_Okay(fullMessageTitle, fullMessageText, SEVERITY_FATAL);
         ShowCursor(TRUE);
     }
-
     exit(0);
 }
 
@@ -234,6 +235,8 @@ void RecoverableWarning(const char* filePath, const char* functionName, int line
     DebuggerPrintf("RUN-TIME RECOVERABLE WARNING on line %i of %s, in %s()\n", lineNum, fileName, functionName);
     DebuggerPrintf("%s(%d): %s\n", filePath, lineNum, errorMessage.c_str()); // Use this specific format so Visual Studio users can double-click to jump to file-and-line of error
     DebuggerPrintf("------------------------------------------------------------------------------\n\n");
+
+    std::cout << fullMessageText;
 
     if(isDebuggerPresent) {
         int answerCode = SystemDialogue_YesNoCancel(fullMessageTitle, fullMessageText, SEVERITY_WARNING);

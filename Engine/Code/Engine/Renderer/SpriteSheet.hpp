@@ -22,6 +22,7 @@ public:
     int GetFrameWidth() const;
     int GetFrameHeight() const;
     IntVector2 GetFrameDimensions() const;
+    const IntVector2& GetLayout() const;
     const Texture& GetTexture() const;
 protected:
 private:

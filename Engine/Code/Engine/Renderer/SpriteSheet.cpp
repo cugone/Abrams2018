@@ -24,7 +24,16 @@ SpriteSheet::SpriteSheet(Renderer& renderer, const std::string& texturePath, int
 
 AABB2 SpriteSheet::GetTexCoordsFromSpriteCoords(int spriteX, int spriteY) const {
     Vector2 texCoords(1.0f / _spriteLayout.x, 1.0f / _spriteLayout.y);
-    return AABB2(Vector2(texCoords.x * spriteX, texCoords.y * spriteY), Vector2(texCoords.x * (spriteX + 1), texCoords.y * (spriteY + 1)));
+
+    float epsilon = 0.10f * (1.0f / 2048.0f);
+
+    auto mins = Vector2{ texCoords.x * spriteX, texCoords.y * spriteY };
+    auto maxs = Vector2{ texCoords.x * (spriteX + 1), texCoords.y * (spriteY + 1) };
+
+    mins += Vector2{ epsilon, epsilon };
+    maxs -= Vector2{ epsilon, epsilon };
+
+    return AABB2(mins, maxs);
 }
 
 AABB2 SpriteSheet::GetTexCoordsFromSpriteCoords(const IntVector2& spriteCoords) const {
@@ -51,6 +60,11 @@ int SpriteSheet::GetFrameHeight() const {
 
 IntVector2 SpriteSheet::GetFrameDimensions() const {
     return IntVector2(GetFrameWidth(), GetFrameHeight());
+}
+
+
+const IntVector2& SpriteSheet::GetLayout() const {
+    return _spriteLayout;
 }
 
 const Texture& SpriteSheet::GetTexture() const {

@@ -115,7 +115,7 @@ void ValidateXmlElement(const XMLElement& element,
 
     if(!extraOptionalAttributes.empty()) {
         std::ostringstream err_ss;
-        err_ss << "Optional Attribute validation failed. Found unknown attributes:\n";
+        err_ss << "Optional Attribute validation failed. Verify attributes are correct. Found unknown attributes:\n";
         for(auto& c : extraOptionalAttributes) {
             err_ss << "\t\"" << c << "\"\n";
         }
@@ -130,7 +130,7 @@ void ValidateXmlElement(const XMLElement& element,
 
     if(!extraOptionalChildren.empty()) {
         std::ostringstream err_ss;
-        err_ss << "Optional Child validation failed. Found unknown children:\n";
+        err_ss << "Optional Child validation failed. Verify attributes are correct. Found unknown children:\n";
         for(auto& c : extraOptionalChildren) {
             err_ss << "\t\"" << c << "\"\n";
         }

@@ -31,7 +31,6 @@ LRESULT CALLBACK EngineMessageHandlingProcedure(HWND windowHandle, UINT wmMessag
                 }
             }
         }
-
         case WM_PAINT:
         {
             PAINTSTRUCT ps;
@@ -40,6 +39,8 @@ LRESULT CALLBACK EngineMessageHandlingProcedure(HWND windowHandle, UINT wmMessag
             return 1;
         }
         default:
+        {
             return DefWindowProc(windowHandle, wmMessageCode, wParam, lParam);
+        }
     }
 }

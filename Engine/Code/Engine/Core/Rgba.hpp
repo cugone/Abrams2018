@@ -42,6 +42,7 @@ public:
     static Rgba RandomGreyscale();
     static Rgba RandomGrayscale();
     static Rgba RandomWithAlpha();
+    static Rgba RandomLessThan(const Rgba& color);
 
     Rgba() = default;
     Rgba(const Rgba& rhs) = default;

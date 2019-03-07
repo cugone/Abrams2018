@@ -57,6 +57,14 @@ Rgba Rgba::RandomWithAlpha() {
                 , static_cast<unsigned char>(MathUtils::GetRandomIntLessThan(256)));
 }
 
+
+Rgba Rgba::RandomLessThan(const Rgba& color) {
+    return Rgba(static_cast<unsigned char>(MathUtils::GetRandomIntLessThan(color.r + 1))
+        , static_cast<unsigned char>(MathUtils::GetRandomIntLessThan(color.g + 1))
+        , static_cast<unsigned char>(MathUtils::GetRandomIntLessThan(color.b + 1))
+        , static_cast<unsigned char>(MathUtils::GetRandomIntLessThan(color.a + 1)));
+}
+
 std::ostream& operator<<(std::ostream& os, const Rgba& rhs) {
     if(os.flags() & std::ios_base::hex) {
         auto old_fmt = os.flags();
@@ -252,6 +260,8 @@ void Rgba::SetValueFromName(std::string name) {
         SetFromRawValue(Rgba::NormalZ.GetAsRawValue());
     } else if(name == "NOALPHA") {
         SetFromRawValue(Rgba::NoAlpha.GetAsRawValue());
+    } else if(name == "PINK") {
+        SetFromRawValue(Rgba::Pink.GetAsRawValue());
     }
 
 }

@@ -30,6 +30,7 @@
     <ClCompile Include="..\Thirdparty\TinyXML2\tinyxml2.cpp" />
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Audio\AudioSystem.cpp" />
+    <ClCompile Include="Audio\Mid.cpp" />
     <ClCompile Include="Audio\Wav.cpp" />
     <ClCompile Include="Core\ArgumentParser.cpp" />
     <ClCompile Include="Core\Base64.cpp" />
@@ -142,6 +143,7 @@
     <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h" />
     <ClInclude Include="Audio\Audio.hpp" />
     <ClInclude Include="Audio\AudioSystem.hpp" />
+    <ClInclude Include="Audio\Mid.hpp" />
     <ClInclude Include="Audio\Wav.hpp" />
     <ClInclude Include="Core\ArgumentParser.hpp" />
     <ClInclude Include="Core\Base64.hpp" />

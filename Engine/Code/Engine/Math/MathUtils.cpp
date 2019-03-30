@@ -222,6 +222,46 @@ bool IsEquivalent(const Quaternion& a, const Quaternion& b, float epsilon /*= 0.
     return IsEquivalent(a.w, b.w, epsilon) && IsEquivalent(a.axis, b.axis, epsilon);
 }
 
+bool IsEquivalentOrLessThan(float a, float b, float epsilon /*= 0.00001f*/) {
+    return a < b || IsEquivalent(a, b, epsilon);
+}
+
+bool IsEquivalentOrLessThan(double a, double b, double epsilon /*= 0.0001*/) {
+    return a < b || IsEquivalent(a, b, epsilon);
+}
+
+bool IsEquivalentOrLessThan(long double a, long double b, long double epsilon /*= 0.0001L*/) {
+    return a < b || IsEquivalent(a, b, epsilon);
+}
+
+bool IsEquivalentToZero(float a, float epsilon /*= 0.00001f*/) {
+    return IsEquivalent(a, 0.0f, epsilon);
+}
+
+bool IsEquivalentToZero(double a, double epsilon /*= 0.0001*/) {
+    return IsEquivalent(a, 0.0, epsilon);
+}
+
+bool IsEquivalentToZero(long double a, long double epsilon /*= 0.0001L*/) {
+    return IsEquivalent(a, 0.0L, epsilon);
+}
+
+bool IsEquivalentToZero(const Vector2& a, float epsilon /*= 0.0001f*/) {
+    return IsEquivalent(a, Vector2::ZERO, epsilon);
+}
+
+bool IsEquivalentToZero(const Vector3& a, float epsilon /*= 0.0001f*/) {
+    return IsEquivalent(a, Vector3::ZERO, epsilon);
+}
+
+bool IsEquivalentToZero(const Vector4& a, float epsilon /*= 0.0001f*/) {
+    return IsEquivalent(a, Vector4::ZERO, epsilon);
+}
+
+bool IsEquivalentToZero(const Quaternion& a, float epsilon /*= 0.0001f*/) {
+    return IsEquivalent(a, Quaternion::GetIdentity(), epsilon);
+}
+
 float CalcDistance(const Vector2& a, const Vector2& b) {
     return (b - a).CalcLength();
 }

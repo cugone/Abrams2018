@@ -121,6 +121,18 @@ bool IsEquivalent(const Vector3& a, const Vector3& b, float epsilon = 0.0001f);
 bool IsEquivalent(const Vector4& a, const Vector4& b, float epsilon = 0.0001f);
 bool IsEquivalent(const Quaternion& a, const Quaternion& b, float epsilon = 0.0001f);
 
+bool IsEquivalentOrLessThan(float a, float b, float epsilon = 0.00001f);
+bool IsEquivalentOrLessThan(double a, double b, double epsilon = 0.0001);
+bool IsEquivalentOrLessThan(long double a, long double b, long double epsilon = 0.0001L);
+
+bool IsEquivalentToZero(float a, float epsilon = 0.00001f);
+bool IsEquivalentToZero(double a, double epsilon = 0.0001);
+bool IsEquivalentToZero(long double a, long double epsilon = 0.0001L);
+bool IsEquivalentToZero(const Vector2& a, float epsilon = 0.0001f);
+bool IsEquivalentToZero(const Vector3& a, float epsilon = 0.0001f);
+bool IsEquivalentToZero(const Vector4& a, float epsilon = 0.0001f);
+bool IsEquivalentToZero(const Quaternion& a, float epsilon = 0.0001f);
+
 float CalcDistance(const Vector2& a, const Vector2& b);
 float CalcDistance(const Vector3& a, const Vector3& b);
 float CalcDistance(const Vector4& a, const Vector4& b);

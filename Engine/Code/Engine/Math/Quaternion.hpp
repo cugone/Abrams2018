@@ -8,6 +8,7 @@ class Matrix4;
 
 class Quaternion {
 public:
+    static Quaternion I;
     float w = 1.0f;
     Vector3 axis = Vector3::ZERO;
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Core/TimeUtils.hpp"
+
 class AnimatedSprite;
 class Camera3D;
 class Camera2D;
@@ -14,7 +16,7 @@ public:
 
     void Initialize();
     void BeginFrame();
-    void Update(float deltaSeconds);
+    void Update([[maybe_unused]]TimeUtils::FPSeconds deltaSeconds);
     void Render() const;
     void EndFrame();
 

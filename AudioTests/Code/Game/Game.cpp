@@ -3,6 +3,7 @@
 #include "Engine/Audio/Wav.hpp"
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/Image.hpp"
 #include "Engine/Core/KerningFont.hpp"
 #include "Engine/Core/Riff.hpp"
@@ -40,6 +41,9 @@ Game::~Game() {
 }
 
 void Game::Initialize() {
+    FileUtils::CreateFolders(std::string{"Data/Audio"});
+    g_theRenderer->RegisterShadersFromFolder(std::string{"Data/Shaders"});
+    g_theRenderer->RegisterMaterialsFromFolder(std::string{"Data/Materials"});
     g_theAudio->RegisterWavFilesFromFolder(std::string{"Data/Audio"});
 }
 
@@ -47,7 +51,7 @@ void Game::BeginFrame() {
     /* DO NOTHING */
 }
 
-void Game::Update(float deltaSeconds) {
+void Game::Update([[maybe_unused]]TimeUtils::FPSeconds deltaSeconds) {
 
     if(g_theInput->WasKeyJustPressed(KeyCode::Esc)) {
         g_theApp->SetIsQuitting(true);
@@ -58,7 +62,7 @@ void Game::Update(float deltaSeconds) {
     _camera2->Update(deltaSeconds);
 
     if(g_theInput->WasKeyJustPressed(KeyCode::Enter)) {
-        g_theAudio->Play(std::string{"Data/Audio/square.wav"});
+        g_theAudio->Play(std::string{"Data/Audio/mars.wav"});
     }
 
 }
@@ -66,7 +70,7 @@ void Game::Update(float deltaSeconds) {
 void Game::Render() const {
 
     g_theRenderer->SetRenderTarget(nullptr);
-    g_theRenderer->ClearColor(Rgba::OLIVE);
+    g_theRenderer->ClearColor(Rgba::Olive);
     g_theRenderer->ClearDepthStencilBuffer();
 
     g_theRenderer->SetViewport(0, 0, static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));

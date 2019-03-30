@@ -24,6 +24,7 @@ public:
     IntVector2 GetFrameDimensions() const;
     const IntVector2& GetLayout() const;
     const Texture& GetTexture() const;
+    const Texture* GetTexture();
 protected:
 private:
     SpriteSheet(const Texture* texture, int tilesWide, int tilesHigh);

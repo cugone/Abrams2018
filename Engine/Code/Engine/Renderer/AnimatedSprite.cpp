@@ -136,7 +136,7 @@ AABB2 AnimatedSprite::GetCurrentTexCoords() const {
 }
 
 const Texture* const AnimatedSprite::GetTexture() const {
-    return &_sheet->GetTexture();
+    return _sheet->GetTexture();
 }
 
 int AnimatedSprite::GetNumSprites() const {

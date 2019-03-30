@@ -71,6 +71,10 @@ const Texture& SpriteSheet::GetTexture() const {
     return *_spriteSheetTexture;
 }
 
+const Texture* SpriteSheet::GetTexture() {
+    return _spriteSheetTexture;
+}
+
 void SpriteSheet::LoadFromXml(Renderer& renderer, const XMLElement& elem) {
     namespace FS = std::filesystem;
     DataUtils::ValidateXmlElement(elem, "spritesheet", "", "src,dimensions");

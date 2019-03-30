@@ -1,0 +1,14 @@
+<material name="Stone">
+    <shader src="__default" />
+    <lighting>
+        <specularFactor>0.125</specularFactor>
+        <glossFactor>1.0</glossFactor>
+        <emissiveFactor>0.0</emissiveFactor>
+    </lighting>
+    <textures>
+        <diffuse   src="Data/Images/Stone/diffuse.png" />
+        <normal    src="Data/Images/Stone/normal.png" />
+        <occlusion src="Data/Images/Stone/ao.png" />
+        <specular  src="Data/Images/Stone/spec.png" />
+    </textures>
+</material>

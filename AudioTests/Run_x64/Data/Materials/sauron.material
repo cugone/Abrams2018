@@ -1,0 +1,6 @@
+<material name="Sauron">
+    <shader src="__unlit" />
+    <textures>
+        <diffuse src="Data/Images/sauron.png" />
+    </textures>
+</material>

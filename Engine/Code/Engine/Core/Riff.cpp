@@ -112,11 +112,7 @@ unsigned int Riff::Load(const std::string& filename) {
     if(!FileUtils::ReadBufferFromFile(buffer, filename)) {
         return RIFF_ERROR_INVALID_ARGUMENT;
     }
-    if(!ParseDataIntoChunks(buffer)) {
-        return RIFF_ERROR_NOT_A_RIFF;
-    }
-    ShowRiffChunkHeaders();
-    return RIFF_SUCCESS;
+    return Load(buffer);
 }
 
 unsigned int Riff::Load(const std::vector<unsigned char>& data) {

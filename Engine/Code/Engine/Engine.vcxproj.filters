@@ -259,9 +259,6 @@
     <ClCompile Include="Audio\AudioSystem.cpp">
       <Filter>Audio</Filter>
     </ClCompile>
-    <ClCompile Include="Audio\Audio.cpp">
-      <Filter>Audio</Filter>
-    </ClCompile>
     <ClCompile Include="Core\Riff.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -375,9 +372,6 @@
     </ClCompile>
     <ClCompile Include="..\Thirdparty\Imgui\imgui_stdlib.cpp">
       <Filter>Thirdparty\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Audio\Mid.cpp">
-      <Filter>Audio</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -594,9 +588,6 @@
     <ClInclude Include="Audio\AudioSystem.hpp">
       <Filter>Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Audio\Audio.hpp">
-      <Filter>Audio</Filter>
-    </ClInclude>
     <ClInclude Include="Core\Riff.hpp">
       <Filter>Core</Filter>
     </ClInclude>
@@ -728,9 +719,6 @@
     </ClInclude>
     <ClInclude Include="..\Thirdparty\Imgui\imgui_stdlib.h">
       <Filter>Thirdparty\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Audio\Mid.hpp">
-      <Filter>Audio</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

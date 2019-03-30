@@ -30,7 +30,7 @@ bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     return false;
 }
 
-App::App(std::unique_ptr<JobSystem>&& jobSystem, std::unique_ptr<FileLogger>&& fileLogger)
+App::App(std::unique_ptr<JobSystem> jobSystem, std::unique_ptr<FileLogger> fileLogger)
     : EngineSubsystem()
     , _theJobSystem(std::move(jobSystem))
     , _theFileLogger(std::move(fileLogger))
@@ -49,9 +49,17 @@ App::App(std::unique_ptr<JobSystem>&& jobSystem, std::unique_ptr<FileLogger>&& f
     g_theInput = _theInputSystem.get();
     g_theConsole = _theConsole.get();
     g_theGame = _theGame.get();
+
+    g_theApp = this;
+    g_theConsole->SetNextHandler(g_theInput);
+    g_theInput->SetNextHandler(g_theApp);
+    g_theApp->SetNextHandler(nullptr);
+    g_theSubsystemHead = g_theConsole;
+
 }
 
 App::~App() {
+    g_theSubsystemHead = g_theApp;
     _theGame.reset();
     _theConsole.reset();
     _theInputSystem.reset();
@@ -69,7 +77,7 @@ App::~App() {
     g_theAudio = nullptr;
     g_theRenderer = nullptr;
     g_theConfig = nullptr;
-
+    g_theApp = nullptr;
 }
 
 bool App::IsQuitting() const {
@@ -105,13 +113,16 @@ void App::Initialize() {
 }
 
 void App::RunFrame() {
+    using namespace TimeUtils;
     BeginFrame();
-    static float previousFrameTime = TimeUtils::GetCurrentTimeElapsed<FPSeconds>();
-    float currentFrameTime = TimeUtils::GetCurrentTimeElapsed<FPSeconds>();
-    float deltaSeconds = currentFrameTime - previousFrameTime;
+    static FPSeconds previousFrameTime = TimeUtils::GetCurrentTimeElapsed();
+    FPSeconds currentFrameTime = TimeUtils::GetCurrentTimeElapsed();
+    FPSeconds deltaSeconds = (currentFrameTime - previousFrameTime);
     previousFrameTime = currentFrameTime;
 
-    deltaSeconds = MathUtils::Clamp(deltaSeconds, 0.0f, 0.16f);
+#if _DEBUG
+    deltaSeconds = FPSeconds{ std::clamp(FPFrames{ deltaSeconds }, FPFrames{ 0 }, FPFrames{ 1 }) };
+#endif
 
     Update(deltaSeconds);
     Render();
@@ -186,7 +197,7 @@ void App::BeginFrame() {
     g_theRenderer->BeginFrame();
 }
 
-void App::Update(float deltaSeconds) {
+void App::Update([[maybe_unused]]TimeUtils::FPSeconds deltaSeconds) {
     g_theInput->Update(deltaSeconds);
     g_theAudio->Update(deltaSeconds);
     g_theConsole->Update(deltaSeconds);

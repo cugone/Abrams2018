@@ -16,22 +16,19 @@
 
 void Initialize(HINSTANCE hInstance, LPSTR lpCmdLine, int nShowCmd);
 App* CreateApp();
-void SetupCoR();
 void MainLoop();
 void RunMessagePump();
 void Shutdown();
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int nShowCmd) {
-
     Initialize(hInstance, lpCmdLine, nShowCmd);
     MainLoop();
     Shutdown();
     return 0;
 }
-void Initialize(HINSTANCE /*hInstance*/, LPSTR /*lpCmdLine*/, int /*nShowCmd*/) {
 
+void Initialize(HINSTANCE /*hInstance*/, LPSTR /*lpCmdLine*/, int /*nShowCmd*/) {
     g_theApp = CreateApp();
-    SetupCoR();
     g_theApp->Initialize();
 }
 
@@ -39,13 +36,6 @@ App* CreateApp() {
     std::unique_ptr<JobSystem> jobSystem = std::make_unique<JobSystem>(-1, static_cast<std::size_t>(JobType::Max), new std::condition_variable);
     std::unique_ptr<FileLogger> fileLogger = std::make_unique<FileLogger>(*jobSystem, "game");
     return new App(std::move(jobSystem), std::move(fileLogger));
-}
-
-void SetupCoR() {
-    g_theConsole->SetNextHandler(g_theInput);
-    g_theInput->SetNextHandler(g_theApp);
-    g_theApp->SetNextHandler(nullptr);
-    g_theSubsystemHead = g_theConsole;
 }
 
 void MainLoop() {
@@ -77,8 +67,6 @@ void RunMessagePump() {
 }
 
 void Shutdown() {
-    //Required due to WinProc needing to post destroy window message.
-    g_theSubsystemHead = g_theApp;
     delete g_theApp;
     g_theApp = nullptr;
 }

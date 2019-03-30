@@ -180,4 +180,17 @@ void FileUtils::RemoveExceptMostRecentFiles(const std::filesystem::path& folderp
     }
 }
 
+
+uint16_t EndianSwap(uint16_t value) {
+    return _byteswap_ushort(value);
+}
+
+uint32_t EndianSwap(uint32_t value) {
+    return _byteswap_ulong(value);
+}
+
+uint64_t EndianSwap(uint64_t value) {
+    return _byteswap_uint64(value);
+}
+
 } //End FileUtils

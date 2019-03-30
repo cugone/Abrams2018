@@ -1,9 +1,11 @@
 #pragma once
 
+#include <cstdlib>
 #include <filesystem>
 #include <functional>
 #include <string>
 #include <vector>
+#include <type_traits>
 
 namespace FileUtils {
 
@@ -19,7 +21,13 @@ int CountFilesInFolders(const std::filesystem::path& folderpath, const std::stri
 void RemoveExceptMostRecentFiles(const std::filesystem::path& folderpath, int mostRecentCountToKeep, const std::string& validExtensionList = std::string{});
 std::vector<std::filesystem::path> GetAllPathsInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList = std::string{}, bool recursive = false);
 
+//Unconditional byte order swap.
+uint16_t EndianSwap(uint16_t value);
+uint32_t EndianSwap(uint32_t value);
+uint64_t EndianSwap(uint64_t value);
+
 namespace detail {
+
     template<typename DirectoryIteratorType>
     void ForEachFileInFolders(const std::filesystem::path& preferred_folderpath, const std::vector<std::string>& validExtensions, const std::function<void(const std::filesystem::path&)>& callback) {
         if(validExtensions.empty()) {

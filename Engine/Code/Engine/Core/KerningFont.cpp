@@ -122,7 +122,12 @@ bool KerningFont::LoadFromFile(const std::string& filepath) {
         _filepath = pathAsStr;
     }
     std::vector<unsigned char> out_buffer{};
-    FileUtils::ReadBufferFromFile(out_buffer, _filepath);
+    if(!FileUtils::ReadBufferFromFile(out_buffer, _filepath)) {
+        std::ostringstream ss;
+        ss << "Failed to read file: " << _filepath << "\n";
+        DebuggerPrintf(ss.str().c_str());
+        return false;
+    }
     if(out_buffer.size() < 4) {
         std::ostringstream ss;
         ss << _filepath << " is not a BMFont file.\n";

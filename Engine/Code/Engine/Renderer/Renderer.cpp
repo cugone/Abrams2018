@@ -226,6 +226,7 @@ void Renderer::Initialize(bool headless /*= false*/) {
     CreateAndRegisterDefaultShaders();
     CreateAndRegisterDefaultMaterials();
     CreateAndRegisterDefaultDepthStencil();
+    CreateAndRegisterDefaultFonts();
 
     _target_stack = new RenderTargetStack(this);
 
@@ -476,8 +477,10 @@ void Renderer::DrawWorldGridXY(float radius /*= 500.0f*/, float major_gridsize /
 }
 
 void Renderer::DrawWorldGrid2D(int width, int height, const Rgba& color /*= Rgba::White*/) {
-    std::vector<Vertex3D> vbo{};
-    std::vector<unsigned int> ibo{};
+    static std::vector<Vertex3D> vbo{};
+    vbo.clear();
+    static std::vector<unsigned int> ibo{};
+    ibo.clear();
     const auto y_start = 0;
     const auto y_end = height;
     const auto x_start = 0;
@@ -1369,6 +1372,11 @@ void Renderer::SetBorderlessWindowedMode() {
     }
 }
 
+void Renderer::CreateAndRegisterDefaultFonts() {
+    FileUtils::CreateFolders("Engine/Fonts");
+    RegisterFontsFromFolder(std::string{ "Engine/Fonts" });
+}
+
 void Renderer::CreateAndRegisterDefaultShaderPrograms() {
     auto sp = CreateDefaultShaderProgram();
     RegisterShaderProgram(sp->GetName(), sp);
@@ -1381,6 +1389,9 @@ void Renderer::CreateAndRegisterDefaultShaderPrograms() {
 
     auto normalmap_sp = CreateDefaultNormalMapShaderProgram();
     RegisterShaderProgram(normalmap_sp->GetName(), normalmap_sp);
+
+    auto font_sp = CreateDefaultFontShaderProgram();
+    RegisterShaderProgram(font_sp->GetName(), font_sp);
 
 }
 
@@ -1935,6 +1946,106 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     return shader;
 }
 
+
+ShaderProgram* Renderer::CreateDefaultFontShaderProgram() {
+    std::string program =
+        R"(
+
+cbuffer matrix_cb : register(b0) {
+    float4x4 g_MODEL;
+    float4x4 g_VIEW;
+    float4x4 g_PROJECTION;
+};
+
+cbuffer time_cb : register(b1) {
+    float g_GAME_TIME;
+    float g_SYSTEM_TIME;
+    float g_GAME_FRAME_TIME;
+    float g_SYSTEM_FRAME_TIME;
+}
+
+cbuffer font_cb : register(b3) {
+    float4 g_font_channel;
+}
+
+struct vs_in_t {
+    float3 position : POSITION;
+    float4 color : COLOR;
+    float2 uv : UV;
+};
+
+struct ps_in_t {
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
+    float2 uv : UV;
+    float4 channel_id : CHANNEL_ID;
+};
+
+SamplerState sSampler : register(s0);
+
+Texture2D<float4> tDiffuse    : register(t0);
+
+ps_in_t VertexFunction(vs_in_t input_vertex) {
+    ps_in_t output;
+
+    float4 local = float4(input_vertex.position, 1.0f);
+    float4 world = mul(local, g_MODEL);
+    float4 view = mul(world, g_VIEW);
+    float4 clip = mul(view, g_PROJECTION);
+
+    output.position = clip;
+    output.color = input_vertex.color;
+    output.uv = input_vertex.uv;
+    output.channel_id = g_font_channel;
+    return output;
+}
+
+float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
+
+    float2 uv = input_pixel.uv;
+    float4 chnl = input_pixel.channel_id;
+    float4 albedo = tDiffuse.Sample(sSampler, uv);
+    if(dot(float4(1.0f, 1.0f, 1.0f, 1.0f), chnl)) {
+        float val = dot(albedo, chnl);
+        albedo.rgb = val > 0.5 ? 2 * val - 1 : 0;
+        albedo.a = val > 0.5 ? 1 : 2 * val;
+    }
+    float3 tinted_color = albedo.rgb * input_pixel.color.rgb;
+    float tinted_alpha = albedo.a * input_pixel.color.a;
+    float3 final_color = tinted_color;
+    float final_alpha = tinted_alpha;
+
+    float4 final_pixel = float4(final_color, final_alpha);
+    return final_pixel;
+}
+
+)";
+    InputLayout* il = _rhi_device->CreateInputLayout();
+    auto pos_offset = offsetof(Vertex3D, position);
+    auto color_offset = offsetof(Vertex3D, color);
+    auto uv_offset = offsetof(Vertex3D, texcoords);
+    il->AddElement(pos_offset, ImageFormat::R32G32B32_Float, "POSITION");
+    il->AddElement(color_offset, ImageFormat::R32G32B32A32_Float, "COLOR");
+    il->AddElement(uv_offset, ImageFormat::R32G32_Float, "UV");
+    auto vs_bytecode = _rhi_device->CompileShader("__fontVS", program.data(), program.size(), "VertexFunction", PipelineStage::Vs);
+    ID3D11VertexShader* vs = nullptr;
+    _rhi_device->GetDxDevice()->CreateVertexShader(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize(), nullptr, &vs);
+    il->CreateInputLayout(vs_bytecode->GetBufferPointer(), vs_bytecode->GetBufferSize());
+    auto ps_bytecode = _rhi_device->CompileShader("__fontPS", program.data(), program.size(), "PixelFunction", PipelineStage::Ps);
+    ID3D11PixelShader* ps = nullptr;
+    _rhi_device->GetDxDevice()->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBufferSize(), nullptr, &ps);
+    ShaderProgramDesc desc{};
+    desc.name = "__font";
+    desc.device = _rhi_device;
+    desc.vs = vs;
+    desc.vs_bytecode = vs_bytecode;
+    desc.ps = ps;
+    desc.ps_bytecode = ps_bytecode;
+    desc.input_layout = il;
+    ShaderProgram* shader = new ShaderProgram(std::move(desc));
+    return shader;
+}
+
 void Renderer::CreateAndRegisterDefaultMaterials() {
     auto default_mat = CreateDefaultMaterial();
     RegisterMaterial(default_mat->GetName(), default_mat);
@@ -2046,7 +2157,7 @@ Material* Renderer::CreateMaterialFromFont(KerningFont* font) {
     FS::path folderpath = font->GetFilePath();
     folderpath = folderpath.parent_path();
     std::string name = font->GetName();
-    std::string shader = "__2D";
+    std::string shader = "__font";
     std::ostringstream material_stream;
     material_stream << "<material name=\"Font_" << name << "\">";
     material_stream << "<shader src=\"" << shader << "\" />";
@@ -2583,6 +2694,9 @@ void Renderer::CreateAndRegisterDefaultShaders() {
     auto default_normal_map = CreateDefaultNormalMapShader();
     RegisterShader(default_normal_map->GetName(), default_normal_map);
 
+    auto default_font = CreateDefaultFontShader();
+    RegisterShader(default_font->GetName(), default_font);
+
 }
 
 Shader* Renderer::CreateDefaultShader() {
@@ -2701,6 +2815,35 @@ Shader* Renderer::CreateDefaultNormalMapShader() {
     if(parse_result != tinyxml2::XML_SUCCESS) {
         return nullptr;
     }
+    return new Shader(this, *doc.RootElement());
+}
+
+
+Shader* Renderer::CreateDefaultFontShader() {
+    std::string shader =
+        R"(
+<shader name="__font">
+    <shaderprogram src = "__font" />
+    <raster>
+        <fill>solid</fill>
+        <cull>none</cull>
+        <antialiasing>false</antialiasing>
+    </raster>
+    <blends>
+        <blend enable="true">
+            <color src="src_alpha" dest="inv_src_alpha" op="add" />
+        </blend>
+    </blends>
+    <depth enable="false" writable="false" />
+    <stencil enable="false" readable="false" writable="false" />
+</shader>
+)";
+    tinyxml2::XMLDocument doc;
+    auto parse_result = doc.Parse(shader.c_str(), shader.size());
+    if(parse_result != tinyxml2::XML_SUCCESS) {
+        return nullptr;
+    }
+
     return new Shader(this, *doc.RootElement());
 }
 

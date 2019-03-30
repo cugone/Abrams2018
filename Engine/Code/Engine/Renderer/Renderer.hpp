@@ -393,6 +393,7 @@ private:
     ShaderProgram* CreateDefaultUnlitShaderProgram();
     ShaderProgram* CreateDefaultNormalShaderProgram();
     ShaderProgram* CreateDefaultNormalMapShaderProgram();
+    ShaderProgram* CreateDefaultFontShaderProgram();
 
     void CreateAndRegisterDefaultShaders();
     Shader* CreateDefaultShader();
@@ -400,6 +401,7 @@ private:
     Shader* CreateDefault2DShader();
     Shader* CreateDefaultNormalShader();
     Shader* CreateDefaultNormalMapShader();
+    Shader* CreateDefaultFontShader();
     Shader* CreateShaderFromFile(const std::string& filePath);
 
     void CreateAndRegisterDefaultMaterials();
@@ -408,6 +410,8 @@ private:
     Material* CreateDefault2DMaterial();
     Material* CreateDefaultNormalMaterial();
     Material* CreateDefaultNormalMapMaterial();
+
+    void CreateAndRegisterDefaultFonts();
 
     void CreateAndRegisterDefaultSamplers();
     Sampler* CreateDefaultSampler();

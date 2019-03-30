@@ -268,7 +268,7 @@ AudioSystem::Channel::~Channel() {
 void AudioSystem::Channel::Play(Sound& snd) {
     snd.AddChannel(this);
     _sound = &snd;
-    if(auto wav = snd.GetWav()) {
+    if(auto* wav = snd.GetWav()) {
         _buffer.pAudioData = wav->GetDataBuffer();
         _buffer.AudioBytes = wav->GetDataBufferSize();
         {

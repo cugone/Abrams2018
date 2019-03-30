@@ -92,6 +92,7 @@ public:
 
     void SetFormat(const WAVEFORMATEXTENSIBLE& format);
     void SetFormat(const FileUtils::Wav::WavFormatChunk& format);
+
     void RegisterWavFilesFromFolder(const std::string& folderpath, bool recursive = false);
     void RegisterWavFile(const std::string& filepath);
 

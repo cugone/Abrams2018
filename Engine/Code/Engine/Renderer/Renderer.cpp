@@ -3139,6 +3139,13 @@ void Renderer::SetProjectionMatrix(const Matrix4& mat /*= Matrix4::I*/) {
     SetConstantBuffer(MATRIX_BUFFER_INDEX, _matrix_cb);
 }
 
+void Renderer::ResetModelViewProjection() {
+    SetModelMatrix(Matrix4::I);
+    SetViewMatrix(Matrix4::I);
+    SetProjectionMatrix(Matrix4::I);
+}
+
+
 void Renderer::AppendModelMatrix(const Matrix4& modelMatrix) {
     _matrix_data.model = _matrix_data.model * modelMatrix;
     _matrix_cb->Update(_rhi_context, &_matrix_data);

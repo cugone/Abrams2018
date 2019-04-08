@@ -287,6 +287,7 @@ public:
 
     void UpdateGameTime(TimeUtils::FPSeconds deltaSeconds);
 
+    void ResetModelViewProjection();
     void AppendModelMatrix(const Matrix4& modelMatrix);
     void SetModelMatrix(const Matrix4& mat = Matrix4::I);
     void SetViewMatrix(const Matrix4& mat = Matrix4::I);

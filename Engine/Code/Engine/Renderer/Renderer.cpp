@@ -3296,6 +3296,29 @@ std::size_t Renderer::GetShaderCount() const {
     return _shaders.size();
 }
 
+void Renderer::ClearRenderTargets(const RenderTargetType& rtt) {
+    ID3D11DepthStencilView* dsv = _current_depthstencil->GetDepthStencilView();
+    ID3D11RenderTargetView* rtv = _current_target->GetRenderTargetView();
+    switch(rtt) {
+    case RenderTargetType::None:
+        return;
+    case RenderTargetType::Color:
+        rtv = nullptr;
+        break;
+    case RenderTargetType::Depth:
+        dsv = nullptr;
+        break;
+    case RenderTargetType::Both:
+        rtv = nullptr;
+        dsv = nullptr;
+        break;
+    default:
+        /* DO NOTHING */
+        return;
+    }
+    _rhi_context->GetDxContext()->OMSetRenderTargets(1, &rtv, dsv);
+}
+
 void Renderer::SetRenderTarget(Texture* color_target /*= nullptr*/, Texture* depthstencil_target /*= nullptr*/) {
     if(color_target != nullptr) {
         _current_target = color_target;

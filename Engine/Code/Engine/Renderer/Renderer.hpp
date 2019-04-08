@@ -200,6 +200,7 @@ public:
     const RenderTargetStack& GetRenderTargetStack() const;
     void PushRenderTarget(const RenderTargetStack::Node& newRenderTarget = RenderTargetStack::Node{});
     void PopRenderTarget();
+    void ClearRenderTargets(const RenderTargetType& rtt);
     void SetRenderTarget(Texture* color_target = nullptr, Texture* depthstencil_target = nullptr);
     void SetViewport(const ViewportDesc& desc);
     void SetViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
@@ -279,6 +280,7 @@ public:
 
     std::size_t GetFontCount() const;
     KerningFont* GetFont(const std::string& nameOrFile);
+
     bool RegisterFont(const std::string& filepath);
     void RegisterFont(KerningFont* font);
     void RegisterFontsFromFolder(const std::string& folderpath, bool recursive = false);

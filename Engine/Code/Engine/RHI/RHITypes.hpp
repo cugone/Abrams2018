@@ -64,6 +64,13 @@ enum class BufferType : uint8_t {
     , ReadWrite
 };
 
+enum class RenderTargetType : uint8_t {
+    None
+    , Color
+    , Depth
+    , Both
+};
+
 enum class PipelineStage : uint8_t {
     None  = 0b00000000
     , Vs  = 0b00000001

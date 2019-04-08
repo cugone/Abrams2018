@@ -4,13 +4,17 @@
 #include <utility>
 #include <vector>
 
+
 class Vector2;
 class Vector3;
 class Vector4;
 class Matrix4;
 class Rgba;
+namespace System {
+    struct SystemDesc;
+}
 namespace System::Cpu {
-enum class ProcessorArchitecture;
+    enum class ProcessorArchitecture;
 }
 
 namespace StringUtils {
@@ -21,12 +25,15 @@ std::string to_string(const Vector4& v);
 std::string to_string(const Matrix4& m);
 std::string to_string(const Rgba& clr);
 std::string to_string(const System::Cpu::ProcessorArchitecture& architecture);
+std::string to_string(const System::SystemDesc& system);
 
 const std::string Stringf(const char* format, ...);
 const std::string Stringf(const int maxLength, const char* format, ...);
 
 std::vector<std::string> Split(const std::string& string, char delim = ',', bool skip_empty = true);
 std::vector<std::wstring> Split(const std::wstring& string, wchar_t delim = ',', bool skip_empty = true);
+std::vector<std::string> SplitOnUnquoted(const std::string& string, char delim = ',', bool skip_empty = true);
+std::vector<std::wstring> SplitOnUnquoted(const std::wstring& string, wchar_t delim = ',', bool skip_empty = true);
 std::pair<std::string, std::string> SplitOnFirst(const std::string& string, char delim);
 std::pair<std::wstring, std::wstring> SplitOnFirst(const std::wstring& string, wchar_t delim);
 std::pair<std::string, std::string> SplitOnLast(const std::string& string, char delim);
@@ -70,37 +77,60 @@ namespace Encryption {
 //NOT USEFUL AS TRUE ENCRYPTION!! DO NOT USE IF SERIOUS ENCRYPTION IS NEEDED!!!
 std::string ROT13(std::string text);
 
-struct encode_tag {};
-struct decode_tag {};
+//NOT USEFUL AS TRUE ENCRYPTION!! DO NOT USE IF SERIOUS ENCRYPTION IS NEEDED!!!
+std::string CaesarShiftEncode(int key, std::string plaintext);
 
 //NOT USEFUL AS TRUE ENCRYPTION!! DO NOT USE IF SERIOUS ENCRYPTION IS NEEDED!!!
-template<int key, typename Op = encode_tag>
-std::string CaesarShift(std::string plaintext) {
-    auto caesarshift = [](unsigned char a) {
-        bool lower = 'a' <= a && a <= 'z';
-        bool upper = 'A' <= a && a <= 'Z';
-        char base = lower ? 'a' : upper ? 'A' : 0;
-        if(!base) {
-            return a;
-        }
-        int shift_result = 0;
-        if(std::is_same_v<Op, encode_tag>) {
-            shift_result = (a - base + key) % 26;
-        } else if(std::is_same_v<Op, decode_tag>) {
-            shift_result = (a - base - key) % 26;
-        }
-        if(shift_result < 0) {
-            shift_result += 26;
-        }
-        if(25 < shift_result) {
-            shift_result -= 26;
-        }
-        return static_cast<unsigned char>(static_cast<char>(base + shift_result));
-    };
-    std::transform(std::begin(plaintext), std::end(plaintext), std::begin(plaintext), caesarshift);
-    return plaintext;
-}
+std::string CaesarShiftDecode(int key, std::string ciphertext);
 
+namespace detail {
+
+    struct encode_tag {};
+    struct decode_tag {};
+
+    //NOT USEFUL AS TRUE ENCRYPTION!! DO NOT USE IF SERIOUS ENCRYPTION IS NEEDED!!!
+    template<int key, typename Op = encode_tag>
+    std::string CaesarShift(std::string plaintext) {
+        auto caesarshift = [](unsigned char a) {
+            bool lower = 'a' <= a && a <= 'z';
+            bool upper = 'A' <= a && a <= 'Z';
+            char base = lower ? 'a' : upper ? 'A' : 0;
+            if(!base) {
+                return a;
+            }
+            int shift_result = 0;
+            if(std::is_same_v<Op, encode_tag>) {
+                shift_result = (a - base + key) % 26;
+            } else if(std::is_same_v<Op, decode_tag>) {
+                shift_result = (a - base - key) % 26;
+            }
+            if(shift_result < 0) {
+                shift_result += 26;
+            }
+            if(25 < shift_result) {
+                shift_result -= 26;
+            }
+            return static_cast<unsigned char>(static_cast<char>(base + shift_result));
+        };
+        std::transform(std::begin(plaintext), std::end(plaintext), std::begin(plaintext), caesarshift);
+        return plaintext;
+    }
+
+
+    //NOT USEFUL AS TRUE ENCRYPTION!! DO NOT USE IF SERIOUS ENCRYPTION IS NEEDED!!!
+    template<int key>
+    std::string CaesarShiftEncode(std::string plaintext) {
+        return detail::CaesarShift<key, detail::encode_tag>(plaintext);
+    }
+
+    //NOT USEFUL AS TRUE ENCRYPTION!! DO NOT USE IF SERIOUS ENCRYPTION IS NEEDED!!!
+    template<int key>
+    std::string CaesarShiftDecode(std::string ciphertext) {
+        return detail::CaesarShift<key, detail::decode_tag>(ciphertext);
+    }
+
+
+} //End detail
 } //End Encryption
 
 } //End StringUtils

@@ -8,6 +8,7 @@
 #include "Engine/Math/Vector4.hpp"
 #include "Engine/Math/Matrix4.hpp"
 
+#include "Engine/System/System.hpp"
 #include "Engine/System/Cpu.hpp"
 
 #include <cstdarg>
@@ -101,6 +102,14 @@ std::string to_string(const System::Cpu::ProcessorArchitecture& architecture) {
     }
 }
 
+std::string to_string(const System::SystemDesc& system) {
+    std::stringstream ss;
+    ss << system.os;
+    ss << system.cpu;
+    ss << system.ram;
+    return ss.str();
+}
+
 const std::string Stringf(const char* format, ...) {
     char textLiteral[STRINGF_STACK_LOCAL_TEMP_LENGTH];
     va_list variableArgumentList;
@@ -171,6 +180,74 @@ std::vector<std::wstring> Split(const std::wstring& string, wchar_t delim /*= ',
     result.shrink_to_fit();
     return result;
 
+}
+
+std::vector<std::string> SplitOnUnquoted(const std::string& string, char delim /*= ','*/, bool skip_empty /*= true*/) {
+    bool inQuote = false;
+    std::vector<std::string> result{};
+    std::size_t potential_count = 1u + std::count(std::begin(string), std::end(string), delim);
+    result.reserve(potential_count);
+    auto start = std::begin(string);
+    auto end = std::end(string);
+    for(auto iter = std::begin(string); iter != std::end(string); /* DO NOTHING */) {
+        if(*iter == '"') {
+            inQuote = !inQuote;
+            ++iter;
+            continue;
+        }
+        if(!inQuote) {
+            if(*iter == delim) {
+                end = iter++;
+                std::string s(start, end);
+                if(skip_empty && s.empty()) {
+                    start = iter;
+                    continue;
+                }
+                result.push_back(std::string(start, end));
+                start = iter;
+                continue;
+            }
+        }
+        ++iter;
+    }
+    end = std::end(string);
+    auto last_s = std::string(start, end);
+    if(!(skip_empty && last_s.empty())) {
+        result.push_back(std::string(start, end));
+    }
+    result.shrink_to_fit();
+    return result;
+}
+
+std::vector<std::wstring> SplitOnUnquoted(const std::wstring& string, wchar_t delim /*= ','*/, bool skip_empty /*= true*/) {
+    bool inQuote = false;
+    std::vector<std::wstring> result{};
+    std::size_t potential_count = 1u + std::count(std::begin(string), std::end(string), delim);
+    result.reserve(potential_count);
+    auto start = std::begin(string);
+    auto end = std::end(string);
+    for(auto iter = std::begin(string); iter != std::end(string); /* DO NOTHING */) {
+        if(*iter == '"') {
+            inQuote = !inQuote;
+            ++iter;
+            continue;
+        }
+        if(!inQuote) {
+            if(*iter == delim) {
+                end = ++iter;
+                std::wstring s(start, end);
+                if(skip_empty && s.empty()) {
+                    continue;
+                }
+                result.push_back(std::wstring(start, end));
+                start = ++iter;
+            }
+        } else {
+            ++iter;
+        }
+    }
+    result.shrink_to_fit();
+    return result;
 }
 
 std::pair<std::string, std::string> SplitOnFirst(const std::string& string, char delim) {
@@ -278,9 +355,9 @@ std::wstring ToLowerCase(std::wstring string) {
 std::string ConvertUnicodeToMultiByte(const std::wstring& unicode_string) {
     char* buf = nullptr;
     auto buf_size = ::WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, unicode_string.data(), -1, buf, 0, nullptr, nullptr);
-    std::string mb_string;
     buf = new char[buf_size * sizeof(char)];
     buf_size = ::WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, unicode_string.data(), -1, buf, buf_size, nullptr, nullptr);
+    std::string mb_string{};
     mb_string.assign(buf, buf_size - 1);
     delete[] buf;
     buf = nullptr;
@@ -290,9 +367,9 @@ std::string ConvertUnicodeToMultiByte(const std::wstring& unicode_string) {
 std::wstring ConvertMultiByteToUnicode(const std::string& multi_byte_string) {
     wchar_t* buf = nullptr;
     auto buf_size = ::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, multi_byte_string.data(), -1, buf, 0);
-    std::wstring unicode_string;
     buf = new wchar_t[buf_size * sizeof(wchar_t)];
     buf_size = ::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, multi_byte_string.data(), -1, buf, buf_size);
+    std::wstring unicode_string{};
     unicode_string.assign(buf, buf_size - 1);
     delete[] buf;
     buf = nullptr;
@@ -400,7 +477,80 @@ std::wstring TrimWhitespace(std::wstring string) {
 namespace Encryption {
 
 std::string ROT13(std::string text) {
-    return CaesarShift<13>(text);
+    return detail::CaesarShift<13>(text);
+}
+
+std::string CaesarShiftEncode(int key, std::string plaintext) {
+    if(key < 0) {
+        key = -key;
+    }
+    key %= 26;
+    switch(key) {
+    case 0:  return detail::CaesarShiftEncode<0>(plaintext);
+    case 1:  return detail::CaesarShiftEncode<1>(plaintext);
+    case 2:  return detail::CaesarShiftEncode<2>(plaintext);
+    case 3:  return detail::CaesarShiftEncode<3>(plaintext);
+    case 4:  return detail::CaesarShiftEncode<4>(plaintext);
+    case 5:  return detail::CaesarShiftEncode<5>(plaintext);
+    case 6:  return detail::CaesarShiftEncode<6>(plaintext);
+    case 7:  return detail::CaesarShiftEncode<7>(plaintext);
+    case 8:  return detail::CaesarShiftEncode<8>(plaintext);
+    case 9:  return detail::CaesarShiftEncode<9>(plaintext);
+    case 10: return detail::CaesarShiftEncode<10>(plaintext);
+    case 11: return detail::CaesarShiftEncode<11>(plaintext);
+    case 12: return detail::CaesarShiftEncode<12>(plaintext);
+    case 13: return detail::CaesarShiftEncode<13>(plaintext);
+    case 14: return detail::CaesarShiftEncode<14>(plaintext);
+    case 15: return detail::CaesarShiftEncode<15>(plaintext);
+    case 16: return detail::CaesarShiftEncode<16>(plaintext);
+    case 17: return detail::CaesarShiftEncode<17>(plaintext);
+    case 18: return detail::CaesarShiftEncode<18>(plaintext);
+    case 19: return detail::CaesarShiftEncode<19>(plaintext);
+    case 20: return detail::CaesarShiftEncode<20>(plaintext);
+    case 21: return detail::CaesarShiftEncode<21>(plaintext);
+    case 22: return detail::CaesarShiftEncode<22>(plaintext);
+    case 23: return detail::CaesarShiftEncode<23>(plaintext);
+    case 24: return detail::CaesarShiftEncode<24>(plaintext);
+    case 25: return detail::CaesarShiftEncode<25>(plaintext);
+    default: return plaintext;
+    }
+}
+
+
+std::string CaesarShiftDecode(int key, std::string ciphertext) {
+    if(key < 0) {
+        key = -key;
+    }
+    key %= 26;
+    switch(key) {
+    case 0:  return detail::CaesarShiftDecode<0>(ciphertext);
+    case 1:  return detail::CaesarShiftDecode<1>(ciphertext);
+    case 2:  return detail::CaesarShiftDecode<2>(ciphertext);
+    case 3:  return detail::CaesarShiftDecode<3>(ciphertext);
+    case 4:  return detail::CaesarShiftDecode<4>(ciphertext);
+    case 5:  return detail::CaesarShiftDecode<5>(ciphertext);
+    case 6:  return detail::CaesarShiftDecode<6>(ciphertext);
+    case 7:  return detail::CaesarShiftDecode<7>(ciphertext);
+    case 8:  return detail::CaesarShiftDecode<8>(ciphertext);
+    case 9:  return detail::CaesarShiftDecode<9>(ciphertext);
+    case 10: return detail::CaesarShiftDecode<10>(ciphertext);
+    case 11: return detail::CaesarShiftDecode<11>(ciphertext);
+    case 12: return detail::CaesarShiftDecode<12>(ciphertext);
+    case 13: return detail::CaesarShiftDecode<13>(ciphertext);
+    case 14: return detail::CaesarShiftDecode<14>(ciphertext);
+    case 15: return detail::CaesarShiftDecode<15>(ciphertext);
+    case 16: return detail::CaesarShiftDecode<16>(ciphertext);
+    case 17: return detail::CaesarShiftDecode<17>(ciphertext);
+    case 18: return detail::CaesarShiftDecode<18>(ciphertext);
+    case 19: return detail::CaesarShiftDecode<19>(ciphertext);
+    case 20: return detail::CaesarShiftDecode<20>(ciphertext);
+    case 21: return detail::CaesarShiftDecode<21>(ciphertext);
+    case 22: return detail::CaesarShiftDecode<22>(ciphertext);
+    case 23: return detail::CaesarShiftDecode<23>(ciphertext);
+    case 24: return detail::CaesarShiftDecode<24>(ciphertext);
+    case 25: return detail::CaesarShiftDecode<25>(ciphertext);
+    default: return ciphertext;
+    }
 }
 
 } //End Encryption

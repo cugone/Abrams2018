@@ -9,13 +9,41 @@
 
 namespace FileUtils {
 
+enum class KnownPathID {
+      Windows_AppDataRoaming
+    , Windows_AppDataLocal
+    , Windows_AppDataLocalLow
+    , Windows_ProgramFiles
+    , Windows_ProgramFilesx86
+    , Windows_ProgramFilesx64
+    , Windows_Documents
+    , Windows_CommonDocuments
+    , Windows_SavedGames
+    , Windows_UserProfile
+    , Windows_CommonProfile
+    , Windows_CurrentUserDesktop
+    , Windows_CommonDesktop
+};
+
 bool WriteBufferToFile(void* buffer, std::size_t size, const std::string& filePath);
 bool WriteBufferToFile(const std::string& buffer, const std::string& filePath);
 bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::string& filePath);
 bool ReadBufferFromFile(std::string& out_buffer, const std::string& filePath);
 bool CreateFolders(const std::string& filepath);
-std::filesystem::path GetAppDataPath();
+std::filesystem::path GetKnownFolderPath(const KnownPathID& pathid);
 std::filesystem::path GetExePath();
+std::filesystem::path GetWorkingDirectory();
+void SetWorkingDirectory(const std::filesystem::path& p);
+bool IsSafeWritePath(const std::filesystem::path& p);
+bool HasWritePermissions(const std::filesystem::path& p);
+bool HasReadPermissions(const std::filesystem::path& p);
+bool HasDeletePermissions(const std::filesystem::path& p);
+bool HasExecuteOrSearchPermissions(const std::filesystem::path& p);
+bool HasExecutePermissions(const std::filesystem::path& p);
+bool HasSearchPermissions(const std::filesystem::path& p);
+bool IsParentOf(const std::filesystem::path& p, const std::filesystem::path& child);
+bool IsSiblingOf(const std::filesystem::path& p, const std::filesystem::path& sibling);
+bool IsSubDirectoryOf(const std::filesystem::path& p, const std::filesystem::path& parent);
 void ForEachFileInFolder(const std::filesystem::path& folderpath, const std::string& validExtensionList = std::string{}, const std::function<void(const std::filesystem::path&)>& callback = [](const std::filesystem::path& /*p*/) { /* DO NOTHING */ }, bool recursive = false);
 int CountFilesInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList = std::string{}, bool recursive = false);
 void RemoveExceptMostRecentFiles(const std::filesystem::path& folderpath, int mostRecentCountToKeep, const std::string& validExtensionList = std::string{});

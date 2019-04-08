@@ -6,11 +6,15 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
+#include <iostream>
 #include <fstream>
+#include <sstream>
 #include <ShlObj.h>
 
 
 namespace FileUtils {
+
+GUID GetKnownPathIdForOS(const KnownPathID& pathid);
 
 bool WriteBufferToFile(void* buffer, std::size_t size, const std::string& filePath) {
     namespace FS = std::filesystem;
@@ -39,8 +43,7 @@ bool WriteBufferToFile(const std::string& buffer, const std::string& filePath) {
         return false;
     }
 
-    std::ofstream ofs;
-    ofs.open(p.string());
+    std::ofstream ofs{ p };
     ofs.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
     ofs.close();
     return true;
@@ -65,6 +68,7 @@ bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::strin
     ifs.open(p, std::ios_base::binary);
     ifs.read(reinterpret_cast<char*>(out_buffer.data()), out_buffer.size());
     ifs.close();
+    out_buffer.shrink_to_fit();
     return true;
 }
 
@@ -80,36 +84,77 @@ bool ReadBufferFromFile(std::string& out_buffer, const std::string& filePath) {
         return false;
     }
 
-    std::ifstream ifs;
-    std::size_t byte_size = FS::file_size(p);
-    out_buffer.resize(byte_size);
-    ifs.open(p);
-    ifs.read(out_buffer.data(), byte_size);
-    ifs.close();
+    std::ifstream ifs{p};
+    out_buffer = std::string(static_cast<const std::stringstream&>(std::stringstream() << ifs.rdbuf()).str());
     return true;
 }
 
 bool CreateFolders(const std::string& filepath) {
     namespace FS = std::filesystem;
-
     FS::path p(filepath);
     p.make_preferred();
     return FS::create_directories(p);
 }
 
-std::filesystem::path GetAppDataPath() {
+std::filesystem::path GetKnownFolderPath(const KnownPathID& pathid) {
     namespace FS = std::filesystem;
     FS::path p{};
     {
         PWSTR ppszPath = nullptr;
-        bool success = SUCCEEDED(::SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, nullptr, &ppszPath));
+        auto hr_path = ::SHGetKnownFolderPath(GetKnownPathIdForOS(pathid), KF_FLAG_DEFAULT, nullptr, &ppszPath);
+        bool success = SUCCEEDED(hr_path);
         if(success) {
             p = FS::path(ppszPath);
             ::CoTaskMemFree(ppszPath);
+            p = FS::canonical(p);
             p.make_preferred();
         }
     }
     return p;
+}
+
+GUID GetKnownPathIdForOS(const KnownPathID& pathid) {
+    switch(pathid) {
+    case KnownPathID::Windows_AppDataRoaming:
+        return FOLDERID_RoamingAppData;
+    case KnownPathID::Windows_AppDataLocal:
+        return FOLDERID_LocalAppData;
+    case KnownPathID::Windows_AppDataLocalLow:
+        return FOLDERID_LocalAppDataLow;
+    case KnownPathID::Windows_ProgramFiles:
+        return FOLDERID_ProgramFiles;
+    case KnownPathID::Windows_ProgramFilesx86:
+        return FOLDERID_ProgramFilesX86;
+#if defined(_WIN64)
+    case KnownPathID::Windows_ProgramFilesx64:
+        return FOLDERID_ProgramFiles;
+#elif defined(_WIN32)
+    case KnownPathID::Windows_ProgramFilesx64:
+        return FOLDERID_ProgramFiles;
+#else
+    ERROR_AND_DIE("Unknown known folder path id.");
+    break;
+#endif
+    case KnownPathID::Windows_SavedGames:
+        return FOLDERID_SavedGames;
+    case KnownPathID::Windows_UserProfile:
+        return FOLDERID_Profile;
+    case KnownPathID::Windows_CommonProfile:
+        return FOLDERID_Public;
+    case KnownPathID::Windows_CurrentUserDesktop:
+        return FOLDERID_Desktop;
+    case KnownPathID::Windows_CommonDesktop:
+        return FOLDERID_PublicDesktop;
+    case KnownPathID::Windows_Documents:
+        return FOLDERID_Documents;
+        break;
+    case KnownPathID::Windows_CommonDocuments:
+        return FOLDERID_PublicDocuments;
+        break;
+    default:
+        ERROR_AND_DIE("Unknown known folder path id.");
+        break;
+    }
 }
 
 std::filesystem::path GetExePath() {
@@ -119,9 +164,158 @@ std::filesystem::path GetExePath() {
         TCHAR filename[MAX_PATH];
         ::GetModuleFileName(nullptr, filename, MAX_PATH);
         result = FS::path(filename);
+        result = FS::canonical(result);
         result.make_preferred();
     }
     return result;
+}
+
+std::filesystem::path GetWorkingDirectory() {
+    namespace FS = std::filesystem;
+    return FS::current_path();
+}
+
+void SetWorkingDirectory(const std::filesystem::path& p) {
+    namespace FS = std::filesystem;
+    FS::current_path(p);
+}
+
+std::filesystem::path GetTempDirectory() {
+    return std::filesystem::temp_directory_path();
+}
+
+bool HasDeletePermissions(const std::filesystem::path& p) {
+    namespace FS = std::filesystem;
+    auto parent_path = p.parent_path();
+    auto parent_status = FS::status(parent_path);
+    auto parent_perms = parent_status.permissions();
+    if(FS::perms::none == (parent_perms & (FS::perms::owner_write | FS::perms::group_write | FS::perms::others_write))) {
+        return false;
+    }
+    return true;
+}
+
+bool HasExecuteOrSearchPermissions(const std::filesystem::path& p) {
+    namespace FS = std::filesystem;
+    if(FS::is_directory(p)) {
+        return HasSearchPermissions(p);
+    } else {
+        return HasExecutePermissions(p);
+    }
+}
+
+bool HasExecutePermissions(const std::filesystem::path& p) {
+    namespace FS = std::filesystem;
+    if(FS::is_directory(p)) {
+        return false;
+    }
+    auto status = FS::status(p);
+    auto perms = status.permissions();
+    if(FS::perms::none == (perms & (FS::perms::owner_exec | FS::perms::group_exec | FS::perms::others_exec))) {
+        return false;
+    }
+    return true;
+}
+
+bool HasSearchPermissions(const std::filesystem::path& p) {
+    namespace FS = std::filesystem;
+    if(!FS::is_directory(p)) {
+        return false;
+    }
+    auto parent_path = p.parent_path();
+    auto parent_status = FS::status(parent_path);
+    auto parent_perms = parent_status.permissions();
+    if(FS::perms::none == (parent_perms & (FS::perms::owner_exec | FS::perms::group_exec | FS::perms::others_exec))) {
+        return false;
+    }
+    return true;
+}
+
+bool HasWritePermissions(const std::filesystem::path& p) {
+    namespace FS = std::filesystem;
+    auto my_status = FS::status(p);
+    auto my_perms = my_status.permissions();
+    if(FS::perms::none == (my_perms & (FS::perms::owner_write | FS::perms::group_write | FS::perms::others_write))) {
+        return false;
+    }
+    return true;
+}
+
+bool HasReadPermissions(const std::filesystem::path& p) {
+    namespace FS = std::filesystem;
+    auto my_status = FS::status(p);
+    auto my_perms = my_status.permissions();
+    if(FS::perms::none == (my_perms & (FS::perms::owner_read | FS::perms::group_read | FS::perms::others_read))) {
+        return false;
+    }
+    return true;
+}
+
+bool IsSafeWritePath(const std::filesystem::path& p) {
+    namespace FS = std::filesystem;
+    if(!FS::exists(p)) {
+        return false;
+    }
+    //Check for any write permissions on the file and parent directory
+    if(!(HasWritePermissions(p) || HasDeletePermissions(p))) {
+        return false;
+    }
+
+    try {
+        auto working_dir = GetWorkingDirectory();
+        bool is_in_working_dir = IsSubDirectoryOf(p, working_dir);
+        bool is_in_data_dir = IsSubDirectoryOf(p, FS::path{ "Data/" });
+        bool is_next_to_exe = IsSiblingOf(p, GetExePath());
+        bool safe = is_in_working_dir || is_in_data_dir || is_next_to_exe;
+        return safe;
+    } catch(std::filesystem::filesystem_error e) {
+        std::ostringstream ss{};
+        ss << "\nFilesystem Error:"
+            << "\nWhat: " << e.what()
+            << "\nCode: " << e.code()
+            << "\nPath1: " << e.path1()
+            << "\nPath2: " << e.path2()
+            << '\n';
+        ss.flush();
+        DebuggerPrintf(ss.str().c_str());
+        return false;
+    }
+
+}
+
+bool IsParentOf(const std::filesystem::path& p, const std::filesystem::path& child) {
+    namespace FS = std::filesystem;
+    auto p_canon = FS::canonical(p);
+    auto child_canon = FS::canonical(child);
+    for(auto iter = FS::recursive_directory_iterator{ p_canon }; iter != FS::recursive_directory_iterator{}; ++iter) {
+        auto entry = *iter;
+        auto sub_p = entry.path();
+        if(sub_p == child_canon) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool IsSiblingOf(const std::filesystem::path& p, const std::filesystem::path& sibling) {
+    namespace FS = std::filesystem;
+    auto my_parent_path = FS::canonical(p.parent_path());
+    auto sibling_parent_path = FS::canonical(sibling.parent_path());
+    return my_parent_path == sibling_parent_path;
+}
+
+bool IsSubDirectoryOf(const std::filesystem::path& p, const std::filesystem::path& parent) {
+    namespace FS = std::filesystem;
+    auto parent_canon = FS::canonical(parent);
+    auto p_canon = FS::canonical(p);
+    for(auto iter = FS::recursive_directory_iterator{ parent_canon }; iter != FS::recursive_directory_iterator{}; ++iter) {
+        auto entry = *iter;
+        auto sub_p = entry.path();
+        if(sub_p == p_canon) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void ForEachFileInFolder(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, const std::function<void(const std::filesystem::path&)>& callback /*= [](const std::filesystem::path& p) { (void*)p; }*/, bool recursive /*= false*/) {
@@ -160,9 +354,7 @@ std::vector<std::filesystem::path> GetAllPathsInFolders(const std::filesystem::p
 
 void FileUtils::RemoveExceptMostRecentFiles(const std::filesystem::path& folderpath, int mostRecentCountToKeep, const std::string& validExtensionList /*= std::string{}*/) {
     auto working_dir = std::filesystem::current_path();
-    auto working_dir_string = StringUtils::ToLowerCase(std::filesystem::absolute(working_dir).string());
-    auto folderpath_string = StringUtils::ToLowerCase(std::filesystem::absolute(folderpath).string());
-    if(folderpath_string.find(working_dir_string) == std::string::npos) {
+    if(!IsSafeWritePath(folderpath)) {
         return;
     }
     namespace FS = std::filesystem;

@@ -67,7 +67,7 @@ private:
             virtual void STDMETHODCALLTYPE OnLoopEnd(void* /*pBufferContext*/) override {};
             virtual void STDMETHODCALLTYPE OnVoiceError(void* /*pBufferContext*/, HRESULT /*Error*/) override {};
         };
-        Channel(AudioSystem& audioSystem);
+        explicit Channel(AudioSystem& audioSystem);
         ~Channel();
         void Play(Sound& snd);
         void Stop();

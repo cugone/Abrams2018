@@ -116,7 +116,7 @@ void Shader::SetSampler(Sampler* sampler) {
     _sampler = sampler;
 }
 
-void Shader::SetConstantBuffers(const std::vector<ConstantBuffer*> cbuffers) {
+void Shader::SetConstantBuffers(const std::vector<ConstantBuffer*>& cbuffers) {
     _cbuffers = cbuffers;
 }
 

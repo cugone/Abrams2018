@@ -34,7 +34,7 @@ public:
     void SetDepthStencilState(DepthStencilState* ds);
     void SetBlendState(BlendState* bs);
     void SetSampler(Sampler* sampler);
-    void SetConstantBuffers(const std::vector<ConstantBuffer*> cbuffers);
+    void SetConstantBuffers(const std::vector<ConstantBuffer*>& cbuffers);
 protected:
 private:
     bool LoadFromXml(Renderer* renderer, const XMLElement& element);

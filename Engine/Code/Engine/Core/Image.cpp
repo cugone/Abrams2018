@@ -112,7 +112,7 @@ Image& Image::operator=(Image&& rhs) {
     m_dimensions = rhs.m_dimensions;
     m_filepath = rhs.m_filepath;
     m_bytesPerTexel = rhs.m_bytesPerTexel;
-    m_memload = m_memload;
+    m_memload = rhs.m_memload;
 
     rhs.m_texelBytes = nullptr;
     rhs.m_dimensions = IntVector2::ZERO;

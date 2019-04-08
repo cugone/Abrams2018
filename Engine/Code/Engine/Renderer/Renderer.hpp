@@ -117,7 +117,7 @@ struct ComputeJob {
     ComputeJob() = default;
     ComputeJob(Renderer* renderer,
                std::size_t uavCount,
-               const std::vector<Texture*> uavTextures,
+               const std::vector<Texture*>& uavTextures,
                Shader* computeShader,
                unsigned int threadGroupCountX,
                unsigned int threadGroupCountY,

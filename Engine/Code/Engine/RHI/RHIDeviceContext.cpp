@@ -42,9 +42,7 @@ void RHIDeviceContext::Flush() {
 }
 
 void RHIDeviceContext::ClearColorTarget(Texture* output, const Rgba& color) {
-    float color_as_floats[4];
-    color.GetAsFloats(color_as_floats[0], color_as_floats[1], color_as_floats[2], color_as_floats[3]);
-    _dx_context->ClearRenderTargetView(output->GetRenderTargetView(), color_as_floats);
+    _dx_context->ClearRenderTargetView(output->GetRenderTargetView(), color.GetRgbaAsFloats().GetAsFloatArray());
 }
 
 void RHIDeviceContext::ClearDepthStencilTarget(Texture* output, bool depth /*= true */, bool stencil /*= true */, float depthValue /*= 1.0f */, unsigned char stencilValue /*= 0*/) {

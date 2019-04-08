@@ -33,6 +33,7 @@ private:
     bool ParseMultiParams(const std::string& input);
     void ConvertFromMultiParam(std::string& whole_line);
     void CollapseMultiParamWhitespace(std::string& whole_line);
+    std::size_t CountCharNotInQuotes(std::string& cur_line, char c);
 
     void SetValue(const std::string& key, const std::string& value);
     void SetValue(const std::string& key, const bool& value);

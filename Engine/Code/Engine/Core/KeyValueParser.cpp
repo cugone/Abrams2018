@@ -34,20 +34,35 @@ bool KeyValueParser::HasKey(const std::string& key) const {
 }
 
 bool KeyValueParser::Parse(const std::string& input) {
-    auto lines = StringUtils::Split(input, '\n', false);
+    auto lines = StringUtils::Split(input, '\n', true);
 
     for(auto& cur_line : lines) {
         cur_line = cur_line.substr(0, cur_line.find_first_of('#'));
         if(cur_line.empty()) {
             continue;
         }
-        std::size_t eq_count = std::count(cur_line.begin(), cur_line.end(), '=');
-        std::size_t true_count = std::count(cur_line.begin(), cur_line.end(), '+');
-        std::size_t false_count = std::count(cur_line.begin(), cur_line.end(), '-');
-        std::size_t nl_count = std::count(cur_line.begin(), cur_line.end(), '\n');
-        bool probably_multiline = nl_count == 0 && (eq_count > 1 || true_count > 1 || false_count > 1);
+        std::size_t eq_count = CountCharNotInQuotes(cur_line, '=');
+        std::size_t true_count = CountCharNotInQuotes(cur_line, '+');
+        std::size_t false_count = CountCharNotInQuotes(cur_line, '-');
+        bool no_eq = eq_count == 0;
+        bool no_t = true_count == 0;
+        bool no_f = false_count == 0;
+        bool not_valid = no_eq && no_t && no_f;
+        if(not_valid) {
+            continue;
+        }
+        bool exactly_one_tf = (true_count == 1 || false_count == 1) && (true_count ^ false_count);
+        bool multi_tf = !exactly_one_tf && (true_count > 1 || false_count > 1);
+        bool atleast_one_eq = eq_count > 0;
+        bool multi_eq = eq_count > 1;
+        bool multi_params = multi_eq || (atleast_one_eq && (true_count > 0 || false_count > 0));
+        bool probably_multiline = false;
+        if(multi_eq || multi_tf || multi_params) {
+            probably_multiline = true;
+        }
         if(probably_multiline) {
-            return ParseMultiParams(cur_line);
+            ParseMultiParams(cur_line);
+            continue;
         }
 
         auto [key, value] = StringUtils::SplitOnFirst(cur_line, '=');
@@ -157,10 +172,10 @@ void KeyValueParser::CollapseMultiParamWhitespace(std::string& whole_line) {
     }
     //Remove consecutive spaces
     whole_line.erase(std::unique(whole_line.begin(), whole_line.end(),
-                                 [](char lhs, char rhs) {
+    [](char lhs, char rhs) {
         return lhs == rhs && std::isspace(lhs, std::locale(""));
     }),
-                     whole_line.end());
+    whole_line.end());
 }
 
 void KeyValueParser::SetValue(const std::string& key, const std::string& value) {
@@ -169,4 +184,21 @@ void KeyValueParser::SetValue(const std::string& key, const std::string& value) 
 
 void KeyValueParser::SetValue(const std::string& key, const bool& value) {
     _kv_pairs[key] = value ? std::string{ "true" } : std::string{ "false" };
+}
+
+std::size_t KeyValueParser::CountCharNotInQuotes(std::string& cur_line, char c) {
+    bool inQuote = false;
+    std::size_t count = 0u;
+    for(auto iter = cur_line.begin(); iter != cur_line.end(); ++iter) {
+        if(*iter == '"') {
+            inQuote = !inQuote;
+            continue;
+        }
+        if(!inQuote) {
+            if(*iter == c) {
+                ++count;
+            }
+        }
+    }
+    return count;
 }

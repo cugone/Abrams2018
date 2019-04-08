@@ -13,6 +13,7 @@ namespace RiffChunkID {
     constexpr const uint32_t LIST = StringUtils::FourCC("LIST");
     constexpr const uint32_t WAVE = StringUtils::FourCC("WAVE");
     constexpr const uint32_t INFO = StringUtils::FourCC("INFO");
+    constexpr const uint32_t AVI  = StringUtils::FourCC("AVI ");
     constexpr const bool IsValid(const char* id);
 }
 
@@ -31,7 +32,7 @@ public:
     };
     struct RiffSubChunk {
         char fourcc[4];
-        std::unique_ptr<uint8_t[]> data{};
+        std::unique_ptr<uint8_t[]> subdata{};
     };
     struct RiffChunk {
         RiffHeader header{};
@@ -41,9 +42,9 @@ public:
     RiffChunk* GetNextChunk();
     unsigned int Load(const std::string& filename);
     unsigned int Load(const std::vector<unsigned char>& data);
+    static std::unique_ptr<Riff::RiffChunk> ReadListChunk(std::vector<unsigned char>& buffer);
 protected:
 private:
-
     bool ParseDataIntoChunks(std::vector<unsigned char>& buffer);
 
     void ShowRiffChunkHeaders();

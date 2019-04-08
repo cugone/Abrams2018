@@ -56,6 +56,9 @@
     <Filter Include="Thirdparty\TinyXML">
       <UniqueIdentifier>{fc6e0dc4-15c5-48ae-8ba2-c91568d1c50c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Video">
+      <UniqueIdentifier>{269d4b3d-4871-4e4e-a782-77b22e4c9736}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">
@@ -372,6 +375,9 @@
     </ClCompile>
     <ClCompile Include="..\Thirdparty\Imgui\imgui_stdlib.cpp">
       <Filter>Thirdparty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Video\Avi.cpp">
+      <Filter>Video</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -719,6 +725,9 @@
     </ClInclude>
     <ClInclude Include="..\Thirdparty\Imgui\imgui_stdlib.h">
       <Filter>Thirdparty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Video\Avi.hpp">
+      <Filter>Video</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

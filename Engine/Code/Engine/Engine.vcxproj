@@ -124,6 +124,7 @@
     <ClCompile Include="UI\Label.cpp" />
     <ClCompile Include="UI\Types.cpp" />
     <ClCompile Include="UI\UISystem.cpp" />
+    <ClCompile Include="Video\Avi.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Thirdparty\ImGui\imconfig.h" />
@@ -241,6 +242,7 @@
     <ClInclude Include="UI\Types.hpp" />
     <ClInclude Include="UI\UI.hpp" />
     <ClInclude Include="UI\UISystem.hpp" />
+    <ClInclude Include="Video\Avi.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

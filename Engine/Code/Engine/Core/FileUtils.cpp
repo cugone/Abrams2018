@@ -268,7 +268,7 @@ bool IsSafeWritePath(const std::filesystem::path& p) {
         bool is_next_to_exe = IsSiblingOf(p, GetExePath());
         bool safe = is_in_working_dir || is_in_data_dir || is_next_to_exe;
         return safe;
-    } catch(std::filesystem::filesystem_error e) {
+    } catch(const std::filesystem::filesystem_error& e) {
         std::ostringstream ss{};
         ss << "\nFilesystem Error:"
             << "\nWhat: " << e.what()

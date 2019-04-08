@@ -115,6 +115,7 @@
     <ClCompile Include="RHI\RHIOutput.cpp" />
     <ClCompile Include="RHI\RHITypes.cpp" />
     <ClCompile Include="System\Cpu.cpp" />
+    <ClCompile Include="System\OS.cpp" />
     <ClCompile Include="System\Ram.cpp" />
     <ClCompile Include="System\System.cpp" />
     <ClCompile Include="UI\Canvas.cpp" />
@@ -232,6 +233,7 @@
     <ClInclude Include="RHI\RHIOutput.hpp" />
     <ClInclude Include="RHI\RHITypes.hpp" />
     <ClInclude Include="System\Cpu.hpp" />
+    <ClInclude Include="System\OS.hpp" />
     <ClInclude Include="System\Ram.hpp" />
     <ClInclude Include="System\System.hpp" />
     <ClInclude Include="UI\Canvas.hpp" />

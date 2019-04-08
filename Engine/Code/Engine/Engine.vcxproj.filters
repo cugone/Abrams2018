@@ -379,6 +379,9 @@
     <ClCompile Include="Video\Avi.cpp">
       <Filter>Video</Filter>
     </ClCompile>
+    <ClCompile Include="System\OS.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -728,6 +731,9 @@
     </ClInclude>
     <ClInclude Include="Video\Avi.hpp">
       <Filter>Video</Filter>
+    </ClInclude>
+    <ClInclude Include="System\OS.hpp">
+      <Filter>System</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -4,6 +4,7 @@ std::ostream& System::operator<<(std::ostream& out, const System::SystemDesc& de
     auto old_fmt = out.flags();
     auto old_w = out.width();
     out << "SYSTEM:\n";
+    out << desc.os;
     out << desc.cpu;
     out << desc.ram;
     out << '\n';
@@ -16,5 +17,6 @@ System::SystemDesc System::GetSystemDesc() {
     SystemDesc desc{};
     desc.cpu = Cpu::GetCpuDesc();
     desc.ram = Ram::GetRamDesc();
+    desc.os = OS::GetOsDesc();
     return desc;
 }

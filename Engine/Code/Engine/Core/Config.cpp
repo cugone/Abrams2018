@@ -187,7 +187,7 @@ void Config::SetValue(const std::string& key, const std::string& value) {
 }
 
 void Config::SetValue(const std::string& key, const char* value) {
-    SetValue(key, std::string(value));
+    SetValue(key, value ? std::string(value) : std::string{});
 }
 
 void Config::PrintConfigs(std::ostream& output /*= std::cout*/) const {

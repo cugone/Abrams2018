@@ -44,7 +44,6 @@ public:
         void RemoveChannel(Channel* channel);
         const std::size_t GetId() const;
         const std::size_t GetCount() const;
-        static const std::size_t nid = (std::size_t)(-1);
         const FileUtils::Wav* const GetWav() const;
     private:
         static std::size_t _id;
@@ -80,6 +79,11 @@ private:
         AudioSystem* _audio_system = nullptr;
         std::mutex _cs{};
     };
+    struct ChannelGroup {
+        Channel* channel = nullptr;
+        std::vector<Sound*> sounds{};
+        void SetVolume(float newVolume);
+    };
 public:
     AudioSystem(std::size_t max_channels = 1024);
     virtual ~AudioSystem();
@@ -98,6 +102,13 @@ public:
 
     void Play(Sound& snd);
     void Play(const std::string& filepath);
+    Sound* CreateSound(const std::string& filepath);
+
+    ChannelGroup* GetChannelGroup(const std::string& name);
+    void AddChannelGroup(const std::string& name);
+    void RemoveChannelGroup(const std::string& name);
+    void AddSoundToChannelGroup(const std::string& channelGroupName, Sound* snd);
+    void AddSoundToChannelGroup(const std::string& channelGroupName, const std::string& filepath);
 
     void SetEngineCallback(EngineCallback* callback);
     const WAVEFORMATEXTENSIBLE& GetFormat() const;
@@ -106,6 +117,8 @@ protected:
 private:
     void DeactivateChannel(Channel& channel);
     void Play(const std::filesystem::path& filepath);
+    Sound* CreateSound(const std::filesystem::path& filepath);
+
     void RegisterWavFilesFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
     void RegisterWavFile(const std::filesystem::path& filepath);
     WAVEFORMATEXTENSIBLE _audio_format_ex{};
@@ -113,6 +126,7 @@ private:
     std::size_t _max_channels{};
     std::map<std::string, std::unique_ptr<FileUtils::Wav>> _wave_files{};
     std::map<std::string, std::unique_ptr<Sound>> _sounds{};
+    std::map<std::string, std::unique_ptr<ChannelGroup>> _channel_groups{};
     std::vector<std::unique_ptr<Channel>> _active_channels{};
     std::vector<std::unique_ptr<Channel>> _idle_channels{};
     IXAudio2* _xaudio2 = nullptr;

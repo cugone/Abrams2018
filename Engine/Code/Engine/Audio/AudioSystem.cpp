@@ -27,12 +27,14 @@ AudioSystem::~AudioSystem() {
         channel->Stop();
     }
     }
-    bool done_cleanup = false;
-    do {
-        std::this_thread::yield();
-        std::scoped_lock<std::mutex> _lock(_cs);
-        done_cleanup = _active_channels.empty();
-    } while(!done_cleanup);
+    {
+        bool done_cleanup = false;
+        do {
+            std::this_thread::yield();
+            std::scoped_lock<std::mutex> _lock(_cs);
+            done_cleanup = _active_channels.empty();
+        } while(!done_cleanup);
+    }
 
     _active_channels.clear();
     _active_channels.shrink_to_fit();
@@ -83,6 +85,51 @@ void AudioSystem::Initialize() {
     SetFormat(fmt);
 
     SetEngineCallback(&_engine_callback);
+}
+
+AudioSystem::ChannelGroup* AudioSystem::GetChannelGroup(const std::string& name) {
+    auto found = _channel_groups.find(name);
+    if(found != std::end(_channel_groups)) {
+        return found->second.get();
+    }
+    return nullptr;
+}
+
+void AudioSystem::AddChannelGroup(const std::string& name) {
+    auto group = std::make_unique<ChannelGroup>();
+    auto found = _channel_groups.find(name);
+    if(found != std::end(_channel_groups)) {
+        found->second.reset(nullptr);
+    }
+    _channel_groups.insert_or_assign(name, std::move(group));
+}
+
+void AudioSystem::RemoveChannelGroup(const std::string& name) {
+    auto found = _channel_groups.find(name);
+    if(found != std::end(_channel_groups)) {
+        found->second.reset(nullptr);
+        _channel_groups.erase(found);
+    }
+}
+
+void AudioSystem::AddSoundToChannelGroup(const std::string& channelGroupName, Sound* snd) {
+    if(!snd) {
+        return;
+    }
+    if(auto group = GetChannelGroup(channelGroupName)) {
+        if(group->channel) {
+            group->sounds.push_back(snd);
+        }
+    }
+}
+
+void AudioSystem::AddSoundToChannelGroup(const std::string& channelGroupName, const std::string& filepath) {
+    if(auto group = GetChannelGroup(channelGroupName)) {
+        if(group->channel) {
+            auto* snd = CreateSound(filepath);
+            group->sounds.push_back(snd);
+        }
+    }
 }
 
 void AudioSystem::SetEngineCallback(EngineCallback* callback) {
@@ -193,6 +240,25 @@ void AudioSystem::Play(const std::filesystem::path& filepath) {
     }
     Sound* snd = found_iter->second.get();
     Play(*snd);
+}
+
+
+AudioSystem::Sound* AudioSystem::CreateSound(const std::string& filepath) {
+    namespace FS = std::filesystem;
+    FS::path p(filepath);
+    p.make_preferred();
+    return CreateSound(p);
+}
+
+
+AudioSystem::Sound* AudioSystem::CreateSound(const std::filesystem::path& filepath) {
+    auto filepathAsString = filepath.string();
+    auto found_iter = _sounds.find(filepathAsString);
+    if(found_iter == _sounds.end()) {
+        _sounds.insert_or_assign(filepathAsString, std::move(std::make_unique<Sound>(*this, filepathAsString)));
+        found_iter = _sounds.find(filepathAsString);
+    }
+    return found_iter->second.get();
 }
 
 void AudioSystem::RegisterWavFile(const std::string& filepath) {
@@ -341,4 +407,8 @@ void STDMETHODCALLTYPE AudioSystem::EngineCallback::OnCriticalError(HRESULT erro
     ss << "The Audio System encountered a fatal error: ";
     ss << "0x" << std::hex << std::setw(8) << std::setfill('0') << error;
     ERROR_AND_DIE(ss.str().c_str());
+}
+
+void AudioSystem::ChannelGroup::SetVolume(float newVolume) {
+    channel->SetVolume(newVolume);
 }

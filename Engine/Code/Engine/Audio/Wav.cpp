@@ -30,7 +30,7 @@ unsigned int Wav::Load(const std::string& filepath) {
         }
 
         std::stringstream ss(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
-        ss.write(reinterpret_cast<const char*>(next_chunk->data->data.get()), next_chunk->header.length - 4);
+        ss.write(reinterpret_cast<const char*>(next_chunk->data->subdata.get()), next_chunk->header.length - 4);
         ss.clear();
         ss.seekp(0);
         ss.seekg(0);
@@ -62,6 +62,16 @@ unsigned int Wav::Load(const std::string& filepath) {
                 }
                 default:
                 {
+                    {
+                        std::ostringstream err_ss{};
+                        err_ss << "Unknown WAV Chunk ID: ";
+                        err_ss << cur_header.fourcc[0]
+                            << cur_header.fourcc[1]
+                            << cur_header.fourcc[2]
+                            << cur_header.fourcc[3];
+                        err_ss << " Length: " << cur_header.length << '\n';
+                        DebuggerPrintf(err_ss.str().c_str(), "%s");
+                    }
                     ss.seekp(cur_header.length, std::ios_base::cur);
                     ss.seekg(cur_header.length, std::ios_base::cur);
                 }

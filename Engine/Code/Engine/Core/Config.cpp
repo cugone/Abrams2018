@@ -192,7 +192,13 @@ void Config::SetValue(const std::string& key, const char* value) {
 
 void Config::PrintConfigs(std::ostream& output /*= std::cout*/) const {
     for(auto iter = _config.begin(); iter != _config.end(); ++iter) {
-        bool value_has_space = iter->second.find(' ') != std::string::npos;
+        bool value_has_space = false;
+        for(const auto& c : iter->second) {
+            value_has_space |= std::isspace(c, std::locale(""));
+            if(value_has_space) {
+                break;
+            }
+        }
         output << iter->first << '=';
         if(value_has_space) {
             output << '"';

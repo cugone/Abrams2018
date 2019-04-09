@@ -10,7 +10,7 @@ class KeyValueParser;
 class Config {
 public:
     Config() = default;
-    Config(KeyValueParser&& kvp);
+    explicit Config(KeyValueParser&& kvp);
     ~Config() = default;
 
     bool HasKey(const std::string& key) const;

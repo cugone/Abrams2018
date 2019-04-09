@@ -16,7 +16,7 @@ class FileLogger;
 
 class App : public EngineSubsystem {
 public:
-    App(std::unique_ptr<JobSystem> jobSystem, std::unique_ptr<FileLogger> fileLogger);
+    App(std::unique_ptr<JobSystem> jobSystem, std::unique_ptr<FileLogger> fileLogger, std::unique_ptr<Config> cmdConfig);
     virtual ~App();
 
     bool IsQuitting() const;

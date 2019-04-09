@@ -32,11 +32,11 @@ bool CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     return false;
 }
 
-App::App(std::unique_ptr<JobSystem> jobSystem, std::unique_ptr<FileLogger> fileLogger)
+App::App(std::unique_ptr<JobSystem> jobSystem, std::unique_ptr<FileLogger> fileLogger, std::unique_ptr<Config> cmdConfig)
     : EngineSubsystem()
     , _theJobSystem(std::move(jobSystem))
     , _theFileLogger(std::move(fileLogger))
-    , _theConfig(std::make_unique<Config>())
+    , _theConfig(std::move(cmdConfig))
     , _theRenderer{ std::make_unique<Renderer>(static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT)) }
     , _theAudioSystem{std::make_unique<AudioSystem>() }
     , _theInputSystem{ std::make_unique<InputSystem>() }
@@ -58,6 +58,14 @@ App::App(std::unique_ptr<JobSystem> jobSystem, std::unique_ptr<FileLogger> fileL
     g_theApp->SetNextHandler(nullptr);
     g_theSubsystemHead = g_theConsole;
 
+    {
+        std::ostringstream oss;
+        oss << std::right << std::setw(60) << std::setfill('-') << '\n';
+        oss << "Command Line Arguments:\n";
+        oss << *g_theConfig;
+        oss << std::right << std::setw(60) << std::setfill('-') << '\n';
+        g_theFileLogger->LogLine(oss.str());
+    }
     auto sys = System::GetSystemDesc();
     g_theFileLogger->LogLine("SYSTEM:");
     g_theFileLogger->LogLineAndFlush(StringUtils::to_string(sys));

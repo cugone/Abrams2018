@@ -34,10 +34,10 @@ void Initialize(HINSTANCE hInstance, LPSTR lpCmdLine, int nShowCmd) {
 App* CreateApp(HINSTANCE hInstance, LPSTR lpCmdLine, int nShowCmd) {
     UNUSED(hInstance);
     UNUSED(nShowCmd);
-    Config c{ KeyValueParser{std::string{lpCmdLine}} };
+    std::unique_ptr<Config> cmdConfig = std::make_unique<Config>(KeyValueParser{ std::string{lpCmdLine} });
     std::unique_ptr<JobSystem> jobSystem = std::make_unique<JobSystem>(-1, static_cast<std::size_t>(JobType::Max), new std::condition_variable);
     std::unique_ptr<FileLogger> fileLogger = std::make_unique<FileLogger>(*jobSystem, "game");
-    return new App(std::move(jobSystem), std::move(fileLogger));
+    return new App(std::move(jobSystem), std::move(fileLogger), std::move(cmdConfig));
 }
 
 void MainLoop() {

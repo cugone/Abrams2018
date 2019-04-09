@@ -186,6 +186,7 @@ void AudioSystem::SetFormat(const FileUtils::Wav::WavFormatChunk& format) {
 void AudioSystem::RegisterWavFilesFromFolder(const std::string& folderpath, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
     FS::path p{ folderpath };
+    p = FS::canonical(p);
     p.make_preferred();
     RegisterWavFilesFromFolder(p, recursive);
 }
@@ -227,6 +228,7 @@ void AudioSystem::Play(Sound& snd) {
 void AudioSystem::Play(const std::string& filepath) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p = FS::canonical(p);
     p.make_preferred();
     Play(p);
 }
@@ -246,6 +248,7 @@ void AudioSystem::Play(const std::filesystem::path& filepath) {
 AudioSystem::Sound* AudioSystem::CreateSound(const std::string& filepath) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p = FS::canonical(p);
     p.make_preferred();
     return CreateSound(p);
 }
@@ -264,6 +267,7 @@ AudioSystem::Sound* AudioSystem::CreateSound(const std::filesystem::path& filepa
 void AudioSystem::RegisterWavFile(const std::string& filepath) {
     namespace FS = std::filesystem;
     FS::path p{ filepath };
+    p = FS::canonical(p);
     p.make_preferred();
     RegisterWavFile(p);
 }
@@ -365,12 +369,14 @@ std::size_t AudioSystem::Sound::_id = 0;
 AudioSystem::Sound::Sound(AudioSystem& audiosystem, const std::string& filepath)
     : _audio_system(&audiosystem)
 {
-    auto path = std::filesystem::path{ filepath };
-    path.make_preferred();
-    auto found_iter = _audio_system->_wave_files.find(path.string());
+    namespace FS = std::filesystem;
+    auto p = FS::path{ filepath };
+    p = FS::canonical(p);
+    p.make_preferred();
+    auto found_iter = _audio_system->_wave_files.find(p.string());
     if(found_iter == _audio_system->_wave_files.end()) {
-        _audio_system->RegisterWavFile(path.string());
-        found_iter = _audio_system->_wave_files.find(path.string());
+        _audio_system->RegisterWavFile(p.string());
+        found_iter = _audio_system->_wave_files.find(p.string());
     }
     if(found_iter != _audio_system->_wave_files.end()) {
         _my_id = _id++;

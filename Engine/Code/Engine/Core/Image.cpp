@@ -20,6 +20,7 @@ Image::Image(const std::string& filePath)
 
     namespace FS = std::filesystem;
     FS::path fp(filePath);
+    fp = FS::canonical(fp);
     fp.make_preferred();
     std::vector<unsigned char> buf = {};
     if(FileUtils::ReadBufferFromFile(buf, fp.string())) {
@@ -189,6 +190,7 @@ bool Image::Export(const std::string& filepath, int bytes_per_pixel /*= 4*/, int
 
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p = FS::canonical(p);
     p.make_preferred();
     std::string extension = StringUtils::ToLowerCase(p.extension().string());
     std::string p_str = p.string();

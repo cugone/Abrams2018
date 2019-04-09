@@ -21,11 +21,13 @@ Obj::Obj(const std::string& filepath)
 
 //Run only as an asynchronous operation highly recommended.
 Obj::Obj(const std::filesystem::path& filepath) {
+    namespace FS = std::filesystem;
     auto path_copy = filepath;
+    path_copy = FS::canonical(path_copy);
     path_copy.make_preferred();
     if(!Load(filepath)) {
         std::ostringstream ss;
-        ss << "Obj: " << filepath << " failed to load.";
+        ss << "Obj: " << path_copy << " failed to load.";
         ERROR_AND_DIE(ss.str().c_str());
     }
 }
@@ -34,6 +36,7 @@ Obj::Obj(const std::filesystem::path& filepath) {
 bool Obj::Load(const std::string& filepath) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p = FS::canonical(p);
     p.make_preferred();
     return Load(p);
 }
@@ -58,6 +61,7 @@ bool Obj::Load(const std::filesystem::path& filepath) {
 bool Obj::Save(const std::string& filepath) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p = FS::canonical(p);
     p.make_preferred();
     return Save(p);
 }
@@ -341,8 +345,9 @@ void Obj::PrintErrorToDebugger(const std::string& filePath, const std::string& e
     namespace FS = std::filesystem;
     std::ostringstream error_ss{};
     FS::path p(filePath);
+    p = FS::canonical(p);
     p.make_preferred();
-    error_ss << FS::absolute(p).string() << '(' << line_index << "): Invalid " << elementType << '\n';
+    error_ss << p.string() << '(' << line_index << "): Invalid " << elementType << '\n';
     DebuggerPrintf(error_ss.str().c_str());
 }
 

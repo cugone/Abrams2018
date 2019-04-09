@@ -92,7 +92,7 @@ const std::vector<std::string>& KerningFont::GetImagePaths() const {
     return _image_paths;
 }
 
-const std::string& KerningFont::GetFilePath() const {
+const std::filesystem::path& KerningFont::GetFilePath() const {
     return _filepath;
 }
 
@@ -100,7 +100,7 @@ bool KerningFont::LoadFromFile(const std::string& filepath) {
     {
         namespace FS = std::filesystem;
         FS::path path{ filepath };
-        std::string pathAsStr = path.string();
+        path = FS::canonical(path);
         path.make_preferred();
         bool path_exists = FS::exists(path);
         bool is_not_directory = !FS::is_directory(path);
@@ -109,20 +109,20 @@ bool KerningFont::LoadFromFile(const std::string& filepath) {
         bool is_valid = path_exists && is_not_directory && is_file && is_fnt;
         if(!is_valid) {
             std::ostringstream ss;
-            ss << pathAsStr << " is not a BMFont file.\n";
+            ss << path << " is not a BMFont file.\n";
             DebuggerPrintf(ss.str().c_str());
             return false;
         }
         if(_is_loaded) {
             std::ostringstream ss;
-            ss << pathAsStr << " is already loaded.\n";
+            ss << path << " is already loaded.\n";
             DebuggerPrintf(ss.str().c_str());
             return false;
         }
-        _filepath = pathAsStr;
+        _filepath = path;
     }
     std::vector<unsigned char> out_buffer{};
-    if(!FileUtils::ReadBufferFromFile(out_buffer, _filepath)) {
+    if(!FileUtils::ReadBufferFromFile(out_buffer, _filepath.string())) {
         std::ostringstream ss;
         ss << "Failed to read file: " << _filepath << "\n";
         DebuggerPrintf(ss.str().c_str());
@@ -622,7 +622,8 @@ bool KerningFont::LoadFromXml(std::vector<unsigned char>& buffer) {
                 unsigned int page_id = DataUtils::ParseXmlAttribute(*xml_page, "id", 0u);
                 FS::path page_file = DataUtils::ParseXmlAttribute(*xml_page, "file", std::string{});
                 page_file.make_preferred();
-                p += page_file;
+                p = p / page_file;
+                p = FS::canonical(p);
                 p.make_preferred();
                 _image_paths[page_id] = p.string();
             }

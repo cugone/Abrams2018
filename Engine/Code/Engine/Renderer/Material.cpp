@@ -58,6 +58,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
         DataUtils::ValidateXmlElement(*xml_shader, "shader", "", "src");
         auto file = DataUtils::ParseXmlAttribute(*xml_shader, "src", "");
         FS::path p(file);
+        p = FS::canonical(p);
         p.make_preferred();
         if(auto shader = _renderer->GetShader(p.string())) {
             _shader = shader;
@@ -97,6 +98,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
         if(auto xml_diffuse = xml_textures->FirstChildElement("diffuse")) {
             auto file = DataUtils::ParseXmlAttribute(*xml_diffuse, "src", "");
             FS::path p(file);
+            p = FS::canonical(p);
             p.make_preferred();
             const auto& p_str = p.string();
             bool empty_path = p.empty();
@@ -109,6 +111,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
         if(auto xml_normal = xml_textures->FirstChildElement("normal")) {
             auto file = DataUtils::ParseXmlAttribute(*xml_normal, "src", "");
             FS::path p(file);
+            p = FS::canonical(p);
             p.make_preferred();
             const auto& p_str = p.string();
             bool empty_path = p.empty();
@@ -121,6 +124,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
         if(auto xml_displacement = xml_textures->FirstChildElement("displacement")) {
             auto file = DataUtils::ParseXmlAttribute(*xml_displacement, "src", "");
             FS::path p(file);
+            p = FS::canonical(p);
             p.make_preferred();
             const auto& p_str = p.string();
             bool empty_path = p.empty();
@@ -133,6 +137,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
         if(auto xml_specular = xml_textures->FirstChildElement("specular")) {
             auto file = DataUtils::ParseXmlAttribute(*xml_specular, "src", "");
             FS::path p(file);
+            p = FS::canonical(p);
             p.make_preferred();
             const auto& p_str = p.string();
             bool empty_path = p.empty();
@@ -145,6 +150,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
         if(auto xml_occlusion = xml_textures->FirstChildElement("occlusion")) {
             auto file = DataUtils::ParseXmlAttribute(*xml_occlusion, "src", "");
             FS::path p(file);
+            p = FS::canonical(p);
             p.make_preferred();
             const auto& p_str = p.string();
             bool empty_path = p.empty();
@@ -157,6 +163,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
         if(auto xml_emissive = xml_textures->FirstChildElement("emissive")) {
             auto file = DataUtils::ParseXmlAttribute(*xml_emissive, "src", "");
             FS::path p(file);
+            p = FS::canonical(p);
             p.make_preferred();
             const auto& p_str = p.string();
             bool empty_path = p.empty();
@@ -182,6 +189,7 @@ bool Material::LoadFromXml(const XMLElement& element) {
             }
             auto file = DataUtils::ParseXmlAttribute(elem, "src", "");
             FS::path p(file);
+            p = FS::canonical(p);
             p.make_preferred();
             const auto& p_str = p.string();
             bool empty_path = p.empty();

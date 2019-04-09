@@ -311,6 +311,7 @@ StructuredBuffer* Renderer::CreateStructuredBuffer(const StructuredBuffer::buffe
 bool Renderer::RegisterTexture(const std::string& name, Texture* texture) {
     namespace FS = std::filesystem;
     FS::path p(name);
+    p = FS::canonical(p);
     p.make_preferred();
     auto found_texture = _textures.find(p.string());
     if(found_texture == _textures.end()) {
@@ -324,6 +325,7 @@ bool Renderer::RegisterTexture(const std::string& name, Texture* texture) {
 Texture* Renderer::GetTexture(const std::string& nameOrFile) {
     namespace FS = std::filesystem;
     FS::path p(nameOrFile);
+    p = FS::canonical(p);
     p.make_preferred();
     auto found_iter = _textures.find(p.string());
     if(found_iter == _textures.end()) {
@@ -730,6 +732,7 @@ void Renderer::SetSpotlight(unsigned int index, const light_t& light) {
 AnimatedSprite* Renderer::CreateAnimatedSprite(const std::string& filepath) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p = FS::canonical(p);
     p.make_preferred();
     tinyxml2::XMLDocument doc;
     auto xml_result = doc.LoadFile(p.string().c_str());
@@ -770,6 +773,7 @@ SpriteSheet* Renderer::CreateSpriteSheet(const XMLElement& elem) {
 SpriteSheet* Renderer::CreateSpriteSheet(const std::string& filepath, unsigned int width /*= 1*/, unsigned int height /*= 1*/) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p = FS::canonical(p);
     p.make_preferred();
     if(!FS::exists(p)) {
         DebuggerPrintf((p.string() + " not found.\n").c_str());
@@ -790,6 +794,7 @@ SpriteSheet* Renderer::CreateSpriteSheet(const std::string& filepath, unsigned i
 SpriteSheet* Renderer::CreateSpriteSheetFromGif(const std::string& filepath) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p = FS::canonical(p);
     p.make_preferred();
     if(StringUtils::ToLowerCase(p.extension().string()) != ".gif") {
         return nullptr;
@@ -805,6 +810,7 @@ SpriteSheet* Renderer::CreateSpriteSheetFromGif(const std::string& filepath) {
 AnimatedSprite* Renderer::CreateAnimatedSpriteFromGif(const std::string& filepath) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p = FS::canonical(p);
     p.make_preferred();
     if(StringUtils::ToLowerCase(p.extension().string()) != ".gif") {
         return nullptr;
@@ -1373,7 +1379,7 @@ void Renderer::SetBorderlessWindowedMode() {
 }
 
 void Renderer::CreateAndRegisterDefaultFonts() {
-    FileUtils::CreateFolders("Engine/Fonts");
+    FileUtils::CreateFolders(std::filesystem::path{"Engine/Fonts"});
     RegisterFontsFromFolder(std::string{ "Engine/Fonts" });
 }
 
@@ -2170,19 +2176,19 @@ Material* Renderer::CreateMaterialFromFont(KerningFont* font) {
     for(std::size_t i = 0; i < image_count; ++i) {
         FS::path image_path = font->GetImagePaths()[i];
         auto fullpath = folderpath / image_path;
+        fullpath = FS::canonical(fullpath);
         fullpath.make_preferred();
-        const auto fullpath_string = fullpath.string();
         switch(i) {
-            case 0: material_stream << "<diffuse src=\""   << fullpath_string << "\" />"; break;
-            case 1: material_stream << "<normal src=\""    << fullpath_string << "\" />"; break;
-            case 2: material_stream << "<lighting src=\""  << fullpath_string << "\" />"; break;
-            case 3: material_stream << "<specular src=\""  << fullpath_string << "\" />"; break;
-            case 4: material_stream << "<occlusion src=\"" << fullpath_string << "\" />"; break;
-            case 5: material_stream << "<emissive src=\""  << fullpath_string << "\" />"; break;
+            case 0: material_stream << "<diffuse src=\""   << fullpath << "\" />"; break;
+            case 1: material_stream << "<normal src=\""    << fullpath << "\" />"; break;
+            case 2: material_stream << "<lighting src=\""  << fullpath << "\" />"; break;
+            case 3: material_stream << "<specular src=\""  << fullpath << "\" />"; break;
+            case 4: material_stream << "<occlusion src=\"" << fullpath << "\" />"; break;
+            case 5: material_stream << "<emissive src=\""  << fullpath << "\" />"; break;
             default: /* DO NOTHING */;
         }
         if(i >= 6 && has_lots_of_textures) {
-            material_stream << "<texture index=\"" << (i-6) << "\" src=\"" << fullpath_string << "\" />";
+            material_stream << "<texture index=\"" << (i-6) << "\" src=\"" << fullpath << "\" />";
         }
     }
     if(has_textures) {
@@ -2502,6 +2508,7 @@ bool Renderer::RegisterShader(const std::filesystem::path& filepath) {
     std::filesystem::path filepath_copy = filepath;
     tinyxml2::XMLDocument doc;
     if(filepath_copy.has_extension() && filepath.extension() == ".shader") {
+        filepath_copy = FS::canonical(filepath_copy);
         filepath_copy.make_preferred();
         const auto p_str = filepath_copy.string();
         if(doc.LoadFile(p_str.c_str()) == tinyxml2::XML_SUCCESS) {
@@ -2544,16 +2551,20 @@ bool Renderer::RegisterFont(const std::string& filepath) {
 }
 
 bool Renderer::RegisterFont(const std::filesystem::path& filepath) {
+    namespace FS = std::filesystem;
     auto font = new KerningFont(this);
     std::filesystem::path filepath_copy = filepath;
+    filepath_copy = FS::canonical(filepath_copy);
     filepath_copy.make_preferred();
     if(font->LoadFromFile(filepath_copy.string())) {
         for(auto& texture_filename : font->GetImagePaths()) {
             namespace FS = std::filesystem;
             FS::path folderpath = font->GetFilePath();
+            folderpath = FS::canonical(folderpath);
             folderpath.make_preferred();
             folderpath = folderpath.parent_path();
             FS::path texture_path = folderpath / FS::path{ texture_filename };
+            texture_path = FS::canonical(texture_path);
             texture_path.make_preferred();
             CreateTexture(texture_path.string(), IntVector3::XY_AXIS);
         }
@@ -2573,6 +2584,7 @@ bool Renderer::RegisterFont(const std::filesystem::path& filepath) {
 void Renderer::RegisterFontsFromFolder(const std::string& folderpath, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
     FS::path path{ folderpath };
+    path = FS::canonical(path);
     path.make_preferred();
     return RegisterFontsFromFolder(path, recursive);
 }
@@ -2904,7 +2916,8 @@ bool Renderer::RegisterMaterial(const std::filesystem::path& filepath) {
     namespace FS = std::filesystem;
     std::filesystem::path filepath_copy = filepath;
     tinyxml2::XMLDocument doc;
-    if(filepath_copy.has_extension() && filepath.extension() == ".material") {
+    if(filepath_copy.has_extension() && StringUtils::ToLowerCase(filepath.extension().string()) == ".material") {
+        filepath_copy = FS::canonical(filepath_copy);
         filepath_copy.make_preferred();
         const auto p_str = filepath_copy.string();
         if(doc.LoadFile(p_str.c_str()) == tinyxml2::XML_SUCCESS) {
@@ -2919,6 +2932,7 @@ bool Renderer::RegisterMaterial(const std::filesystem::path& filepath) {
 void Renderer::RegisterMaterialsFromFolder(const std::string& folderpath, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
     FS::path path{ folderpath };
+    path = FS::canonical(path);
     path.make_preferred();
     RegisterMaterialsFromFolder(path, recursive);
 }
@@ -2978,6 +2992,7 @@ RHIOutput* Renderer::GetOutput() const {
 ShaderProgram* Renderer::GetShaderProgram(const std::string& nameOrFile) {
     namespace FS = std::filesystem;
     FS::path p{ nameOrFile };
+    p = FS::canonical(p);
     p.make_preferred();
     auto found_iter = _shader_programs.find(p.string());
     if(found_iter == _shader_programs.end()) {
@@ -3022,6 +3037,7 @@ void Renderer::CreateAndRegisterShaderProgramFromHlslFile(const std::string& fil
 void Renderer::RegisterShaderProgramsFromFolder(const std::string& folderpath, const std::string& entrypoint, const PipelineStage& target, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
     FS::path path{ folderpath };
+    path = FS::canonical(path);
     path.make_preferred();
     RegisterShaderProgramsFromFolder(path, entrypoint, target, recursive);
 }
@@ -3088,6 +3104,7 @@ Shader* Renderer::GetShader(const std::string& nameOrFile) {
 void Renderer::RegisterShadersFromFolder(const std::string& filepath, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p = FS::canonical(p);
     p.make_preferred();
     RegisterShadersFromFolder(p, recursive);
 }
@@ -3437,6 +3454,7 @@ void Renderer::Present() {
 Texture* Renderer::CreateOrGetTexture(const std::string& filepath, const IntVector3& dimensions) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p = FS::canonical(p);
     p.make_preferred();
     auto texture_iter = _textures.find(p.string());
     if(texture_iter == _textures.end()) {
@@ -3449,6 +3467,7 @@ Texture* Renderer::CreateOrGetTexture(const std::string& filepath, const IntVect
 void Renderer::RegisterTexturesFromFolder(const std::string& folderpath, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
     FS::path path{ folderpath };
+    path = FS::canonical(path);
     path.make_preferred();
     RegisterTexturesFromFolder(path, recursive);
 }
@@ -3576,6 +3595,7 @@ void Renderer::DisableDepth() {
 Texture* Renderer::Create1DTexture(const std::string& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p = FS::canonical(p);
     p.make_preferred();
     if(!FS::exists(p)) {
         return GetTexture("__invalid");
@@ -3717,6 +3737,7 @@ Texture* Renderer::Create1DTextureFromMemory(const std::vector<Rgba>& data, unsi
 Texture* Renderer::Create2DTexture(const std::string& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p = FS::canonical(p);
     p.make_preferred();
     if(!FS::exists(p)) {
         return GetTexture("__invalid");
@@ -4019,6 +4040,7 @@ Texture* Renderer::Create2DTextureArrayFromGifBuffer(const unsigned char* data, 
 Texture* Renderer::Create3DTexture(const std::string& filepath, const IntVector3& dimensions, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    p = FS::canonical(p);
     p.make_preferred();
     if(!FS::exists(p)) {
         return GetTexture("__invalid");

@@ -16,6 +16,8 @@
 #include <filesystem>
 #include <iostream>
 
+namespace FS = std::filesystem;
+
 FileLogger::FileLogger(JobSystem& jobSystem, const std::string& logName) {
     Initialize(jobSystem, logName);
 }
@@ -68,12 +70,12 @@ struct copy_log_job_t {
 void FileLogger::DoCopyLog() {
     if(IsRunning()) {
         auto job_data = new copy_log_job_t;
-        std::filesystem::path from_p = _current_log_path;
+        auto from_p = _current_log_path;
+        from_p = FS::canonical(from_p);
         from_p.make_preferred();
-        std::filesystem::path to_p = from_p.parent_path();
-        to_p += "/";
-        to_p += TimeUtils::GetDateTimeStampFromNow();
-        to_p += ".log";
+        auto to_p = from_p.parent_path();
+        to_p = to_p / TimeUtils::GetDateTimeStampFromNow() / ".log";
+        to_p = FS::canonical(to_p);
         to_p.make_preferred();
         job_data->to = to_p;
         job_data->from = from_p;
@@ -97,14 +99,16 @@ void FileLogger::CopyLog(void* user_data) {
 }
 
 void FileLogger::FinalizeLog() {
-    std::filesystem::path from_p = _current_log_path;
+    auto from_p = _current_log_path;
+    from_p = FS::canonical(from_p);
     from_p.make_preferred();
-    std::filesystem::path to_p = from_p;
+    auto to_p = from_p;
     auto logname = to_p.filename().stem().string();
     TimeUtils::DateTimeStampOptions opts;
     opts.use_separator = true;
     opts.is_filename = true;
     to_p.replace_filename(logname + "_" + TimeUtils::GetDateTimeStampFromNow(opts) + ".log");
+    to_p = FS::canonical(to_p);
     to_p.make_preferred();
     _stream.flush();
     _stream.close();
@@ -122,11 +126,13 @@ void FileLogger::Initialize(JobSystem& jobSystem, const std::string& log_name) {
     std::string folder_str = "Data/Logs/";
     std::string log_str = folder_str + log_name + ".log";
     FS::path folder_p{ folder_str };
+    folder_p = FS::canonical(folder_p);
     folder_p.make_preferred();
     FS::path p{ log_str };
+    p = FS::canonical(p);
     p.make_preferred();
-    _current_log_path = p.string();
-    FileUtils::CreateFolders(folder_p.string());
+    _current_log_path = p;
+    FileUtils::CreateFolders(folder_p);
     //Removes only if it exists.
     FS::remove(p);
     FileUtils::RemoveExceptMostRecentFiles(folder_p, MAX_LOGS, ".log");

@@ -140,6 +140,7 @@ bool Shader::LoadFromXml(Renderer* renderer, const XMLElement& element) {
     }
 
     FS::path p(sp_src);
+    p = FS::canonical(p);
     p.make_preferred();
     if(nullptr == (_shader_program = _renderer->GetShaderProgram(p.string()))) {
         if(StringUtils::StartsWith(p.string(), "__")) {

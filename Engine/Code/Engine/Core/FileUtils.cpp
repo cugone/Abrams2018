@@ -19,6 +19,7 @@ GUID GetKnownPathIdForOS(const KnownPathID& pathid);
 bool WriteBufferToFile(void* buffer, std::size_t size, const std::string& filePath) {
     namespace FS = std::filesystem;
     FS::path p(filePath);
+    p = FS::canonical(p);
     p.make_preferred();
     bool not_valid_path = FS::is_directory(p);
     bool invalid = not_valid_path;
@@ -26,8 +27,7 @@ bool WriteBufferToFile(void* buffer, std::size_t size, const std::string& filePa
         return false;
     }
 
-    std::ofstream ofs;
-    ofs.open(p.string(), std::ios_base::binary);
+    std::ofstream ofs{p, std::ios_base::binary};
     ofs.write(reinterpret_cast<const char*>(buffer), size);
     ofs.close();
     return true;
@@ -36,6 +36,7 @@ bool WriteBufferToFile(void* buffer, std::size_t size, const std::string& filePa
 bool WriteBufferToFile(const std::string& buffer, const std::string& filePath) {
     namespace FS = std::filesystem;
     FS::path p(filePath);
+    p = FS::canonical(p);
     p.make_preferred();
     bool not_valid_path = FS::is_directory(p);
     bool invalid = not_valid_path;
@@ -54,6 +55,7 @@ bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::strin
 
     namespace FS = std::filesystem;
     FS::path p(filePath);
+    p = FS::canonical(p);
     p.make_preferred();
     bool path_is_directory = FS::is_directory(p);
     bool path_not_exist = !FS::exists(p);
@@ -64,8 +66,7 @@ bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::strin
 
     std::size_t byte_size = FS::file_size(p);
     out_buffer.resize(byte_size);
-    std::ifstream ifs;
-    ifs.open(p, std::ios_base::binary);
+    std::ifstream ifs{ p, std::ios_base::binary };
     ifs.read(reinterpret_cast<char*>(out_buffer.data()), out_buffer.size());
     ifs.close();
     out_buffer.shrink_to_fit();
@@ -76,6 +77,7 @@ bool ReadBufferFromFile(std::string& out_buffer, const std::string& filePath) {
 
     namespace FS = std::filesystem;
     FS::path p(filePath);
+    p = FS::canonical(p);
     p.make_preferred();
     bool path_is_directory = FS::is_directory(p);
     bool path_not_exist = !FS::exists(p);
@@ -89,9 +91,9 @@ bool ReadBufferFromFile(std::string& out_buffer, const std::string& filePath) {
     return true;
 }
 
-bool CreateFolders(const std::string& filepath) {
+bool CreateFolders(const std::filesystem::path& filepath) {
     namespace FS = std::filesystem;
-    FS::path p(filepath);
+    auto p = FS::canonical(filepath);
     p.make_preferred();
     return FS::create_directories(p);
 }
@@ -320,7 +322,7 @@ bool IsSubDirectoryOf(const std::filesystem::path& p, const std::filesystem::pat
 
 void ForEachFileInFolder(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, const std::function<void(const std::filesystem::path&)>& callback /*= [](const std::filesystem::path& p) { (void*)p; }*/, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
-    auto preferred_folderpath = folderpath;
+    auto preferred_folderpath = FS::canonical(folderpath);
     preferred_folderpath.make_preferred();
     bool exists = FS::exists(preferred_folderpath);
     bool is_directory = FS::is_directory(preferred_folderpath);

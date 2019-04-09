@@ -5,6 +5,7 @@
 #include <atomic>
 #include <condition_variable>
 #include <fstream>
+#include <filesystem>
 #include <iostream>
 #include <mutex>
 #include <sstream>
@@ -53,7 +54,7 @@ private:
     void FinalizeLog();
     mutable std::mutex _cs{};
     std::ofstream _stream{};
-    std::string _current_log_path{};
+    std::filesystem::path _current_log_path{};
     decltype(std::cout.rdbuf()) _old_cout{};
     std::thread _worker{};
     std::condition_variable _signal{};

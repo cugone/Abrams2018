@@ -3,6 +3,7 @@
 #include "Engine/Math/IntVector2.hpp"
 #include "Engine/Math/IntVector4.hpp"
 
+#include <filesystem>
 #include <map>
 #include <string>
 #include <utility>
@@ -99,7 +100,7 @@ using KerningMap = std::map<std::pair<int, int>, int>;
     const KerningFont::InfoDef& GetInfoDef() const;
 
     const std::vector<std::string>& GetImagePaths() const;
-    const std::string& GetFilePath() const;
+    const std::filesystem::path& GetFilePath() const;
     bool LoadFromFile(const std::string& filepath);
     bool LoadFromBuffer(const std::vector<unsigned char>& buffer);
 
@@ -138,7 +139,7 @@ private:
     Material* _material = nullptr;
     std::string _name{};
     std::vector<std::string> _image_paths{};
-    std::string _filepath{};
+    std::filesystem::path _filepath{};
     CharMap _charmap{};
     KerningMap _kernmap{};
     InfoDef _info{};

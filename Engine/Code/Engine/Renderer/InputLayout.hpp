@@ -10,7 +10,7 @@ class RHIDevice;
 
 class InputLayout {
 public:
-    InputLayout(const RHIDevice* parent_device);
+    explicit InputLayout(const RHIDevice* parent_device);
     ~InputLayout();
 
     void AddElement(std::size_t memberByteOffset, const ImageFormat& format, const char* semantic, unsigned int inputSlot = 0, bool isVertexData = true, unsigned int instanceDataStepRate = 0);

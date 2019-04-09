@@ -77,7 +77,7 @@ public:
         ,Custom58
     };
 
-    Material(Renderer* renderer);
+    explicit Material(Renderer* renderer);
     Material(Renderer* renderer, const XMLElement& element);
     ~Material() = default;
 

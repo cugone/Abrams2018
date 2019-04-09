@@ -9,7 +9,7 @@
 
 class Image {
 public:
-    Image(const std::string& filePath);
+    explicit Image(const std::string& filePath);
     Image(const Image& img) = delete;
     Image(Image&& img);
     Image& operator=(const Image& rhs) = delete;

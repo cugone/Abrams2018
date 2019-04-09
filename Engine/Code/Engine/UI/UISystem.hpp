@@ -11,7 +11,7 @@ class Renderer;
 
 class UISystem : public EngineSubsystem {
 public:
-    UISystem(Renderer* renderer);
+    explicit UISystem(Renderer* renderer);
     UISystem(const UISystem& other) = default;
     UISystem(UISystem&& other) = default;
     UISystem& operator=(const UISystem& other) = default;

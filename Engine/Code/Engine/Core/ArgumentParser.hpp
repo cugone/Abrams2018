@@ -22,7 +22,7 @@ enum class ArgumentParserState : uint8_t {
 
 class ArgumentParser {
 public:
-    ArgumentParser(const std::string& args) noexcept;
+    explicit ArgumentParser(const std::string& args) noexcept;
     ~ArgumentParser() = default;
     template<typename T>
     friend ArgumentParser& operator>>(ArgumentParser& parser, T&& arg);

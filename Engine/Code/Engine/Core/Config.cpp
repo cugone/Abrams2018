@@ -44,8 +44,7 @@ void Config::GetValue(const std::string& key, bool& value) {
     auto found = _config.find(key);
     if(found != _config.end()) {
         try {
-            int keyAsInt = -9999;
-            keyAsInt = std::stoi(found->second);
+            int keyAsInt = std::stoi(found->second);
             value = keyAsInt != 0;
         } catch(...) {
             std::string keyAsString = StringUtils::ToLowerCase(found->second);

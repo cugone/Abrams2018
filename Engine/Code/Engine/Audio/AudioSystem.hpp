@@ -85,7 +85,7 @@ private:
         void SetVolume(float newVolume);
     };
 public:
-    AudioSystem(std::size_t max_channels = 1024);
+    explicit AudioSystem(std::size_t max_channels = 1024);
     virtual ~AudioSystem();
     virtual void Initialize() override;
     virtual void BeginFrame() override;

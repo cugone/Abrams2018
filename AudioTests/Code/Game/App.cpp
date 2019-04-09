@@ -6,6 +6,8 @@
 
 #include "Engine/Math/MathUtils.hpp"
 
+#include "Engine/System/System.hpp"
+
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Window.hpp"
 
@@ -55,6 +57,10 @@ App::App(std::unique_ptr<JobSystem> jobSystem, std::unique_ptr<FileLogger> fileL
     g_theInput->SetNextHandler(g_theApp);
     g_theApp->SetNextHandler(nullptr);
     g_theSubsystemHead = g_theConsole;
+
+    auto sys = System::GetSystemDesc();
+    g_theFileLogger->LogLine("SYSTEM:");
+    g_theFileLogger->LogLineAndFlush(StringUtils::to_string(sys));
 
 }
 

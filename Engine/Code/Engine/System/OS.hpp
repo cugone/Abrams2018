@@ -25,6 +25,12 @@ namespace System::OS {
         , Windows_Server    = 0b0000'0000'0000'0000'1000'0000'0000'0000
     };
 
+    enum class OperatingSystemArchitecture : uint8_t {
+        Unknown
+        , x86
+        , x64
+    };
+
     OperatingSystem& operator&=(OperatingSystem& a, const OperatingSystem& b);
     OperatingSystem& operator|=(OperatingSystem& a, const OperatingSystem& b);
     OperatingSystem  operator&(OperatingSystem a, const OperatingSystem& b);
@@ -33,6 +39,7 @@ namespace System::OS {
 
     struct OsDesc {
         OperatingSystem type{};
+        OperatingSystemArchitecture architecture{};
         std::string VersionFriendly{};
         friend std::ostream& operator<<(std::ostream& out, const OsDesc& cpu);
     };
@@ -40,6 +47,7 @@ namespace System::OS {
     OsDesc GetOsDesc();
 
     OperatingSystem GetOperatingSystemType();
+    OperatingSystemArchitecture GetOperatingSystemArchitecture();
     std::string GetFriendlyStringFromOperatingSystemType(System::OS::OperatingSystem type);
 
 }

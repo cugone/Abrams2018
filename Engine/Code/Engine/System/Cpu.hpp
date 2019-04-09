@@ -27,8 +27,8 @@ enum class ProcessorArchitecture {
 
 struct CpuDesc {
     ProcessorArchitecture type{};
-    int socketCount = 0;
-    int logicalCount = 0;
+    unsigned long socketCount = 0;
+    unsigned long logicalCount = 0;
     friend std::ostream& operator<<(std::ostream& out, const CpuDesc& cpu);
 };
 

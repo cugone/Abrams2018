@@ -62,6 +62,25 @@ System::OS::OperatingSystem System::OS::operator~(const OperatingSystem& a) {
     return static_cast<OperatingSystem>(~underlying_a);
 }
 
+System::OS::OperatingSystemArchitecture System::OS::GetOperatingSystemArchitecture() {
+    OperatingSystemArchitecture arch{ OperatingSystemArchitecture::Unknown };
+#ifdef HAS_VERSION_HELPERS
+    auto pid = ::GetCurrentProcess();
+    USHORT process_machine_raw{};
+    USHORT native_machine_raw{};
+    bool succeeded = SUCCEEDED(::IsWow64Process2(pid, &process_machine_raw, &native_machine_raw));
+    if(!succeeded) {
+        return arch;
+    }
+    if(process_machine_raw != IMAGE_FILE_MACHINE_UNKNOWN) {
+        arch = OperatingSystemArchitecture::x64;
+    } else {
+        arch = OperatingSystemArchitecture::x86;
+    }
+#endif
+    return arch;
+}
+
 System::OS::OperatingSystem System::OS::GetOperatingSystemType() {
     OperatingSystem type{ OperatingSystem::Unknown };
 #ifdef HAS_VERSION_HELPERS

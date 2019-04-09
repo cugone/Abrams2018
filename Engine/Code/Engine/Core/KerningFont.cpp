@@ -29,8 +29,8 @@ float KerningFont::CalculateTextWidth(const KerningFont& font, const std::string
     for(auto char_iter = text.begin(); char_iter != text.end(); /* DO NOTHING */) {
         KerningFont::CharDef current_char_def = font.GetCharDef(*char_iter);
         auto previous_char = char_iter++;
-        float kern_value = 0.0f;
         if(char_iter != text.end()) {
+            float kern_value = 0.0f;
             auto kern_iter = font._kernmap.find(std::make_pair(*previous_char, *char_iter));
             if(kern_iter != font._kernmap.end()) {
                 kern_value = static_cast<float>(kern_iter->second);

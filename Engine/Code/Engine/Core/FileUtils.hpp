@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Core/BuildConfig.hpp"
+
 #include <cstdlib>
 #include <filesystem>
 #include <functional>
@@ -10,7 +12,9 @@
 namespace FileUtils {
 
 enum class KnownPathID {
-      Windows_AppDataRoaming
+    None
+#ifdef PLATFORM_WINDOWS
+    , Windows_AppDataRoaming
     , Windows_AppDataLocal
     , Windows_AppDataLocalLow
     , Windows_ProgramFiles
@@ -23,13 +27,48 @@ enum class KnownPathID {
     , Windows_CommonProfile
     , Windows_CurrentUserDesktop
     , Windows_CommonDesktop
+#elif PLATFORM_LINUX
+    , Linux_RootUser
+    , Linux_Home
+    , Linux_Etc
+    , Linux_ConfigurationFiles = Linux_Etc
+    , Linux_Bin
+    , Linux_UserBinaries = Linux_Bin
+    , Linux_SBin
+    , Linux_SystemBinaries = Linux_SBin
+    , Linux_Dev
+    , Linux_DeviceFiles = Linux_Dev
+    , Linux_Proc
+    , Linux_ProcessInformation = Linux_Proc
+    , Linux_Var
+    , Linux_VariableFiles = Linux_Var
+    , Linux_Usr
+    , Linux_UserPrograms = Linux_Usr
+    , Linux_UsrBin
+    , Linux_UserProgramsBinaries = Linux_UsrBin
+    , Linux_UsrSBin
+    , Linux_UserProgramsSystemBinaries = Linux_UsrSBin
+    , Linux_Boot
+    , Linux_BootLoader = Linux_Boot
+    , Linux_Lib
+    , Linux_SystemLibraries = Linux_Lib
+    , Linux_Opt
+    , Linux_OptionalAddOnApps = Linux_Opt
+    , Linux_Mnt
+    , Linux_MountDirectory = Linux_Mnt
+    , Linux_Media
+    , Linux_RemovableDevices = Linux_Media
+    , Linux_Src
+    , Linux_ServiceData = Linux_Src
+#endif
+    , Max
 };
 
 bool WriteBufferToFile(void* buffer, std::size_t size, const std::string& filePath);
 bool WriteBufferToFile(const std::string& buffer, const std::string& filePath);
 bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::string& filePath);
 bool ReadBufferFromFile(std::string& out_buffer, const std::string& filePath);
-bool CreateFolders(const std::string& filepath);
+bool CreateFolders(const std::filesystem::path& filepath);
 std::filesystem::path GetKnownFolderPath(const KnownPathID& pathid);
 std::filesystem::path GetExePath();
 std::filesystem::path GetWorkingDirectory();

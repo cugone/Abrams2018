@@ -474,6 +474,18 @@ std::wstring TrimWhitespace(std::wstring string) {
     return string.substr(first_non_space, last_non_space - first_non_space + 1);
 }
 
+void CopyFourCC(char* destFCC, const char* srcFCC) {
+    destFCC[0] = srcFCC[0];
+    destFCC[1] = srcFCC[1];
+    destFCC[2] = srcFCC[2];
+    destFCC[3] = srcFCC[3];
+}
+
+
+std::string FourCCToString(const char* id) {
+    return std::string{ id[0], id[1], id[2], id[3] };
+}
+
 namespace Encryption {
 
 std::string ROT13(std::string text) {

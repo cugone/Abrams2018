@@ -30,16 +30,27 @@
 #define TOKEN_STRINGIZE_SIMPLE(x) #x
 #define TOKEN_STRINGIZE(x) TOKEN_STRINGIZE_SIMPLE(x)
 
-#ifdef _WIN64
+
+#if defined(__clang__)
+#define PLATFORM_CLANG
+#define PLATFORM_LINUX
+#elif defined(__GNUC__) || defined(__GNUG__)
+#define PLATFORM_GNUC
+#define PLATFORM_LINUX
+#endif
+
+#if defined(_MSC_VER) || defined(_WIN64) || defined(_WIN32)
     #ifndef PLATFORM_WINDOWS
         #define PLATFORM_WINDOWS
     #endif
+#endif
 
+#if defined(_WIN64)
     #ifdef PROFILE_BUILD
         #define MAX_PROFILE_HISTORY 0xFFull
         #define MAX_PROFILE_TREES 50ull
     #endif
-#elif _WIN32
+#elif defined(_WIN32)
     #ifndef PLATFORM_WINDOWS
         #define PLATFORM_WINDOWS
     #endif

@@ -42,7 +42,7 @@ public:
     RiffChunk* GetNextChunk();
     unsigned int Load(const std::string& filename);
     unsigned int Load(const std::vector<unsigned char>& data);
-    static std::unique_ptr<Riff::RiffChunk> ReadListChunk(std::vector<unsigned char>& buffer);
+    static std::unique_ptr<Riff::RiffChunk> ReadListChunk(std::stringstream& stream);
 protected:
 private:
     bool ParseDataIntoChunks(std::vector<unsigned char>& buffer);

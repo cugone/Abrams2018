@@ -6,6 +6,10 @@ template<typename T, std::size_t maxSize>
 class MemoryPool {
 public:
 	MemoryPool();
+    MemoryPool(const MemoryPool& other) = delete;
+    MemoryPool(MemoryPool&& other) = delete;
+    MemoryPool& operator=(const MemoryPool& rhs) = delete;
+    MemoryPool& operator=(MemoryPool&& rhs) = delete;
 	~MemoryPool();
 
     [[nodiscard]] void* allocate(std::size_t size);

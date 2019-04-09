@@ -17,7 +17,7 @@ public:
         ViewportDesc view_desc{};
     };
 
-	RenderTargetStack(Renderer* renderer);
+	explicit RenderTargetStack(Renderer* renderer);
     ~RenderTargetStack() = default;
 
     void Push(const RenderTargetStack::Node& node = RenderTargetStack::Node{});

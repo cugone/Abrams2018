@@ -48,9 +48,9 @@ void Config::GetValue(const std::string& key, bool& value) {
             value = keyAsInt != 0;
         } catch(...) {
             std::string keyAsString = StringUtils::ToLowerCase(found->second);
-            if(found->second == "true") {
+            if(keyAsString == "true") {
                 value = true;
-            } else if(found->second == "false") {
+            } else if(keyAsString == "false") {
                 value = false;
             } else {
                 value = false;

@@ -34,7 +34,7 @@ enum class JobState : unsigned int {
 
 class Job {
 public:
-    Job(JobSystem& jobSystem);
+    explicit Job(JobSystem& jobSystem);
     ~Job();
     JobType type{};
     JobState state{};

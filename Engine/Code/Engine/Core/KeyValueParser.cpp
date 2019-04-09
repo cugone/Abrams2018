@@ -34,7 +34,7 @@ bool KeyValueParser::HasKey(const std::string& key) const {
 }
 
 bool KeyValueParser::Parse(const std::string& input) {
-    auto lines = StringUtils::Split(input, '\n', true);
+    auto lines = StringUtils::SplitOnUnquoted(input, '\n', true);
 
     for(auto& cur_line : lines) {
         cur_line = cur_line.substr(0, cur_line.find_first_of('#'));
@@ -134,8 +134,14 @@ bool KeyValueParser::ParseMultiParams(const std::string& input) {
     std::string whole_line = input;
     CollapseMultiParamWhitespace(whole_line);
     ConvertFromMultiParam(whole_line);
-    std::istringstream ss(whole_line);
-    return Parse(ss);
+    auto lines = StringUtils::SplitOnUnquoted(whole_line, '\n');
+    for(const auto& line : lines) {
+        bool did_parse = Parse(line);
+        if(!did_parse) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void KeyValueParser::ConvertFromMultiParam(std::string& whole_line) {

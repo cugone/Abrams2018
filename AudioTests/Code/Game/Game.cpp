@@ -75,9 +75,7 @@ void Game::Render() const {
 
     g_theRenderer->SetViewport(0, 0, static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_WIDTH), static_cast<unsigned int>(GRAPHICS_OPTION_WINDOW_HEIGHT));
 
-    g_theRenderer->SetModelMatrix(Matrix4::GetIdentity());
-    g_theRenderer->SetViewMatrix(Matrix4::GetIdentity());
-    g_theRenderer->SetProjectionMatrix(Matrix4::GetIdentity());
+    g_theRenderer->ResetModelViewProjection();
 
     const auto& window_dimensions = g_theRenderer->GetOutput()->GetDimensions();
     float window_width = static_cast<float>(window_dimensions.x);

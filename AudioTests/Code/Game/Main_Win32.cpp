@@ -1,5 +1,5 @@
-
 #include "Engine/Core/ArgumentParser.hpp"
+#include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/Config.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/KeyValueParser.hpp"
@@ -8,14 +8,13 @@
 #include "Engine/Renderer/Window.hpp"
 
 #include "Engine/RHI/RHIOutput.hpp"
-
 #include "Game/GameCommon.hpp"
 #include "Game/GameConfig.hpp"
 
 #include <sstream>
 
 void Initialize(HINSTANCE hInstance, LPSTR lpCmdLine, int nShowCmd);
-App* CreateApp();
+App* CreateApp(HINSTANCE hInstance, LPSTR lpCmdLine, int nShowCmd);
 void MainLoop();
 void RunMessagePump();
 void Shutdown();
@@ -27,12 +26,15 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpC
     return 0;
 }
 
-void Initialize(HINSTANCE /*hInstance*/, LPSTR /*lpCmdLine*/, int /*nShowCmd*/) {
-    g_theApp = CreateApp();
+void Initialize(HINSTANCE hInstance, LPSTR lpCmdLine, int nShowCmd) {
+    g_theApp = CreateApp(hInstance, lpCmdLine, nShowCmd);
     g_theApp->Initialize();
 }
 
-App* CreateApp() {
+App* CreateApp(HINSTANCE hInstance, LPSTR lpCmdLine, int nShowCmd) {
+    UNUSED(hInstance);
+    UNUSED(nShowCmd);
+    Config c{ KeyValueParser{std::string{lpCmdLine}} };
     std::unique_ptr<JobSystem> jobSystem = std::make_unique<JobSystem>(-1, static_cast<std::size_t>(JobType::Max), new std::condition_variable);
     std::unique_ptr<FileLogger> fileLogger = std::make_unique<FileLogger>(*jobSystem, "game");
     return new App(std::move(jobSystem), std::move(fileLogger));

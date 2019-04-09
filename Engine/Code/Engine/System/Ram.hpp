@@ -5,8 +5,8 @@
 namespace System::Ram {
 
 struct RamDesc {
-    unsigned long long installed = 0ull;
-    unsigned long long available = 0ull;
+    unsigned long long installed{};
+    unsigned long long available{};
     friend std::ostream& operator<<(std::ostream& out, const RamDesc& desc);
 };
 

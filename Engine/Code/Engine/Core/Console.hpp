@@ -24,7 +24,7 @@ public:
         std::string help_text_long{};
         std::function<void(const std::string& args)> command_function = [](const std::string& /*args*/) {};
     };
-    Console(Renderer* renderer);
+    explicit Console(Renderer* renderer);
     virtual ~Console();
 
     virtual void Initialize() override;

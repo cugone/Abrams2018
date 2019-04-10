@@ -108,7 +108,7 @@ void FileLogger::FinalizeLog() {
     opts.use_separator = true;
     opts.is_filename = true;
     to_p.replace_filename(logname + "_" + TimeUtils::GetDateTimeStampFromNow(opts) + ".log");
-    to_p = FS::canonical(to_p);
+    //Canonicalizing output file that doesn't already exist is an error.
     to_p.make_preferred();
     _stream.flush();
     _stream.close();

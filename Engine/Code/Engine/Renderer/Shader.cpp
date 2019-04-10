@@ -15,7 +15,9 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <iostream>
 #include <sstream>
+#include <system_error>
 
 Shader::Shader(Renderer* renderer, ShaderProgram* shaderProgram /*= nullptr*/, DepthStencilState* depthStencil /*= nullptr*/, RasterState* rasterState /*= nullptr*/, BlendState* blendState /*= nullptr*/, Sampler* sampler /*= nullptr*/)
 : _renderer(renderer)
@@ -140,7 +142,14 @@ bool Shader::LoadFromXml(Renderer* renderer, const XMLElement& element) {
     }
 
     FS::path p(sp_src);
-    p = FS::canonical(p);
+    if(!StringUtils::StartsWith(p.string(), "__")) {
+        std::error_code ec{};
+        p = FS::canonical(p, ec);
+        if(ec) {
+            std::cout << ec.message();
+            return false;
+        }
+    }
     p.make_preferred();
     if(nullptr == (_shader_program = _renderer->GetShaderProgram(p.string()))) {
         if(StringUtils::StartsWith(p.string(), "__")) {

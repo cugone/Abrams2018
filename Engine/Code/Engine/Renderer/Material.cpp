@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <iostream>
 #include <sstream>
 
 Material::Material(Renderer* renderer)
@@ -58,7 +59,17 @@ bool Material::LoadFromXml(const XMLElement& element) {
         DataUtils::ValidateXmlElement(*xml_shader, "shader", "", "src");
         auto file = DataUtils::ParseXmlAttribute(*xml_shader, "src", "");
         FS::path p(file);
-        p = FS::canonical(p);
+        if(!StringUtils::StartsWith(p.string(), "__")) {
+            std::error_code ec{};
+            p = FS::canonical(p, ec);
+            if(ec) {
+                std::ostringstream ss;
+                ss << "Shader referenced in Material file \"" << _name << "\" could not be found.";
+                ss << "The filesystem returned an error: " << ec.message() << '\n';
+                ERROR_AND_DIE(ss.str().c_str());
+                return false;
+            }
+        }
         p.make_preferred();
         if(auto shader = _renderer->GetShader(p.string())) {
             _shader = shader;
@@ -98,79 +109,168 @@ bool Material::LoadFromXml(const XMLElement& element) {
         if(auto xml_diffuse = xml_textures->FirstChildElement("diffuse")) {
             auto file = DataUtils::ParseXmlAttribute(*xml_diffuse, "src", "");
             FS::path p(file);
-            p = FS::canonical(p);
-            p.make_preferred();
-            const auto& p_str = p.string();
-            bool empty_path = p.empty();
-            bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
-            bool invalid_src = empty_path || texture_not_exist;
-            auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
-            _textures[0] = tex;
+            bool bad_path = false;
+            if(!StringUtils::StartsWith(p.string(), "__")) {
+                std::error_code ec{};
+                p = FS::canonical(p, ec);
+                if(ec) {
+                    std::ostringstream ss;
+                    ss << "Diffuse texture referenced in Material file \"" << _name << "\" could not be found.";
+                    ss << "The filesystem returned an error: " << ec.message() << '\n';
+                    bad_path = true;
+                    _textures[0] = invalid_tex;
+                    DebuggerPrintf(ss.str().c_str());
+                }
+            }
+            if(!bad_path) {
+                p.make_preferred();
+                const auto& p_str = p.string();
+                bool empty_path = p.empty();
+                bool texture_not_loaded = loaded_textures.find(p_str) == loaded_textures.end();
+                if(texture_not_loaded) {
+                    _renderer->CreateTexture(p.string(), IntVector3::XY_AXIS);
+                    texture_not_loaded = loaded_textures.find(p_str) == loaded_textures.end();
+                }
+                bool texture_not_exist = !empty_path && texture_not_loaded;
+                bool invalid_src = empty_path || texture_not_exist;
+                auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
+                _textures[0] = tex;
+            }
         }
 
         if(auto xml_normal = xml_textures->FirstChildElement("normal")) {
             auto file = DataUtils::ParseXmlAttribute(*xml_normal, "src", "");
             FS::path p(file);
-            p = FS::canonical(p);
-            p.make_preferred();
-            const auto& p_str = p.string();
-            bool empty_path = p.empty();
-            bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
-            bool invalid_src = empty_path || texture_not_exist;
-            auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
-            _textures[1] = tex;
+            bool bad_path = false;
+            if(!StringUtils::StartsWith(p.string(), "__")) {
+                std::error_code ec{};
+                p = FS::canonical(p, ec);
+                if(ec) {
+                    std::ostringstream ss;
+                    ss << "Normal texture referenced in Material file \"" << _name << "\" could not be found.";
+                    ss << "The filesystem returned an error: " << ec.message() << '\n';
+                    bad_path = true;
+                    _textures[1] = invalid_tex;
+                    DebuggerPrintf(ss.str().c_str());
+                }
+            }
+            if(!bad_path) {
+                p.make_preferred();
+                const auto& p_str = p.string();
+                bool empty_path = p.empty();
+                bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
+                bool invalid_src = empty_path || texture_not_exist;
+                auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
+                _textures[1] = tex;
+            }
         }
 
         if(auto xml_displacement = xml_textures->FirstChildElement("displacement")) {
             auto file = DataUtils::ParseXmlAttribute(*xml_displacement, "src", "");
             FS::path p(file);
-            p = FS::canonical(p);
-            p.make_preferred();
-            const auto& p_str = p.string();
-            bool empty_path = p.empty();
-            bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
-            bool invalid_src = empty_path || texture_not_exist;
-            auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
-            _textures[2] = tex;
+            bool bad_path = false;
+            if(!StringUtils::StartsWith(p.string(), "__")) {
+                std::error_code ec{};
+                p = FS::canonical(p, ec);
+                if(ec) {
+                    std::ostringstream ss;
+                    ss << "Displacement texture referenced in Material file \"" << _name << "\" could not be found.";
+                    ss << "The filesystem returned an error: " << ec.message() << '\n';
+                    _textures[2] = invalid_tex;
+                    bad_path = true;
+                    DebuggerPrintf(ss.str().c_str());
+                }
+            }
+            if(!bad_path) {
+                p.make_preferred();
+                const auto& p_str = p.string();
+                bool empty_path = p.empty();
+                bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
+                bool invalid_src = empty_path || texture_not_exist;
+                auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
+                _textures[2] = tex;
+            }
         }
 
         if(auto xml_specular = xml_textures->FirstChildElement("specular")) {
             auto file = DataUtils::ParseXmlAttribute(*xml_specular, "src", "");
             FS::path p(file);
-            p = FS::canonical(p);
-            p.make_preferred();
-            const auto& p_str = p.string();
-            bool empty_path = p.empty();
-            bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
-            bool invalid_src = empty_path || texture_not_exist;
-            auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
-            _textures[3] = tex;
+            bool bad_path = false;
+            if(!StringUtils::StartsWith(p.string(), "__")) {
+                std::error_code ec{};
+                p = FS::canonical(p, ec);
+                if(ec) {
+                    std::ostringstream ss;
+                    ss << "Specular texture referenced in Material file \"" << _name << "\" could not be found.";
+                    ss << "The filesystem returned an error: " << ec.message() << '\n';
+                    _textures[3] = invalid_tex;
+                    bad_path = true;
+                    DebuggerPrintf(ss.str().c_str());
+                }
+            }
+            if(!bad_path) {
+                p.make_preferred();
+                const auto& p_str = p.string();
+                bool empty_path = p.empty();
+                bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
+                bool invalid_src = empty_path || texture_not_exist;
+                auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
+                _textures[3] = tex;
+            }
         }
 
         if(auto xml_occlusion = xml_textures->FirstChildElement("occlusion")) {
             auto file = DataUtils::ParseXmlAttribute(*xml_occlusion, "src", "");
             FS::path p(file);
-            p = FS::canonical(p);
-            p.make_preferred();
-            const auto& p_str = p.string();
-            bool empty_path = p.empty();
-            bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
-            bool invalid_src = empty_path || texture_not_exist;
-            auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
-            _textures[4] = tex;
+            bool bad_path = false;
+            if(!StringUtils::StartsWith(p.string(), "__")) {
+                std::error_code ec{};
+                p = FS::canonical(p, ec);
+                if(ec) {
+                    std::ostringstream ss;
+                    ss << "Occlusion texture referenced in Material file \"" << _name << "\" could not be found.";
+                    ss << "The filesystem returned an error: " << ec.message() << '\n';
+                    _textures[4] = invalid_tex;
+                    bad_path = true;
+                    DebuggerPrintf(ss.str().c_str());
+                }
+            }
+            if(!bad_path) {
+                p.make_preferred();
+                const auto& p_str = p.string();
+                bool empty_path = p.empty();
+                bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
+                bool invalid_src = empty_path || texture_not_exist;
+                auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
+                _textures[4] = tex;
+            }
         }
 
         if(auto xml_emissive = xml_textures->FirstChildElement("emissive")) {
             auto file = DataUtils::ParseXmlAttribute(*xml_emissive, "src", "");
             FS::path p(file);
-            p = FS::canonical(p);
-            p.make_preferred();
-            const auto& p_str = p.string();
-            bool empty_path = p.empty();
-            bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
-            bool invalid_src = empty_path || texture_not_exist;
-            auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
-            _textures[5] = tex;
+            bool bad_path = false;
+            if(!StringUtils::StartsWith(p.string(), "__")) {
+                std::error_code ec{};
+                p = FS::canonical(p, ec);
+                if(ec) {
+                    std::ostringstream ss;
+                    ss << "Emissive texture referenced in Material file \"" << _name << "\" could not be found.";
+                    ss << "The filesystem returned an error: " << ec.message() << '\n';
+                    _textures[5] = invalid_tex;
+                    bad_path = true;
+                    DebuggerPrintf(ss.str().c_str());
+                }
+            }
+            if(!bad_path) {
+                p.make_preferred();
+                const auto& p_str = p.string();
+                bool empty_path = p.empty();
+                bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
+                bool invalid_src = empty_path || texture_not_exist;
+                auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
+                _textures[5] = tex;
+            }
         }
         {
             auto numTextures = DataUtils::GetChildElementCount(*xml_textures, "texture");
@@ -189,14 +289,28 @@ bool Material::LoadFromXml(const XMLElement& element) {
             }
             auto file = DataUtils::ParseXmlAttribute(elem, "src", "");
             FS::path p(file);
-            p = FS::canonical(p);
-            p.make_preferred();
-            const auto& p_str = p.string();
-            bool empty_path = p.empty();
-            bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
-            bool invalid_src = empty_path || texture_not_exist;
-            auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
-            _textures[index] = tex;
+            bool bad_path = false;
+            if(!StringUtils::StartsWith(p.string(), "__")) {
+                std::error_code ec{};
+                p = FS::canonical(p, ec);
+                if(ec) {
+                    std::ostringstream ss;
+                    ss << "Custom texture at index " << index << " referenced in Material file \"" << _name << "\" could not be found.";
+                    ss << "The filesystem returned an error: " << ec.message() << '\n';
+                    bad_path = true;
+                    _textures[index] = invalid_tex;
+                    DebuggerPrintf(ss.str().c_str());
+                }
+            }
+            if(!bad_path) {
+                p.make_preferred();
+                const auto& p_str = p.string();
+                bool empty_path = p.empty();
+                bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
+                bool invalid_src = empty_path || texture_not_exist;
+                auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
+                _textures[index] = tex;
+            }
         });
     }
     return true;

@@ -311,7 +311,14 @@ StructuredBuffer* Renderer::CreateStructuredBuffer(const StructuredBuffer::buffe
 bool Renderer::RegisterTexture(const std::string& name, Texture* texture) {
     namespace FS = std::filesystem;
     FS::path p(name);
-    p = FS::canonical(p);
+    if(!StringUtils::StartsWith(p.string(), "__")) {
+        std::error_code ec{};
+        p = FS::canonical(p, ec);
+        if(ec) {
+            std::cout << ec.message();
+            return false;
+        }
+    }
     p.make_preferred();
     auto found_texture = _textures.find(p.string());
     if(found_texture == _textures.end()) {
@@ -325,7 +332,9 @@ bool Renderer::RegisterTexture(const std::string& name, Texture* texture) {
 Texture* Renderer::GetTexture(const std::string& nameOrFile) {
     namespace FS = std::filesystem;
     FS::path p(nameOrFile);
-    p = FS::canonical(p);
+    if(!StringUtils::StartsWith(p.string(), "__")) {
+        p = FS::canonical(p);
+    }
     p.make_preferred();
     auto found_iter = _textures.find(p.string());
     if(found_iter == _textures.end()) {
@@ -2992,7 +3001,9 @@ RHIOutput* Renderer::GetOutput() const {
 ShaderProgram* Renderer::GetShaderProgram(const std::string& nameOrFile) {
     namespace FS = std::filesystem;
     FS::path p{ nameOrFile };
-    p = FS::canonical(p);
+    if(!StringUtils::StartsWith(p.string(), "__")) {
+        p = FS::canonical(p);
+    }
     p.make_preferred();
     auto found_iter = _shader_programs.find(p.string());
     if(found_iter == _shader_programs.end()) {
@@ -3595,6 +3606,7 @@ void Renderer::DisableDepth() {
 Texture* Renderer::Create1DTexture(const std::string& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    //TODO: canonical test
     p = FS::canonical(p);
     p.make_preferred();
     if(!FS::exists(p)) {
@@ -3737,6 +3749,7 @@ Texture* Renderer::Create1DTextureFromMemory(const std::vector<Rgba>& data, unsi
 Texture* Renderer::Create2DTexture(const std::string& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    //TODO: canonical test
     p = FS::canonical(p);
     p.make_preferred();
     if(!FS::exists(p)) {
@@ -4040,6 +4053,7 @@ Texture* Renderer::Create2DTextureArrayFromGifBuffer(const unsigned char* data, 
 Texture* Renderer::Create3DTexture(const std::string& filepath, const IntVector3& dimensions, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
+    //TODO: canonical test
     p = FS::canonical(p);
     p.make_preferred();
     if(!FS::exists(p)) {

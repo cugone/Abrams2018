@@ -92,6 +92,10 @@ void Game::Render() const {
     g_theRenderer->SetViewMatrix(_camera2->GetViewMatrix());
     g_theRenderer->SetProjectionMatrix(_camera2->GetProjectionMatrix());
 
+    g_theRenderer->SetModelMatrix(Matrix4::CreateScaleMatrix(Vector2::ONE * 100.0f));
+    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("Test"));
+    g_theRenderer->DrawQuad2D();
+
 }
 
 void Game::EndFrame() {

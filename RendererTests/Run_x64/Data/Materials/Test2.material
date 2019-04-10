@@ -1,6 +1,0 @@
-<material name="Test2">
-    <shader src="Test2" />
-    <textures>
-        <diffuse src="mandelbrot_out" />
-    </textures>
-</material>

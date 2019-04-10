@@ -60,7 +60,7 @@ namespace FileUtils {
             }
         };
         struct AviSubChunk {
-            char fourcc[4];
+            char fourcc[4]{};
             std::unique_ptr<uint8_t[]> subdata{};
             uint32_t data_length{};
         };

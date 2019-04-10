@@ -37,106 +37,112 @@ namespace FileUtils {
             ss.clear();
             ss.seekp(0);
             ss.seekg(0);
-            AviHeader riff_header{};
-            if(!ss.read(reinterpret_cast<char*>(&riff_header), sizeof(riff_header))) {
+            AviHeader cur_riff_header{};
+            if(!ss.read(reinterpret_cast<char*>(&cur_riff_header), sizeof(cur_riff_header))) {
                 return AVI_ERROR_NOT_A_AVI;
             }
-            if(StringUtils::FourCC(riff_header.fourcc) == RiffChunkID::LIST) {
-                auto chunk = std::make_unique<AviSubChunk>();
-                chunk->data_length = riff_header.length - 4;
-                if(!ss.read(reinterpret_cast<char*>(chunk->fourcc), 4)) {
-                    return AVI_ERROR_BAD_FILE;
-                }
-                chunk->subdata = std::move(std::make_unique<uint8_t[]>(chunk->data_length));
-                if(!ss.read(reinterpret_cast<char*>(chunk->subdata.get()), chunk->data_length)) {
-                    return AVI_ERROR_BAD_FILE;
-                }
-                switch(StringUtils::FourCC(chunk->fourcc)) {
-                case AviChunkID::HDRL:
-                {
-                    std::stringstream ss_hdrl(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
-                    ss_hdrl.write(reinterpret_cast<char*>(chunk->subdata.get()), chunk->data_length);
-                    ss_hdrl.clear();
-                    ss_hdrl.seekp(0);
-                    ss_hdrl.seekg(0);
-                    AviHeader avih{};
-                    if(!ss_hdrl.read(reinterpret_cast<char*>(&avih), sizeof(avih))) {
+            ss.clear();
+            ss.seekp(0);
+            ss.seekg(0);
+            while(ss.read(reinterpret_cast<char*>(&cur_riff_header), sizeof(cur_riff_header))) {
+                if(StringUtils::FourCC(cur_riff_header.fourcc) == RiffChunkID::LIST) {
+                //if(StringUtils::FourCC(cur_riff_header.fourcc) == RiffChunkID::LIST) {
+                    //{
+                    //    auto list_chunk = riff_data.ReadListChunk(ss);
+                    //    if(!list_chunk) {
+                    //        return AVI_ERROR_BAD_FILE;
+                    //    }
+                    //}
+                    auto chunk = std::make_unique<AviSubChunk>();
+                    chunk->data_length = cur_riff_header.length;
+                    if(!ss.read(reinterpret_cast<char*>(&chunk->fourcc), sizeof(chunk->fourcc))) {
                         return AVI_ERROR_BAD_FILE;
                     }
-                    auto avih_chunk = std::make_unique<AviSubChunk>();
-                    avih_chunk->data_length = avih.length - 4;
-                    avih_chunk->fourcc[0] = avih.fourcc[0];
-                    avih_chunk->fourcc[1] = avih.fourcc[1];
-                    avih_chunk->fourcc[2] = avih.fourcc[2];
-                    avih_chunk->fourcc[3] = avih.fourcc[3];
-                    avih_chunk->subdata = std::move(std::make_unique<uint8_t[]>(avih_chunk->data_length));
-                    if(!ss_hdrl.read(reinterpret_cast<char*>(avih_chunk->subdata.get()), avih_chunk->data_length)) {
+                    chunk->subdata = std::move(std::make_unique<uint8_t[]>(chunk->data_length));
+                    if(!ss.read(reinterpret_cast<char*>(chunk->subdata.get()), chunk->data_length)) {
                         return AVI_ERROR_BAD_FILE;
                     }
-                    if(StringUtils::FourCC(avih_chunk->fourcc) == AviChunkID::AVIH) {
-                        std::stringstream ss_avih(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
-                        ss_avih.write(reinterpret_cast<char*>(avih_chunk->subdata.get()), avih_chunk->data_length);
-                        ss_avih.clear();
-                        ss_avih.seekp(0);
-                        ss_avih.seekg(0);
-                        if(!ss_avih.read(reinterpret_cast<char*>(&_hdrl), avih_chunk->data_length)) {
+                    switch(StringUtils::FourCC(chunk->fourcc)) {
+                    case AviChunkID::HDRL:
+                    {
+                        std::stringstream ss_hdrl(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
+                        ss_hdrl.write(reinterpret_cast<char*>(chunk->subdata.get()), chunk->data_length);
+                        ss_hdrl.clear();
+                        ss_hdrl.seekp(0);
+                        ss_hdrl.seekg(0);
+                        AviHeader avih{};
+                        if(!ss_hdrl.read(reinterpret_cast<char*>(&avih), sizeof(avih))) {
                             return AVI_ERROR_BAD_FILE;
                         }
-                        _frames.reserve(GetFrameCount());
+                        auto avih_chunk = std::make_unique<AviSubChunk>();
+                        avih_chunk->data_length = avih.length;
+                        StringUtils::CopyFourCC(avih_chunk->fourcc, avih.fourcc);
+                        avih_chunk->subdata = std::move(std::make_unique<uint8_t[]>(avih_chunk->data_length));
+                        if(!ss_hdrl.read(reinterpret_cast<char*>(avih_chunk->subdata.get()), avih_chunk->data_length)) {
+                            return AVI_ERROR_BAD_FILE;
+                        }
+                        if(StringUtils::FourCC(avih_chunk->fourcc) == AviChunkID::AVIH) {
+                            std::stringstream ss_avih(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
+                            ss_avih.write(reinterpret_cast<char*>(avih_chunk->subdata.get()), avih_chunk->data_length);
+                            ss_avih.clear();
+                            ss_avih.seekp(0);
+                            ss_avih.seekg(0);
+                            if(!ss_avih.read(reinterpret_cast<char*>(&_hdrl), avih_chunk->data_length)) {
+                                return AVI_ERROR_BAD_FILE;
+                            }
+                            _frames.reserve(GetFrameCount());
+                        }
+                        break;
                     }
-                    break;
-                }
-                case AviChunkID::MOVI:
-                {
-                    AviMoviChunk frame{};
-                    frame.length = riff_header.length;
-                    frame.data = std::move(std::make_unique<uint8_t[]>(frame.length));
-                    if(!ss.read(reinterpret_cast<char*>(frame.data.get()), frame.length)) {
-                        return AVI_ERROR_BAD_FILE;
-                    }
-                    _frames.emplace_back(frame.length, std::move(frame.data));
-                    break;
-                }
-                case AviChunkID::JUNK:
-                {
+                    case AviChunkID::MOVI:
                     {
-                        std::ostringstream err_ss{};
-                        err_ss << "JUNK AVI Chunk.";
-                        err_ss << " Length: " << riff_header.length << '\n';
-                        DebuggerPrintf(err_ss.str().c_str());
+                        AviMoviChunk frame{};
+                        frame.length = cur_riff_header.length;
+                        frame.data = std::move(std::make_unique<uint8_t[]>(frame.length));
+                        if(!ss.read(reinterpret_cast<char*>(frame.data.get()), frame.length)) {
+                            return AVI_ERROR_BAD_FILE;
+                        }
+                        _frames.emplace_back(frame.length, std::move(frame.data));
+                        break;
                     }
-                    ss.seekp(riff_header.length, std::ios_base::cur);
-                    ss.seekg(riff_header.length, std::ios_base::cur);
-                    break;
-                }
-                case AviChunkID::INFO:
-                {
+                    case AviChunkID::JUNK:
                     {
-                        std::ostringstream err_ss{};
-                        err_ss << "INFO AVI Chunk.";
-                        err_ss << " Length: " << riff_header.length << '\n';
-                        DebuggerPrintf(err_ss.str().c_str());
+                        {
+                            std::ostringstream err_ss{};
+                            err_ss << "JUNK AVI Chunk.";
+                            err_ss << " Length: " << cur_riff_header.length << '\n';
+                            DebuggerPrintf(err_ss.str().c_str());
+                        }
+                        ss.seekp(cur_riff_header.length, std::ios_base::cur);
+                        ss.seekg(cur_riff_header.length, std::ios_base::cur);
+                        break;
                     }
-                    ss.seekp(riff_header.length, std::ios_base::cur);
-                    ss.seekg(riff_header.length, std::ios_base::cur);
-                    break;
-                }
-                default:
-                {
+                    case AviChunkID::INFO:
                     {
-                        std::ostringstream err_ss{};
-                        err_ss << "Unknown AVI Chunk ID: ";
-                        err_ss << chunk->fourcc[0]
-                            << chunk->fourcc[1]
-                            << chunk->fourcc[2]
-                            << chunk->fourcc[3];
-                        err_ss << " Length: " << riff_header.length << '\n';
-                        DebuggerPrintf(err_ss.str().c_str(), "%s");
+                        {
+                            std::ostringstream err_ss{};
+                            err_ss << "INFO AVI Chunk.";
+                            err_ss << " Length: " << cur_riff_header.length << '\n';
+                            DebuggerPrintf(err_ss.str().c_str());
+                        }
+                        ss.seekp(cur_riff_header.length, std::ios_base::cur);
+                        ss.seekg(cur_riff_header.length, std::ios_base::cur);
+                        break;
                     }
-                    ss.seekp(riff_header.length, std::ios_base::cur);
-                    ss.seekg(riff_header.length, std::ios_base::cur);
-                    break;
-                }
+                    default:
+                    {
+                        {
+                            std::ostringstream err_ss{};
+                            err_ss << "Unknown AVI Chunk ID: ";
+                            err_ss << StringUtils::FourCCToString(chunk->fourcc);
+                            err_ss << " Length: " << cur_riff_header.length << '\n';
+                            DebuggerPrintf(err_ss.str().c_str(), "%s");
+                        }
+                        ss.seekp(cur_riff_header.length, std::ios_base::cur);
+                        ss.seekg(cur_riff_header.length, std::ios_base::cur);
+                        break;
+                    }
+                    }
                 }
             }
         }

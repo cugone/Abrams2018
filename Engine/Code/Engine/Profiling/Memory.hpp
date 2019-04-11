@@ -20,13 +20,19 @@ public:
             return leaked_objs || leaked_bytes;
         }
         operator std::string() {
+#ifdef TRACK_MEMORY
             std::ostringstream ss;
-            ss << "Leaked objects: " << leaked_objs << " for " << leaked_bytes << " bytes.\n";
             std::string s = ss.str();
+            ss << "Leaked objects: " << leaked_objs << " for " << leaked_bytes << " bytes.\n";
             return s;
+#else
+            return {};
+#endif
         }
         friend std::ostream& operator<<(std::ostream& os, const status_t s) {
+#ifdef TRACK_MEMORY
             os << "Leaked objects: " << s.leaked_objs << " for " << s.leaked_bytes << " bytes.\n";
+#endif
             return os;
         }
     };
@@ -38,15 +44,19 @@ public:
             return leaked_objs || leaked_bytes;
         }
         operator std::string() {
+#ifdef TRACK_MEMORY
             std::ostringstream ss;
             ss << "Frame " << frame_id << ": Leaked objects: " << leaked_objs << " for " << leaked_bytes << " bytes.\n";
             std::string s = ss.str();
             return s;
+#else
+            return {};
+#endif
         }
     };
 
     [[nodiscard]] static void* allocate(std::size_t n) {
-        if(_active) {
+        if(is_enabled()) {
             ++frameCount;
             frameSize += n;
             ++allocCount;
@@ -62,7 +72,7 @@ public:
     }
 
     static void deallocate(void* ptr, std::size_t size) noexcept {
-        if(_active) {
+        if(is_enabled()) {
             ++framefreeCount;
             framefreeSize += size;
             ++freeCount;
@@ -71,32 +81,44 @@ public:
         std::free(ptr);
     }
 
-    static void enable(bool e) {
+    static void enable([[maybe_unused]]bool e) {
+#ifdef TRACK_MEMORY
         _active = e;
+#endif
     }
 
     static bool is_enabled() {
+#ifdef TRACK_MEMORY
         return _active;
+#else
+        return false;
+#endif
     }
 
-    static void trace(bool doTrace) {
+    static void trace([[maybe_unused]]bool doTrace) {
+#ifdef TRACK_MEMORY
         _trace = doTrace;
+#endif
     }
 
     static void tick() {
+#ifdef TRACK_MEMORY
         if(auto f = Memory::frame_status()) {
             std::string status = f;
             DebuggerPrintf(status.c_str(), "%s");
         }
         ++frameCounter;
         resetframecounters();
+#endif
     }
 
     static void resetframecounters() {
+#ifdef TRACK_MEMORY
         frameSize = 0;
         frameCount = 0;
         framefreeCount = 0;
         framefreeSize = 0;
+#endif
     }
 
     static status_t status() {

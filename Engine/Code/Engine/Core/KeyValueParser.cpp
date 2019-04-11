@@ -52,7 +52,7 @@ bool KeyValueParser::Parse(const std::string& input) {
             continue;
         }
         bool exactly_one_tf = (true_count == 1 || false_count == 1) && (true_count ^ false_count);
-        bool multi_tf = !exactly_one_tf && (true_count > 1 || false_count > 1);
+        bool multi_tf = !exactly_one_tf && (true_count > 0 || false_count > 0);
         bool atleast_one_eq = eq_count > 0;
         bool multi_eq = eq_count > 1;
         bool multi_params = multi_eq || (atleast_one_eq && (true_count > 0 || false_count > 0));

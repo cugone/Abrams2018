@@ -49,8 +49,8 @@ void RHIInstance::DestroyInstance() {
     }
 }
 
-RHIDevice* RHIInstance::CreateDevice() const noexcept {
-    return new RHIDevice();
+std::unique_ptr<RHIDevice> RHIInstance::CreateDevice() const noexcept {
+    return std::move(std::make_unique<RHIDevice>());
 }
 
 RHIInstance::~RHIInstance() {

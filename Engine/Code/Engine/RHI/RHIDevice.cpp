@@ -30,11 +30,7 @@ RHIDevice::~RHIDevice() {
     }
 }
 
-RHIDeviceContext* RHIDevice::GetImmediateContext() const {
-    return _immediate_context;
-}
-
-RHIOutput* RHIDevice::CreateOutput(Window* window, const RHIOutputMode& outputMode /*= RHIOutputMode::WINDOWED*/) {
+std::unique_ptr<RHIOutput> RHIDevice::CreateOutput(Window* window, const RHIOutputMode& outputMode /*= RHIOutputMode::WINDOWED*/) {
     if(!window) {
         ERROR_AND_DIE("RHIDevice: Invalid Window!");
     }
@@ -42,7 +38,7 @@ RHIOutput* RHIDevice::CreateOutput(Window* window, const RHIOutputMode& outputMo
     return CreateOutputFromWindow(window);
 }
 
-RHIOutput* RHIDevice::CreateOutput(const IntVector2& clientSize, const IntVector2& clientPosition /*= IntVector2::ZERO*/, const RHIOutputMode& outputMode /*= RHIOutputMode::WINDOWED*/) {
+std::unique_ptr<RHIOutput> RHIDevice::CreateOutput(const IntVector2& clientSize, const IntVector2& clientPosition /*= IntVector2::ZERO*/, const RHIOutputMode& outputMode /*= RHIOutputMode::WINDOWED*/) {
     Window* window = new Window;
     window->SetDimensionsAndPosition(clientPosition, clientSize);
     window->SetDisplayMode(outputMode);
@@ -81,7 +77,7 @@ ConstantBuffer* RHIDevice::CreateConstantBuffer(const ConstantBuffer::buffer_t& 
     return new ConstantBuffer(this, buffer, buffer_size, usage, bindUsage);
 }
 
-RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
+std::unique_ptr<RHIOutput> RHIDevice::CreateOutputFromWindow(Window*& window) {
 
     if(window == nullptr) {
         ERROR_AND_DIE("RHIDevice: Invalid Window!");
@@ -95,7 +91,7 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
     if(adapters.empty()) {
         delete window;
         window = nullptr;
-        DebuggerPrintf("No graphics cards installed!");
+        DebuggerPrintf("Graphics card not found.");
         return nullptr;
     }
 
@@ -156,7 +152,7 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
     
     _dx_device = dx_device;
     _dx_highestSupportedFeatureLevel = supported_feature_level;
-    _immediate_context = new RHIDeviceContext(this, dx_context);
+    _immediate_context = std::make_unique<RHIDeviceContext>(this, dx_context);
 
     DXGI_SWAP_CHAIN_DESC1 swap_chain_desc{};
     auto window_dims = window->GetDimensions();
@@ -217,8 +213,7 @@ RHIOutput* RHIDevice::CreateOutputFromWindow(Window*& window) {
         _dx_debug = nullptr;
     }
 #endif
-
-    return new RHIOutput(this, window, dxgi_swap_chain);
+    return std::move(std::make_unique<RHIOutput>(this, window, dxgi_swap_chain));
 }
 
 std::vector<OutputInfo> RHIDevice::GetOutputsFromAdapter(const AdapterInfo& a) const noexcept {
@@ -297,6 +292,11 @@ std::vector<ConstantBuffer*> RHIDevice::CreateConstantBuffersFromByteCode(ID3DBl
     cbufferReflection->Release();
     cbufferReflection = nullptr;
     return cbuffers;
+}
+
+
+RHIDeviceContext* RHIDevice::GetImmediateContext() const {
+    return _immediate_context.release();
 }
 
 std::vector<ConstantBuffer*> RHIDevice::CreateConstantBuffersUsingReflection(ID3D11ShaderReflection& cbufferReflection) const {

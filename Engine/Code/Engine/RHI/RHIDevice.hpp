@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Engine/RHI/RHITypes.hpp"
+#include "Engine/RHI/RHIDeviceContext.hpp"
+#include "Engine/RHI/RHIOutput.hpp"
 
 #include "Engine/Math/IntVector2.hpp"
 
@@ -10,6 +12,7 @@
 #include "Engine/Renderer/ConstantBuffer.hpp"
 #include "Engine/Renderer/VertexBuffer.hpp"
 
+#include <memory>
 #include <set>
 #include <vector>
 
@@ -27,10 +30,8 @@ public:
     RHIDevice() = default;
     ~RHIDevice();
 
-    RHIDeviceContext* GetImmediateContext() const;
-
-    RHIOutput* CreateOutput(Window* window, const RHIOutputMode& mode = RHIOutputMode::Windowed);
-    RHIOutput* CreateOutput(const IntVector2& clientSize, const IntVector2& clientPosition = IntVector2::ZERO, const RHIOutputMode& outputMode = RHIOutputMode::Windowed);
+    std::unique_ptr<RHIOutput> CreateOutput(Window* window, const RHIOutputMode& mode = RHIOutputMode::Windowed);
+    std::unique_ptr<RHIOutput> CreateOutput(const IntVector2& clientSize, const IntVector2& clientPosition = IntVector2::ZERO, const RHIOutputMode& outputMode = RHIOutputMode::Windowed);
 
     VertexBuffer* CreateVertexBuffer(const VertexBuffer::buffer_t& vbo, const BufferUsage& usage, const BufferBindUsage& bindusage) const;
     IndexBuffer* CreateIndexBuffer(const IndexBuffer::buffer_t& ibo, const BufferUsage& usage, const BufferBindUsage& bindusage) const;
@@ -52,8 +53,10 @@ public:
 
     std::set<DisplayDesc, DisplayDescGTComparator> displayModes{};
 
+    RHIDeviceContext* GetImmediateContext() const;
+
 private:
-    RHIOutput* CreateOutputFromWindow(Window*& window);
+    std::unique_ptr<RHIOutput> CreateOutputFromWindow(Window*& window);
 
     std::vector<ConstantBuffer*> CreateConstantBuffersUsingReflection(ID3D11ShaderReflection& cbufferReflection) const;
     InputLayout* CreateInputLayoutFromByteCode(ID3DBlob* bytecode) const;
@@ -63,7 +66,7 @@ private:
     void GetDisplayModeDescriptions(const AdapterInfo& adapter, const OutputInfo& output, decltype(displayModes)& descriptions) const;
     DisplayDesc GetDisplayModeMatchingDimensions(const std::vector<DisplayDesc>& descriptions, unsigned int w, unsigned int h);
 
-    RHIDeviceContext* _immediate_context = nullptr;
+    mutable std::unique_ptr<RHIDeviceContext> _immediate_context = nullptr;
     ID3D11Device5* _dx_device = nullptr;
     D3D_FEATURE_LEVEL _dx_highestSupportedFeatureLevel{};
     bool _allow_tearing_supported = false;

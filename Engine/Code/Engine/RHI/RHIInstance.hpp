@@ -2,6 +2,8 @@
 
 #include "Engine/RHI/RHITypes.hpp"
 
+#include <memory>
+
 class RHIOutput;
 class IntVector2;
 class RHIDevice;
@@ -12,7 +14,7 @@ public:
     static RHIInstance* const CreateInstance();
     static void DestroyInstance();
 
-    RHIDevice* CreateDevice() const noexcept;
+    std::unique_ptr<RHIDevice> CreateDevice() const noexcept;
 
 protected:
     RHIInstance() = default;

@@ -172,15 +172,9 @@ Renderer::~Renderer() {
     delete _matrix_cb;
     _matrix_cb = nullptr;
 
-    delete _rhi_context;
-    _rhi_context = nullptr;
-
-    delete _rhi_device;
-    _rhi_device = nullptr;
-
-    delete _rhi_output;
-    _rhi_output = nullptr;
-
+    _rhi_context.reset();
+    _rhi_device.reset();
+    _rhi_output.reset();
     RHIInstance::DestroyInstance();
     _rhi_instance = nullptr;
 
@@ -193,7 +187,13 @@ void Renderer::Initialize(bool headless /*= false*/) {
         return;
     }
     _rhi_output = _rhi_device->CreateOutput(_window_dimensions);
-    _rhi_context = _rhi_device->GetImmediateContext();
+    if(!_rhi_output) {
+        return;
+    }
+    _rhi_context.reset(_rhi_device->GetImmediateContext());
+    if(!_rhi_context) {
+        return;
+    }
     {
         std::ostringstream ss;
         ss << std::setw(60) << std::setfill('-') << '\n';
@@ -237,7 +237,7 @@ void Renderer::Initialize(bool headless /*= false*/) {
 }
 
 void Renderer::CreateAndRegisterDefaultDepthStencil() {
-    _default_depthstencil = CreateDepthStencil(_rhi_device, _window_dimensions);
+    _default_depthstencil = CreateDepthStencil(_rhi_device.get(), _window_dimensions);
     if(_default_depthstencil) {
         _default_depthstencil->SetDebugName("__default_depthstencil");
         RegisterTexture("__default_depthstencil", _default_depthstencil);
@@ -257,14 +257,14 @@ void Renderer::Update(TimeUtils::FPSeconds deltaSeconds) {
 void Renderer::UpdateGameTime(TimeUtils::FPSeconds deltaSeconds) {
     _time_data.game_time += deltaSeconds.count();
     _time_data.game_frame_time = deltaSeconds.count();
-    _time_cb->Update(_rhi_context, &_time_data);
+    _time_cb->Update(_rhi_context.get(), &_time_data);
     SetConstantBuffer(TIME_BUFFER_INDEX, _time_cb);
 }
 
 void Renderer::UpdateSystemTime(TimeUtils::FPSeconds deltaSeconds) {
     _time_data.system_time += deltaSeconds.count();
     _time_data.system_frame_time = deltaSeconds.count();
-    _time_cb->Update(_rhi_context, &_time_data);
+    _time_cb->Update(_rhi_context.get(), &_time_data);
     SetConstantBuffer(TIME_BUFFER_INDEX, _time_cb);
 }
 
@@ -641,7 +641,7 @@ void Renderer::DrawIndexed(const PrimitiveType& topology, const std::vector<Vert
 
 void Renderer::SetLightingEyePosition(const Vector3& position) {
     _lighting_data.eye_position = Vector4(position, 1.0f);
-    _lighting_cb->Update(_rhi_context, &_lighting_data);
+    _lighting_cb->Update(_rhi_context.get(), &_lighting_data);
     SetConstantBuffer(Renderer::LIGHTING_BUFFER_INDEX, _lighting_cb);
 }
 
@@ -652,7 +652,7 @@ void Renderer::SetAmbientLight(const Rgba& ambient) {
 
 void Renderer::SetAmbientLight(const Rgba& color, float intensity) {
     _lighting_data.ambient = Vector4(color.GetRgbAsFloats(), intensity);
-    _lighting_cb->Update(_rhi_context, &_lighting_data);
+    _lighting_cb->Update(_rhi_context.get(), &_lighting_data);
     SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
 }
 
@@ -661,7 +661,7 @@ void Renderer::SetSpecGlossEmitFactors(Material* mat) {
     float gloss = mat ? mat->GetGlossyFactor() : 8.0f;
     float emit = mat ? mat->GetEmissiveFactor() : 0.0f;
     _lighting_data.specular_glossy_emissive_factors = Vector4(spec, gloss, emit, 1.0f);
-    _lighting_cb->Update(_rhi_context, &_lighting_data);
+    _lighting_cb->Update(_rhi_context.get(), &_lighting_data);
     SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
 }
 
@@ -671,7 +671,7 @@ void Renderer::SetUseVertexNormalsForLighting(bool value) {
     } else {
         _lighting_data.useVertexNormals = 0;
     }
-    _lighting_cb->Update(_rhi_context, &_lighting_data);
+    _lighting_cb->Update(_rhi_context.get(), &_lighting_data);
     SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
 }
 
@@ -722,7 +722,7 @@ void Renderer::SetSpotlight(unsigned int index, const SpotLightDesc& desc) {
 
 void Renderer::SetLightAtIndex(unsigned int index, const light_t& light) {
     _lighting_data.lights[index] = light;
-    _lighting_cb->Update(_rhi_context, &_lighting_data);
+    _lighting_cb->Update(_rhi_context.get(), &_lighting_data);
     SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
 }
 
@@ -1601,7 +1601,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     _rhi_device->GetDxDevice()->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBufferSize(), nullptr, &ps);
     ShaderProgramDesc desc{};
     desc.name = "__default";
-    desc.device = _rhi_device;
+    desc.device = _rhi_device.get();
     desc.vs = vs;
     desc.vs_bytecode = vs_bytecode;
     desc.ps = ps;
@@ -1688,7 +1688,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     _rhi_device->GetDxDevice()->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBufferSize(), nullptr, &ps);
     ShaderProgramDesc desc{};
     desc.name = "__unlit";
-    desc.device = _rhi_device;
+    desc.device = _rhi_device.get();
     desc.vs = vs;
     desc.vs_bytecode = vs_bytecode;
     desc.ps = ps;
@@ -1820,7 +1820,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     _rhi_device->GetDxDevice()->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBufferSize(), nullptr, &ps);
     ShaderProgramDesc desc{};
     desc.name = "__normal";
-    desc.device = _rhi_device;
+    desc.device = _rhi_device.get();
     desc.vs = vs;
     desc.vs_bytecode = vs_bytecode;
     desc.ps = ps;
@@ -1951,7 +1951,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     _rhi_device->GetDxDevice()->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBufferSize(), nullptr, &ps);
     ShaderProgramDesc desc{};
     desc.name = "__normalmap";
-    desc.device = _rhi_device;
+    desc.device = _rhi_device.get();
     desc.vs = vs;
     desc.vs_bytecode = vs_bytecode;
     desc.ps = ps;
@@ -2051,7 +2051,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     _rhi_device->GetDxDevice()->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBufferSize(), nullptr, &ps);
     ShaderProgramDesc desc{};
     desc.name = "__font";
-    desc.device = _rhi_device;
+    desc.device = _rhi_device.get();
     desc.vs = vs;
     desc.vs_bytecode = vs_bytecode;
     desc.ps = ps;
@@ -2229,7 +2229,7 @@ void Renderer::CreateAndRegisterDefaultSamplers() {
 }
 
 Sampler* Renderer::CreateDefaultSampler() {
-    return new Sampler(_rhi_device, SamplerDesc{});
+    return new Sampler(_rhi_device.get(), SamplerDesc{});
 }
 
 Sampler* Renderer::CreateLinearSampler() {
@@ -2237,7 +2237,7 @@ Sampler* Renderer::CreateLinearSampler() {
     desc.mag_filter = FilterMode::Linear;
     desc.min_filter = FilterMode::Linear;
     desc.mip_filter = FilterMode::Linear;
-    return new Sampler(_rhi_device, desc);
+    return new Sampler(_rhi_device.get(), desc);
 }
 
 Sampler* Renderer::CreatePointSampler() {
@@ -2245,7 +2245,7 @@ Sampler* Renderer::CreatePointSampler() {
     desc.mag_filter = FilterMode::Point;
     desc.min_filter = FilterMode::Point;
     desc.mip_filter = FilterMode::Point;
-    return new Sampler(_rhi_device, desc);
+    return new Sampler(_rhi_device.get(), desc);
 }
 
 void Renderer::CreateAndRegisterDefaultRasterStates() {
@@ -2281,7 +2281,7 @@ void Renderer::CreateAndRegisterDefaultRasterStates() {
 
 RasterState* Renderer::CreateDefaultRaster() {
     RasterDesc default_raster{};
-    RasterState* state = new RasterState(_rhi_device, default_raster);
+    RasterState* state = new RasterState(_rhi_device.get(), default_raster);
     return state;
 }
 
@@ -2290,7 +2290,7 @@ RasterState* Renderer::CreateWireframeRaster() {
     wireframe.fillmode = FillMode::Wireframe;
     wireframe.cullmode = CullMode::Back;
     wireframe.antialiasedLineEnable = false;
-    RasterState* state = new RasterState(_rhi_device, wireframe);
+    RasterState* state = new RasterState(_rhi_device.get(), wireframe);
     return state;
 }
 
@@ -2299,7 +2299,7 @@ RasterState* Renderer::CreateSolidRaster() {
     solid.fillmode = FillMode::Solid;
     solid.cullmode = CullMode::Back;
     solid.antialiasedLineEnable = false;
-    RasterState* state = new RasterState(_rhi_device, solid);
+    RasterState* state = new RasterState(_rhi_device.get(), solid);
     return state;
 }
 
@@ -2308,7 +2308,7 @@ RasterState* Renderer::CreateWireframeNoCullingRaster() {
     wireframe.fillmode = FillMode::Wireframe;
     wireframe.cullmode = CullMode::None;
     wireframe.antialiasedLineEnable = false;
-    RasterState* state = new RasterState(_rhi_device, wireframe);
+    RasterState* state = new RasterState(_rhi_device.get(), wireframe);
     return state;
 }
 
@@ -2317,7 +2317,7 @@ RasterState* Renderer::CreateSolidNoCullingRaster() {
     solid.fillmode = FillMode::Solid;
     solid.cullmode = CullMode::None;
     solid.antialiasedLineEnable = false;
-    RasterState* state = new RasterState(_rhi_device, solid);
+    RasterState* state = new RasterState(_rhi_device.get(), solid);
     return state;
 }
 
@@ -2326,7 +2326,7 @@ RasterState* Renderer::CreateWireframeFrontCullingRaster() {
     wireframe.fillmode = FillMode::Wireframe;
     wireframe.cullmode = CullMode::Front;
     wireframe.antialiasedLineEnable = false;
-    RasterState* state = new RasterState(_rhi_device, wireframe);
+    RasterState* state = new RasterState(_rhi_device.get(), wireframe);
     return state;
 }
 
@@ -2335,7 +2335,7 @@ RasterState* Renderer::CreateSolidFrontCullingRaster() {
     solid.fillmode = FillMode::Solid;
     solid.cullmode = CullMode::Front;
     solid.antialiasedLineEnable = false;
-    RasterState* state = new RasterState(_rhi_device, solid);
+    RasterState* state = new RasterState(_rhi_device.get(), solid);
     return state;
 }
 
@@ -2364,7 +2364,7 @@ void Renderer::CreateAndRegisterDefaultDepthStencilStates() {
 
 DepthStencilState* Renderer::CreateDefaultDepthStencilState() {
     DepthStencilDesc desc{};
-    DepthStencilState* state = new DepthStencilState(_rhi_device, desc);
+    DepthStencilState* state = new DepthStencilState(_rhi_device.get(), desc);
     return state;
 }
 
@@ -2372,7 +2372,7 @@ DepthStencilState* Renderer::CreateDisabledDepth() {
     DepthStencilDesc desc{};
     desc.depth_enabled = false;
     desc.depth_comparison = ComparisonFunction::Always;
-    DepthStencilState* state = new DepthStencilState(_rhi_device, desc);
+    DepthStencilState* state = new DepthStencilState(_rhi_device.get(), desc);
     return state;
 }
 
@@ -2380,7 +2380,7 @@ DepthStencilState* Renderer::CreateEnabledDepth() {
     DepthStencilDesc desc{};
     desc.depth_enabled = true;
     desc.depth_comparison = ComparisonFunction::Less;
-    DepthStencilState* state = new DepthStencilState(_rhi_device, desc);
+    DepthStencilState* state = new DepthStencilState(_rhi_device.get(), desc);
     return state;
 }
 
@@ -2389,7 +2389,7 @@ DepthStencilState* Renderer::CreateDisabledStencil() {
     desc.stencil_enabled = false;
     desc.stencil_read = false;
     desc.stencil_write = false;
-    DepthStencilState* state = new DepthStencilState(_rhi_device, desc);
+    DepthStencilState* state = new DepthStencilState(_rhi_device.get(), desc);
     return state;
 }
 
@@ -2398,7 +2398,7 @@ DepthStencilState* Renderer::CreateEnabledStencil() {
     desc.stencil_enabled = true;
     desc.stencil_read = true;
     desc.stencil_write = true;
-    DepthStencilState* state = new DepthStencilState(_rhi_device, desc);
+    DepthStencilState* state = new DepthStencilState(_rhi_device.get(), desc);
     return state;
 }
 
@@ -2456,7 +2456,7 @@ RasterState* Renderer::GetRasterState(const std::string& name) {
 }
 
 void Renderer::CreateAndRegisterSamplerFromSamplerDescription(const std::string& name, const SamplerDesc& desc) {
-    Sampler* sampler = new Sampler(_rhi_device, desc);
+    Sampler* sampler = new Sampler(_rhi_device.get(), desc);
     RegisterSampler(name, sampler);
 }
 
@@ -2593,9 +2593,15 @@ bool Renderer::RegisterFont(const std::filesystem::path& filepath) {
 void Renderer::RegisterFontsFromFolder(const std::string& folderpath, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
     FS::path path{ folderpath };
-    path = FS::canonical(path);
-    path.make_preferred();
-    return RegisterFontsFromFolder(path, recursive);
+    if(FS::exists(path)) {
+        path = FS::canonical(path);
+        path.make_preferred();
+        return RegisterFontsFromFolder(path, recursive);
+    } else {
+        std::ostringstream ss{};
+        ss << "Attempting to Register Fonts from unknown path: " << path << std::endl;
+        DebuggerPrintf(ss.str().c_str());
+    }
 }
 
 void Renderer::RegisterFontsFromFolder(const std::filesystem::path& folderpath, bool recursive /*= false*/) {
@@ -2941,9 +2947,15 @@ bool Renderer::RegisterMaterial(const std::filesystem::path& filepath) {
 void Renderer::RegisterMaterialsFromFolder(const std::string& folderpath, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
     FS::path path{ folderpath };
-    path = FS::canonical(path);
-    path.make_preferred();
-    RegisterMaterialsFromFolder(path, recursive);
+    if(FS::exists(path)) {
+        path = FS::canonical(path);
+        path.make_preferred();
+        RegisterMaterialsFromFolder(path, recursive);
+    } else {
+        std::ostringstream ss{};
+        ss << "Attempting to Register Materials from unknown path: " << path << std::endl;
+        DebuggerPrintf(ss.str().c_str());
+    }
 }
 
 void Renderer::RegisterMaterialsFromFolder(const std::filesystem::path& folderpath, bool recursive /*= false*/) {
@@ -2974,7 +2986,7 @@ void Renderer::UpdateVbo(const VertexBuffer::buffer_t& vbo) {
         _temp_vbo = _rhi_device->CreateVertexBuffer(vbo, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer);
         _current_vbo_size = vbo.size();
     }
-    _temp_vbo->Update(_rhi_context, vbo);
+    _temp_vbo->Update(_rhi_context.get(), vbo);
 }
 
 void Renderer::UpdateIbo(const IndexBuffer::buffer_t& ibo) {
@@ -2983,19 +2995,19 @@ void Renderer::UpdateIbo(const IndexBuffer::buffer_t& ibo) {
         _temp_ibo = _rhi_device->CreateIndexBuffer(ibo, BufferUsage::Dynamic, BufferBindUsage::Index_Buffer);
         _current_ibo_size = ibo.size();
     }
-    _temp_ibo->Update(_rhi_context, ibo);
+    _temp_ibo->Update(_rhi_context.get(), ibo);
 }
 
 RHIDeviceContext* Renderer::GetDeviceContext() const {
-    return _rhi_context;
+    return _rhi_context.get();
 }
 
 const RHIDevice* Renderer::GetDevice() const {
-    return _rhi_device;
+    return _rhi_device.get();
 }
 
 RHIOutput* Renderer::GetOutput() const {
-    return _rhi_output;
+    return _rhi_output.get();
 }
 
 ShaderProgram* Renderer::GetShaderProgram(const std::string& nameOrFile) {
@@ -3062,7 +3074,7 @@ void Renderer::RegisterShaderProgramsFromFolder(const std::filesystem::path& fol
 }
 
 void Renderer::CreateAndRegisterRasterStateFromRasterDescription(const std::string& name, const RasterDesc& desc) {
-    auto raster = new RasterState(_rhi_device, desc);
+    auto raster = new RasterState(_rhi_device.get(), desc);
     RegisterRasterState(name, raster);
 }
 
@@ -3115,9 +3127,15 @@ Shader* Renderer::GetShader(const std::string& nameOrFile) {
 void Renderer::RegisterShadersFromFolder(const std::string& filepath, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
-    p = FS::canonical(p);
-    p.make_preferred();
-    RegisterShadersFromFolder(p, recursive);
+    if(FS::exists(p)) {
+        p = FS::canonical(p);
+        p.make_preferred();
+        RegisterShadersFromFolder(p, recursive);
+    } else {
+        std::ostringstream ss{};
+        ss << "Attempting to Register Shaders from unknown path: " << p << std::endl;
+        DebuggerPrintf(ss.str().c_str());
+    }
 }
 
 void Renderer::RegisterShadersFromFolder(const std::filesystem::path& folderpath, bool recursive /*= false*/) {
@@ -3151,19 +3169,19 @@ KerningFont* Renderer::GetFont(const std::string& nameOrFile) {
 
 void Renderer::SetModelMatrix(const Matrix4& mat /*= Matrix4::I*/) {
     _matrix_data.model = mat;
-    _matrix_cb->Update(_rhi_context, &_matrix_data);
+    _matrix_cb->Update(_rhi_context.get(), &_matrix_data);
     SetConstantBuffer(MATRIX_BUFFER_INDEX, _matrix_cb);
 }
 
 void Renderer::SetViewMatrix(const Matrix4& mat /*= Matrix4::I*/) {
     _matrix_data.view = mat;
-    _matrix_cb->Update(_rhi_context, &_matrix_data);
+    _matrix_cb->Update(_rhi_context.get(), &_matrix_data);
     SetConstantBuffer(MATRIX_BUFFER_INDEX, _matrix_cb);
 }
 
 void Renderer::SetProjectionMatrix(const Matrix4& mat /*= Matrix4::I*/) {
     _matrix_data.projection = mat;
-    _matrix_cb->Update(_rhi_context, &_matrix_data);
+    _matrix_cb->Update(_rhi_context.get(), &_matrix_data);
     SetConstantBuffer(MATRIX_BUFFER_INDEX, _matrix_cb);
 }
 
@@ -3176,7 +3194,7 @@ void Renderer::ResetModelViewProjection() {
 
 void Renderer::AppendModelMatrix(const Matrix4& modelMatrix) {
     _matrix_data.model = _matrix_data.model * modelMatrix;
-    _matrix_cb->Update(_rhi_context, &_matrix_data);
+    _matrix_cb->Update(_rhi_context.get(), &_matrix_data);
     SetConstantBuffer(MATRIX_BUFFER_INDEX, _matrix_cb);
 }
 
@@ -3478,9 +3496,15 @@ Texture* Renderer::CreateOrGetTexture(const std::string& filepath, const IntVect
 void Renderer::RegisterTexturesFromFolder(const std::string& folderpath, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
     FS::path path{ folderpath };
-    path = FS::canonical(path);
-    path.make_preferred();
-    RegisterTexturesFromFolder(path, recursive);
+    if(FS::exists(path)) {
+        path = FS::canonical(path);
+        path.make_preferred();
+        RegisterTexturesFromFolder(path, recursive);
+    } else {
+        std::ostringstream ss{};
+        ss << "Attempting to Register Textures from unknown path: " << path << std::endl;
+        DebuggerPrintf(ss.str().c_str());
+    }
 }
 
 void Renderer::RegisterTexturesFromFolder(const std::filesystem::path& folderpath, bool recursive /*= false*/) {
@@ -3591,7 +3615,7 @@ DepthStencilState* Renderer::GetDepthStencilState(const std::string& name) {
 }
 
 void Renderer::CreateAndRegisterDepthStencilStateFromDepthStencilDescription(const std::string& name, const DepthStencilDesc& desc) {
-    auto ds = new DepthStencilState(_rhi_device, desc);
+    auto ds = new DepthStencilState(_rhi_device.get(), desc);
     RegisterDepthStencilState(name, ds);
 }
 
@@ -3648,7 +3672,7 @@ Texture* Renderer::Create1DTexture(const std::string& filepath, const BufferUsag
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        auto* tex = new Texture1D(_rhi_device, dx_tex);
+        auto* tex = new Texture1D(_rhi_device.get(), dx_tex);
         tex->SetDebugName(p.string().c_str());
         tex->IsLoaded(true);
         if(RegisterTexture(p.string(), tex)) {
@@ -3698,7 +3722,7 @@ Texture* Renderer::Create1DTextureFromMemory(const unsigned char* data, unsigned
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return new Texture1D(_rhi_device, dx_tex);
+        return new Texture1D(_rhi_device.get(), dx_tex);
     } else {
         return nullptr;
     }
@@ -3740,7 +3764,7 @@ Texture* Renderer::Create1DTextureFromMemory(const std::vector<Rgba>& data, unsi
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return new Texture1D(_rhi_device, dx_tex);
+        return new Texture1D(_rhi_device.get(), dx_tex);
     } else {
         return nullptr;
     }
@@ -3802,7 +3826,7 @@ Texture* Renderer::Create2DTexture(const std::string& filepath, const BufferUsag
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        auto tex = new Texture2D(_rhi_device, dx_tex);
+        auto tex = new Texture2D(_rhi_device.get(), dx_tex);
         tex->SetDebugName(p.string().c_str());
         tex->IsLoaded(true);
         if(RegisterTexture(p.string(), tex)) {
@@ -3855,7 +3879,7 @@ Texture* Renderer::Create2DTextureFromMemory(const unsigned char* data, unsigned
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return new Texture2D(_rhi_device, dx_tex);
+        return new Texture2D(_rhi_device.get(), dx_tex);
     } else {
         return nullptr;
     }
@@ -3903,7 +3927,7 @@ Texture* Renderer::Create2DTextureFromMemory(const std::vector<Rgba>& data, unsi
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return new Texture2D(_rhi_device, dx_tex);
+        return new Texture2D(_rhi_device.get(), dx_tex);
     } else {
         return nullptr;
     }
@@ -3950,7 +3974,7 @@ Texture* Renderer::Create2DTextureArrayFromMemory(const unsigned char* data, uns
     subresource_data = nullptr;
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return new TextureArray2D(_rhi_device, dx_tex);
+        return new TextureArray2D(_rhi_device.get(), dx_tex);
     } else {
         return nullptr;
     }
@@ -3997,7 +4021,7 @@ Texture* Renderer::Create2DTextureFromGifBuffer(const unsigned char* data, unsig
     subresource_data = nullptr;
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return new Texture2D(_rhi_device, dx_tex);
+        return new Texture2D(_rhi_device.get(), dx_tex);
     } else {
         return nullptr;
     }
@@ -4044,7 +4068,7 @@ Texture* Renderer::Create2DTextureArrayFromGifBuffer(const unsigned char* data, 
     subresource_data = nullptr;
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return new TextureArray2D(_rhi_device, dx_tex);
+        return new TextureArray2D(_rhi_device.get(), dx_tex);
     } else {
         return nullptr;
     }
@@ -4105,7 +4129,7 @@ Texture* Renderer::Create3DTexture(const std::string& filepath, const IntVector3
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        auto* tex = new Texture3D(_rhi_device, dx_tex);
+        auto* tex = new Texture3D(_rhi_device.get(), dx_tex);
         tex->SetDebugName(p.string().c_str());
         tex->IsLoaded(true);
         if(RegisterTexture(p.string(), tex)) {
@@ -4156,7 +4180,7 @@ Texture* Renderer::Create3DTextureFromMemory(const unsigned char* data, unsigned
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return new Texture3D(_rhi_device, dx_tex);
+        return new Texture3D(_rhi_device.get(), dx_tex);
     } else {
         return nullptr;
     }
@@ -4199,7 +4223,7 @@ Texture* Renderer::Create3DTextureFromMemory(const std::vector<Rgba>& data, unsi
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return new Texture3D(_rhi_device, dx_tex);
+        return new Texture3D(_rhi_device.get(), dx_tex);
     } else {
         return nullptr;
     }

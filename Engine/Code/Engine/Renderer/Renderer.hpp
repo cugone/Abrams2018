@@ -449,9 +449,9 @@ private:
     std::size_t _current_vbo_size = 0;
     std::size_t _current_ibo_size = 0;
     RenderTargetStack* _target_stack = nullptr;
-    RHIDeviceContext* _rhi_context = nullptr;
-    RHIDevice* _rhi_device = nullptr;
-    RHIOutput* _rhi_output = nullptr;
+    std::unique_ptr<RHIDeviceContext> _rhi_context = nullptr;
+    std::unique_ptr<RHIDevice> _rhi_device = nullptr;
+    std::unique_ptr<RHIOutput> _rhi_output = nullptr;
     RHIInstance* _rhi_instance = nullptr;
     Texture* _current_target = nullptr;
     Texture* _current_depthstencil = nullptr;

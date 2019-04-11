@@ -25,7 +25,7 @@ public:
     bool Parse(std::ifstream& input);
     bool Parse(std::istream& input);
 
-    std::map<std::string, std::string>&& Release();
+    [[nodiscard]] std::map<std::string, std::string>&& Release();
 
 protected:
 private:

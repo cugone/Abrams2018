@@ -126,15 +126,19 @@ void FileLogger::Initialize(JobSystem& jobSystem, const std::string& log_name) {
     std::string folder_str = "Data/Logs/";
     std::string log_str = folder_str + log_name + ".log";
     FS::path folder_p{ folder_str };
-    folder_p = FS::canonical(folder_p);
+    FS::path log_p{ log_str };
+    if(FS::exists(log_p)) {
+        log_p = FS::canonical(log_p);
+        log_p.make_preferred();
+    } else {
+        log_p = FS::path{ folder_p / std::string{log_name + ".log"}};
+        log_p.make_preferred();
+    }
     folder_p.make_preferred();
-    FS::path p{ log_str };
-    p = FS::canonical(p);
-    p.make_preferred();
-    _current_log_path = p;
+    _current_log_path = log_p;
     FileUtils::CreateFolders(folder_p);
     //Removes only if it exists.
-    FS::remove(p);
+    FS::remove(log_p);
     FileUtils::RemoveExceptMostRecentFiles(folder_p, MAX_LOGS, ".log");
     _is_running = true;
     _stream.open(_current_log_path);

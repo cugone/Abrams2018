@@ -61,6 +61,8 @@ enum class KnownPathID {
     , Linux_Src
     , Linux_ServiceData = Linux_Src
 #endif
+    , GameData
+    , EngineData
     , Max
 };
 
@@ -69,6 +71,8 @@ bool WriteBufferToFile(const std::string& buffer, const std::string& filePath);
 bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::string& filePath);
 bool ReadBufferFromFile(std::string& out_buffer, const std::string& filePath);
 bool CreateFolders(const std::filesystem::path& filepath);
+bool IsSystemPathId(const KnownPathID& pathid);
+bool IsContentPathId(const KnownPathID& pathid);
 std::filesystem::path GetKnownFolderPath(const KnownPathID& pathid);
 std::filesystem::path GetExePath();
 std::filesystem::path GetWorkingDirectory();

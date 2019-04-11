@@ -10,6 +10,10 @@ class KeyValueParser;
 class Config {
 public:
     Config() = default;
+    Config(const Config& other) = delete;
+    Config& operator=(const Config& rhs) = delete;
+    Config(Config&& other);
+    Config& operator=(Config&& rhs);
     explicit Config(KeyValueParser&& kvp);
     ~Config() = default;
 

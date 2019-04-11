@@ -15,6 +15,20 @@ Config::Config(KeyValueParser&& kvp)
     /* DO NOTHING */
 }
 
+
+Config::Config(Config&& other)
+    : _config(std::move(other._config))
+{
+    other._config = {};
+}
+
+
+Config& Config::operator=(Config&& rhs) {
+    _config = rhs._config;
+    rhs._config = {};
+    return *this;
+}
+
 bool Config::HasKey(const std::string& key) const {
     return _config.find(key) != _config.end();
 }

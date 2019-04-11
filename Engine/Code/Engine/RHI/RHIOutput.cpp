@@ -1,6 +1,8 @@
 #include "Engine/RHI/RHIOutput.hpp"
 
 #include "Engine/Core/BuildConfig.hpp"
+#include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Core/Rgba.hpp"
 
 #include "Engine/Renderer/DirectX/DX11.hpp"
 
@@ -12,9 +14,6 @@
 #include "Engine/Math/IntVector2.hpp"
 #include "Engine/Renderer/Texture.hpp"
 #include "Engine/Renderer/Texture2D.hpp"
-
-#include "Engine/Core/Rgba.hpp"
-#include "Engine/Core/ErrorWarningAssert.hpp"
 
 #include <sstream>
 
@@ -91,7 +90,6 @@ void RHIOutput::SetDimensions(const IntVector2& clientSize) {
 }
 
 void RHIOutput::Present(bool vsync) {
-    //_dxgi_swapchain->Present(vsync ? 1 : 0, 0);
     DXGI_PRESENT_PARAMETERS present_params{};
     present_params.DirtyRectsCount = 0;
     present_params.pDirtyRects = nullptr;
@@ -100,13 +98,15 @@ void RHIOutput::Present(bool vsync) {
     bool should_tear = _parent_device->IsAllowTearingSupported();
     bool is_vsync_off = !vsync;
     bool use_no_sync_interval = should_tear && is_vsync_off;
-    auto hr_present = _dxgi_swapchain->Present1(use_no_sync_interval ? 0 : 1, should_tear ? DXGI_PRESENT_ALLOW_TEARING : 0, &present_params);
+    unsigned int sync_interval = use_no_sync_interval ? 0u : 1u;
+    unsigned int present_flags = use_no_sync_interval ? DXGI_PRESENT_ALLOW_TEARING : 0;
+    auto hr_present = _dxgi_swapchain->Present1(sync_interval, present_flags, &present_params);
     #ifdef RENDER_DEBUG
     std::ostringstream ss;
     ss << "Present call failed: " << hr_present;
-    GUARANTEE_RECOVERABLE(SUCCEEDED(hr_present), ss.str().c_str());
+    GUARANTEE_OR_DIE(SUCCEEDED(hr_present), ss.str().c_str());
     #else
-    GUARANTEE_RECOVERABLE(SUCCEEDED(hr_present), "Present call failed.");
+    GUARANTEE_OR_DIE(SUCCEEDED(hr_present), "Present call failed.");
     #endif
 }
 

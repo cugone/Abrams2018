@@ -248,8 +248,8 @@ long ParseXmlElementText(const XMLElement& element, long defaultValue) {
     return static_cast<long>(retVal);
 }
 unsigned long long ParseXmlElementText(const XMLElement& element, unsigned long long defaultValue) {
-    long long retVal = defaultValue;
-    element.QueryInt64Text(&retVal);
+    unsigned long long retVal = defaultValue;
+    element.QueryUnsigned64Text(&retVal);
     return static_cast<unsigned long long>(retVal);
 }
 long long ParseXmlElementText(const XMLElement& element, long long defaultValue) {
@@ -562,12 +562,12 @@ long ParseXmlAttribute(const XMLElement& element, const std::string& attributeNa
 }
 
 unsigned long long ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, unsigned long long defaultValue) {
-    long long retVal = defaultValue;
+    unsigned long long retVal = defaultValue;
     auto attrAsCStr = element.Attribute(attributeName.c_str());
     auto attr = std::string(attrAsCStr ? attrAsCStr : "");
     bool is_range = attr.find('~') != std::string::npos;
     if(!is_range) {
-        element.QueryInt64Attribute(attributeName.c_str(), &retVal);
+        element.QueryUnsigned64Attribute(attributeName.c_str(), &retVal);
     } else {
         auto values = StringUtils::Split(attr, '~');
         if(values.size() == 1) {

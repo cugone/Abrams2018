@@ -45,14 +45,14 @@ distribution.
 	{
 		va_list va;
 		va_start( va, format );
-		int result = vsnprintf_s( buffer, size, _TRUNCATE, format, va );
+		const int result = vsnprintf_s( buffer, size, _TRUNCATE, format, va );
 		va_end( va );
 		return result;
 	}
 
 	static inline int TIXML_VSNPRINTF( char* buffer, size_t size, const char* format, va_list va )
 	{
-		int result = vsnprintf_s( buffer, size, _TRUNCATE, format, va );
+		const int result = vsnprintf_s( buffer, size, _TRUNCATE, format, va );
 		return result;
 	}
 
@@ -197,7 +197,7 @@ char* StrPair::ParseText( char* p, const char* endTag, int strFlags, int* curLin
 	TIXMLASSERT(curLineNumPtr);
 
     char* start = p;
-    char  endChar = *endTag;
+    const char  endChar = *endTag;
     size_t length = strlen( endTag );
 
     // Inner loop of text parsing.
@@ -310,7 +310,7 @@ const char* StrPair::GetStr()
                         const int buflen = 10;
                         char buf[buflen] = { 0 };
                         int len = 0;
-                        char* adjusted = const_cast<char*>( XMLUtil::GetCharacterRef( p, buf, &len ) );
+                        const char* adjusted = const_cast<char*>( XMLUtil::GetCharacterRef( p, buf, &len ) );
                         if ( adjusted == 0 ) {
                             *q = *p;
                             ++p;
@@ -650,6 +650,16 @@ bool XMLUtil::ToInt64(const char* str, int64_t* value)
 		return true;
 	}
 	return false;
+}
+
+
+bool XMLUtil::ToUnsigned64(const char* str, uint64_t* value) {
+    unsigned long long v = 0;	// horrible syntax trick to make the compiler happy about %llu
+    if(TIXML_SSCANF(str, "%llu", &v) == 1) {
+        *value = (uint64_t)v;
+        return true;
+    }
+    return false;
 }
 
 
@@ -1004,7 +1014,11 @@ char* XMLNode::ParseDeep( char* p, StrPair* parentEndTag, int* curLineNumPtr )
     // 'endTag' is the end tag for this node, it is returned by a call to a child.
     // 'parentEnd' is the end tag for the parent, which is filled in and returned.
 
-    while( p && *p ) {
+	XMLDocument::DepthTracker tracker(_document);
+	if (_document->Error())
+		return 0;
+
+	while( p && *p ) {
         XMLNode* node = 0;
 
         p = _document->Identify( p, &node );
@@ -1013,7 +1027,7 @@ char* XMLNode::ParseDeep( char* p, StrPair* parentEndTag, int* curLineNumPtr )
             break;
         }
 
-        int initialLineNum = node->_parseLineNum;
+       const int initialLineNum = node->_parseLineNum;
 
         StrPair endTag;
         p = node->ParseDeep( p, &endTag, curLineNumPtr );
@@ -1025,18 +1039,28 @@ char* XMLNode::ParseDeep( char* p, StrPair* parentEndTag, int* curLineNumPtr )
             break;
         }
 
-        XMLDeclaration* decl = node->ToDeclaration();
+        const XMLDeclaration* const decl = node->ToDeclaration();
         if ( decl ) {
             // Declarations are only allowed at document level
-            bool wellLocated = ( ToDocument() != 0 );
-            if ( wellLocated ) {
-                // Multiple declarations are allowed but all declarations
-                // must occur before anything else
-                for ( const XMLNode* existingNode = _document->FirstChild(); existingNode; existingNode = existingNode->NextSibling() ) {
-                    if ( !existingNode->ToDeclaration() ) {
-                        wellLocated = false;
-                        break;
-                    }
+            //
+            // Multiple declarations are allowed but all declarations
+            // must occur before anything else. 
+            //
+            // Optimized due to a security test case. If the first node is 
+            // a declaration, and the last node is a declaration, then only 
+            // declarations have so far been added.
+            bool wellLocated = false;
+
+            if (ToDocument()) {
+                if (FirstChild()) {
+                    wellLocated =
+                        FirstChild() &&
+                        FirstChild()->ToDeclaration() &&
+                        LastChild() &&
+                        LastChild()->ToDeclaration();
+                }
+                else {
+                    wellLocated = true;
                 }
             }
             if ( !wellLocated ) {
@@ -1359,7 +1383,7 @@ char* XMLAttribute::ParseDeep( char* p, bool processEntities, int* curLineNumPtr
         return 0;
     }
 
-    char endTag[2] = { *p, 0 };
+    const char endTag[2] = { *p, 0 };
     ++p;	// move past opening quote
 
     p = _value.ParseText( p, endTag, processEntities ? StrPair::ATTRIBUTE_VALUE : StrPair::ATTRIBUTE_VALUE_LEAVE_ENTITIES, curLineNumPtr );
@@ -1397,6 +1421,15 @@ XMLError XMLAttribute::QueryInt64Value(int64_t* value) const
 		return XML_SUCCESS;
 	}
 	return XML_WRONG_ATTRIBUTE_TYPE;
+}
+
+
+XMLError XMLAttribute::QueryUnsigned64Value(uint64_t* value) const
+{
+    if(XMLUtil::ToUnsigned64(Value(), value)) {
+        return XML_SUCCESS;
+    }
+    return XML_WRONG_ATTRIBUTE_TYPE;
 }
 
 
@@ -1816,7 +1849,7 @@ char* XMLElement::ParseAttributes( char* p, int* curLineNumPtr )
             TIXMLASSERT( attrib );
             attrib->_parseLineNum = _document->_parseCurLineNum;
 
-            int attrLineNum = attrib->_parseLineNum;
+            const int attrLineNum = attrib->_parseLineNum;
 
             p = attrib->ParseDeep( p, _document->ProcessEntities(), curLineNumPtr );
             if ( !p || Attribute( attrib->Name() ) ) {
@@ -1973,10 +2006,8 @@ const char* XMLDocument::_errorNames[XML_ERROR_COUNT] = {
     "XML_ERROR_FILE_NOT_FOUND",
     "XML_ERROR_FILE_COULD_NOT_BE_OPENED",
     "XML_ERROR_FILE_READ_ERROR",
-    "UNUSED_XML_ERROR_ELEMENT_MISMATCH",
     "XML_ERROR_PARSING_ELEMENT",
     "XML_ERROR_PARSING_ATTRIBUTE",
-    "UNUSED_XML_ERROR_IDENTIFYING_TAG",
     "XML_ERROR_PARSING_TEXT",
     "XML_ERROR_PARSING_CDATA",
     "XML_ERROR_PARSING_COMMENT",
@@ -1986,7 +2017,8 @@ const char* XMLDocument::_errorNames[XML_ERROR_COUNT] = {
     "XML_ERROR_MISMATCHED_ELEMENT",
     "XML_ERROR_PARSING",
     "XML_CAN_NOT_CONVERT_TEXT",
-    "XML_NO_TEXT_NODE"
+    "XML_NO_TEXT_NODE",
+	"XML_ELEMENT_DEPTH_EXCEEDED"
 };
 
 
@@ -2000,6 +2032,7 @@ XMLDocument::XMLDocument( bool processEntities, Whitespace whitespaceMode ) :
     _errorLineNum( 0 ),
     _charBuffer( 0 ),
     _parseCurLineNum( 0 ),
+	_parsingDepth(0),
     _unlinked(),
     _elementPool(),
     _attributePool(),
@@ -2044,6 +2077,7 @@ void XMLDocument::Clear()
 
     delete [] _charBuffer;
     _charBuffer = 0;
+	_parsingDepth = 0;
 
 #if 0
     _textPool.Trace( "text" );
@@ -2121,7 +2155,7 @@ static FILE* callfopen( const char* filepath, const char* mode )
     TIXMLASSERT( mode );
 #if defined(_MSC_VER) && (_MSC_VER >= 1400 ) && (!defined WINCE)
     FILE* fp = 0;
-    errno_t err = fopen_s( &fp, filepath, mode );
+    const errno_t err = fopen_s( &fp, filepath, mode );
     if ( err ) {
         return 0;
     }
@@ -2224,7 +2258,7 @@ XMLError XMLDocument::LoadFile( FILE* fp )
     const size_t size = filelength;
     TIXMLASSERT( _charBuffer == 0 );
     _charBuffer = new char[size+1];
-    size_t read = fread( _charBuffer, 1, size, fp );
+    const size_t read = fread( _charBuffer, 1, size, fp );
     if ( read != size ) {
         SetError( XML_ERROR_FILE_READ_ERROR, 0, 0 );
         return _errorID;
@@ -2317,9 +2351,10 @@ void XMLDocument::SetError( XMLError error, int lineNum, const char* format, ...
     _errorLineNum = lineNum;
 	_errorStr.Reset();
 
-    size_t BUFFER_SIZE = 1000;
+    const size_t BUFFER_SIZE = 1000;
     char* buffer = new char[BUFFER_SIZE];
 
+    TIXMLASSERT(sizeof(error) <= sizeof(int));
     TIXML_SNPRINTF(buffer, BUFFER_SIZE, "Error=%s ErrorID=%d (0x%x) Line number=%d", ErrorIDToName(error), int(error), int(error), lineNum);
 
 	if (format) {
@@ -2375,6 +2410,20 @@ void XMLDocument::Parse()
         return;
     }
     ParseDeep(p, 0, &_parseCurLineNum );
+}
+
+void XMLDocument::PushDepth()
+{
+	_parsingDepth++;
+	if (_parsingDepth == TINYXML2_MAX_ELEMENT_DEPTH) {
+		SetError(XML_ELEMENT_DEPTH_EXCEEDED, _parseCurLineNum, "Element nesting is too deep." );
+	}
+}
+
+void XMLDocument::PopDepth()
+{
+	TIXMLASSERT(_parsingDepth > 0);
+	--_parsingDepth;
 }
 
 XMLPrinter::XMLPrinter( FILE* file, bool compact, int depth ) :
@@ -2502,14 +2551,16 @@ void XMLPrinter::PrintString( const char* p, bool restricted )
             ++q;
             TIXMLASSERT( p <= q );
         }
+        // Flush the remaining string. This will be the entire
+        // string if an entity wasn't found.
+        if ( p < q ) {
+            const size_t delta = q - p;
+            const int toPrint = ( INT_MAX < delta ) ? INT_MAX : (int)delta;
+            Write( p, toPrint );
+        }
     }
-    // Flush the remaining string. This will be the entire
-    // string if an entity wasn't found.
-    TIXMLASSERT( p <= q );
-    if ( !_processEntities || ( p < q ) ) {
-        const size_t delta = q - p;
-        const int toPrint = ( INT_MAX < delta ) ? INT_MAX : (int)delta;
-        Write( p, toPrint );
+    else {
+        Write( p );
     }
 }
 

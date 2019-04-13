@@ -64,8 +64,10 @@ bool Material::LoadFromXml(const XMLElement& element) {
             p = FS::canonical(p, ec);
             if(ec) {
                 std::ostringstream ss;
-                ss << "Shader referenced in Material file \"" << _name << "\" could not be found.";
-                ss << "The filesystem returned an error: " << ec.message() << '\n';
+                ss << "Shader:\n";
+                ss << file << "\n";
+                ss << "Referenced in Material file \"" << _name << "\" could not be found.\n";
+                ss << "The filesystem returned an error:\n" << ec.message() << '\n';
                 ERROR_AND_DIE(ss.str().c_str());
                 return false;
             }
@@ -75,9 +77,17 @@ bool Material::LoadFromXml(const XMLElement& element) {
             _shader = shader;
         } else {
             std::ostringstream ss;
-            ss << "Shader referenced in Material file \"" << _name << "\" does not already exist.";
-            ERROR_AND_DIE(ss.str().c_str());
-            return false;
+            ss << "Shader: " << p.string() << "\n referenced in Material file \"" << _name << "\" did not already exist. Attempting to create from source...";
+            DebuggerPrintf(ss.str().c_str());
+            ss.str("");
+            if(!_renderer->RegisterShader(p.string())) {
+                ss << "failed.\n";
+                DebuggerPrintf(ss.str().c_str());
+                return false;
+            }
+            ss << "done.\n";
+            DebuggerPrintf(ss.str().c_str());
+            _shader = _renderer->GetShader(p.string());
         }
     }
 

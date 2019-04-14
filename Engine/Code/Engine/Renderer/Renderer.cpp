@@ -2512,21 +2512,59 @@ void Renderer::RegisterShader(const std::string& name, Shader* shader) {
     _shaders.insert_or_assign(name, shader);
 }
 
-bool Renderer::RegisterShader(const std::filesystem::path& filepath) {
+bool Renderer::RegisterShader(std::filesystem::path filepath) {
     namespace FS = std::filesystem;
-    std::filesystem::path filepath_copy = filepath;
     tinyxml2::XMLDocument doc;
-    if(filepath_copy.has_extension() && filepath.extension() == ".shader") {
-        filepath_copy = FS::canonical(filepath_copy);
-        filepath_copy.make_preferred();
-        const auto p_str = filepath_copy.string();
-        if(doc.LoadFile(p_str.c_str()) == tinyxml2::XML_SUCCESS) {
-            Shader* shader = new Shader(this, *doc.RootElement());
-            RegisterShader(shader->GetName(), shader);
-            return true;
+    bool path_exists = FS::exists(filepath);
+    bool has_valid_extension = filepath.has_extension() && StringUtils::ToLowerCase(filepath.extension().string()) == std::string{ ".shader" };
+    bool is_valid_path = path_exists && has_valid_extension;
+    if(!is_valid_path) {
+        return false;
+    }
+
+    {
+        std::error_code ec{};
+        filepath = FS::canonical(filepath, ec);
+        if(ec) {
+            std::ostringstream oss;
+            oss << "Could not register Shader.\n";
+            oss << "Filesystem returned the following error: \n";
+            oss << ec.message();
+            oss << '\n';
+            DebuggerPrintf(oss.str().c_str());
+            return false;
         }
     }
+    filepath.make_preferred();
+    if(doc.LoadFile(filepath.string().c_str()) == tinyxml2::XML_SUCCESS) {
+        Shader* shader = new Shader(this, *doc.RootElement());
+        RegisterShader(filepath.string(), shader);
+        return true;
+    }
     return false;
+}
+
+
+bool Renderer::RegisterShader(const std::string& filepath) {
+    namespace FS = std::filesystem;
+    return RegisterShader(FS::path{ filepath });
+}
+
+
+void Renderer::RegisterShader(Shader* shader) {
+    if(shader == nullptr) {
+        return;
+    }
+    std::string name = shader->GetName();
+    auto found_iter = _shaders.find(name);
+    if(found_iter != _shaders.end()) {
+        std::ostringstream ss;
+        ss << __FUNCTION__ << ": Shader \"" << name << "\" already exists. Overwriting.\n";
+        DebuggerPrintf(ss.str().c_str());
+        delete found_iter->second;
+        found_iter->second = nullptr;
+    }
+    _shaders.insert_or_assign(name, shader);
 }
 
 void Renderer::RegisterFont(const std::string& name, KerningFont* font) {

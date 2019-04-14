@@ -272,9 +272,11 @@ public:
     void SetMaterial(Material* material);
     const std::map<std::string, Texture*>& GetLoadedTextures() const;
 
+    bool RegisterShader(const std::string& filepath);
+    void RegisterShader(Shader* shader);
+    void RegisterShadersFromFolder(const std::string& filepath, bool recursive = false);
     std::size_t GetShaderCount() const;
     Shader* GetShader(const std::string& nameOrFile);
-    void RegisterShadersFromFolder(const std::string& filepath, bool recursive = false);
     void SetComputeShader(Shader* shader);
     void DispatchComputeJob(const ComputeJob& job);
 
@@ -354,7 +356,7 @@ private:
     void RegisterShaderProgram(const std::string& name, ShaderProgram * sp);
     void RegisterShaderProgramsFromFolder(const std::filesystem::path& folderpath, const std::string& entrypoint, const PipelineStage& target, bool recursive = false);
     void RegisterShader(const std::string& name, Shader* shader);
-    bool RegisterShader(const std::filesystem::path& filepath);
+    bool RegisterShader(std::filesystem::path filepath);
     void RegisterShadersFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
     void RegisterMaterial(const std::string& name, Material* mat);
     bool RegisterMaterial(const std::filesystem::path& filepath);

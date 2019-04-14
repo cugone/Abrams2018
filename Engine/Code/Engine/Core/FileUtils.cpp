@@ -348,10 +348,10 @@ bool IsSafeWritePath(const std::filesystem::path& p) {
 
     try {
         auto working_dir = GetWorkingDirectory();
-        bool is_in_working_dir = IsSubDirectoryOf(p, working_dir);
-        bool is_in_data_dir = IsSubDirectoryOf(p, FS::path{ "Data/" });
+        bool is_in_working_dir = IsChildOf(p, working_dir);
+        bool is_in_data_dir = IsChildOf(p, FS::path{ "Data/" });
         bool is_next_to_exe = IsSiblingOf(p, GetExePath());
-        bool is_temp_dir = IsSubDirectoryOf(p, GetTempDirectory());
+        bool is_temp_dir = IsChildOf(p, GetTempDirectory());
         bool safe = is_in_working_dir || is_in_data_dir || is_next_to_exe;
         return safe;
     } catch(const std::filesystem::filesystem_error& e) {
@@ -381,9 +381,9 @@ bool IsSafeReadPath(const std::filesystem::path& p) {
 
     try {
         auto working_dir = GetWorkingDirectory();
-        bool is_in_working_dir = IsSubDirectoryOf(p, working_dir);
-        bool is_in_gamedata_dir = IsSubDirectoryOf(p, GetKnownFolderPath(KnownPathID::GameData));
-        bool is_in_enginedata_dir = IsSubDirectoryOf(p, GetKnownFolderPath(KnownPathID::EngineData));
+        bool is_in_working_dir = IsChildOf(p, working_dir);
+        bool is_in_gamedata_dir = IsChildOf(p, GetKnownFolderPath(KnownPathID::GameData));
+        bool is_in_enginedata_dir = IsChildOf(p, GetKnownFolderPath(KnownPathID::EngineData));
         bool is_known_OS_dir = false;
 
         bool is_next_to_exe = IsSiblingOf(p, GetExePath());
@@ -425,7 +425,7 @@ bool IsSiblingOf(const std::filesystem::path& p, const std::filesystem::path& si
     return my_parent_path == sibling_parent_path;
 }
 
-bool IsSubDirectoryOf(const std::filesystem::path& p, const std::filesystem::path& parent) {
+bool IsChildOf(const std::filesystem::path& p, const std::filesystem::path& parent) {
     namespace FS = std::filesystem;
     auto parent_canon = FS::canonical(parent);
     auto p_canon = FS::canonical(p);

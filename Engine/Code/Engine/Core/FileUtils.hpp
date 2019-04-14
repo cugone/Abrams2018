@@ -87,7 +87,7 @@ bool HasExecutePermissions(const std::filesystem::path& p);
 bool HasSearchPermissions(const std::filesystem::path& p);
 bool IsParentOf(const std::filesystem::path& p, const std::filesystem::path& child);
 bool IsSiblingOf(const std::filesystem::path& p, const std::filesystem::path& sibling);
-bool IsSubDirectoryOf(const std::filesystem::path& p, const std::filesystem::path& parent);
+bool IsChildOf(const std::filesystem::path& p, const std::filesystem::path& parent);
 void ForEachFileInFolder(const std::filesystem::path& folderpath, const std::string& validExtensionList = std::string{}, const std::function<void(const std::filesystem::path&)>& callback = [](const std::filesystem::path& /*p*/) { /* DO NOTHING */ }, bool recursive = false);
 int CountFilesInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList = std::string{}, bool recursive = false);
 void RemoveExceptMostRecentFiles(const std::filesystem::path& folderpath, int mostRecentCountToKeep, const std::string& validExtensionList = std::string{});

@@ -78,6 +78,7 @@ std::filesystem::path GetExePath();
 std::filesystem::path GetWorkingDirectory();
 void SetWorkingDirectory(const std::filesystem::path& p);
 bool IsSafeWritePath(const std::filesystem::path& p);
+bool IsSafeReadPath(const std::filesystem::path& p);
 bool HasWritePermissions(const std::filesystem::path& p);
 bool HasReadPermissions(const std::filesystem::path& p);
 bool HasDeletePermissions(const std::filesystem::path& p);

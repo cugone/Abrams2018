@@ -351,7 +351,43 @@ bool IsSafeWritePath(const std::filesystem::path& p) {
         bool is_in_working_dir = IsSubDirectoryOf(p, working_dir);
         bool is_in_data_dir = IsSubDirectoryOf(p, FS::path{ "Data/" });
         bool is_next_to_exe = IsSiblingOf(p, GetExePath());
+        bool is_temp_dir = IsSubDirectoryOf(p, GetTempDirectory());
         bool safe = is_in_working_dir || is_in_data_dir || is_next_to_exe;
+        return safe;
+    } catch(const std::filesystem::filesystem_error& e) {
+        std::ostringstream ss{};
+        ss << "\nFilesystem Error:"
+            << "\nWhat: " << e.what()
+            << "\nCode: " << e.code()
+            << "\nPath1: " << e.path1()
+            << "\nPath2: " << e.path2()
+            << '\n';
+        ss.flush();
+        DebuggerPrintf(ss.str().c_str());
+        return false;
+    }
+
+}
+
+bool IsSafeReadPath(const std::filesystem::path& p) {
+    namespace FS = std::filesystem;
+    if(!FS::exists(p)) {
+        return false;
+    }
+    //Check for any write permissions on the file and parent directory
+    if(!(HasReadPermissions(p) || HasExecuteOrSearchPermissions(p))) {
+        return false;
+    }
+
+    try {
+        auto working_dir = GetWorkingDirectory();
+        bool is_in_working_dir = IsSubDirectoryOf(p, working_dir);
+        bool is_in_gamedata_dir = IsSubDirectoryOf(p, GetKnownFolderPath(KnownPathID::GameData));
+        bool is_in_enginedata_dir = IsSubDirectoryOf(p, GetKnownFolderPath(KnownPathID::EngineData));
+        bool is_known_OS_dir = false;
+
+        bool is_next_to_exe = IsSiblingOf(p, GetExePath());
+        bool safe = is_in_working_dir || is_in_gamedata_dir || is_in_enginedata_dir || is_next_to_exe;
         return safe;
     } catch(const std::filesystem::filesystem_error& e) {
         std::ostringstream ss{};

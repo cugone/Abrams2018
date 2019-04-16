@@ -13,3 +13,12 @@ test:
   assemblies:
     only:
       - $(SolutionDir)Temporary\$(ProjectName)_$(Platform)_$(Configuration)\Tests.exe
+
+before_test:
+  - echo -----------------------ABOUT TO RUN TEST.EXE---------------------------------
+
+test_script:
+  - '$(SolutionDir)Temporary\$(ProjectName)_$(Platform)_$(Configuration)\Tests.exe'
+
+after_test:
+  - echo -----------------------DONE RUNNING TEST.EXE-----------------------------------

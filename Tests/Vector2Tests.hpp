@@ -403,6 +403,30 @@ TEST(Vector2MemberFunctions, CalcHeadingRadians) {
     EXPECT_FLOAT_EQ(d.CalcHeadingRadians(), expected);
 }
 
+TEST(Vector2MemberFunctions, CalcHeadingDegrees) {
+    auto a = Vector2::X_AXIS;
+    auto expected = 0.0f;
+    EXPECT_FLOAT_EQ(a.CalcHeadingDegrees(), expected);
+    a = Vector2{ 1.0f, 1.0f };
+    expected = 45.0f;
+    EXPECT_FLOAT_EQ(a.CalcHeadingDegrees(), expected);
+    a = Vector2::Y_AXIS;
+    expected = 90.0f;
+    EXPECT_FLOAT_EQ(a.CalcHeadingDegrees(), expected);
+    a = Vector2{-1.0f, 1.0f};
+    expected = 135.0f;
+    EXPECT_FLOAT_EQ(a.CalcHeadingDegrees(), expected);
+    a = -Vector2::X_AXIS;
+    expected = -180.0f;
+    EXPECT_FLOAT_EQ(a.CalcHeadingDegrees(), expected);
+    a = Vector2{ -1.0f, -1.0f };
+    expected = -135.0f;
+    EXPECT_FLOAT_EQ(a.CalcHeadingDegrees(), expected);
+    a = -Vector2::Y_AXIS;
+    expected = -90.0f;
+    EXPECT_FLOAT_EQ(a.CalcHeadingDegrees(), expected);
+}
+
 //float CalcHeadingDegrees() const;
 //float CalcLength() const;
 //float CalcLengthSquared() const;

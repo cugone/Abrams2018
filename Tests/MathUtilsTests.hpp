@@ -3,6 +3,7 @@
 #include "pch.h"
 
 #include "Engine/Math/MathUtils.hpp"
+#include "Engine/Math/Quaternion.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -21,6 +22,109 @@ TEST(MathUtilsFunctions, SplitFloatingPointValue) {
     auto rld = MathUtils::SplitFloatingPointValue(ld);
     EXPECT_DOUBLE_EQ(rld.first, 1.0l);
     EXPECT_DOUBLE_EQ(rld.second, 0.2l);
+}
+
+TEST(MathUtilsFunctions, IsEquivalentToZero) {
+    auto a = 0.0f;
+    auto b = -0.0f;
+    auto c = -0.1f;
+    auto d = 0.1f;
+    auto e = 1.0f;
+    auto f = -1.0f;
+    auto g = 1.1f;
+    auto h = -1.1f;
+    EXPECT_TRUE(MathUtils::IsEquivalentToZero(a));
+    EXPECT_TRUE(MathUtils::IsEquivalentToZero(b));
+    EXPECT_FALSE(MathUtils::IsEquivalentToZero(c));
+    EXPECT_FALSE(MathUtils::IsEquivalentToZero(d));
+    EXPECT_FALSE(MathUtils::IsEquivalentToZero(e));
+    EXPECT_FALSE(MathUtils::IsEquivalentToZero(f));
+    EXPECT_FALSE(MathUtils::IsEquivalentToZero(g));
+    EXPECT_FALSE(MathUtils::IsEquivalentToZero(h));
+}
+
+TEST(MathUtilsFunctions, IsEquivalentOrLessThan) {
+    auto a = -2.0f;
+    EXPECT_TRUE(MathUtils::IsEquivalentOrLessThan(a, -1.1f));
+    EXPECT_TRUE(MathUtils::IsEquivalentOrLessThan(a, -1.0f));
+    EXPECT_TRUE(MathUtils::IsEquivalentOrLessThan(a, 0.0f));
+    EXPECT_TRUE(MathUtils::IsEquivalentOrLessThan(a, 1.0f));
+    EXPECT_TRUE(MathUtils::IsEquivalentOrLessThan(a, 1.1f));
+    a = -1.0f;
+    EXPECT_FALSE(MathUtils::IsEquivalentOrLessThan(a, -1.1f));
+    EXPECT_TRUE(MathUtils::IsEquivalentOrLessThan(a, -1.0f));
+    EXPECT_TRUE(MathUtils::IsEquivalentOrLessThan(a, 0.0f));
+    EXPECT_TRUE(MathUtils::IsEquivalentOrLessThan(a, 1.0f));
+    EXPECT_TRUE(MathUtils::IsEquivalentOrLessThan(a, 1.1f));
+    a = 0.0f;
+    EXPECT_FALSE(MathUtils::IsEquivalentOrLessThan(a, -1.1f));
+    EXPECT_FALSE(MathUtils::IsEquivalentOrLessThan(a, -1.0f));
+    EXPECT_TRUE(MathUtils::IsEquivalentOrLessThan(a, 0.0f));
+    EXPECT_TRUE(MathUtils::IsEquivalentOrLessThan(a, 1.0f));
+    EXPECT_TRUE(MathUtils::IsEquivalentOrLessThan(a, 1.1f));
+    a = 1.0f;
+    EXPECT_FALSE(MathUtils::IsEquivalentOrLessThan(a, -1.1f));
+    EXPECT_FALSE(MathUtils::IsEquivalentOrLessThan(a, -1.0f));
+    EXPECT_FALSE(MathUtils::IsEquivalentOrLessThan(a, 0.0f));
+    EXPECT_TRUE(MathUtils::IsEquivalentOrLessThan(a, 1.0f));
+    EXPECT_TRUE(MathUtils::IsEquivalentOrLessThan(a, 1.1f));
+    a = 2.0f;
+    EXPECT_FALSE(MathUtils::IsEquivalentOrLessThan(a, 0.0f));
+    EXPECT_FALSE(MathUtils::IsEquivalentOrLessThan(a, 1.0f));
+    EXPECT_FALSE(MathUtils::IsEquivalentOrLessThan(a, 1.1f));
+}
+
+TEST(MathUtilsFunctions, IsEquivalent) {
+    auto a = 1.0f;
+    EXPECT_TRUE(MathUtils::IsEquivalent(a, 1.0f));
+    EXPECT_FALSE(MathUtils::IsEquivalent(a, 0.0f));
+    EXPECT_FALSE(MathUtils::IsEquivalent(a, 1.1f));
+    auto b = 1.0;
+    EXPECT_TRUE(MathUtils::IsEquivalent(b, 1.0));
+    EXPECT_FALSE(MathUtils::IsEquivalent(b, 0.0));
+    EXPECT_FALSE(MathUtils::IsEquivalent(b, 1.1));
+    auto c = 1.0L;
+    EXPECT_TRUE(MathUtils::IsEquivalent(c, 1.0L));
+    EXPECT_FALSE(MathUtils::IsEquivalent(c, 0.0L));
+    EXPECT_FALSE(MathUtils::IsEquivalent(c, 1.1L));
+    auto d = Vector2{1.0f, 1.0f};
+    EXPECT_TRUE(MathUtils::IsEquivalent(d,  Vector2::ONE));
+    EXPECT_FALSE(MathUtils::IsEquivalent(d, Vector2::ZERO));
+    EXPECT_FALSE(MathUtils::IsEquivalent(d, Vector2::X_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(d, Vector2::Y_AXIS));
+    EXPECT_TRUE(MathUtils::IsEquivalent(d, Vector2::XY_AXIS));
+    EXPECT_TRUE(MathUtils::IsEquivalent(d, Vector2::YX_AXIS));
+    auto e = Vector3{1.0f, 1.0f, 1.0f};
+    EXPECT_TRUE(MathUtils::IsEquivalent(e,  Vector3::ONE));
+    EXPECT_FALSE(MathUtils::IsEquivalent(e, Vector3::ZERO));
+    EXPECT_FALSE(MathUtils::IsEquivalent(e, Vector3::XY_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(e, Vector3::XZ_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(e, Vector3::YZ_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(e, Vector3::Z_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(e, Vector3::Y_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(e, Vector3::X_AXIS));
+    auto f = Vector4{1.0f, 1.0f, 1.0f, 1.0f};
+    EXPECT_TRUE(MathUtils::IsEquivalent(f,  Vector4::ONE));
+    EXPECT_FALSE(MathUtils::IsEquivalent(f, Vector4::X_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(f, Vector4::XW_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(f, Vector4::XY_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(f, Vector4::XZ_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(f, Vector4::Y_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(f, Vector4::YW_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(f, Vector4::YX_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(f, Vector4::YZ_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(f, Vector4::Z_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(f, Vector4::ZW_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(f, Vector4::ZX_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(f, Vector4::ZY_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(f, Vector4::W_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(f, Vector4::WX_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(f, Vector4::WY_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(f, Vector4::WZ_AXIS));
+    EXPECT_FALSE(MathUtils::IsEquivalent(f, Vector4::XYZ_AXIS));
+    auto g = Quaternion(1.0f, 0.0f, 0.0f, 0.0f);
+    EXPECT_TRUE(MathUtils::IsEquivalent(g, Quaternion(1.0f, 0.0f, 0.0f, 0.0f)));
+    EXPECT_FALSE(MathUtils::IsEquivalent(g, Quaternion(1.0f, 0.0f, 0.0f, 1.0f)));
 }
 
 /*

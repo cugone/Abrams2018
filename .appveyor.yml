@@ -1,0 +1,15 @@
+image: Visual Studio 2017
+configuration: Release
+platform:
+  - x64
+cache:
+  - C:\projects\Abrams2018\Tests\packages -> Tests\packages\packages.config
+install:
+  - nuget restore Abrams2018
+build:
+project: ./Engine.sln
+
+test:
+  assemblies:
+    only:
+      - $(SolutionDir)Temporary\$(ProjectName)_$(Platform)_$(Configuration)\Tests.exe

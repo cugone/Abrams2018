@@ -10,11 +10,6 @@ install:
 build:
   project: Engine.sln
 
-test:
-  assemblies:
-    only:
-      - %APPVEYOR_BUILD_FOLDER%\Temporary\Tests_%Platform%_%Configuration%\Tests.exe
-
 before_test:
   - echo -----------------------ABOUT TO RUN TEST.EXE---------------------------------
 

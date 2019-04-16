@@ -5,7 +5,7 @@ platform:
 cache:
   - C:\projects\Abrams2018\Tests\packages -> Tests\packages\packages.config
 install:
-  - nuget restore Abrams2018
+  - nuget restore Tests
 build:
   project: Engine.sln
 

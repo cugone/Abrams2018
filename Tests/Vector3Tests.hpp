@@ -63,6 +63,21 @@ TEST(Vector3Statics, XYAxisEquals3ArgInitCtor) {
     EXPECT_FLOAT_EQ(a.z, b.z);
 }
 
+TEST(Vector3Statics, XZAxisSetsXToOneYToZeroZToOne) {
+    auto a = Vector3::XZ_AXIS;
+    EXPECT_FLOAT_EQ(a.x, 1.0f);
+    EXPECT_FLOAT_EQ(a.y, 0.0f);
+    EXPECT_FLOAT_EQ(a.z, 1.0f);
+}
+
+TEST(Vector3Statics, XZAxisEquals3ArgInitCtor) {
+    auto a = Vector3::XZ_AXIS;
+    auto b = Vector3{ 1.0f, 0.0f, 1.0f };
+    EXPECT_FLOAT_EQ(a.x, b.x);
+    EXPECT_FLOAT_EQ(a.y, b.y);
+    EXPECT_FLOAT_EQ(a.z, b.z);
+}
+
 TEST(Vector3Statics, YAxisSetsXToZeroYToOneZToZero) {
     auto a = Vector3::Y_AXIS;
     EXPECT_FLOAT_EQ(a.x, 0.0f);
@@ -73,6 +88,36 @@ TEST(Vector3Statics, YAxisSetsXToZeroYToOneZToZero) {
 TEST(Vector3Statics, YAxisEquals3ArgInitCtor) {
     auto a = Vector3::Y_AXIS;
     auto b = Vector3{ 0.0f, 1.0f, 0.0f };
+    EXPECT_FLOAT_EQ(a.x, b.x);
+    EXPECT_FLOAT_EQ(a.y, b.y);
+    EXPECT_FLOAT_EQ(a.z, b.z);
+}
+
+TEST(Vector3Statics, YZAxisSetsXToZeroYToOneZToOne) {
+    auto a = Vector3::YZ_AXIS;
+    EXPECT_FLOAT_EQ(a.x, 0.0f);
+    EXPECT_FLOAT_EQ(a.y, 1.0f);
+    EXPECT_FLOAT_EQ(a.z, 1.0f);
+}
+
+TEST(Vector3Statics, YZAxisEquals3ArgInitCtor) {
+    auto a = Vector3::YZ_AXIS;
+    auto b = Vector3{ 0.0f, 1.0f, 1.0f };
+    EXPECT_FLOAT_EQ(a.x, b.x);
+    EXPECT_FLOAT_EQ(a.y, b.y);
+    EXPECT_FLOAT_EQ(a.z, b.z);
+}
+
+TEST(Vector3Statics, ZAxisSetsXToZeroYToZeroZToOne) {
+    auto a = Vector3::Z_AXIS;
+    EXPECT_FLOAT_EQ(a.x, 0.0f);
+    EXPECT_FLOAT_EQ(a.y, 0.0f);
+    EXPECT_FLOAT_EQ(a.z, 1.0f);
+}
+
+TEST(Vector3Statics, ZAxisEquals3ArgInitCtor) {
+    auto a = Vector3::Z_AXIS;
+    auto b = Vector3{ 0.0f, 0.0f, 1.0f };
     EXPECT_FLOAT_EQ(a.x, b.x);
     EXPECT_FLOAT_EQ(a.y, b.y);
     EXPECT_FLOAT_EQ(a.z, b.z);

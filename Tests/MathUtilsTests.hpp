@@ -127,6 +127,46 @@ TEST(MathUtilsFunctions, IsEquivalent) {
     EXPECT_FALSE(MathUtils::IsEquivalent(g, Quaternion(1.0f, 0.0f, 0.0f, 1.0f)));
 }
 
+TEST(MathUtilsFunctions, ConvertDegreesToRadians) {
+    EXPECT_FLOAT_EQ(MathUtils::ConvertDegreesToRadians(0.0f), 0.0f);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertDegreesToRadians(30.0f), MathUtils::M_1PI_6);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertDegreesToRadians(45.0f), MathUtils::M_1PI_4);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertDegreesToRadians(60.0f), MathUtils::M_1PI_3);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertDegreesToRadians(90.0f), MathUtils::M_1PI_2);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertDegreesToRadians(120.0f), MathUtils::M_2PI_3);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertDegreesToRadians(135.0f), MathUtils::M_3PI_4);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertDegreesToRadians(150.0f), MathUtils::M_5PI_6);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertDegreesToRadians(180.0f), MathUtils::M_PI);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertDegreesToRadians(210.0f), MathUtils::M_7PI_6);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertDegreesToRadians(225.0f), MathUtils::M_5PI_4);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertDegreesToRadians(240.0f), MathUtils::M_4PI_3);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertDegreesToRadians(270.0f), MathUtils::M_3PI_2);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertDegreesToRadians(300.0f), MathUtils::M_5PI_3);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertDegreesToRadians(315.0f), MathUtils::M_7PI_4);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertDegreesToRadians(330.0f), MathUtils::M_11PI_6);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertDegreesToRadians(360.0f), MathUtils::M_2PI);
+}
+
+TEST(MathUtilsFunctions, ConvertRadiansToDegrees) {
+    EXPECT_FLOAT_EQ(MathUtils::ConvertRadiansToDegrees(0.0f), 0.0f);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertRadiansToDegrees(MathUtils::M_1PI_6), 30.0f);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertRadiansToDegrees(MathUtils::M_1PI_4), 45.0f);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertRadiansToDegrees(MathUtils::M_1PI_3), 60.0f);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertRadiansToDegrees(MathUtils::M_1PI_2), 90.0f);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertRadiansToDegrees(MathUtils::M_2PI_3), 120.0f);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertRadiansToDegrees(MathUtils::M_3PI_4), 135.0f);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertRadiansToDegrees(MathUtils::M_5PI_6), 150.0f);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertRadiansToDegrees(MathUtils::M_PI), 180.0f);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertRadiansToDegrees(MathUtils::M_7PI_6), 210.0f);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertRadiansToDegrees(MathUtils::M_5PI_4), 225.0f);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertRadiansToDegrees(MathUtils::M_4PI_3), 240.0f);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertRadiansToDegrees(MathUtils::M_3PI_2), 270.0f);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertRadiansToDegrees(MathUtils::M_5PI_3), 300.0f);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertRadiansToDegrees(MathUtils::M_7PI_4), 315.0f);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertRadiansToDegrees(MathUtils::M_11PI_6), 330.0f);
+    EXPECT_FLOAT_EQ(MathUtils::ConvertRadiansToDegrees(MathUtils::M_2PI), 360.0f);
+}
+
 /*
 
 void SetRandomEngineSeed(unsigned int seed);

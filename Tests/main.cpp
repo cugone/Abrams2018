@@ -4,6 +4,7 @@
 
 #include "Vector3Tests.hpp"
 
+#include "MathUtilsTests.hpp"
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);

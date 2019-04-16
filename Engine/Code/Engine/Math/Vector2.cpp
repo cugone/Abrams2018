@@ -12,6 +12,8 @@ const Vector2 Vector2::ZERO(0.0f, 0.0f);
 const Vector2 Vector2::X_AXIS(1.0f, 0.0f);
 const Vector2 Vector2::Y_AXIS(0.0f, 1.0f);
 const Vector2 Vector2::ONE(1.0f, 1.0);
+const Vector2 Vector2::XY_AXIS(1.0f, 1.0);
+const Vector2 Vector2::YX_AXIS(1.0f, 1.0);
 
 Vector2::Vector2(float initialX, float initialY)
 : x(initialX)

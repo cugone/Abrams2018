@@ -12,6 +12,8 @@ public:
     static const Vector2 ZERO;
     static const Vector2 X_AXIS;
     static const Vector2 Y_AXIS;
+    static const Vector2 XY_AXIS;
+    static const Vector2 YX_AXIS;
 
     Vector2() = default;
     Vector2(const Vector2& rhs) = default;

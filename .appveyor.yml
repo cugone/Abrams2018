@@ -7,7 +7,7 @@ cache:
 install:
   - nuget restore Abrams2018
 build:
-project: ./Engine.sln
+  project: Engine.sln
 
 test:
   assemblies:

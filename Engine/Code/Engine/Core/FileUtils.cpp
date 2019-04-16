@@ -352,7 +352,7 @@ bool IsSafeWritePath(const std::filesystem::path& p) {
         bool is_in_data_dir = IsChildOf(p, FS::path{ "Data/" });
         bool is_next_to_exe = IsSiblingOf(p, GetExePath());
         bool is_temp_dir = IsChildOf(p, GetTempDirectory());
-        bool safe = is_in_working_dir || is_in_data_dir || is_next_to_exe;
+        bool safe = is_in_working_dir || is_in_data_dir || is_next_to_exe || is_temp_dir;
         return safe;
     } catch(const std::filesystem::filesystem_error& e) {
         std::ostringstream ss{};
@@ -387,7 +387,7 @@ bool IsSafeReadPath(const std::filesystem::path& p) {
         bool is_known_OS_dir = false;
 
         bool is_next_to_exe = IsSiblingOf(p, GetExePath());
-        bool safe = is_in_working_dir || is_in_gamedata_dir || is_in_enginedata_dir || is_next_to_exe;
+        bool safe = is_in_working_dir || is_in_gamedata_dir || is_in_enginedata_dir || is_next_to_exe || is_known_OS_dir;
         return safe;
     } catch(const std::filesystem::filesystem_error& e) {
         std::ostringstream ss{};

@@ -352,7 +352,57 @@ TEST(Vector2MemberFunctions, GetAsFloatArray) {
     EXPECT_TRUE(p_ay == p_ary);
 }
 
-//float CalcHeadingRadians() const;
+TEST(Vector2MemberFunctions, CalcHeadingRadians) {
+    auto a = Vector2{0.8f, 0.6f};
+    float expected = std::atan2(0.6f, 0.8f);
+    EXPECT_FLOAT_EQ(a.CalcHeadingRadians(), expected);
+    a = Vector2{-0.8f, 0.6f};
+    expected = std::atan2(0.6f, -0.8f);
+    EXPECT_FLOAT_EQ(a.CalcHeadingRadians(), expected);
+    a = Vector2{0.8f, -0.6f};
+    expected = std::atan2(-0.6f, 0.8f);
+    EXPECT_FLOAT_EQ(a.CalcHeadingRadians(), expected);
+    a = Vector2{-0.8f,-0.6f };
+    expected = std::atan2(-0.6f,-0.8f);
+    EXPECT_FLOAT_EQ(a.CalcHeadingRadians(), expected);
+    auto b = Vector2{1.0f, 0.0f};
+    expected = std::atan2(0.0f, 1.0f);
+    EXPECT_FLOAT_EQ(b.CalcHeadingRadians(), expected);
+    b = Vector2{-1.0f, 0.0f};
+    expected = std::atan2(0.0f, -1.0f);
+    EXPECT_FLOAT_EQ(b.CalcHeadingRadians(), expected);
+    b = Vector2{1.0f, -0.0f};
+    expected = std::atan2(-0.0f, 1.0f);
+    EXPECT_FLOAT_EQ(b.CalcHeadingRadians(), expected);
+    b = Vector2{-1.0f, -0.0f};
+    expected = std::atan2(-0.0f, -1.0f);
+    EXPECT_FLOAT_EQ(b.CalcHeadingRadians(), expected);
+    auto c = Vector2{0.0f, 1.0f};
+    expected = std::atan2(1.0f, 0.0f);
+    EXPECT_FLOAT_EQ(c.CalcHeadingRadians(), expected);
+    c = Vector2{0.0f, -1.0f};
+    expected = std::atan2(-1.0f, 0.0f);
+    EXPECT_FLOAT_EQ(c.CalcHeadingRadians(), expected);
+    c = Vector2{-0.0f, 1.0f};
+    expected = std::atan2(1.0f, -0.0f);
+    EXPECT_FLOAT_EQ(c.CalcHeadingRadians(), expected);
+    c = Vector2{-0.0f, -1.0f};
+    expected = std::atan2(-1.0f, -0.0f);
+    EXPECT_FLOAT_EQ(c.CalcHeadingRadians(), expected);
+    auto d = Vector2{1.0f, 1.0f};
+    expected = std::atan2(1.0f, 1.0f);
+    EXPECT_FLOAT_EQ(d.CalcHeadingRadians(), expected);
+    d = Vector2{-1.0f, 1.0f};
+    expected = std::atan2(1.0f, -1.0f);
+    EXPECT_FLOAT_EQ(d.CalcHeadingRadians(), expected);
+    d = Vector2{1.0f, -1.0f};
+    expected = std::atan2(-1.0f, 1.0f);
+    EXPECT_FLOAT_EQ(d.CalcHeadingRadians(), expected);
+    d = Vector2{-1.0f, -1.0f};
+    expected = std::atan2(-1.0f, -1.0f);
+    EXPECT_FLOAT_EQ(d.CalcHeadingRadians(), expected);
+}
+
 //float CalcHeadingDegrees() const;
 //float CalcLength() const;
 //float CalcLengthSquared() const;

@@ -18,7 +18,7 @@ before_test:
   - echo -----------------------ABOUT TO RUN TEST.EXE---------------------------------
 
 test_script:
-  - '%APPVEYOR_BUILD_FOLDER%\Temporary\Test_%PLATFORM%_%CONFIGURATION%\Tests.exe'
+  - %APPVEYOR_BUILD_FOLDER%\Temporary\Test_%PLATFORM%_%CONFIGURATION%\Tests.exe
 
 after_test:
   - echo -----------------------DONE RUNNING TEST.EXE-----------------------------------

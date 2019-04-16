@@ -13,7 +13,7 @@ build:
 test:
   assemblies:
     only:
-      - "%APPVEYOR_BUILD_FOLDER%\Temporary\Tests_%Platform%_%Configuration%\Tests.exe"
+      - **\Tests.exe
 
 before_test:
   - echo -----------------------ABOUT TO RUN TEST.EXE---------------------------------

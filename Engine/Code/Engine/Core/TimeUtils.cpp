@@ -22,7 +22,7 @@ std::string GetDateTimeStampFromNow(const DateTimeStampOptions& options /*= Date
     if(options.include_milliseconds) {
         auto ms = duration_cast<milliseconds>(now.time_since_epoch()) % 1s;
         if(options.use_separator) {
-            msg << '.';
+            msg << options.is_filename ? '_' : '.';
         }
         msg << std::fixed << std::setw(3) << std::setfill('0') << ms.count();
     }
@@ -44,7 +44,7 @@ std::string GetTimeStampFromNow(const DateTimeStampOptions& options /*= DateTime
     if(options.include_milliseconds) {
         auto ms = duration_cast<milliseconds>(now.time_since_epoch()) % 1s;
         if(options.use_separator) {
-            msg << '.';
+            msg << options.is_filename ? '_' : '.';
         }
         msg << std::fixed << std::setw(3) << std::setfill('0') << ms.count();
     }

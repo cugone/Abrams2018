@@ -178,10 +178,14 @@ std::filesystem::path GetKnownFolderPath(const KnownPathID& pathid) {
     }
     if(pathid == KnownPathID::GameData) {
         p = GetWorkingDirectory() / FS::path{"Data/"};
-        p = FS::canonical(p);
+        if(FS::exists(p)) {
+            p = FS::canonical(p);
+        }
     } else if(pathid == KnownPathID::EngineData) {
         p = GetWorkingDirectory() / FS::path{"Engine/"};
-        p = FS::canonical(p);
+        if(FS::exists(p)) {
+            p = FS::canonical(p);
+        }
     } else {
         {
             PWSTR ppszPath = nullptr;

@@ -17,6 +17,7 @@
 #include <vector>
 
 class RHIDeviceContext;
+class RHIFactory;
 class IntVector2;
 class Window;
 class RHIOutput;
@@ -32,6 +33,7 @@ public:
 
     std::unique_ptr<RHIOutput> CreateOutput(Window* window, const RHIOutputMode& mode = RHIOutputMode::Windowed);
     std::unique_ptr<RHIOutput> CreateOutput(const IntVector2& clientSize, const IntVector2& clientPosition = IntVector2::ZERO, const RHIOutputMode& outputMode = RHIOutputMode::Windowed);
+    std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> CreateOutputAndContext(const IntVector2& clientSize, const IntVector2& clientPosition = IntVector2::ZERO, const RHIOutputMode& outputMode = RHIOutputMode::Windowed);
 
     VertexBuffer* CreateVertexBuffer(const VertexBuffer::buffer_t& vbo, const BufferUsage& usage, const BufferBindUsage& bindusage) const;
     IndexBuffer* CreateIndexBuffer(const IndexBuffer::buffer_t& ibo, const BufferUsage& usage, const BufferBindUsage& bindusage) const;
@@ -51,12 +53,19 @@ public:
     ID3DBlob* CompileShader(const std::string& name, const void*  sourceCode, std::size_t sourceCodeSize, const std::string& entryPoint, const PipelineStage& target) const;
     std::vector<ConstantBuffer*> CreateConstantBuffersFromByteCode(ID3DBlob* bytecode) const;
 
-    std::set<DisplayDesc, DisplayDescGTComparator> displayModes{};
+    mutable std::set<DisplayDesc, DisplayDescGTComparator> displayModes{};
 
     RHIDeviceContext* GetImmediateContext() const;
 
 private:
     std::unique_ptr<RHIOutput> CreateOutputFromWindow(Window*& window);
+    std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> CreateOutputAndContextFromWindow(Window*& window);
+
+    DeviceInfo CreateDeviceFromFirstAdapter(const std::vector<AdapterInfo>& adapters);
+    void OutputAdapterInfo(const std::vector<AdapterInfo>& adapters) const;
+    void GetDisplayModes(const std::vector<AdapterInfo>& adapters) const;
+
+    IDXGISwapChain4* CreateSwapChain(const Window& window, RHIFactory& factory);
 
     std::vector<ConstantBuffer*> CreateConstantBuffersUsingReflection(ID3D11ShaderReflection& cbufferReflection) const;
     InputLayout* CreateInputLayoutFromByteCode(ID3DBlob* bytecode) const;
@@ -70,4 +79,7 @@ private:
     ID3D11Device5* _dx_device = nullptr;
     D3D_FEATURE_LEVEL _dx_highestSupportedFeatureLevel{};
     bool _allow_tearing_supported = false;
+
+    void SetupDebuggingInfo();
+
 };

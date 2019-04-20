@@ -186,37 +186,16 @@ void Renderer::Initialize(bool headless /*= false*/) {
     if(headless) {
         return;
     }
-    _rhi_output = _rhi_device->CreateOutput(_window_dimensions);
-    if(!_rhi_output) {
+    auto [rhi_output, rhi_context] = _rhi_device->CreateOutputAndContext(_window_dimensions);
+    if(!rhi_output || !rhi_context) {
         return;
     }
-    _rhi_context.reset(_rhi_device->GetImmediateContext());
-    if(!_rhi_context) {
-        return;
-    }
-    {
-        std::ostringstream ss;
-        ss << std::setw(60) << std::setfill('-') << '\n';
-        ss << "Available Display Dimensions:\n";
-        for (const auto& display : _rhi_device->displayModes) {
-            ss << display.width << 'x' << display.height << 'x' << display.refreshRateHz << '\n';
-        }
-        ss << std::setw(60) << std::setfill('-') << '\n';
-        std::cout << ss.str();
-    }
+    _rhi_output = std::move(rhi_output);
+    _rhi_context = std::move(rhi_context);
 
-    {
-    VertexBuffer::buffer_t default_vbo(1024);
-    IndexBuffer::buffer_t default_ibo(1024);
-    _temp_vbo = CreateVertexBuffer(default_vbo);
-    _temp_ibo = CreateIndexBuffer(default_ibo);
-    _current_vbo_size = default_vbo.size();
-    _current_ibo_size = default_ibo.size();
-    }
-
-    _matrix_cb = CreateConstantBuffer(&_matrix_data, sizeof(_matrix_data));
-    _time_cb = CreateConstantBuffer(&_time_data, sizeof(_time_data));
-    _lighting_cb = CreateConstantBuffer(&_lighting_data, sizeof(_lighting_data));
+    LogAvailableDisplays();
+    CreateWorkingVboAndIbo();
+    CreateDefaultConstantBuffers();
 
     CreateAndRegisterDefaultDepthStencilStates();
     CreateAndRegisterDefaultSamplers();
@@ -233,7 +212,34 @@ void Renderer::Initialize(bool headless /*= false*/) {
     SetDepthStencilState(GetDepthStencilState("__default"));
     SetRasterState(GetRasterState("__solid"));
     SetSampler(GetSampler("__default"));
+    SetRenderTarget(_current_target, _current_depthstencil);
     _current_material = nullptr; //User must explicitly set to avoid defaulting to full lighting material.
+}
+
+void Renderer::CreateDefaultConstantBuffers() {
+    _matrix_cb = CreateConstantBuffer(&_matrix_data, sizeof(_matrix_data));
+    _time_cb = CreateConstantBuffer(&_time_data, sizeof(_time_data));
+    _lighting_cb = CreateConstantBuffer(&_lighting_data, sizeof(_lighting_data));
+}
+
+void Renderer::CreateWorkingVboAndIbo() {
+    VertexBuffer::buffer_t default_vbo(1024);
+    IndexBuffer::buffer_t default_ibo(1024);
+    _temp_vbo = CreateVertexBuffer(default_vbo);
+    _temp_ibo = CreateIndexBuffer(default_ibo);
+    _current_vbo_size = default_vbo.size();
+    _current_ibo_size = default_ibo.size();
+}
+
+void Renderer::LogAvailableDisplays() {
+    std::ostringstream ss;
+    ss << std::setw(60) << std::setfill('-') << '\n';
+    ss << "Available Display Dimensions:\n";
+    for(const auto& display : _rhi_device->displayModes) {
+        ss << display.width << 'x' << display.height << 'x' << display.refreshRateHz << '\n';
+    }
+    ss << std::setw(60) << std::setfill('-') << '\n';
+    DebuggerPrintf(ss.str().c_str());
 }
 
 void Renderer::CreateAndRegisterDefaultDepthStencil() {
@@ -1388,8 +1394,9 @@ void Renderer::SetBorderlessWindowedMode() {
 }
 
 void Renderer::CreateAndRegisterDefaultFonts() {
-    FileUtils::CreateFolders(std::filesystem::path{"Engine/Fonts"});
-    RegisterFontsFromFolder(std::string{ "Engine/Fonts" });
+    std::filesystem::path p = FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineData) / std::filesystem::path{ "Fonts" };
+    FileUtils::CreateFolders(p);
+    RegisterFontsFromFolder(p);
 }
 
 void Renderer::CreateAndRegisterDefaultShaderPrograms() {
@@ -3425,6 +3432,10 @@ void Renderer::SetRenderTarget(Texture* color_target /*= nullptr*/, Texture* dep
     ID3D11DepthStencilView* dsv = _current_depthstencil->GetDepthStencilView();
     ID3D11RenderTargetView* rtv = _current_target->GetRenderTargetView();
     _rhi_context->GetDxContext()->OMSetRenderTargets(1, &rtv, dsv);
+}
+
+void Renderer::SetRenderTargetsToBackBuffer() {
+    SetRenderTarget();
 }
 
 void Renderer::SetViewport(const ViewportDesc& desc) {

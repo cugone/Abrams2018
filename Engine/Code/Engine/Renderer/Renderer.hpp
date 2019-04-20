@@ -132,7 +132,6 @@ public:
     ~Renderer();
 
     void Initialize(bool headless = false);
-
     void BeginFrame();
     void Update(TimeUtils::FPSeconds deltaSeconds);
     void Render() const;
@@ -154,7 +153,6 @@ public:
     IndexBuffer* CreateIndexBuffer(const IndexBuffer::buffer_t& ibo) const;
     ConstantBuffer* CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) const;
     StructuredBuffer* CreateStructuredBuffer(const StructuredBuffer::buffer_t& sbo, std::size_t element_size, std::size_t element_count) const;
-
 
     Texture* CreateOrGetTexture(const std::string& filepath, const IntVector3& dimensions);
     void RegisterTexturesFromFolder(const std::string& folderpath, bool recursive = false);
@@ -202,6 +200,7 @@ public:
     void PopRenderTarget();
     void ClearRenderTargets(const RenderTargetType& rtt);
     void SetRenderTarget(Texture* color_target = nullptr, Texture* depthstencil_target = nullptr);
+    void SetRenderTargetsToBackBuffer();
     void SetViewport(const ViewportDesc& desc);
     void SetViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
     void SetViewportAndScissor(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
@@ -368,6 +367,9 @@ private:
     bool RegisterFont(const std::filesystem::path& filepath);
     void RegisterFontsFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
 
+
+    void CreateDefaultConstantBuffers();
+    void CreateWorkingVboAndIbo();
     void UpdateVbo(const VertexBuffer::buffer_t& vbo);
     void UpdateIbo(const IndexBuffer::buffer_t& ibo);
 
@@ -443,6 +445,8 @@ private:
     void UnbindAllConstantBuffers();
     void UnbindComputeShaderResources();
     void UnbindComputeConstantBuffers();
+
+    void LogAvailableDisplays();
 
     Camera3D _camera{};
     matrix_buffer_t _matrix_data{};

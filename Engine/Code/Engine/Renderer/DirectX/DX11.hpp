@@ -29,6 +29,12 @@
 struct AdapterInfo {
     IDXGIAdapter4* adapter = nullptr;
     DXGI_ADAPTER_DESC3 desc{};
+    void Release() {
+        if(adapter) {
+            adapter->Release();
+            adapter = nullptr;
+        }
+    }
 };
 
 GraphicsCardDesc AdapterInfoToGraphicsCardDesc(const AdapterInfo& adapterInfo);
@@ -36,6 +42,12 @@ GraphicsCardDesc AdapterInfoToGraphicsCardDesc(const AdapterInfo& adapterInfo);
 struct OutputInfo {
     IDXGIOutput6* output = nullptr;
     DXGI_OUTPUT_DESC1 desc{};
+};
+
+struct DeviceInfo {
+    D3D_FEATURE_LEVEL highest_supported_feature_level{};
+    ID3D11DeviceContext* dx_context = nullptr;
+    ID3D11Device5* dx_device = nullptr;
 };
 
 using bitfield8_t = std::uint8_t;

@@ -110,6 +110,7 @@ void FileLogger::FinalizeLog() {
     to_p.replace_filename(logname + "_" + TimeUtils::GetDateTimeStampFromNow(opts) + ".log");
     //Canonicalizing output file that doesn't already exist is an error.
     to_p.make_preferred();
+    _stream << "Copied log to: " << to_p << "...\n";
     _stream.flush();
     _stream.close();
     std::cout.rdbuf(_old_cout);

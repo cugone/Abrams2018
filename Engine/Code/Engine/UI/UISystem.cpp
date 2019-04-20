@@ -91,17 +91,8 @@ UISystem::~UISystem() {
 }
 
 void UISystem::Initialize() {
-    namespace FS = std::filesystem;
-    auto path_engineconfig = FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineData) / "Config";
-    FileUtils::CreateFolders(path_engineconfig);
-    auto gui_config = path_engineconfig / "imgui.ini";
-    auto gui_log = path_engineconfig / "imgui_log.txt";
-    gui_config = gui_config.make_preferred();
-    gui_log = gui_log.make_preferred();
-    auto config_str = gui_config.string();
-    auto log_str = gui_log.string();
-    _io->IniFilename = config_str.c_str();
-    _io->LogFilename = log_str.c_str();
+    _io->IniFilename = nullptr;
+    _io->LogFilename = nullptr;
 
     auto hwnd = _renderer->GetOutput()->GetWindow()->GetWindowHandle();
     auto dx_device = _renderer->GetDevice()->GetDxDevice();

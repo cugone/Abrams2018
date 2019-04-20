@@ -3505,8 +3505,20 @@ void Renderer::SetScissors(const std::vector<AABB2>& scissors) {
     _rhi_context->GetDxContext()->RSSetScissorRects(static_cast<unsigned int>(dxScissors.size()), dxScissors.data());
 }
 
-void Renderer::SetViewportAsPercent(float /*x*/, float /*y*/, float /*w*/, float /*h*/) {
-    /* DO NOTHING */
+void Renderer::SetViewportAsPercent(float x /*= 0.0f*/, float y /*= 0.0f*/, float w /*= 0.0f*/, float h /*= 0.0f*/) {
+    auto window_dimensions = GetOutput()->GetDimensions();
+    auto window_width = window_dimensions.x;
+    auto window_height = window_dimensions.y;
+    auto left = x * window_width;
+    auto top = y * window_height;
+    auto right = left + window_width * w;
+    auto bottom = top + window_height * h;
+    auto width = (right - left) * w;
+    auto height = (bottom - top) * h;
+    SetViewport(static_cast<unsigned int>(left),
+                static_cast<unsigned int>(top),
+                static_cast<unsigned int>(width),
+                static_cast<unsigned int>(height));
 }
 
 void Renderer::ClearColor(const Rgba& color) {

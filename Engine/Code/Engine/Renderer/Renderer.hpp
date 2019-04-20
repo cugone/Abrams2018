@@ -205,7 +205,7 @@ public:
     void SetViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
     void SetViewportAndScissor(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
     void SetViewports(const std::vector<AABB3>& viewports);
-    void SetViewportAsPercent(float x, float y, float w, float h);
+    void SetViewportAsPercent(float x = 0.0f, float y = 0.0f, float w = 1.0f, float h = 1.0f);
 
     void SetScissor(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
     void SetScissorAndViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height);

@@ -2,6 +2,7 @@
 
 #include "Engine/Core/ArgumentParser.hpp"
 #include "Engine/Core/BuildConfig.hpp"
+#include "Engine/Core/Clipboard.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/Image.hpp"
@@ -287,40 +288,25 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
 
 bool Console::HandleClipboardCopy() const {
     bool did_copy = false;
-    if(_cursor_position != _selection_position) {
-        std::string copied_text = CopyText(_cursor_position, _selection_position);
+    if(Clipboard::HasText()) {
         auto hwnd = _renderer->GetOutput()->GetWindow()->GetWindowHandle();
-        if(::OpenClipboard(hwnd)) {
-            if(::EmptyClipboard()) {
-                if(auto hgblcopy = ::GlobalAlloc(GMEM_MOVEABLE, (copied_text.size() + 1) * sizeof(std::string::value_type))) {
-                    if(auto lpstrcopy = reinterpret_cast<LPTSTR>(::GlobalLock(hgblcopy))) {
-                        std::memcpy(lpstrcopy, copied_text.data(), copied_text.size() + 1);
-                        lpstrcopy[copied_text.size() + 1] = '\0';
-                    }
-                    ::GlobalUnlock(hgblcopy);
-                    ::SetClipboardData(CF_TEXT, hgblcopy);
-                    did_copy = true;
-                }
-            }
-            ::CloseClipboard();
+        Clipboard c{ hwnd };
+        if(_cursor_position != _selection_position) {
+            std::string copied_text = CopyText(_cursor_position, _selection_position);
+            did_copy = c.Copy(copied_text);
+        } else {
+            did_copy = c.Copy(_entryline);
         }
     }
     return did_copy;
 }
 
 void Console::HandleClipboardPaste() {
-    if(::IsClipboardFormatAvailable(CF_TEXT)) {
+    if(Clipboard::HasText()) {
         auto hwnd = _renderer->GetOutput()->GetWindow()->GetWindowHandle();
-        if(::OpenClipboard(hwnd)) {
-            if(HGLOBAL hglb = ::GetClipboardData(CF_TEXT)) {
-                if(auto lpstrpaste = reinterpret_cast<LPTSTR>(::GlobalLock(hglb))) {
-                    std::string text_to_paste = lpstrpaste;
-                    PasteText(text_to_paste, _cursor_position);
-                    ::GlobalUnlock(hglb);
-                }
-            }
-            ::CloseClipboard();
-        }
+        Clipboard c{hwnd};
+        auto string_to_paste = c.Paste();
+        PasteText(string_to_paste, _cursor_position);
     }
 }
 
@@ -652,6 +638,9 @@ std::string Console::CopyText(std::string::const_iterator start, std::string::co
 }
 
 void Console::PasteText(const std::string& text, std::string::const_iterator loc) {
+    if(text.empty()) {
+        return;
+    }
     if(_cursor_position != _selection_position) {
         RemoveText(_cursor_position, _selection_position);
     }

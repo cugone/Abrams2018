@@ -61,6 +61,8 @@ public:
     friend std::istream& operator>>(std::istream& in_stream, Vector3& v);
 
     void GetXYZ(float& outX, float& outY, float& outZ) const;
+    Vector2 GetXY() const;
+    Vector3 GetXYZ() const;
     float* GetAsFloatArray();
 
     float CalcLength() const;

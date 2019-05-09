@@ -208,6 +208,15 @@ void Vector3::GetXYZ(float& outX, float& outY, float& outZ) const {
     outZ = z;
 }
 
+
+Vector3 Vector3::GetXYZ() const {
+    return Vector3{x, y, z};
+}
+
+Vector2 Vector3::GetXY() const {
+    return Vector2{x, y};
+}
+
 float* Vector3::GetAsFloatArray() {
     return &x;
 }

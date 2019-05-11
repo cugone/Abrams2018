@@ -388,6 +388,9 @@
     <ClCompile Include="Renderer\Mesh.cpp">
       <Filter>Renderer\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Thread.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -746,6 +749,9 @@
     </ClInclude>
     <ClInclude Include="Renderer\Mesh.hpp">
       <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Thread.hpp">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -51,6 +51,7 @@
     <ClCompile Include="Core\Riff.cpp" />
     <ClCompile Include="Core\Stopwatch.cpp" />
     <ClCompile Include="Core\StringUtils.cpp" />
+    <ClCompile Include="Core\Thread.cpp" />
     <ClCompile Include="Core\TimeUtils.cpp" />
     <ClCompile Include="Input\InputSystem.cpp" />
     <ClCompile Include="Input\XboxController.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="Core\Riff.hpp" />
     <ClInclude Include="Core\Stopwatch.hpp" />
     <ClInclude Include="Core\StringUtils.hpp" />
+    <ClInclude Include="Core\Thread.hpp" />
     <ClInclude Include="Core\ThreadSafeQueue.hpp" />
     <ClInclude Include="Core\TimeUtils.hpp" />
     <ClInclude Include="Core\Vertex3D.hpp" />

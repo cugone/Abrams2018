@@ -16,10 +16,6 @@ Mesh::Builder::Builder(const std::vector<Vertex3D>& verts, const std::vector<uns
     /* DO NOTHING */
 }
 
-Mesh::Builder::Builder(const std::vector<Vertex3D>& verts, const std::vector<unsigned int>& indcs) {
-
-}
-
 void Mesh::Builder::Begin(const PrimitiveType& type, bool hasIndexBuffer /*= true*/) {
     _current_draw_instruction.type = type;
     _current_draw_instruction.uses_index_buffer = hasIndexBuffer;

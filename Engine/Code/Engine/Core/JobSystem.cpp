@@ -1,6 +1,7 @@
 #include "Engine/Core/JobSystem.hpp"
 
 #include "Engine/Core/TimeUtils.hpp"
+#include "Engine/Core/ThreadUtils.hpp"
 #include "Engine/Core/Win.hpp"
 
 #include <chrono>
@@ -122,7 +123,7 @@ void JobSystem::Initialize(int genericCount, std::size_t categoryCount) {
         auto t = std::thread(&JobSystem::GenericJobWorker, this, _signals[static_cast<std::underlying_type_t<JobType>>(JobType::Generic)]);
         std::wostringstream wss;
         wss << "Generic Job Thread " << i;
-        ::SetThreadDescription(t.native_handle(), wss.str().c_str());
+        ThreadUtils::SetThreadDescription(t, wss.str());
         _threads[i] = std::move(t);
     }
 

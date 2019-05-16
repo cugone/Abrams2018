@@ -381,10 +381,14 @@ bool StartsWith(const std::string& string, const std::string& start) {
     return found_loc != std::string::npos && found_loc == 0;
 }
 
-
 bool StartsWith(const std::wstring& string, const std::wstring& start) {
     auto found_loc = string.find(start);
     return found_loc != std::wstring::npos && found_loc == 0;
+}
+
+
+bool StartsWith(const std::string& string, char start) {
+    return string.front() == start;
 }
 
 bool EndsWith(const std::string& string, const std::string& end) {
@@ -392,10 +396,13 @@ bool EndsWith(const std::string& string, const std::string& end) {
     return found_loc != std::string::npos && found_loc == string.size() - end.size();
 }
 
-
 bool EndsWith(const std::wstring& string, const std::wstring& end) {
     auto found_loc = string.rfind(end);
     return found_loc != std::wstring::npos && found_loc == string.size() - end.size();
+}
+
+bool EndsWith(const std::string& string, char end) {
+    return string.back() == end;
 }
 
 //From https://stackoverflow.com/a/3418285/421178

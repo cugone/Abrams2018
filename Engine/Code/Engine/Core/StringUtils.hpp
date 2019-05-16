@@ -53,9 +53,11 @@ std::wstring ConvertMultiByteToUnicode(const std::string& multi_byte_string);
 
 bool StartsWith(const std::string& string, const std::string& start);
 bool StartsWith(const std::wstring& string, const std::wstring& start);
+bool StartsWith(const std::string& string, char start);
 
 bool EndsWith(const std::string& string, const std::string& end);
 bool EndsWith(const std::wstring& string, const std::wstring& end);
+bool EndsWith(const std::string& string, char end);
 
 std::string ReplaceAll(std::string string, const std::string& from, const std::string& to);
 std::wstring ReplaceAll(std::wstring string, const std::wstring& from, const std::wstring& to);

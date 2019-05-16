@@ -387,6 +387,7 @@ private:
     void CreateAndRegisterDefaultTextures();
     Texture* CreateDefaultTexture();
     Texture* CreateInvalidTexture();
+    Texture* CreateInvalidMaterialTexture();
     Texture* CreateDefaultDiffuseTexture();
     Texture* CreateDefaultNormalTexture();
     Texture* CreateDefaultDisplacementTexture();
@@ -417,6 +418,7 @@ private:
     Material* CreateDefault2DMaterial();
     Material* CreateDefaultNormalMaterial();
     Material* CreateDefaultNormalMapMaterial();
+    Material* CreateDefaultInvalidMaterial();
 
     void CreateAndRegisterDefaultFonts();
 

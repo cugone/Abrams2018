@@ -2171,6 +2171,25 @@ Material* Renderer::CreateDefaultNormalMapMaterial() {
 
 }
 
+Material* Renderer::CreateDefaultInvalidMaterial() {
+    std::string material =
+        R"(
+<material name="__invalid">
+    <shader src="__2D" />
+    <textures>
+        <diffuse src="__invalid_material" />
+    </textures>
+</material>
+)";
+
+    tinyxml2::XMLDocument doc;
+    auto parse_result = doc.Parse(material.c_str(), material.size());
+    if(parse_result != tinyxml2::XML_SUCCESS) {
+        return nullptr;
+    }
+    return new Material(this, *doc.RootElement());
+}
+
 Material* Renderer::CreateMaterialFromFont(KerningFont* font) {
     if(font == nullptr) {
         return nullptr;
@@ -2667,6 +2686,10 @@ void Renderer::CreateAndRegisterDefaultTextures() {
     invalid_texture->SetDebugName("__invalid");
     RegisterTexture("__invalid", invalid_texture);
 
+    auto invalid_material_texture = CreateInvalidMaterialTexture();
+    invalid_material_texture->SetDebugName("__invalid_material");
+    RegisterTexture("__invalid_material", invalid_material_texture);
+
     auto diffuse_texture = CreateDefaultDiffuseTexture();
     diffuse_texture->SetDebugName("__diffuse");
     RegisterTexture("__diffuse", diffuse_texture);
@@ -2706,6 +2729,13 @@ Texture* Renderer::CreateInvalidTexture() {
         Rgba::Black,   Rgba::Magenta,
     };
     return Create2DTextureFromMemory(data, 2, 2);
+}
+
+Texture* Renderer::CreateInvalidMaterialTexture() {
+    std::vector<Rgba> data = {
+        Rgba::Magenta
+    };
+    return Create2DTextureFromMemory(data, 1, 1);
 }
 
 Texture* Renderer::CreateDefaultDiffuseTexture() {

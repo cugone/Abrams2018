@@ -114,3 +114,7 @@ const Matrix4& Camera2D::GetInverseProjectionMatrix() const {
 const Matrix4& Camera2D::GetInverseViewProjectionMatrix() const {
     return inv_view_projection_matrix;
 }
+
+float Camera2D::GetShake() const {
+    return trauma * trauma;
+}

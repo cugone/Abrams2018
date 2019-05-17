@@ -38,6 +38,8 @@ public:
     const Matrix4& GetInverseProjectionMatrix() const;
     const Matrix4& GetInverseViewProjectionMatrix() const;
 
+    float GetShake() const;
+
     float trauma = 0.0f;
     float trauma_recovery_rate = 1.0f;
     Vector2 position = Vector2::ZERO;

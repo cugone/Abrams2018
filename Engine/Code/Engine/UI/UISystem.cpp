@@ -10,6 +10,9 @@
 IMGUI_IMPL_API LRESULT  ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace ImGui {
+    void Image(const Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Rgba& tint_col, const Rgba& border_col) {
+        ImGui::Image(reinterpret_cast<void*>(texture->GetShaderResourceView()), size, uv0, uv1, tint_col.GetRgbaAsFloats(), border_col.GetRgbaAsFloats());
+    }
     void Image(Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Rgba& tint_col, const Rgba& border_col) {
         ImGui::Image(reinterpret_cast<void*>(texture->GetShaderResourceView()), size, uv0, uv1, tint_col.GetRgbaAsFloats(), border_col.GetRgbaAsFloats());
     }

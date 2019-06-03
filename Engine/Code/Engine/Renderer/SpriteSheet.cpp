@@ -8,7 +8,7 @@ SpriteSheet::SpriteSheet(Renderer& renderer, const XMLElement& elem)
     LoadFromXml(renderer, elem);
 }
 
-SpriteSheet::SpriteSheet(const Texture* texture, int tilesWide, int tilesHigh)
+SpriteSheet::SpriteSheet(Texture* texture, int tilesWide, int tilesHigh)
     : _spriteSheetTexture(texture)
     , _spriteLayout(tilesWide, tilesHigh)
 {
@@ -67,12 +67,12 @@ const IntVector2& SpriteSheet::GetLayout() const {
     return _spriteLayout;
 }
 
-const Texture& SpriteSheet::GetTexture() const {
-    return *_spriteSheetTexture;
+const Texture* SpriteSheet::GetTexture() const {
+    return _spriteSheetTexture;
 }
 
-const Texture* SpriteSheet::GetTexture() {
-    return _spriteSheetTexture;
+Texture* SpriteSheet::GetTexture() {
+    return const_cast<Texture*>(static_cast<const SpriteSheet&>(*this).GetTexture());
 }
 
 void SpriteSheet::LoadFromXml(Renderer& renderer, const XMLElement& elem) {

@@ -82,6 +82,22 @@ bool Texture::IsArray() const {
     return _isArray;
 }
 
+ID3D11DepthStencilView* Texture::GetDepthStencilView() const {
+    return _dsv;
+}
+
+ID3D11RenderTargetView* Texture::GetRenderTargetView() const {
+    return _rtv;
+}
+
+ID3D11ShaderResourceView* Texture::GetShaderResourceView() const {
+    return _srv;
+}
+
+ID3D11UnorderedAccessView* Texture::GetUnorderedAccessView() const {
+    return _uav;
+}
+
 ID3D11DepthStencilView* Texture::GetDepthStencilView() {
     return _dsv;
 }

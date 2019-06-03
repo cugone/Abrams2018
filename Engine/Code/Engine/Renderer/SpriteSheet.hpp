@@ -23,15 +23,15 @@ public:
     int GetFrameHeight() const;
     IntVector2 GetFrameDimensions() const;
     const IntVector2& GetLayout() const;
-    const Texture& GetTexture() const;
-    const Texture* GetTexture();
+    const Texture* GetTexture() const;
+    Texture* GetTexture();
 protected:
 private:
-    SpriteSheet(const Texture* texture, int tilesWide, int tilesHigh);
+    SpriteSheet(Texture* texture, int tilesWide, int tilesHigh);
     SpriteSheet(Renderer& renderer, const std::string& texturePath, int tilesWide, int tilesHigh);
 
     void LoadFromXml(Renderer& renderer, const XMLElement& elem);
-    const Texture* _spriteSheetTexture = nullptr;
+    Texture* _spriteSheetTexture = nullptr;
     IntVector2 _spriteLayout{1, 1};
 
     friend class Renderer;

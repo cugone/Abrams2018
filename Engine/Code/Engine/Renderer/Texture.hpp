@@ -32,6 +32,10 @@ public:
     ID3D11RenderTargetView* GetRenderTargetView();
     ID3D11ShaderResourceView* GetShaderResourceView();
     ID3D11UnorderedAccessView* GetUnorderedAccessView();
+    ID3D11DepthStencilView* GetDepthStencilView() const;
+    ID3D11RenderTargetView* GetRenderTargetView() const;
+    ID3D11ShaderResourceView* GetShaderResourceView() const;
+    ID3D11UnorderedAccessView* GetUnorderedAccessView() const;
 
     virtual void SetDebugName([[maybe_unused]] const std::string& name) const noexcept = 0;
     virtual ID3D11Resource* GetDxResource() const = 0;

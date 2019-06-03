@@ -29,6 +29,7 @@ void Camera2D::CalcViewMatrix() {
 
 void Camera2D::Update(TimeUtils::FPSeconds deltaSeconds) {
     trauma -= trauma_recovery_rate * deltaSeconds.count();
+    trauma = std::clamp(trauma, 0.0f, 1.0f);
 }
 
 const Vector2& Camera2D::GetPosition() const {

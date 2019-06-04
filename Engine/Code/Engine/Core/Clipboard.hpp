@@ -7,7 +7,7 @@
 class Clipboard {
 public:
     Clipboard() = default;
-    Clipboard(HWND hwnd);
+    explicit Clipboard(HWND hwnd);
     Clipboard(const Clipboard& other) = default;
     Clipboard(Clipboard&& other) = default;
     Clipboard& operator=(const Clipboard& other) = default;

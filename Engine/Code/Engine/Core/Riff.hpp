@@ -28,7 +28,7 @@ public:
 
     struct RiffHeader {
         char fourcc[4] = {0};
-        uint32_t length{0};
+        uint32_t length = 0u;
     };
     struct RiffSubChunk {
         char fourcc[4] = {0};

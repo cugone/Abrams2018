@@ -54,6 +54,7 @@
 #include <sstream>
 #include <ostream>
 #include <iostream>
+#include <tuple>
 
 ComputeJob::ComputeJob(Renderer* renderer,
                        std::size_t uavCount,
@@ -186,7 +187,7 @@ void Renderer::Initialize(bool headless /*= false*/) {
     if(headless) {
         return;
     }
-    auto [_rhi_output, _rhi_context] = _rhi_device->CreateOutputAndContext(_window_dimensions);
+    std::tie(_rhi_output, _rhi_context) = _rhi_device->CreateOutputAndContext(_window_dimensions);
 
     LogAvailableDisplays();
     CreateWorkingVboAndIbo();

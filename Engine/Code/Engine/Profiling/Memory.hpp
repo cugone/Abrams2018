@@ -29,7 +29,7 @@ public:
             return {};
 #endif
         }
-        friend std::ostream& operator<<(std::ostream& os, const status_t s) {
+        friend std::ostream& operator<<(std::ostream& os, [[maybe_unused]]const status_t s) {
 #ifdef TRACK_MEMORY
             os << "Leaked objects: " << s.leaked_objs << " for " << s.leaked_bytes << " bytes.\n";
 #endif

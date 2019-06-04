@@ -339,9 +339,9 @@ std::vector<ConstantBuffer*> RHIDevice::CreateConstantBuffersUsingReflection(ID3
             if(buffer_desc.Type != D3D_CBUFFER_TYPE::D3D11_CT_CBUFFER) {
                 continue;
             }
-            std::string buffer_name{ buffer_desc.Name };
-            std::string input_name{ input_desc.Name };
-            if(buffer_name != input_desc.Name) {
+            std::string buffer_name{ buffer_desc.Name ? buffer_desc.Name : "" };
+            std::string input_name{ input_desc.Name ? input_desc.Name : "" };
+            if(buffer_name != input_name) {
                 continue;
             }
             std::size_t cbuffer_size = 0u;

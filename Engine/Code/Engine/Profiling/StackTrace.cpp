@@ -82,6 +82,9 @@ StackTrace::~StackTrace() {
 void StackTrace::Initialize() {
 #ifdef PROFILE_BUILD
     debugHelpModule = ::LoadLibraryA("DbgHelp.dll");
+    if(!debugHelpModule) {
+        return;
+    }
 
     LSymSetOptions = reinterpret_cast<SymSetOptions_t>(::GetProcAddress(debugHelpModule, "SymSetOptions"));
     LSymInitialize = reinterpret_cast<SymInitialize_t>(::GetProcAddress(debugHelpModule, "SymInitialize"));
@@ -106,6 +109,8 @@ void StackTrace::Initialize() {
         ERROR_AND_DIE("Could not initialize StackTrace!\n");
     }
     symbol = (SYMBOL_INFO*)std::malloc(SYMBOL_INFO_SIZE + MAX_FILENAME_LENGTH * sizeof(char));
+    GUARANTEE_OR_DIE(symbol, "Failed to allocate symbol memory.");
+
     symbol->MaxNameLen = MAX_FILENAME_LENGTH;
     symbol->SizeOfStruct = SYMBOL_INFO_SIZE;
 #endif
@@ -142,17 +147,23 @@ void StackTrace::GetLines([[maybe_unused]]StackTrace* st,
             got_line = LSymGetLineFromAddr64(process, ptr, &line_offset, &line_info);
         }
         if(got_line) {
-            auto s = reinterpret_cast<char*>(std::malloc(symbol->NameLen + 1));
-            ::strcpy_s(s, symbol->NameLen + 1, symbol->Name);
-            s[symbol->NameLen] = '\0';
-            DebuggerPrintf("\t%s(%d): %s\n", line_info.FileName, line_info.LineNumber, s);
-            std::free(s);
+            const auto name_length_plus_one = static_cast<std::size_t>(symbol->NameLen) + 1u;
+            auto s = reinterpret_cast<char*>(std::malloc(name_length_plus_one));
+            if(s) {
+                ::strcpy_s(s, name_length_plus_one, symbol->Name);
+                s[symbol->NameLen] = '\0';
+                DebuggerPrintf("\t%s(%d): %s\n", line_info.FileName, line_info.LineNumber, s);
+                std::free(s);
+            }
         } else {
-            auto s = reinterpret_cast<char*>(std::malloc(symbol->NameLen + 1));
-            ::strcpy_s(s, symbol->NameLen + 1, symbol->Name);
-            s[symbol->NameLen] = '\0';
-            DebuggerPrintf("\tN/A(%d): %s\n", 0, s);
-            std::free(s);
+            const auto name_length_plus_one = static_cast<std::size_t>(symbol->NameLen) + 1u;
+            auto s = reinterpret_cast<char*>(std::malloc(name_length_plus_one));
+            if(s) {
+                ::strcpy_s(s, name_length_plus_one, symbol->Name);
+                s[symbol->NameLen] = '\0';
+                DebuggerPrintf("\tN/A(%d): %s\n", 0, s);
+                std::free(s);
+            }
         }
     }
 #endif
@@ -160,8 +171,10 @@ void StackTrace::GetLines([[maybe_unused]]StackTrace* st,
 
 void StackTrace::Shutdown() {
 #ifdef PROFILE_BUILD
-    std::free(symbol);
-    symbol = nullptr;
+    if(symbol) {
+        std::free(symbol);
+        symbol = nullptr;
+    }
 
     {
         std::scoped_lock<std::shared_mutex> _lock(_cs);

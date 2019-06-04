@@ -41,13 +41,13 @@ Ratio& Ratio::operator=(const Ratio& rhs) {
     return *this;
 }
 
-Ratio& Ratio::operator=(Ratio&& rhs) {
+Ratio& Ratio::operator=(Ratio&& rhs) noexcept {
     SetValue(std::move(rhs.value));
     rhs.value = Vector2::ZERO;
     return *this;
 }
 
-Ratio::Ratio(Ratio&& rhs) {
+Ratio::Ratio(Ratio&& rhs) noexcept {
     SetValue(std::move(rhs.value));
     rhs.value = Vector2::ZERO;
 }

@@ -354,9 +354,20 @@ std::wstring ToLowerCase(std::wstring string) {
 
 std::string ConvertUnicodeToMultiByte(const std::wstring& unicode_string) {
     char* buf = nullptr;
-    auto buf_size = ::WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, unicode_string.data(), -1, buf, 0, nullptr, nullptr);
+    auto buf_size = static_cast<std::size_t>(::WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, unicode_string.data(), -1, buf, 0, nullptr, nullptr));
+    if(!buf_size) {
+        return{};
+    }
     buf = new char[buf_size * sizeof(char)];
-    buf_size = ::WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, unicode_string.data(), -1, buf, buf_size, nullptr, nullptr);
+    if(!buf) {
+        return{};
+    }
+    buf_size = static_cast<std::size_t>(::WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, unicode_string.data(), -1, buf, static_cast<int>(buf_size), nullptr, nullptr));
+    if(!buf_size) {
+        delete[] buf;
+        buf = nullptr;
+        return{};
+    }
     std::string mb_string{};
     mb_string.assign(buf, buf_size - 1);
     delete[] buf;
@@ -366,9 +377,20 @@ std::string ConvertUnicodeToMultiByte(const std::wstring& unicode_string) {
 
 std::wstring ConvertMultiByteToUnicode(const std::string& multi_byte_string) {
     wchar_t* buf = nullptr;
-    auto buf_size = ::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, multi_byte_string.data(), -1, buf, 0);
+    auto buf_size = static_cast<std::size_t>(::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, multi_byte_string.data(), -1, buf, 0));
+    if(!buf_size) {
+        return {};
+    }
     buf = new wchar_t[buf_size * sizeof(wchar_t)];
-    buf_size = ::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, multi_byte_string.data(), -1, buf, buf_size);
+    if(!buf) {
+        return{};
+    }
+    buf_size = static_cast<std::size_t>(::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, multi_byte_string.data(), -1, buf, static_cast<int>(buf_size)));
+    if(!buf_size) {
+        delete[] buf;
+        buf = nullptr;
+        return{};
+    }
     std::wstring unicode_string{};
     unicode_string.assign(buf, buf_size - 1);
     delete[] buf;

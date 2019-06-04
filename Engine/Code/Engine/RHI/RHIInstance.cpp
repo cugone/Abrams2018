@@ -26,18 +26,14 @@ RHIInstance* const RHIInstance::CreateInstance() {
     // Debug Setup
 
     debug_module = ::LoadLibraryA("Dxgidebug.dll");
-
-    using GetDebugModuleCB = HRESULT(WINAPI *)(REFIID, void**);
-
-    GetDebugModuleCB cb = (GetDebugModuleCB) ::GetProcAddress(debug_module, "DXGIGetDebugInterface");
-
-    HRESULT hr = cb(__uuidof(IDXGIDebug), (void**)&_instance->_debuggerInstance);
-
-    bool succeeded = SUCCEEDED(hr);
-    ASSERT_OR_DIE(succeeded, "DXGIDugger failed to initialize.");
-
-    _instance->_debuggerInstance->ReportLiveObjects(DXGI_DEBUG_ALL, (DXGI_DEBUG_RLO_FLAGS)(DXGI_DEBUG_RLO_IGNORE_INTERNAL | DXGI_DEBUG_RLO_DETAIL));
-
+    if(debug_module) {
+        using GetDebugModuleCB = HRESULT(WINAPI *)(REFIID, void**);
+        GetDebugModuleCB cb = (GetDebugModuleCB) ::GetProcAddress(debug_module, "DXGIGetDebugInterface");
+        HRESULT hr = cb(__uuidof(IDXGIDebug), (void**)&_instance->_debuggerInstance);
+        bool succeeded = SUCCEEDED(hr);
+        ASSERT_OR_DIE(succeeded, "DXGIDugger failed to initialize.");
+        _instance->_debuggerInstance->ReportLiveObjects(DXGI_DEBUG_ALL, (DXGI_DEBUG_RLO_FLAGS)(DXGI_DEBUG_RLO_IGNORE_INTERNAL | DXGI_DEBUG_RLO_DETAIL));
+    }
 #endif
     return _instance;
 }
@@ -55,8 +51,10 @@ std::unique_ptr<RHIDevice> RHIInstance::CreateDevice() const noexcept {
 
 RHIInstance::~RHIInstance() {
 #ifdef RENDER_DEBUG
-    _instance->_debuggerInstance->ReportLiveObjects(DXGI_DEBUG_ALL, (DXGI_DEBUG_RLO_FLAGS)(DXGI_DEBUG_RLO_IGNORE_INTERNAL | DXGI_DEBUG_RLO_DETAIL));
-    _instance->_debuggerInstance->Release();
-    _instance->_debuggerInstance = nullptr;
+    if(_instance && _instance->_debuggerInstance) {
+        _instance->_debuggerInstance->ReportLiveObjects(DXGI_DEBUG_ALL, (DXGI_DEBUG_RLO_FLAGS)(DXGI_DEBUG_RLO_IGNORE_INTERNAL | DXGI_DEBUG_RLO_DETAIL));
+        _instance->_debuggerInstance->Release();
+        _instance->_debuggerInstance = nullptr;
+    }
 #endif
 }

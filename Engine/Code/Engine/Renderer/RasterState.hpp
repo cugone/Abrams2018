@@ -36,6 +36,6 @@ protected:
     bool CreateRasterState(const RHIDevice* device, const RasterDesc& raster_desc = RasterDesc{});
 private:
     RasterDesc _desc{};
-    ID3D11RasterizerState* _dx_state;
+    ID3D11RasterizerState* _dx_state{};
 
 };

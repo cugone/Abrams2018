@@ -24,7 +24,7 @@ std::string Encode(std::istream& input) {
 
 std::string detail::Encode(std::istream& input, std::size_t size) {
     std::array<unsigned char, 3> bits{ 0,0,0 };
-    auto potential_size = static_cast<std::size_t>(4.0f * std::ceil(static_cast<float>(size) / 3.0f));
+    auto potential_size = static_cast<std::size_t>(std::floor(4.0f * std::ceil(static_cast<float>(size) / 3.0f)));
     std::string output( potential_size, 0);
     std::size_t i = 0u;
     while(input.read(reinterpret_cast<char*>(bits.data()), bits.size())) {
@@ -110,7 +110,7 @@ void Decode(const std::string& input, std::vector<unsigned char>& output) {
 
 std::string detail::Decode(std::istream& input, std::size_t size) {
     std::array<char, 4> bits_array{ 0,0,0,0 };
-    auto potential_size = static_cast<std::size_t>(3.0f * std::ceil(static_cast<float>(size) / 4.0f));
+    auto potential_size = static_cast<std::size_t>(std::floor(3.0f * std::ceil(static_cast<float>(size) / 4.0f)));
     std::string output(potential_size, 0);
     std::size_t i = 0u;
     while(input.read(reinterpret_cast<char*>(bits_array.data()), bits_array.size())) {

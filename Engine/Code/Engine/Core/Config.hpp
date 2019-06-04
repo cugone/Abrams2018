@@ -12,8 +12,8 @@ public:
     Config() = default;
     Config(const Config& other) = delete;
     Config& operator=(const Config& rhs) = delete;
-    Config(Config&& other);
-    Config& operator=(Config&& rhs);
+    Config(Config&& other) noexcept;
+    Config& operator=(Config&& rhs) noexcept;
     explicit Config(KeyValueParser&& kvp);
     ~Config() = default;
 

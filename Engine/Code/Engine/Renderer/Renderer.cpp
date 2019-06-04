@@ -502,7 +502,8 @@ void Renderer::DrawWorldGrid2D(int width, int height, const Rgba& color /*= Rgba
     const auto y_last = height + 1;
     const auto x_first = 0;
     const auto x_last = width + 1;
-    vbo.reserve(2 + width + height);
+    const auto size = static_cast<std::size_t>(2) + width + height;
+    vbo.reserve(size);
     for(int x = x_first; x < x_last; ++x) {
         vbo.push_back(Vertex3D{ Vector3{static_cast<float>(x), static_cast<float>(y_start), 0.0f}, color });
         vbo.push_back(Vertex3D{ Vector3{static_cast<float>(x), static_cast<float>(y_end), 0.0f}, color });
@@ -968,9 +969,10 @@ void Renderer::DrawCircle2D(const Vector2& center, float radius, const Rgba& col
 
 void Renderer::DrawFilledCircle2D(const Vector2& center, float radius, const Rgba& color /*= Rgba::WHITE*/) {
 
-    int num_sides = 65;
+    auto num_sides = std::size_t{ 65 };
+    auto size = num_sides + 1u;
     std::vector<Vector3> verts{};
-    verts.reserve(num_sides + 1);
+    verts.reserve(size);
     float anglePerVertex = 360.0f / static_cast<float>(num_sides);
     for(float degrees = 0.0f; degrees < 360.0f; degrees += anglePerVertex) {
         float radians = MathUtils::ConvertDegreesToRadians(degrees);

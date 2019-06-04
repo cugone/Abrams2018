@@ -11,9 +11,9 @@ class Image {
 public:
     explicit Image(const std::string& filePath);
     Image(const Image& img) = delete;
-    Image(Image&& img);
+    Image(Image&& img) noexcept;
     Image& operator=(const Image& rhs) = delete;
-    Image& operator=(Image&& rhs);
+    Image& operator=(Image&& rhs) noexcept;
 
     Image(unsigned char* data, unsigned int width, unsigned int height);
     Image(Rgba* data, unsigned int width, unsigned int height);
@@ -41,7 +41,7 @@ private:
     Image() = default;
     unsigned char* m_texelBytes = nullptr;
     IntVector2 m_dimensions{};
-    int m_bytesPerTexel = 0;
+    unsigned int m_bytesPerTexel = 0;
     std::vector<int> m_gifDelays{};
     std::string m_filepath{};
     bool m_memload = false;

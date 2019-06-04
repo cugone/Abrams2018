@@ -39,7 +39,7 @@ public:
     JobType type{};
     JobState state{};
     std::function<void(void*)> work_cb;
-    void* user_data;
+    void* user_data{};
 
     void DependencyOf(Job* dependency);
     void DependentOn(Job* parent);

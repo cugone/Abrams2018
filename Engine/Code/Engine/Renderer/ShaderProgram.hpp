@@ -22,8 +22,8 @@ struct ShaderProgramDesc {
     ID3D11ComputeShader* cs   = nullptr;
     ID3DBlob* cs_bytecode     = nullptr;
     ShaderProgramDesc() = default;
-    ShaderProgramDesc(ShaderProgramDesc&& other);
-    ShaderProgramDesc& operator=(ShaderProgramDesc&& other);
+    ShaderProgramDesc(ShaderProgramDesc&& other) noexcept;
+    ShaderProgramDesc& operator=(ShaderProgramDesc&& other) noexcept;
     ShaderProgramDesc(const ShaderProgramDesc& other) = delete;
     ShaderProgramDesc& operator=(const ShaderProgramDesc& other) = delete;
     ~ShaderProgramDesc();

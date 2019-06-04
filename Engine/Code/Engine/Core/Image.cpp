@@ -26,11 +26,15 @@ Image::Image(const std::string& filePath)
     if(FileUtils::ReadBufferFromFile(buf, fp.string())) {
         m_isGif = (buf[0] == 'G' && buf[1] == 'I' && buf[2] == 'F' && buf[3] == '8' && (buf[4] == '9' || buf[4] == '7') && buf[5] == 'a');
         if(!m_isGif) {
-            m_texelBytes = stbi_load_from_memory(buf.data(), static_cast<int>(buf.size()), &m_dimensions.x, &m_dimensions.y, &m_bytesPerTexel, 4);
+            int comp = 0;
+            m_texelBytes = stbi_load_from_memory(buf.data(), static_cast<int>(buf.size()), &m_dimensions.x, &m_dimensions.y, &comp, 4);
+            m_bytesPerTexel = comp;
         } else {
             int depth = 0;
             int* delays = nullptr;
-            m_texelBytes = stbi_load_gif_from_memory(buf.data(), static_cast<int>(buf.size()), &delays, &m_dimensions.x, &m_dimensions.y, &depth, &m_bytesPerTexel, 4);
+            int comp = 0;
+            m_texelBytes = stbi_load_gif_from_memory(buf.data(), static_cast<int>(buf.size()), &delays, &m_dimensions.x, &m_dimensions.y, &depth, &comp, 4);
+            m_bytesPerTexel = comp;
             m_gifDelays.resize(depth);
             for(int i = 0; i < depth; ++i) {
                 m_gifDelays[i] = delays[i];
@@ -47,43 +51,48 @@ Image::Image(unsigned int width, unsigned int height)
     : m_dimensions(width, height)
     , m_bytesPerTexel(4)
     , m_memload(true) {
-    m_texelBytes = new unsigned char[width * height * m_bytesPerTexel];
-    std::fill(m_texelBytes, m_texelBytes + width * height * m_bytesPerTexel, static_cast<unsigned char>(0));
+    auto size = static_cast<std::size_t>(width) * height * m_bytesPerTexel;
+    m_texelBytes = new unsigned char[size];
+    std::fill(m_texelBytes, m_texelBytes + size, static_cast<unsigned char>(0));
 }
 
 Image::Image(unsigned char* data, unsigned int width, unsigned int height)
     : m_dimensions(width, height)
     , m_bytesPerTexel(4)
     , m_memload(true) {
-    m_texelBytes = new unsigned char[width * height * m_bytesPerTexel];
-    std::memcpy(m_texelBytes, data, width * height * m_bytesPerTexel);
+    auto size = static_cast<std::size_t>(width) * height * m_bytesPerTexel;
+    m_texelBytes = new unsigned char[size];
+    std::memcpy(m_texelBytes, data, size);
 }
 
 Image::Image(Rgba* data, unsigned int width, unsigned int height)
     : m_dimensions(width, height)
     , m_bytesPerTexel(4)
     , m_memload(true) {
-    m_texelBytes = new unsigned char[width * height * m_bytesPerTexel];
-    std::memcpy(m_texelBytes, data, width * height * m_bytesPerTexel);
+    auto size = static_cast<std::size_t>(width) * height * m_bytesPerTexel;
+    m_texelBytes = new unsigned char[size];
+    std::memcpy(m_texelBytes, data, size);
 }
 
 Image::Image(const std::vector<Rgba>& data, unsigned int width, unsigned int height)
     : m_dimensions(width, height)
     , m_bytesPerTexel(4)
     , m_memload(true) {
-    m_texelBytes = new unsigned char[width * height * m_bytesPerTexel];
-    std::memcpy(m_texelBytes, data.data(), width * height * m_bytesPerTexel);
+    auto size = static_cast<std::size_t>(width) * height * m_bytesPerTexel;
+    m_texelBytes = new unsigned char[size];
+    std::memcpy(m_texelBytes, data.data(), size);
 }
 
 Image::Image(const std::vector<unsigned char>& data, unsigned int width, unsigned int height)
     : m_dimensions(width, height)
     , m_bytesPerTexel(4)
     , m_memload(true) {
-    m_texelBytes = new unsigned char[width * height * m_bytesPerTexel];
-    std::memcpy(m_texelBytes, data.data(), width * height * m_bytesPerTexel);
+    auto size = static_cast<std::size_t>(width) * height * m_bytesPerTexel;
+    m_texelBytes = new unsigned char[size];
+    std::memcpy(m_texelBytes, data.data(), size);
 }
 
-Image::Image(Image&& img)
+Image::Image(Image&& img) noexcept
 : m_dimensions(std::move(img.m_dimensions))
 , m_bytesPerTexel(std::move(img.m_bytesPerTexel))
 , m_filepath(std::move(img.m_filepath))
@@ -97,7 +106,7 @@ Image::Image(Image&& img)
     m_memload = false;
 }
 
-Image& Image::operator=(Image&& rhs) {
+Image& Image::operator=(Image&& rhs) noexcept {
     if(this == &rhs) {
         return *this;
     }
@@ -175,7 +184,7 @@ unsigned char* Image::GetData() const {
 }
 
 std::size_t Image::GetDataLength() const {
-    return m_dimensions.x * m_dimensions.y * m_bytesPerTexel;
+    return static_cast<std::size_t>(m_dimensions.x) * m_dimensions.y * m_bytesPerTexel;
 }
 
 int Image::GetBytesPerTexel() const {
@@ -231,7 +240,12 @@ Image* Image::CreateImageFromFileBuffer(const std::vector<unsigned char>& data) 
     result->m_memload = false;
     result->m_isGif = data.size() > 6 ? (data[0] == 'G' && data[1] == 'I' && data[2] == 'F' && data[3] == '8' && (data[4] == '9' || data[4] == '7') && data[5] == 'a') : false;
     if(!result->m_isGif) {
-        result->m_texelBytes = stbi_load_from_memory(data.data(), static_cast<int>(data.size()), &result->m_dimensions.x, &result->m_dimensions.y, &result->m_bytesPerTexel, 4);
+        if(result->m_texelBytes) {
+            stbi_image_free(result->m_texelBytes);
+        }
+        comp = 0;
+        result->m_texelBytes = stbi_load_from_memory(data.data(), static_cast<int>(data.size()), &result->m_dimensions.x, &result->m_dimensions.y, &comp, 4);
+        result->m_bytesPerTexel = comp;
         if(result->m_texelBytes == nullptr) {
             delete result;
             return nullptr;
@@ -239,7 +253,9 @@ Image* Image::CreateImageFromFileBuffer(const std::vector<unsigned char>& data) 
     } else {
         int depth = 0;
         int* delays = nullptr;
-        result->m_texelBytes = stbi_load_gif_from_memory(data.data(), static_cast<int>(data.size()), &delays, &result->m_dimensions.x, &result->m_dimensions.y, &depth, &result->m_bytesPerTexel, 4);
+        comp = 0;
+        result->m_texelBytes = stbi_load_gif_from_memory(data.data(), static_cast<int>(data.size()), &delays, &result->m_dimensions.x, &result->m_dimensions.y, &depth, &comp, 4);
+        result->m_bytesPerTexel = comp;
         if(result->m_texelBytes == nullptr) {
             delete result;
             return nullptr;

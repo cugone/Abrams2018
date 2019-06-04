@@ -16,14 +16,14 @@ Config::Config(KeyValueParser&& kvp)
 }
 
 
-Config::Config(Config&& other)
+Config::Config(Config&& other) noexcept
     : _config(std::move(other._config))
 {
     other._config = {};
 }
 
 
-Config& Config::operator=(Config&& rhs) {
+Config& Config::operator=(Config&& rhs) noexcept {
     _config = rhs._config;
     rhs._config = {};
     return *this;

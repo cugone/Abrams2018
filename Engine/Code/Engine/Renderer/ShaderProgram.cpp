@@ -79,7 +79,7 @@ ID3D11ComputeShader* ShaderProgram::GetCS() const {
     return _desc.cs;
 }
 
-ShaderProgramDesc::ShaderProgramDesc(ShaderProgramDesc&& other) {
+ShaderProgramDesc::ShaderProgramDesc(ShaderProgramDesc&& other) noexcept {
     name = std::move(other.name);
 
     device = other.device;
@@ -120,7 +120,7 @@ ShaderProgramDesc::ShaderProgramDesc(ShaderProgramDesc&& other) {
 
 }
 
-ShaderProgramDesc& ShaderProgramDesc::operator=(ShaderProgramDesc&& other) {
+ShaderProgramDesc& ShaderProgramDesc::operator=(ShaderProgramDesc&& other) noexcept {
     name = std::move(other.name);
 
     device = other.device;

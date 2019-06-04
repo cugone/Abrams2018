@@ -68,7 +68,7 @@ System::OS::OperatingSystemArchitecture System::OS::GetOperatingSystemArchitectu
     auto pid = ::GetCurrentProcess();
     USHORT process_machine_raw{};
     USHORT native_machine_raw{};
-    bool succeeded = SUCCEEDED(::IsWow64Process2(pid, &process_machine_raw, &native_machine_raw));
+    bool succeeded = !!::IsWow64Process2(pid, &process_machine_raw, &native_machine_raw);
     if(!succeeded) {
         return arch;
     }
@@ -87,7 +87,7 @@ System::OS::OperatingSystem System::OS::GetOperatingSystemType() {
     auto pid = ::GetCurrentProcess();
     USHORT process_machine_raw{};
     USHORT native_machine_raw{};
-    bool succeeded = SUCCEEDED(::IsWow64Process2(pid, &process_machine_raw, &native_machine_raw));
+    bool succeeded = !!::IsWow64Process2(pid, &process_machine_raw, &native_machine_raw);
     if(!succeeded) {
         return type;
     }

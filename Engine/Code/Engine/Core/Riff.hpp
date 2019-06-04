@@ -27,11 +27,12 @@ public:
     static constexpr const unsigned int RIFF_ERROR_INVALID_ARGUMENT = 3;
 
     struct RiffHeader {
-        char fourcc[4];
+        char fourcc[4] = {};
         uint32_t length{};
     };
     struct RiffSubChunk {
-        char fourcc[4];
+        char fourcc[4] = {};
+        std::size_t subdata_length{};
         std::unique_ptr<uint8_t[]> subdata{};
     };
     struct RiffChunk {

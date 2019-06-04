@@ -31,8 +31,6 @@ public:
     RHIDevice() = default;
     ~RHIDevice();
 
-    std::unique_ptr<RHIOutput> CreateOutput(Window* window, const RHIOutputMode& mode = RHIOutputMode::Windowed);
-    std::unique_ptr<RHIOutput> CreateOutput(const IntVector2& clientSize, const IntVector2& clientPosition = IntVector2::ZERO, const RHIOutputMode& outputMode = RHIOutputMode::Windowed);
     std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> CreateOutputAndContext(const IntVector2& clientSize, const IntVector2& clientPosition = IntVector2::ZERO, const RHIOutputMode& outputMode = RHIOutputMode::Windowed);
 
     VertexBuffer* CreateVertexBuffer(const VertexBuffer::buffer_t& vbo, const BufferUsage& usage, const BufferBindUsage& bindusage) const;

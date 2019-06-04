@@ -30,21 +30,6 @@ RHIDevice::~RHIDevice() {
     }
 }
 
-std::unique_ptr<RHIOutput> RHIDevice::CreateOutput(Window* window, const RHIOutputMode& outputMode /*= RHIOutputMode::WINDOWED*/) {
-    if(!window) {
-        ERROR_AND_DIE("RHIDevice: Invalid Window!");
-    }
-    window->SetDisplayMode(outputMode);
-    return CreateOutputFromWindow(window);
-}
-
-std::unique_ptr<RHIOutput> RHIDevice::CreateOutput(const IntVector2& clientSize, const IntVector2& clientPosition /*= IntVector2::ZERO*/, const RHIOutputMode& outputMode /*= RHIOutputMode::WINDOWED*/) {
-    Window* window = new Window;
-    window->SetDimensionsAndPosition(clientPosition, clientSize);
-    window->SetDisplayMode(outputMode);
-    return CreateOutputFromWindow(window);
-}
-
 std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevice::CreateOutputAndContext(const IntVector2& clientSize, const IntVector2& clientPosition /*= IntVector2::ZERO*/, const RHIOutputMode& outputMode /*= RHIOutputMode::WINDOWED*/) {
     Window* window = new Window;
     window->SetDimensionsAndPosition(clientPosition, clientSize);

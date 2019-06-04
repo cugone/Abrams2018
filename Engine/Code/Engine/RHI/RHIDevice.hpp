@@ -56,7 +56,6 @@ public:
     RHIDeviceContext* GetImmediateContext() const;
 
 private:
-    std::unique_ptr<RHIOutput> CreateOutputFromWindow(Window*& window);
     std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> CreateOutputAndContextFromWindow(Window*& window);
 
     DeviceInfo CreateDeviceFromFirstAdapter(const std::vector<AdapterInfo>& adapters);

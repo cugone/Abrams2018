@@ -69,40 +69,6 @@ ConstantBuffer* RHIDevice::CreateConstantBuffer(const ConstantBuffer::buffer_t& 
     return new ConstantBuffer(this, buffer, buffer_size, usage, bindUsage);
 }
 
-std::unique_ptr<RHIOutput> RHIDevice::CreateOutputFromWindow(Window*& window) {
-
-    if(window == nullptr) {
-        ERROR_AND_DIE("RHIDevice: Invalid Window!");
-    }
-
-    window->Open();
-    RHIFactory factory{};
-    factory.RestrictAltEnterToggle(*window);
-
-    std::vector<AdapterInfo> adapters = factory.GetAdaptersByHighPerformancePreference();
-    if(adapters.empty()) {
-        delete window;
-        window = nullptr;
-        ERROR_AND_DIE("RHIDevice: Graphics card not found.");
-    }
-    OutputAdapterInfo(adapters);
-
-    auto deviceinfo = CreateDeviceFromFirstAdapter(adapters);
-    _dx_device = deviceinfo.dx_device;
-    _dx_highestSupportedFeatureLevel = deviceinfo.highest_supported_feature_level;
-    _immediate_context = std::make_unique<RHIDeviceContext>(this, deviceinfo.dx_context);
-
-    auto dxgi_swap_chain = CreateSwapChain(*window, factory);
-    _allow_tearing_supported = factory.QueryForAllowTearingSupport();
-
-    GetDisplayModes(adapters);
-    for(auto& info : adapters) {
-        info.Release();
-    }
-    SetupDebuggingInfo();
-    return std::move(std::make_unique<RHIOutput>(this, window, dxgi_swap_chain));
-}
-
 std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevice::CreateOutputAndContextFromWindow(Window*& window) {
 
     if(window == nullptr) {

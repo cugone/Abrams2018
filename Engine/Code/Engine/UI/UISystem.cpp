@@ -1,6 +1,5 @@
 #include "Engine/UI/UISystem.hpp"
 
-#include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/FileUtils.hpp"
 
 #include "Engine/Renderer/Renderer.hpp"
@@ -77,7 +76,6 @@ UISystem::UISystem(Renderer* renderer)
     , _io(&ImGui::GetIO())
 {
 #ifdef UI_DEBUG
-#define IMGUI_DISABLE_DEMO_WINDOWS
     IMGUI_CHECKVERSION();
 #endif
 }
@@ -114,7 +112,11 @@ void UISystem::BeginFrame() {
 }
 
 void UISystem::Update(TimeUtils::FPSeconds /*deltaSeconds*/) {
-    /* DO NOTHING */
+#if !defined(IMGUI_DISABLE_DEMO_WINDOWS)
+    if(show_imgui_demo_window) {
+        ImGui::ShowDemoWindow(&show_imgui_demo_window);
+    }
+#endif
 }
 
 void UISystem::Render() const {
@@ -136,4 +138,10 @@ bool UISystem::HasFocus() const {
 
 ImGuiIO& UISystem::GetIO() const {
     return *_io;
+}
+
+void UISystem::ToggleImguiDemoWindow() {
+#if !defined(IMGUI_DISABLE_DEMO_WINDOWS)
+    show_imgui_demo_window = !show_imgui_demo_window;
+#endif
 }

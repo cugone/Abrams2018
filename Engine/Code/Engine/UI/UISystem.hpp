@@ -1,6 +1,11 @@
 #pragma once
 
 #include "Engine/Core/EngineSubsystem.hpp"
+#include "Engine/Core/BuildConfig.hpp"
+
+#ifndef UI_DEBUG
+#define IMGUI_DISABLE_DEMO_WINDOWS
+#endif
 
 #include "Thirdparty/Imgui/imgui.h"
 #include "Thirdparty/Imgui/imgui_impl_dx11.h"
@@ -28,11 +33,14 @@ public:
     bool HasFocus() const;
 
     ImGuiIO& GetIO() const;
+
+    void ToggleImguiDemoWindow();
 protected:
 private:
     Renderer* _renderer{};
     ImGuiContext* _context{};
     ImGuiIO* _io{};
+    bool show_imgui_demo_window = false;
 };
 
 class Texture;

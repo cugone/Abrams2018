@@ -186,12 +186,7 @@ void Renderer::Initialize(bool headless /*= false*/) {
     if(headless) {
         return;
     }
-    auto [rhi_output, rhi_context] = _rhi_device->CreateOutputAndContext(_window_dimensions);
-    if(!rhi_output || !rhi_context) {
-        return;
-    }
-    _rhi_output = std::move(rhi_output);
-    _rhi_context = std::move(rhi_context);
+    auto [_rhi_output, _rhi_context] = _rhi_device->CreateOutputAndContext(_window_dimensions);
 
     LogAvailableDisplays();
     CreateWorkingVboAndIbo();

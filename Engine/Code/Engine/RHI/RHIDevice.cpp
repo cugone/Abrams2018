@@ -83,8 +83,7 @@ std::unique_ptr<RHIOutput> RHIDevice::CreateOutputFromWindow(Window*& window) {
     if(adapters.empty()) {
         delete window;
         window = nullptr;
-        DebuggerPrintf("Graphics card not found.");
-        return nullptr;
+        ERROR_AND_DIE("RHIDevice: Graphics card not found.");
     }
     OutputAdapterInfo(adapters);
 
@@ -118,8 +117,7 @@ std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevi
     if(adapters.empty()) {
         delete window;
         window = nullptr;
-        DebuggerPrintf("Graphics card not found.");
-        return{};
+        ERROR_AND_DIE("RHIDevice: Graphics card not found.")
     }
     OutputAdapterInfo(adapters);
 

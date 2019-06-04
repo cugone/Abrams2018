@@ -101,125 +101,21 @@ std::unique_ptr<RHIOutput> RHIDevice::CreateOutputFromWindow(Window*& window) {
         DebuggerPrintf("Graphics card not found.");
         return nullptr;
     }
+    OutputAdapterInfo(adapters);
 
-    {
-        std::ostringstream ss;
-        ss << "ADAPTERS\n";
-        for(const auto& adapter : adapters) {
-            ss << std::right << std::setw(60) << std::setfill('-') << '\n' << std::setfill(' ');
-            ss << AdapterInfoToGraphicsCardDesc(adapter) << '\n';
-        }
-        ss << std::right << std::setw(60) << std::setfill('-') << '\n';
-        ss << std::flush;
-        DebuggerPrintf(ss.str().c_str());
-    }
+    auto deviceinfo = CreateDeviceFromFirstAdapter(adapters);
+    _dx_device = deviceinfo.dx_device;
+    _dx_highestSupportedFeatureLevel = deviceinfo.highest_supported_feature_level;
+    _immediate_context = std::make_unique<RHIDeviceContext>(this, deviceinfo.dx_context);
 
-    ID3D11Device5* dx_device = nullptr;
-    ID3D11DeviceContext* dx_context = nullptr;
-    D3D_FEATURE_LEVEL supported_feature_level = {};
-
-    unsigned int device_flags = 0U;
-    #ifdef RENDER_DEBUG
-    device_flags |= D3D11_CREATE_DEVICE_DEBUG;
-    #endif
-    std::array feature_levels{
-        D3D_FEATURE_LEVEL_11_1,
-        D3D_FEATURE_LEVEL_11_0,
-        D3D_FEATURE_LEVEL_10_1,
-        D3D_FEATURE_LEVEL_10_0,
-        D3D_FEATURE_LEVEL_9_3,
-        D3D_FEATURE_LEVEL_9_2,
-        D3D_FEATURE_LEVEL_9_1,
-    };
-
-    {
-        auto first_adapter_info = std::begin(adapters);
-        std::ostringstream ss;
-        ss << "Selected Adapter: " << AdapterInfoToGraphicsCardDesc(*first_adapter_info).Description << std::endl;
-        DebuggerPrintf(ss.str().c_str());
-        auto first_adapter = first_adapter_info->adapter;
-        bool has_adapter = first_adapter != nullptr;
-        ID3D11Device* temp_device{};
-        auto hr_device = ::D3D11CreateDevice(has_adapter ? first_adapter : nullptr
-            , has_adapter ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE
-            , nullptr
-            , device_flags
-            , feature_levels.data()
-            , static_cast<unsigned int>(feature_levels.size())
-            , D3D11_SDK_VERSION
-            , &temp_device
-            , &supported_feature_level
-            , &dx_context);
-        GUARANTEE_OR_DIE(SUCCEEDED(hr_device), "Failed to create device.");
-        auto hr_dxdevice5i = temp_device->QueryInterface(__uuidof(ID3D11Device5), (void**)&dx_device);
-        GUARANTEE_OR_DIE(SUCCEEDED(hr_dxdevice5i), "Failed to upgrade to ID3D11Device5.");
-        temp_device->Release();
-        temp_device = nullptr;
-    }
-    
-    _dx_device = dx_device;
-    _dx_highestSupportedFeatureLevel = supported_feature_level;
-    _immediate_context = std::make_unique<RHIDeviceContext>(this, dx_context);
-
-    DXGI_SWAP_CHAIN_DESC1 swap_chain_desc{};
-    auto window_dims = window->GetDimensions();
-    auto width = static_cast<unsigned int>(window_dims.x);
-    auto height = static_cast<unsigned int>(window_dims.y);
-    swap_chain_desc.Width = width;
-    swap_chain_desc.Height = height;
-    swap_chain_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    swap_chain_desc.Stereo = FALSE;
-    swap_chain_desc.SampleDesc.Count = 1;
-    swap_chain_desc.SampleDesc.Quality = 0;
-    swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swap_chain_desc.BufferCount = 2;
-    swap_chain_desc.Scaling = DXGI_SCALING_STRETCH;
-    swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-    swap_chain_desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-    swap_chain_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
-
-    IDXGISwapChain4* dxgi_swap_chain = factory.CreateSwapChainForHwnd(this, *window, swap_chain_desc);
+    auto dxgi_swap_chain = CreateSwapChain(*window, factory);
     _allow_tearing_supported = factory.QueryForAllowTearingSupport();
 
-    for(auto& a : adapters) {
-        auto&& outputs = GetOutputsFromAdapter(a);
-        for(const auto& o : outputs) {
-            GetDisplayModeDescriptions(a, o, displayModes);
-        }
-        for(auto& o : outputs) {
-            o.output->Release();
-            o.output = nullptr;
-        }
-    }
+    GetDisplayModes(adapters);
     for(auto& info : adapters) {
-        info.adapter->Release();
-        info.adapter = nullptr;
+        info.Release();
     }
-#ifdef RENDER_DEBUG
-    ID3D11Debug* _dx_debug = nullptr;
-    if(SUCCEEDED(_dx_device->QueryInterface(__uuidof(ID3D11Debug), (void**)&_dx_debug))) {
-        ID3D11InfoQueue* _dx_infoqueue = nullptr;
-        if(SUCCEEDED(_dx_debug->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&_dx_infoqueue))) {
-            _dx_infoqueue->SetMuteDebugOutput(false);
-            _dx_infoqueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY::D3D11_MESSAGE_SEVERITY_CORRUPTION, true);
-            _dx_infoqueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY::D3D11_MESSAGE_SEVERITY_ERROR, true);
-            _dx_infoqueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY::D3D11_MESSAGE_SEVERITY_WARNING, true);
-            _dx_infoqueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY::D3D11_MESSAGE_SEVERITY_INFO, true);
-            _dx_infoqueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY::D3D11_MESSAGE_SEVERITY_MESSAGE, true);
-            std::vector<D3D11_MESSAGE_ID> hidden = {
-                D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
-            };
-            D3D11_INFO_QUEUE_FILTER filter{};
-            filter.DenyList.NumIDs = static_cast<unsigned int>(hidden.size());
-            filter.DenyList.pIDList = hidden.data();
-            _dx_infoqueue->AddStorageFilterEntries(&filter);
-            _dx_infoqueue->Release();
-            _dx_infoqueue = nullptr;
-        }
-        _dx_debug->Release();
-        _dx_debug = nullptr;
-    }
-#endif
+    SetupDebuggingInfo();
     return std::move(std::make_unique<RHIOutput>(this, window, dxgi_swap_chain));
 }
 

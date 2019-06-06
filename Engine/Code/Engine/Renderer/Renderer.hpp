@@ -192,7 +192,7 @@ public:
     SpriteSheet* CreateSpriteSheet(const std::string& filepath, unsigned int width = 1, unsigned int height = 1);
     SpriteSheet* CreateSpriteSheet(const XMLElement& elem);
     AnimatedSprite* CreateAnimatedSprite(const std::string& filepath);
-    AnimatedSprite* CreateAnimatedSprite(SpriteSheet* sheet);
+    AnimatedSprite* CreateAnimatedSprite(SpriteSheet* sheet, const IntVector2& startSpriteCoords = IntVector2::ZERO);
     AnimatedSprite* CreateAnimatedSprite(const XMLElement& elem);
 
     const RenderTargetStack& GetRenderTargetStack() const;

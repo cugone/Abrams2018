@@ -24,23 +24,44 @@ AnimatedSprite::AnimatedSprite(Renderer& renderer,
 {
     bool has_frames = frameLength > 0;
     _max_seconds_per_frame = TimeUtils::FPSeconds{ _duration_seconds / (has_frames ? static_cast<float>(_end_index - _start_index) : 1.0f) };
-};
+}
+
+AnimatedSprite::AnimatedSprite(Renderer& renderer, SpriteSheet* spriteSheet, TimeUtils::FPSeconds durationSeconds, const IntVector2& startSpriteCoords, int frameLength, SpriteAnimMode playbackMode /*= SpriteAnimMode::Looping*/)
+    : _renderer(&renderer)
+    , _sheet(spriteSheet)
+    , _duration_seconds(durationSeconds)
+    , _playback_mode(playbackMode)
+    , _start_index(startSpriteCoords.x + startSpriteCoords.y * _sheet->GetLayout().x)
+    , _end_index(_start_index + frameLength)
+{
+    bool has_frames = frameLength > 0;
+    _max_seconds_per_frame = TimeUtils::FPSeconds{_duration_seconds / (has_frames ? static_cast<float>(_end_index - _start_index) : 1.0f)};
+}
 
 AnimatedSprite::AnimatedSprite(Renderer& renderer, const XMLElement& elem)
     : _renderer(&renderer)
+    , _owns_sheet(true)
 {
     LoadFromXml(*_renderer, elem);
 }
 
-AnimatedSprite::AnimatedSprite(Renderer& renderer, SpriteSheet* sheet)
-    : AnimatedSprite(renderer, sheet, TimeUtils::FPFrames{1}, 0, 0)
+AnimatedSprite::AnimatedSprite(Renderer& renderer, SpriteSheet* sheet, const XMLElement& elem)
+    : _renderer(&renderer)
+    , _sheet(sheet)
 {
+    LoadFromXml(*_renderer, elem);
+}
+
+AnimatedSprite::AnimatedSprite(Renderer& renderer, SpriteSheet* sheet, const IntVector2& startSpriteCoords /* = IntVector2::ZERO*/)
+    : AnimatedSprite(renderer, sheet, TimeUtils::FPFrames{ 1 }, startSpriteCoords, 0) {
     /* DO NOTHING */
 }
 
 AnimatedSprite::~AnimatedSprite() {
     _renderer = nullptr;
-    delete _sheet;
+    if(_owns_sheet) {
+        delete _sheet;
+    }
     _sheet = nullptr;
 }
 
@@ -132,7 +153,7 @@ AABB2 AnimatedSprite::GetCurrentTexCoords() const {
             break;
     }
 
-    return _sheet->GetTexCoordsFromSpriteIndex(frameIndex);
+    return _sheet->GetTexCoordsFromSpriteIndex(_start_index + frameIndex);
 }
 
 const Texture* const AnimatedSprite::GetTexture() const {
@@ -239,10 +260,13 @@ AnimatedSprite::SpriteAnimMode AnimatedSprite::GetAnimModeFromOptions(bool loopi
 }
 
 void AnimatedSprite::LoadFromXml(Renderer& renderer, const XMLElement& elem) {
-    DataUtils::ValidateXmlElement(elem, "animation", "spritesheet,animationset", "", "", "name");
-    auto xml_sheet = elem.FirstChildElement("spritesheet");
-    DataUtils::ValidateXmlElement(*xml_sheet, "spritesheet", "", "src,dimensions");
-    _sheet = renderer.CreateSpriteSheet(*xml_sheet);
+    DataUtils::ValidateXmlElement(elem, "animation", "animationset", "", "spritesheet", "name");
+    if(auto xml_sheet = elem.FirstChildElement("spritesheet")) {
+        if(_owns_sheet && !_sheet) {
+            DataUtils::ValidateXmlElement(*xml_sheet, "spritesheet", "", "src,dimensions");
+            _sheet = renderer.CreateSpriteSheet(*xml_sheet);
+        }
+    }
 
     auto xml_animset = elem.FirstChildElement("animationset");
     DataUtils::ValidateXmlElement(*xml_animset, "animationset", "", "startindex,framelength,duration", "", "loop,reverse,pingpong");

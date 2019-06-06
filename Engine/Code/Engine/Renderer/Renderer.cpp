@@ -762,8 +762,8 @@ AnimatedSprite* Renderer::CreateAnimatedSprite(const XMLElement& elem) {
     return new AnimatedSprite(*this, elem);
 }
 
-AnimatedSprite* Renderer::CreateAnimatedSprite(SpriteSheet* sheet) {
-    return new AnimatedSprite(*this, sheet);
+AnimatedSprite* Renderer::CreateAnimatedSprite(SpriteSheet* sheet, const IntVector2& startSpriteCoords /* = IntVector2::ZERO*/) {
+    return new AnimatedSprite(*this, sheet, startSpriteCoords);
 }
 
 const RenderTargetStack& Renderer::GetRenderTargetStack() const {

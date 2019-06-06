@@ -19,7 +19,7 @@ SpriteSheet::SpriteSheet(Renderer& renderer, const std::string& texturePath, int
     : _spriteSheetTexture(renderer.CreateOrGetTexture(texturePath, IntVector3::XY_AXIS))
     , _spriteLayout(tilesWide, tilesHigh)
 {
-
+    /* DO NOTHING */
 }
 
 AABB2 SpriteSheet::GetTexCoordsFromSpriteCoords(int spriteX, int spriteY) const {

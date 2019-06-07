@@ -38,10 +38,55 @@ std::pair<std::string, std::string> SplitOnFirst(const std::string& string, char
 std::pair<std::wstring, std::wstring> SplitOnFirst(const std::wstring& string, wchar_t delim);
 std::pair<std::string, std::string> SplitOnLast(const std::string& string, char delim);
 std::pair<std::wstring, std::wstring> SplitOnLast(const std::wstring& string, wchar_t delim);
+
 std::string Join(const std::vector<std::string>& strings, char delim, bool skip_empty = true);
 std::wstring Join(const std::vector<std::wstring>& strings, wchar_t delim, bool skip_empty = true);
 std::string Join(const std::vector<std::string>& strings, bool skip_empty = true);
 std::wstring Join(const std::vector<std::wstring>& strings, bool skip_empty = true);
+
+//TODO variadic join
+/*
+template<typename T>
+T Join(char delim, bool skip_empty) {
+    return T{};
+}
+
+template<typename T>
+T Join(char delim, bool skip_empty, const T& arg) {
+    return arg;
+}
+
+template<typename T>
+T Join(char delim, bool skip_empty, const T& arg, const T& args...) {
+    return arg;
+}
+
+template<typename T>
+T Join(char delim, bool skip_empty, const T& args...) {
+    
+}
+
+template<typename T>
+T Join(char delim) {
+    return T{};
+}
+
+template<typename T>
+T Join(char delim, const T& arg) {
+    return arg.append(delim);
+}
+
+template<typename T>
+T Join(char delim, const T& arg, const T& args...) {
+    T a = Join(delim, arg);
+    return Join(delim, a, args);
+}
+
+template<typename T>
+T Join(char delim, const T& args...) {
+    return Join(delim, args);
+}
+*/
 
 std::string ToUpperCase(std::string string);
 std::wstring ToUpperCase(std::wstring string);

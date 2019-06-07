@@ -342,7 +342,7 @@ Texture* Renderer::GetTexture(const std::string& nameOrFile) {
     if(found_iter == _textures.end()) {
         return nullptr;
     }
-    return _textures[p.string()];
+    return (*found_iter).second;
 }
 
 void Renderer::DrawPoint(const Vertex3D& point) {

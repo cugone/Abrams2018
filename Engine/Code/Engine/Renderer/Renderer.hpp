@@ -154,7 +154,7 @@ public:
     ConstantBuffer* CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) const;
     StructuredBuffer* CreateStructuredBuffer(const StructuredBuffer::buffer_t& sbo, std::size_t element_size, std::size_t element_count) const;
 
-    Texture* CreateOrGetTexture(const std::string& filepath, const IntVector3& dimensions);
+    Texture* CreateOrGetTexture(const std::filesystem::path& filepath, const IntVector3& dimensions);
     void RegisterTexturesFromFolder(const std::string& folderpath, bool recursive = false);
     bool RegisterTexture(const std::string& name, Texture* texture);
     void SetTexture(Texture* texture, unsigned int registerIndex = 0);
@@ -189,11 +189,12 @@ public:
         , const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource
         , const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
 
-    SpriteSheet* CreateSpriteSheet(const std::string& filepath, unsigned int width = 1, unsigned int height = 1);
-    SpriteSheet* CreateSpriteSheet(const XMLElement& elem);
-    AnimatedSprite* CreateAnimatedSprite(const std::string& filepath);
-    AnimatedSprite* CreateAnimatedSprite(SpriteSheet* sheet, const IntVector2& startSpriteCoords = IntVector2::ZERO);
-    AnimatedSprite* CreateAnimatedSprite(const XMLElement& elem);
+    std::shared_ptr<SpriteSheet> CreateSpriteSheet(const std::filesystem::path& filepath, unsigned int width = 1, unsigned int height = 1);
+    std::shared_ptr<SpriteSheet> CreateSpriteSheet(const XMLElement& elem);
+    std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(const std::string& filepath);
+    std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const IntVector2& startSpriteCoords = IntVector2::ZERO);
+    std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const XMLElement& elem);
+    std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(const XMLElement& elem);
 
     const RenderTargetStack& GetRenderTargetStack() const;
     void PushRenderTarget(const RenderTargetStack::Node& newRenderTarget = RenderTargetStack::Node{});
@@ -376,8 +377,9 @@ private:
     void Draw(const PrimitiveType& topology, VertexBuffer* vbo, std::size_t vertex_count);
     void DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, IndexBuffer* ibo, std::size_t index_count, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0);
 
-    SpriteSheet* CreateSpriteSheetFromGif(const std::string& filepath);
-    AnimatedSprite* CreateAnimatedSpriteFromGif(const std::string& filepath);
+    std::shared_ptr<SpriteSheet> CreateSpriteSheetFromGif(const std::filesystem::path& filepath);
+    std::shared_ptr<SpriteSheet> CreateSpriteSheet(Texture* texture, int tilesWide, int tilesHigh);
+    std::unique_ptr<AnimatedSprite> CreateAnimatedSpriteFromGif(const std::filesystem::path& filepath);
 
     void SetLightAtIndex(unsigned int index, const light_t& light);
     void SetPointLight(unsigned int index, const light_t& light);

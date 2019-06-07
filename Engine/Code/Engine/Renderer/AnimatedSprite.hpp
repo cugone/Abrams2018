@@ -4,10 +4,10 @@
 #include "Engine/Core/TimeUtils.hpp"
 
 #include "Engine/Math/AABB2.hpp"
+#include "Engine/Renderer/SpriteSheet.hpp"
 
 class Material;
 class Renderer;
-class SpriteSheet;
 class Texture;
 
 class AnimatedSprite {
@@ -22,8 +22,8 @@ public:
     };
 
     AnimatedSprite(Renderer& renderer, const XMLElement& elem);
-    AnimatedSprite(Renderer& renderer, SpriteSheet* sheet, const XMLElement& elem);
-    AnimatedSprite(Renderer& renderer, SpriteSheet* sheet, const IntVector2& startSpriteCoords);
+    AnimatedSprite(Renderer& renderer, std::weak_ptr<SpriteSheet> sheet, const XMLElement& elem);
+    AnimatedSprite(Renderer& renderer, std::weak_ptr<SpriteSheet> sheet, const IntVector2& startSpriteCoords);
     ~AnimatedSprite();
 
     void Update(TimeUtils::FPSeconds deltaSeconds);
@@ -48,17 +48,18 @@ public:
     Material* GetMaterial() const;
 protected:
 private:
-    AnimatedSprite(Renderer& renderer, SpriteSheet* spriteSheet, TimeUtils::FPSeconds durationSeconds,
+    AnimatedSprite(Renderer& renderer, std::weak_ptr<SpriteSheet> spriteSheet, TimeUtils::FPSeconds durationSeconds,
                    int startSpriteIndex, int frameLength, SpriteAnimMode playbackMode = SpriteAnimMode::Looping);
-    AnimatedSprite(Renderer& renderer, SpriteSheet* spriteSheet, TimeUtils::FPSeconds durationSeconds,
+    AnimatedSprite(Renderer& renderer, std::weak_ptr<SpriteSheet> spriteSheet, TimeUtils::FPSeconds durationSeconds,
                    const IntVector2& startSpriteCoords, int frameLength, SpriteAnimMode playbackMode = SpriteAnimMode::Looping);
 
     void LoadFromXml(Renderer& renderer, const XMLElement& elem);
     SpriteAnimMode GetAnimModeFromOptions(bool looping, bool backwards, bool ping_pong /*= false*/);
+    int GetIndexFromCoords(const IntVector2& coords);
 
     Renderer* _renderer = nullptr;
     Material* _material = nullptr;
-    SpriteSheet* _sheet = nullptr;
+    std::weak_ptr<SpriteSheet> _sheet{};
     TimeUtils::FPSeconds _duration_seconds = TimeUtils::FPFrames{1};
     TimeUtils::FPSeconds _elapsed_seconds{ 0.0f };
     TimeUtils::FPSeconds _elapsed_frame_delta_seconds{0.0f};
@@ -67,7 +68,6 @@ private:
     int _start_index{0};
     int _end_index{1};
     bool _is_playing = true;
-    bool _owns_sheet = false;
 
     friend class Renderer;
 

@@ -15,7 +15,7 @@ SpriteSheet::SpriteSheet(Texture* texture, int tilesWide, int tilesHigh)
     /* DO NOTHING */
 }
 
-SpriteSheet::SpriteSheet(Renderer& renderer, const std::string& texturePath, int tilesWide, int tilesHigh)
+SpriteSheet::SpriteSheet(Renderer& renderer, const std::filesystem::path& texturePath, int tilesWide, int tilesHigh)
     : _spriteSheetTexture(renderer.CreateOrGetTexture(texturePath, IntVector3::XY_AXIS))
     , _spriteLayout(tilesWide, tilesHigh)
 {

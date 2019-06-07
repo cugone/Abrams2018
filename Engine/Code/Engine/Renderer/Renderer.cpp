@@ -741,7 +741,7 @@ void Renderer::SetSpotlight(unsigned int index, const light_t& light) {
     SetLightAtIndex(index, light);
 }
 
-AnimatedSprite* Renderer::CreateAnimatedSprite(const std::string& filepath) {
+std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSprite(const std::string& filepath) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
     p = FS::canonical(p);
@@ -750,7 +750,7 @@ AnimatedSprite* Renderer::CreateAnimatedSprite(const std::string& filepath) {
     auto xml_result = doc.LoadFile(p.string().c_str());
     if(xml_result == tinyxml2::XML_SUCCESS) {
         auto xml_root = doc.RootElement();
-        return new AnimatedSprite(*this, *xml_root);
+        return std::move(std::make_unique<AnimatedSprite>(*this, *xml_root));
     }
     if(p.has_extension() && StringUtils::ToLowerCase(p.extension().string()) == ".gif") {
         return CreateAnimatedSpriteFromGif(filepath);
@@ -758,12 +758,16 @@ AnimatedSprite* Renderer::CreateAnimatedSprite(const std::string& filepath) {
     return nullptr;
 }
 
-AnimatedSprite* Renderer::CreateAnimatedSprite(const XMLElement& elem) {
-    return new AnimatedSprite(*this, elem);
+std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const XMLElement& elem) {
+    return std::move(std::make_unique<AnimatedSprite>(*this, sheet, elem));
 }
 
-AnimatedSprite* Renderer::CreateAnimatedSprite(SpriteSheet* sheet, const IntVector2& startSpriteCoords /* = IntVector2::ZERO*/) {
-    return new AnimatedSprite(*this, sheet, startSpriteCoords);
+std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSprite(const XMLElement& elem) {
+    return std::move(std::make_unique<AnimatedSprite>(*this, elem));
+}
+
+std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const IntVector2& startSpriteCoords /* = IntVector2::ZERO*/) {
+    return std::move(std::make_unique<AnimatedSprite>(*this, sheet, startSpriteCoords));
 }
 
 const RenderTargetStack& Renderer::GetRenderTargetStack() const {
@@ -778,11 +782,17 @@ void Renderer::PopRenderTarget() {
     _target_stack->Pop();
 }
 
-SpriteSheet* Renderer::CreateSpriteSheet(const XMLElement& elem) {
-    return new SpriteSheet(*this, elem);
+std::shared_ptr<SpriteSheet> Renderer::CreateSpriteSheet(const XMLElement& elem) {
+    return std::move(std::make_shared<SpriteSheet>(*this, elem));
 }
 
-SpriteSheet* Renderer::CreateSpriteSheet(const std::string& filepath, unsigned int width /*= 1*/, unsigned int height /*= 1*/) {
+std::shared_ptr<SpriteSheet> Renderer::CreateSpriteSheet(Texture* texture, int tilesWide, int tilesHigh) {
+    std::shared_ptr<SpriteSheet> spr{};
+    spr.reset(new SpriteSheet(texture, tilesWide, tilesHigh));
+    return std::move(spr);
+}
+
+std::shared_ptr<SpriteSheet> Renderer::CreateSpriteSheet(const std::filesystem::path& filepath, unsigned int width /*= 1*/, unsigned int height /*= 1*/) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
     p = FS::canonical(p);
@@ -792,18 +802,20 @@ SpriteSheet* Renderer::CreateSpriteSheet(const std::string& filepath, unsigned i
         return nullptr;
     }
     if(StringUtils::ToLowerCase(p.extension().string()) == ".gif") {
-        return CreateSpriteSheetFromGif(p.string());
+        return std::move(CreateSpriteSheetFromGif(p));
     }
     tinyxml2::XMLDocument doc;
     auto xml_load = doc.LoadFile(p.string().c_str());
     if(xml_load == tinyxml2::XML_SUCCESS) {
         auto xml_root = doc.RootElement();
-        return CreateSpriteSheet(*xml_root);
+        return std::move(CreateSpriteSheet(*xml_root));
     }
-    return new SpriteSheet(*this, filepath, width, height);
+    std::shared_ptr<SpriteSheet> spr{};
+    spr.reset(new SpriteSheet(*this, p, width, height));
+    return std::move(spr);
 }
 
-SpriteSheet* Renderer::CreateSpriteSheetFromGif(const std::string& filepath) {
+std::shared_ptr<SpriteSheet> Renderer::CreateSpriteSheetFromGif(const std::filesystem::path& filepath) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
     p = FS::canonical(p);
@@ -814,12 +826,10 @@ SpriteSheet* Renderer::CreateSpriteSheetFromGif(const std::string& filepath) {
     Image img(p.string());
     const auto& delays = img.GetDelaysIfGif();
     auto tex = GetTexture(p.string());
-    auto spr = new SpriteSheet(tex, 1, static_cast<int>(delays.size()));
-    tex = nullptr;
-    return spr;
+    return CreateSpriteSheet(tex, 1, static_cast<int>(delays.size()));
 }
 
-AnimatedSprite* Renderer::CreateAnimatedSpriteFromGif(const std::string& filepath) {
+std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSpriteFromGif(const std::filesystem::path& filepath) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
     p = FS::canonical(p);
@@ -830,9 +840,10 @@ AnimatedSprite* Renderer::CreateAnimatedSpriteFromGif(const std::string& filepat
     Image img(p.string());
     auto delays = img.GetDelaysIfGif();
     auto tex = GetTexture(p.string());
-    auto spr = new SpriteSheet(tex, 1, static_cast<int>(delays.size()));
+    std::weak_ptr<SpriteSheet> spr = CreateSpriteSheet(tex, 1, static_cast<int>(delays.size()));
     int duration_sum = std::accumulate(std::begin(delays), std::end(delays), 0);
-    auto anim = new AnimatedSprite(*this, spr, TimeUtils::FPMilliseconds{duration_sum}, 0, static_cast<int>(delays.size()));
+    std::unique_ptr<AnimatedSprite> anim{};
+    anim.reset(new AnimatedSprite(*this, spr, TimeUtils::FPMilliseconds{ duration_sum }, 0, static_cast<int>(delays.size())));
     tinyxml2::XMLDocument doc;
     std::ostringstream ss;
     ss << R"("<material name="__Gif_)" << p.stem().string() << R"("><shader src="__2D" /><textures><diffuse src=")" << p.string() << R"(" /></textures></material>)";
@@ -841,7 +852,7 @@ AnimatedSprite* Renderer::CreateAnimatedSpriteFromGif(const std::string& filepat
     anim->SetMaterial(anim_mat);
     RegisterMaterial(anim_mat);
     tex = nullptr;
-    return anim;
+    return std::move(anim);
 }
 
 void Renderer::Draw(const PrimitiveType& topology, VertexBuffer* vbo, std::size_t vertex_count) {
@@ -2670,7 +2681,7 @@ void Renderer::RegisterFontsFromFolder(const std::filesystem::path& folderpath, 
     namespace FS = std::filesystem;
     auto cb =
     [this](const FS::path& p) {
-        this->RegisterFont(p);
+        RegisterFont(p);
     };
     FileUtils::ForEachFileInFolder(folderpath, ".fnt", cb, recursive);
 }
@@ -3035,7 +3046,7 @@ void Renderer::RegisterMaterialsFromFolder(const std::filesystem::path& folderpa
     namespace FS = std::filesystem;
     auto cb =
     [this](const FS::path& p) {
-        this->RegisterMaterial(p);
+        RegisterMaterial(p);
     };
     FileUtils::ForEachFileInFolder(folderpath, ".material", cb, recursive);
 }
@@ -3141,7 +3152,7 @@ void Renderer::RegisterShaderProgramsFromFolder(const std::string& folderpath, c
 void Renderer::RegisterShaderProgramsFromFolder(const std::filesystem::path& folderpath, const std::string& entrypoint, const PipelineStage& target, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
     auto cb = [this, &entrypoint, target](const FS::path& p) {
-        this->CreateAndRegisterShaderProgramFromHlslFile(p.string(), entrypoint, target);
+        CreateAndRegisterShaderProgramFromHlslFile(p.string(), entrypoint, target);
     };
     FileUtils::ForEachFileInFolder(folderpath, ".hlsl", cb, recursive);
 }
@@ -3215,7 +3226,7 @@ void Renderer::RegisterShadersFromFolder(const std::filesystem::path& folderpath
     namespace FS = std::filesystem;
     auto cb =
         [this](const FS::path& p) {
-        this->RegisterShader(p);
+        RegisterShader(p);
     };
     FileUtils::ForEachFileInFolder(folderpath, ".shader", cb, recursive);
 }
@@ -3569,7 +3580,7 @@ void Renderer::Present() {
     _rhi_output->Present(_vsync);
 }
 
-Texture* Renderer::CreateOrGetTexture(const std::string& filepath, const IntVector3& dimensions) {
+Texture* Renderer::CreateOrGetTexture(const std::filesystem::path& filepath, const IntVector3& dimensions) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
     p = FS::canonical(p);
@@ -3600,7 +3611,7 @@ void Renderer::RegisterTexturesFromFolder(const std::filesystem::path& folderpat
     namespace FS = std::filesystem;
     auto cb =
         [this](const FS::path& p) {
-        this->RegisterTexture(p);
+        RegisterTexture(p);
     };
     FileUtils::ForEachFileInFolder(folderpath, std::string{}, cb, recursive);
 }
@@ -3719,12 +3730,11 @@ void Renderer::DisableDepth() {
 Texture* Renderer::Create1DTexture(const std::string& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
-    //TODO: canonical test
-    p = FS::canonical(p);
-    p.make_preferred();
     if(!FS::exists(p)) {
         return GetTexture("__invalid");
-    }
+    }    
+    p = FS::canonical(p);
+    p.make_preferred();
     Image img = Image(p.string());
 
     D3D11_TEXTURE1D_DESC tex_desc;
@@ -3862,12 +3872,11 @@ Texture* Renderer::Create1DTextureFromMemory(const std::vector<Rgba>& data, unsi
 Texture* Renderer::Create2DTexture(const std::string& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
-    //TODO: canonical test
-    p = FS::canonical(p);
-    p.make_preferred();
     if(!FS::exists(p)) {
         return GetTexture("__invalid");
     }
+    p = FS::canonical(p);
+    p.make_preferred();
     Image img = Image(p.string());
 
     D3D11_TEXTURE2D_DESC tex_desc;
@@ -4166,12 +4175,11 @@ Texture* Renderer::Create2DTextureArrayFromGifBuffer(const unsigned char* data, 
 Texture* Renderer::Create3DTexture(const std::string& filepath, const IntVector3& dimensions, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) {
     namespace FS = std::filesystem;
     FS::path p(filepath);
-    //TODO: canonical test
-    p = FS::canonical(p);
-    p.make_preferred();
     if(!FS::exists(p)) {
         return GetTexture("__invalid");
     }
+    p = FS::canonical(p);
+    p.make_preferred();
 
     D3D11_TEXTURE3D_DESC tex_desc;
     memset(&tex_desc, 0, sizeof(tex_desc));

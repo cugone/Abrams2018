@@ -5,6 +5,7 @@
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/IntVector2.hpp"
 
+#include <filesystem>
 #include <string>
 
 class Renderer;
@@ -28,7 +29,7 @@ public:
 protected:
 private:
     SpriteSheet(Texture* texture, int tilesWide, int tilesHigh);
-    SpriteSheet(Renderer& renderer, const std::string& texturePath, int tilesWide, int tilesHigh);
+    SpriteSheet(Renderer& renderer, const std::filesystem::path& texturePath, int tilesWide, int tilesHigh);
 
     void LoadFromXml(Renderer& renderer, const XMLElement& elem);
     Texture* _spriteSheetTexture = nullptr;

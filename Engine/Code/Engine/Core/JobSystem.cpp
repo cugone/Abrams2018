@@ -14,7 +14,7 @@ std::vector<std::thread> JobSystem::_threads = std::vector<std::thread>{};
 void JobSystem::GenericJobWorker(std::condition_variable* signal) {
     JobConsumer jc;
     jc.AddCategory(JobType::Generic);
-    this->SetCategorySignal(JobType::Generic, signal);
+    SetCategorySignal(JobType::Generic, signal);
     while(IsRunning()) {
         if(signal) {
             std::unique_lock<std::mutex> lock(_cs);
@@ -258,7 +258,7 @@ Job::~Job() {
 }
 
 void Job::DependencyOf(Job* dependency) {
-    this->DependentOn(dependency);
+    DependentOn(dependency);
 }
 
 void Job::DependentOn(Job* parent) {

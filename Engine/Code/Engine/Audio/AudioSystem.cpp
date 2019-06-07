@@ -199,7 +199,7 @@ void AudioSystem::RegisterWavFilesFromFolder(const std::filesystem::path& folder
     }
     auto cb =
     [this](const std::filesystem::path& p) {
-        this->RegisterWavFile(p);
+        RegisterWavFile(p);
     };
     FileUtils::ForEachFileInFolder(folderpath, ".wav", cb, recursive);
 }

@@ -203,7 +203,7 @@ bool Image::Export(const std::string& filepath, int bytes_per_pixel /*= 4*/, int
     p.make_preferred();
     std::string extension = StringUtils::ToLowerCase(p.extension().string());
     std::string p_str = p.string();
-    const auto& dims = this->GetDimensions();
+    const auto& dims = GetDimensions();
     int w = dims.x;
     int h = dims.y;
     int bbp = bytes_per_pixel;

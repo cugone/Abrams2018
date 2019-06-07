@@ -77,32 +77,32 @@ SamplerDesc::SamplerDesc(const XMLElement& element) {
     if(auto xml_sampler = element.FirstChildElement("sampler")) {
         DataUtils::ValidateXmlElement(*xml_sampler, "sampler", "", "", "filter,textureAddress,lod", "borderColor,test,maxAF");
 
-        this->borderColor = DataUtils::ParseXmlAttribute(*xml_sampler, "borderColor", this->borderColor);
+        borderColor = DataUtils::ParseXmlAttribute(*xml_sampler, "borderColor", borderColor);
 
         std::string compare_str = "never";
         compare_str = DataUtils::ParseXmlAttribute(*xml_sampler, "test", compare_str);
-        this->compareFunc = ComparisonFunctionFromString(compare_str);
+        compareFunc = ComparisonFunctionFromString(compare_str);
 
-        this->maxAnisotropicLevel = DataUtils::ParseXmlAttribute(*xml_sampler, "maxAF", this->maxAnisotropicLevel);
+        maxAnisotropicLevel = DataUtils::ParseXmlAttribute(*xml_sampler, "maxAF", maxAnisotropicLevel);
 
         if(auto xml_filter = xml_sampler->FirstChildElement("filter")) {
             DataUtils::ValidateXmlElement(*xml_filter, "filter", "", "min,mag,mip,mode");
 
             std::string filter_str = "point";
             filter_str = DataUtils::ParseXmlAttribute(*xml_filter, "min", filter_str);
-            this->min_filter = FilterModeFromString(filter_str);
+            min_filter = FilterModeFromString(filter_str);
 
             filter_str = "point";
             filter_str = DataUtils::ParseXmlAttribute(*xml_filter, "mag", filter_str);
-            this->mag_filter = FilterModeFromString(filter_str);
+            mag_filter = FilterModeFromString(filter_str);
 
             filter_str = "point";
             filter_str = DataUtils::ParseXmlAttribute(*xml_filter, "mip", filter_str);
-            this->mip_filter = FilterModeFromString(filter_str);
+            mip_filter = FilterModeFromString(filter_str);
 
             compare_str = "none";
             compare_str = DataUtils::ParseXmlAttribute(*xml_filter, "mode", compare_str);
-            this->compare_mode = FilterComparisonModeFromString(compare_str);
+            compare_mode = FilterComparisonModeFromString(compare_str);
         }
         if(auto xml_textureAddress = xml_sampler->FirstChildElement("textureAddress")) {
 
@@ -110,22 +110,22 @@ SamplerDesc::SamplerDesc(const XMLElement& element) {
 
             std::string str = "wrap";
             str = DataUtils::ParseXmlAttribute(*xml_textureAddress, "u", str);
-            this->UaddressMode = TextureAddressModeFromString(str);
+            UaddressMode = TextureAddressModeFromString(str);
 
             str = "wrap";
             str = DataUtils::ParseXmlAttribute(*xml_textureAddress, "v", str);
-            this->VaddressMode = TextureAddressModeFromString(str);
+            VaddressMode = TextureAddressModeFromString(str);
 
             str = "wrap";
             str = DataUtils::ParseXmlAttribute(*xml_textureAddress, "w", str);
-            this->WaddressMode = TextureAddressModeFromString(str);
+            WaddressMode = TextureAddressModeFromString(str);
 
         }
         if(auto xml_lod = xml_sampler->FirstChildElement("lod")) {
             DataUtils::ValidateXmlElement(*xml_lod, "lod", "", "", "", "min,max,mipmapbias");
-            this->minLOD = DataUtils::ParseXmlAttribute(*xml_lod, "min", this->minLOD);
-            this->maxLOD = DataUtils::ParseXmlAttribute(*xml_lod, "max", this->maxLOD);
-            this->mipmapLODBias = DataUtils::ParseXmlAttribute(*xml_lod, "mipmapbias", this->mipmapLODBias);
+            minLOD = DataUtils::ParseXmlAttribute(*xml_lod, "min", minLOD);
+            maxLOD = DataUtils::ParseXmlAttribute(*xml_lod, "max", maxLOD);
+            mipmapLODBias = DataUtils::ParseXmlAttribute(*xml_lod, "mipmapbias", mipmapLODBias);
         }
     }
 

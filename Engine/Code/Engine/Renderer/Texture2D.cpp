@@ -30,7 +30,7 @@ Texture2D::~Texture2D() {
 }
 
 IntVector2 Texture2D::GetDimensions() const noexcept {
-    return IntVector2(this->_dimensions);
+    return IntVector2(_dimensions);
 }
 
 ID3D11Resource* Texture2D::GetDxResource() const {
@@ -38,7 +38,7 @@ ID3D11Resource* Texture2D::GetDxResource() const {
 }
 
 ID3D11Texture2D* Texture2D::GetDxTexture() {
-    return reinterpret_cast<ID3D11Texture2D*>(this->GetDxResource());
+    return reinterpret_cast<ID3D11Texture2D*>(GetDxResource());
 }
 
 Texture2D::Texture2D(Texture2D&& r_other) noexcept

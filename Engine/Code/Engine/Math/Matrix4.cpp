@@ -641,55 +641,55 @@ void Matrix4::Rotate2DRadians(float radians) {
     Rotate3DZRadians(radians);
 }
 void Matrix4::ConcatenateTransform(const Matrix4& other) {
-    this->operator*=(other);
+    operator*=(other);
 }
 Matrix4 Matrix4::GetTransformed(const Matrix4& other) const {
-    return this->operator*(other);
+    return operator*(other);
 }
 Vector2 Matrix4::TransformPosition(const Vector2& position) const {
     Vector4 v(position.x, position.y, 0.0f, 1.0f);
 
-    float x = MathUtils::DotProduct(this->GetXComponents(), v);
-    float y = MathUtils::DotProduct(this->GetYComponents(), v);
+    float x = MathUtils::DotProduct(GetXComponents(), v);
+    float y = MathUtils::DotProduct(GetYComponents(), v);
 
     return Vector2(x, y);
 }
 Vector3 Matrix4::TransformPosition(const Vector3& position) const {
     Vector4 v(position.x, position.y, position.z, 1.0f);
 
-    float x = MathUtils::DotProduct(this->GetXComponents(), v);
-    float y = MathUtils::DotProduct(this->GetYComponents(), v);
-    float z = MathUtils::DotProduct(this->GetZComponents(), v);
+    float x = MathUtils::DotProduct(GetXComponents(), v);
+    float y = MathUtils::DotProduct(GetYComponents(), v);
+    float z = MathUtils::DotProduct(GetZComponents(), v);
 
     return Vector3(x, y, z);
 }
 Vector2 Matrix4::TransformDirection(const Vector2& direction) const {
     Vector4 v(direction.x, direction.y, 0.0f, 0.0f);
 
-    float x = MathUtils::DotProduct(this->GetXComponents(), v);
-    float y = MathUtils::DotProduct(this->GetYComponents(), v);
+    float x = MathUtils::DotProduct(GetXComponents(), v);
+    float y = MathUtils::DotProduct(GetYComponents(), v);
 
     return Vector2(x, y);
 }
 Vector3 Matrix4::TransformDirection(const Vector3& direction) const {
     Vector4 v(direction.x, direction.y, direction.z, 0.0f);
 
-    float x = MathUtils::DotProduct(this->GetXComponents(), v);
-    float y = MathUtils::DotProduct(this->GetYComponents(), v);
-    float z = MathUtils::DotProduct(this->GetZComponents(), v);
+    float x = MathUtils::DotProduct(GetXComponents(), v);
+    float y = MathUtils::DotProduct(GetYComponents(), v);
+    float z = MathUtils::DotProduct(GetZComponents(), v);
 
     return Vector3(x, y, z);
 }
 Vector4 Matrix4::TransformVector(const Vector4& homogeneousVector) const {
-    return this->operator*(homogeneousVector);
+    return operator*(homogeneousVector);
 }
 
 Vector3 Matrix4::TransformVector(const Vector3& homogeneousVector) const {
-    return this->operator*(homogeneousVector);
+    return operator*(homogeneousVector);
 }
 
 Vector2 Matrix4::TransformVector(const Vector2& homogeneousVector) const {
-    return this->operator*(homogeneousVector);
+    return operator*(homogeneousVector);
 }
 
 Vector4 Matrix4::GetDiagonal() const {
@@ -699,10 +699,10 @@ Vector4 Matrix4::GetDiagonal(const Matrix4& mat) {
     return Vector4(mat.m_indicies[0], mat.m_indicies[5], mat.m_indicies[10], mat.m_indicies[15]);
 }
 bool Matrix4::operator==(const Matrix4& rhs) const {
-    return (MathUtils::IsEquivalent(this->m_indicies[0], rhs.m_indicies[0]) && MathUtils::IsEquivalent(this->m_indicies[1], rhs.m_indicies[1]) && MathUtils::IsEquivalent(this->m_indicies[2], rhs.m_indicies[2]) && MathUtils::IsEquivalent(this->m_indicies[3], rhs.m_indicies[3]) &&
-            MathUtils::IsEquivalent(this->m_indicies[4], rhs.m_indicies[4]) && MathUtils::IsEquivalent(this->m_indicies[5], rhs.m_indicies[5]) && MathUtils::IsEquivalent(this->m_indicies[6], rhs.m_indicies[6]) && MathUtils::IsEquivalent(this->m_indicies[7], rhs.m_indicies[7]) &&
-            MathUtils::IsEquivalent(this->m_indicies[8], rhs.m_indicies[8]) && MathUtils::IsEquivalent(this->m_indicies[9], rhs.m_indicies[9]) && MathUtils::IsEquivalent(this->m_indicies[10], rhs.m_indicies[10]) && MathUtils::IsEquivalent(this->m_indicies[11], rhs.m_indicies[11]) &&
-            MathUtils::IsEquivalent(this->m_indicies[12], rhs.m_indicies[12]) && MathUtils::IsEquivalent(this->m_indicies[13], rhs.m_indicies[13]) && MathUtils::IsEquivalent(this->m_indicies[14], rhs.m_indicies[14]) && MathUtils::IsEquivalent(this->m_indicies[15], rhs.m_indicies[15]));
+    return (MathUtils::IsEquivalent(m_indicies[0],  rhs.m_indicies[0])  && MathUtils::IsEquivalent(m_indicies[1],  rhs.m_indicies[1])  && MathUtils::IsEquivalent(m_indicies[2],  rhs.m_indicies[2])  && MathUtils::IsEquivalent(m_indicies[3],  rhs.m_indicies[3])  &&
+            MathUtils::IsEquivalent(m_indicies[4],  rhs.m_indicies[4])  && MathUtils::IsEquivalent(m_indicies[5],  rhs.m_indicies[5])  && MathUtils::IsEquivalent(m_indicies[6],  rhs.m_indicies[6])  && MathUtils::IsEquivalent(m_indicies[7],  rhs.m_indicies[7])  &&
+            MathUtils::IsEquivalent(m_indicies[8],  rhs.m_indicies[8])  && MathUtils::IsEquivalent(m_indicies[9],  rhs.m_indicies[9])  && MathUtils::IsEquivalent(m_indicies[10], rhs.m_indicies[10]) && MathUtils::IsEquivalent(m_indicies[11], rhs.m_indicies[11]) &&
+            MathUtils::IsEquivalent(m_indicies[12], rhs.m_indicies[12]) && MathUtils::IsEquivalent(m_indicies[13], rhs.m_indicies[13]) && MathUtils::IsEquivalent(m_indicies[14], rhs.m_indicies[14]) && MathUtils::IsEquivalent(m_indicies[15], rhs.m_indicies[15]));
 }
 
 bool Matrix4::operator==(const Matrix4& rhs) {
@@ -801,14 +801,14 @@ Matrix4 Matrix4::operator*(const Matrix4& rhs) const {
 
     using namespace MathUtils;
 
-    Vector4 myI = this->GetIBasis();
-    Vector4 myJ = this->GetJBasis();
-    Vector4 myK = this->GetKBasis();
-    Vector4 myT = this->GetTBasis();
-    Vector4 myX = this->GetXComponents();
-    Vector4 myY = this->GetYComponents();
-    Vector4 myZ = this->GetZComponents();
-    Vector4 myW = this->GetWComponents();
+    Vector4 myI = GetIBasis();
+    Vector4 myJ = GetJBasis();
+    Vector4 myK = GetKBasis();
+    Vector4 myT = GetTBasis();
+    Vector4 myX = GetXComponents();
+    Vector4 myY = GetYComponents();
+    Vector4 myZ = GetZComponents();
+    Vector4 myW = GetWComponents();
 
     Vector4 rhsI = rhs.GetIBasis();
     Vector4 rhsJ = rhs.GetJBasis();
@@ -840,40 +840,41 @@ Matrix4 Matrix4::operator*(float scalar) const {
 }
 
 Vector4 Matrix4::operator*(const Vector4& rhs) const {
-    return Vector4(MathUtils::DotProduct(this->GetXComponents(), rhs),
-                   MathUtils::DotProduct(this->GetYComponents(), rhs),
-                   MathUtils::DotProduct(this->GetZComponents(), rhs),
-                   MathUtils::DotProduct(this->GetWComponents(), rhs));
+    return Vector4(MathUtils::DotProduct(GetXComponents(), rhs),
+                   MathUtils::DotProduct(GetYComponents(), rhs),
+                   MathUtils::DotProduct(GetZComponents(), rhs),
+                   MathUtils::DotProduct(GetWComponents(), rhs));
 }
 
 Vector3 Matrix4::operator*(const Vector3& rhs) const {
-    const Vector3 my_x(this->GetXComponents());
-    const Vector3 my_y(this->GetYComponents());
-    const Vector3 my_z(this->GetZComponents());
+    const Vector3 my_x(GetXComponents());
+    const Vector3 my_y(GetYComponents());
+    const Vector3 my_z(GetZComponents());
     return Vector3(MathUtils::DotProduct(my_x, rhs)
                    ,MathUtils::DotProduct(my_y, rhs)
                    ,MathUtils::DotProduct(my_z, rhs));
 }
 
 Vector2 Matrix4::operator*(const Vector2& rhs) const {
-    const Vector2 my_x(Vector3(this->GetXComponents()));
-    const Vector2 my_y(Vector3(this->GetYComponents()));
-    return Vector2(MathUtils::DotProduct(my_x, rhs)
-                   ,MathUtils::DotProduct(my_y, rhs));
+    const Vector2 my_x{Vector3{ GetXComponents() }};
+    const Vector2 my_y{Vector3{ GetYComponents() }};
+    const float x = MathUtils::DotProduct(my_x, rhs);
+    const float y = MathUtils::DotProduct(my_y, rhs);
+    return Vector2(x, y);
 }
 
 Matrix4& Matrix4::operator*=(const Matrix4& rhs) {
 
     using namespace MathUtils;
 
-    Vector4 myI = this->GetIBasis();
-    Vector4 myJ = this->GetJBasis();
-    Vector4 myK = this->GetKBasis();
-    Vector4 myT = this->GetTBasis();
-    Vector4 myX = this->GetXComponents();
-    Vector4 myY = this->GetYComponents();
-    Vector4 myZ = this->GetZComponents();
-    Vector4 myW = this->GetWComponents();
+    Vector4 myI = GetIBasis();
+    Vector4 myJ = GetJBasis();
+    Vector4 myK = GetKBasis();
+    Vector4 myT = GetTBasis();
+    Vector4 myX = GetXComponents();
+    Vector4 myY = GetYComponents();
+    Vector4 myZ = GetZComponents();
+    Vector4 myW = GetWComponents();
 
     Vector4 rhsI = rhs.GetIBasis();
     Vector4 rhsJ = rhs.GetJBasis();
@@ -926,65 +927,65 @@ float* Matrix4::operator*() {
 }
 
 Matrix4 Matrix4::operator+(const Matrix4& rhs) const {
-    return Matrix4(this->m_indicies[0] + rhs.m_indicies[0], this->m_indicies[1] + rhs.m_indicies[1], this->m_indicies[2] + rhs.m_indicies[2], this->m_indicies[3] + rhs.m_indicies[3],
-                   this->m_indicies[4] + rhs.m_indicies[4], this->m_indicies[5] + rhs.m_indicies[5], this->m_indicies[6] + rhs.m_indicies[6], this->m_indicies[7] + rhs.m_indicies[7],
-                   this->m_indicies[8] + rhs.m_indicies[8], this->m_indicies[9] + rhs.m_indicies[9], this->m_indicies[10] + rhs.m_indicies[10], this->m_indicies[11] + rhs.m_indicies[11],
-                   this->m_indicies[12] + rhs.m_indicies[12], this->m_indicies[13] + rhs.m_indicies[13], this->m_indicies[14] + rhs.m_indicies[14], this->m_indicies[15] + rhs.m_indicies[15]);
+    return Matrix4(m_indicies[0] + rhs.m_indicies[0], m_indicies[1] + rhs.m_indicies[1], m_indicies[2] + rhs.m_indicies[2], m_indicies[3] + rhs.m_indicies[3],
+                   m_indicies[4] + rhs.m_indicies[4], m_indicies[5] + rhs.m_indicies[5], m_indicies[6] + rhs.m_indicies[6], m_indicies[7] + rhs.m_indicies[7],
+                   m_indicies[8] + rhs.m_indicies[8], m_indicies[9] + rhs.m_indicies[9], m_indicies[10] + rhs.m_indicies[10], m_indicies[11] + rhs.m_indicies[11],
+                   m_indicies[12] + rhs.m_indicies[12], m_indicies[13] + rhs.m_indicies[13], m_indicies[14] + rhs.m_indicies[14], m_indicies[15] + rhs.m_indicies[15]);
 }
 
 Matrix4& Matrix4::operator+=(const Matrix4& rhs) {
 
-    this->m_indicies[0] += rhs.m_indicies[0];
-    this->m_indicies[1] += rhs.m_indicies[1];
-    this->m_indicies[2] += rhs.m_indicies[2];
-    this->m_indicies[3] += rhs.m_indicies[3];
+    m_indicies[0] += rhs.m_indicies[0];
+    m_indicies[1] += rhs.m_indicies[1];
+    m_indicies[2] += rhs.m_indicies[2];
+    m_indicies[3] += rhs.m_indicies[3];
 
-    this->m_indicies[4] += rhs.m_indicies[4];
-    this->m_indicies[5] += rhs.m_indicies[5];
-    this->m_indicies[6] += rhs.m_indicies[6];
-    this->m_indicies[7] += rhs.m_indicies[7];
+    m_indicies[4] += rhs.m_indicies[4];
+    m_indicies[5] += rhs.m_indicies[5];
+    m_indicies[6] += rhs.m_indicies[6];
+    m_indicies[7] += rhs.m_indicies[7];
 
-    this->m_indicies[8] += rhs.m_indicies[8];
-    this->m_indicies[9] += rhs.m_indicies[9];
-    this->m_indicies[10] += rhs.m_indicies[10];
-    this->m_indicies[11] += rhs.m_indicies[11];
+    m_indicies[8] += rhs.m_indicies[8];
+    m_indicies[9] += rhs.m_indicies[9];
+    m_indicies[10] += rhs.m_indicies[10];
+    m_indicies[11] += rhs.m_indicies[11];
 
-    this->m_indicies[12] += rhs.m_indicies[12];
-    this->m_indicies[13] += rhs.m_indicies[13];
-    this->m_indicies[14] += rhs.m_indicies[14];
-    this->m_indicies[15] += rhs.m_indicies[15];
+    m_indicies[12] += rhs.m_indicies[12];
+    m_indicies[13] += rhs.m_indicies[13];
+    m_indicies[14] += rhs.m_indicies[14];
+    m_indicies[15] += rhs.m_indicies[15];
 
     return *this;
 }
 
 Matrix4 Matrix4::operator-(const Matrix4& rhs) const {
-    return Matrix4(this->m_indicies[0] - rhs.m_indicies[0], this->m_indicies[1] - rhs.m_indicies[1], this->m_indicies[2] - rhs.m_indicies[2], this->m_indicies[3] - rhs.m_indicies[3],
-                   this->m_indicies[4] - rhs.m_indicies[4], this->m_indicies[5] - rhs.m_indicies[5], this->m_indicies[6] - rhs.m_indicies[6], this->m_indicies[7] - rhs.m_indicies[7],
-                   this->m_indicies[8] - rhs.m_indicies[8], this->m_indicies[9] - rhs.m_indicies[9], this->m_indicies[10] - rhs.m_indicies[10], this->m_indicies[11] - rhs.m_indicies[11],
-                   this->m_indicies[12] - rhs.m_indicies[12], this->m_indicies[13] - rhs.m_indicies[13], this->m_indicies[14] - rhs.m_indicies[14], this->m_indicies[15] - rhs.m_indicies[15]);
+    return Matrix4(m_indicies[0] - rhs.m_indicies[0], m_indicies[1] - rhs.m_indicies[1], m_indicies[2] - rhs.m_indicies[2], m_indicies[3] - rhs.m_indicies[3],
+                   m_indicies[4] - rhs.m_indicies[4], m_indicies[5] - rhs.m_indicies[5], m_indicies[6] - rhs.m_indicies[6], m_indicies[7] - rhs.m_indicies[7],
+                   m_indicies[8] - rhs.m_indicies[8], m_indicies[9] - rhs.m_indicies[9], m_indicies[10] - rhs.m_indicies[10], m_indicies[11] - rhs.m_indicies[11],
+                   m_indicies[12] - rhs.m_indicies[12], m_indicies[13] - rhs.m_indicies[13], m_indicies[14] - rhs.m_indicies[14], m_indicies[15] - rhs.m_indicies[15]);
 }
 
 Matrix4& Matrix4::operator-=(const Matrix4& rhs) {
 
-    this->m_indicies[0] -= rhs.m_indicies[0];
-    this->m_indicies[1] -= rhs.m_indicies[1];
-    this->m_indicies[2] -= rhs.m_indicies[2];
-    this->m_indicies[3] -= rhs.m_indicies[3];
+    m_indicies[0] -= rhs.m_indicies[0];
+    m_indicies[1] -= rhs.m_indicies[1];
+    m_indicies[2] -= rhs.m_indicies[2];
+    m_indicies[3] -= rhs.m_indicies[3];
 
-    this->m_indicies[4] -= rhs.m_indicies[4];
-    this->m_indicies[5] -= rhs.m_indicies[5];
-    this->m_indicies[6] -= rhs.m_indicies[6];
-    this->m_indicies[7] -= rhs.m_indicies[7];
+    m_indicies[4] -= rhs.m_indicies[4];
+    m_indicies[5] -= rhs.m_indicies[5];
+    m_indicies[6] -= rhs.m_indicies[6];
+    m_indicies[7] -= rhs.m_indicies[7];
 
-    this->m_indicies[8] -= rhs.m_indicies[8];
-    this->m_indicies[9] -= rhs.m_indicies[9];
-    this->m_indicies[10] -= rhs.m_indicies[10];
-    this->m_indicies[11] -= rhs.m_indicies[11];
+    m_indicies[8] -= rhs.m_indicies[8];
+    m_indicies[9] -= rhs.m_indicies[9];
+    m_indicies[10] -= rhs.m_indicies[10];
+    m_indicies[11] -= rhs.m_indicies[11];
 
-    this->m_indicies[12] -= rhs.m_indicies[12];
-    this->m_indicies[13] -= rhs.m_indicies[13];
-    this->m_indicies[14] -= rhs.m_indicies[14];
-    this->m_indicies[15] -= rhs.m_indicies[15];
+    m_indicies[12] -= rhs.m_indicies[12];
+    m_indicies[13] -= rhs.m_indicies[13];
+    m_indicies[14] -= rhs.m_indicies[14];
+    m_indicies[15] -= rhs.m_indicies[15];
 
     return *this;
 }
@@ -998,13 +999,13 @@ Matrix4& Matrix4::operator/=(const Matrix4& rhs) {
     Matrix4 inv(Matrix4::CalculateInverse(rhs));
     Matrix4 result = (*this * inv);
 
-    this->m_indicies = result.m_indicies;
+    m_indicies = result.m_indicies;
 
     return *this;
 }
 
 Matrix4 Matrix4::operator-() const {
-    return Matrix4(-this->GetIBasis(), -this->GetJBasis(), -this->GetKBasis(), -this->GetTBasis());
+    return Matrix4(-GetIBasis(), -GetJBasis(), -GetKBasis(), -GetTBasis());
 }
 
 float& Matrix4::operator[](std::size_t index) {

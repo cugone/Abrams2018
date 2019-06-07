@@ -80,7 +80,7 @@ void FileLogger::DoCopyLog() {
         to_p.make_preferred();
         job_data->to = to_p;
         job_data->from = from_p;
-        _job_system->Run(JobType::Generic, [this](void* user_data) { this->CopyLog(user_data); }, job_data);
+        _job_system->Run(JobType::Generic, [this](void* user_data) { CopyLog(user_data); }, job_data);
     }
 }
 

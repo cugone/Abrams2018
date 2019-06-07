@@ -145,38 +145,38 @@ Quaternion::~Quaternion() {
 }
 
 Quaternion  Quaternion::operator+(const Quaternion& rhs) const {
-    return Quaternion(this->w + rhs.w, this->axis + rhs.axis);
+    return Quaternion(w + rhs.w, axis + rhs.axis);
 }
 Quaternion& Quaternion::operator+=(const Quaternion& rhs) {
-    this->w += rhs.w;
-    this->axis += rhs.axis;
+    w += rhs.w;
+    axis += rhs.axis;
     return *this;
 }
 Quaternion  Quaternion::operator-(const Quaternion& rhs) const {
-    return Quaternion(this->w - rhs.w, this->axis - rhs.axis);
+    return Quaternion(w - rhs.w, axis - rhs.axis);
 }
 Quaternion& Quaternion::operator-=(const Quaternion& rhs) {
-    this->w -= rhs.w;
-    this->axis -= rhs.axis;
+    w -= rhs.w;
+    axis -= rhs.axis;
     return *this;
 }
 
 Quaternion Quaternion::operator*(const Quaternion& rhs) const {
-    return Quaternion(this->w * rhs.w - MathUtils::DotProduct(this->axis, rhs.axis),
-                      this->w * rhs.axis + rhs.w * this->axis + MathUtils::CrossProduct(this->axis, rhs.axis));
+    return Quaternion(w * rhs.w - MathUtils::DotProduct(axis, rhs.axis),
+                      w * rhs.axis + rhs.w * axis + MathUtils::CrossProduct(axis, rhs.axis));
 }
 Quaternion& Quaternion::operator*=(const Quaternion& rhs) {
-    this->w = this->w * rhs.w - MathUtils::DotProduct(this->axis, rhs.axis);
-    this->axis = this->w * rhs.axis + rhs.w * this->axis + MathUtils::CrossProduct(this->axis, rhs.axis);
+    w = w * rhs.w - MathUtils::DotProduct(axis, rhs.axis);
+    axis = w * rhs.axis + rhs.w * axis + MathUtils::CrossProduct(axis, rhs.axis);
     return *this;
 }
 
 Quaternion Quaternion::operator*(float scalar) const {
-    return Quaternion(this->w * scalar, this->axis * scalar);
+    return Quaternion(w * scalar, axis * scalar);
 }
 Quaternion& Quaternion::operator*=(float scalar) {
-    this->w *= scalar;
-    this->axis *= axis;
+    w *= scalar;
+    axis *= axis;
     return *this;
 }
 
@@ -184,10 +184,10 @@ Quaternion Quaternion::operator*(const Vector3& rhs) const {
     return *this * Quaternion(rhs);
 }
 Quaternion& Quaternion::operator*=(const Vector3& rhs) {
-    return this->operator*=(Quaternion(rhs));
+    return operator*=(Quaternion(rhs));
 }
 Quaternion Quaternion::operator-() {
-    return Quaternion(-this->w, -this->axis);
+    return Quaternion(-w, -axis);
 }
 
 
@@ -326,8 +326,8 @@ void Quaternion::Normalize() {
     float lengthSq = CalcLengthSquared();
     if(!MathUtils::IsEquivalent(lengthSq, 0.0f)) {
         float invLength = 1.0f / std::sqrt(lengthSq);
-        this->w *= invLength;
-        this->axis *= invLength;
+        w *= invLength;
+        axis *= invLength;
     }
 }
 
@@ -338,7 +338,7 @@ Quaternion Quaternion::GetNormalize() const {
 }
 
 void Quaternion::Conjugate() {
-    this->axis = -this->axis;
+    axis = -axis;
 }
 
 Quaternion Quaternion::GetConjugate() const {
@@ -354,8 +354,8 @@ void Quaternion::Inverse() {
         q_conj.Conjugate();
         float invLengthSq = 1.0f / lengthSq;
         Quaternion result = q_conj * invLengthSq;
-        this->w = result.w;
-        this->axis = result.axis;
+        w = result.w;
+        axis = result.axis;
     }
 }
 

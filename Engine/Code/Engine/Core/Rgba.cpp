@@ -280,14 +280,14 @@ Rgba operator+(Rgba lhs, const Rgba& rhs) {
 }
 
 Rgba& Rgba::operator+=(const Rgba& rhs) {
-    int r_int = this->r + rhs.r;
-    int g_int = this->g + rhs.g;
-    int b_int = this->b + rhs.b;
-    int a_int = this->a + rhs.a;
-    this->r = static_cast<unsigned char>(std::clamp(r_int, 0, 255));
-    this->g = static_cast<unsigned char>(std::clamp(g_int, 0, 255));
-    this->b = static_cast<unsigned char>(std::clamp(b_int, 0, 255));
-    this->a = static_cast<unsigned char>(std::clamp(a_int, 0, 255));
+    int r_int = r + rhs.r;
+    int g_int = g + rhs.g;
+    int b_int = b + rhs.b;
+    int a_int = a + rhs.a;
+    r = static_cast<unsigned char>(std::clamp(r_int, 0, 255));
+    g = static_cast<unsigned char>(std::clamp(g_int, 0, 255));
+    b = static_cast<unsigned char>(std::clamp(b_int, 0, 255));
+    a = static_cast<unsigned char>(std::clamp(a_int, 0, 255));
     return *this;
 }
 
@@ -297,14 +297,14 @@ Rgba operator-(Rgba lhs, const Rgba& rhs) {
 }
 
 Rgba& Rgba::operator-=(const Rgba& rhs) {
-    int r_int = this->r - rhs.r;
-    int g_int = this->g - rhs.g;
-    int b_int = this->b - rhs.b;
-    int a_int = this->a - rhs.a;
-    this->r = static_cast<unsigned char>(std::clamp(r_int, 0, 255));
-    this->g = static_cast<unsigned char>(std::clamp(g_int, 0, 255));
-    this->b = static_cast<unsigned char>(std::clamp(b_int, 0, 255));
-    this->a = static_cast<unsigned char>(std::clamp(a_int, 0, 255));
+    int r_int = r - rhs.r;
+    int g_int = g - rhs.g;
+    int b_int = b - rhs.b;
+    int a_int = a - rhs.a;
+    r = static_cast<unsigned char>(std::clamp(r_int, 0, 255));
+    g = static_cast<unsigned char>(std::clamp(g_int, 0, 255));
+    b = static_cast<unsigned char>(std::clamp(b_int, 0, 255));
+    a = static_cast<unsigned char>(std::clamp(a_int, 0, 255));
     return *this;
 }
 

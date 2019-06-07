@@ -750,8 +750,8 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                 switch(my_key) {
                 case KeyCode::Shift:
                 {
-                    auto left_down = this->IsKeyDown(KeyCode::LShift);
-                    auto right_down = this->IsKeyDown(KeyCode::RShift);
+                    auto left_down = IsKeyDown(KeyCode::LShift);
+                    auto right_down = IsKeyDown(KeyCode::RShift);
                     auto left_key  = left_down && !!!(::GetKeyState(VK_LSHIFT) & keystate_state_mask);
                     auto right_key = right_down && !!!(::GetKeyState(VK_RSHIFT) & keystate_state_mask);
                     auto my_leftkey = ConvertWinVKToKeyCode(VK_LSHIFT);
@@ -765,8 +765,8 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                 }
                 case KeyCode::Alt:
                 {
-                    auto left_down = this->IsKeyDown(KeyCode::LAlt);
-                    auto right_down = this->IsKeyDown(KeyCode::RAlt);
+                    auto left_down = IsKeyDown(KeyCode::LAlt);
+                    auto right_down = IsKeyDown(KeyCode::RAlt);
                     auto left_key = left_down && !!!(::GetKeyState(VK_LMENU) & keystate_state_mask);
                     auto right_key = right_down && !!!(::GetKeyState(VK_RMENU) & keystate_state_mask);
                     auto my_leftkey = ConvertWinVKToKeyCode(VK_LMENU);
@@ -780,8 +780,8 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                 }
                 case KeyCode::Ctrl:
                 {
-                    auto left_down = this->IsKeyDown(KeyCode::LControl);
-                    auto right_down = this->IsKeyDown(KeyCode::RControl);
+                    auto left_down = IsKeyDown(KeyCode::LControl);
+                    auto right_down = IsKeyDown(KeyCode::RControl);
                     auto left_key = left_down && !!!(::GetKeyState(VK_LCONTROL) & keystate_state_mask);
                     auto right_key = right_down && !!!(::GetKeyState(VK_RCONTROL) & keystate_state_mask);
                     auto my_leftkey = ConvertWinVKToKeyCode(VK_LCONTROL);
@@ -796,7 +796,7 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                 case KeyCode::Return: my_key = KeyCode::NumPadEnter; break;
                 case KeyCode::LWin:
                 {
-                    auto left_down = this->IsKeyDown(KeyCode::LWin);
+                    auto left_down = IsKeyDown(KeyCode::LWin);
                     auto left_key = left_down && !!!(::GetKeyState(VK_LWIN) & keystate_state_mask);
                     auto my_leftkey = ConvertWinVKToKeyCode(VK_LWIN);
                     my_key = left_key ? my_leftkey : KeyCode::Unknown;
@@ -804,7 +804,7 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
                 }
                 case KeyCode::RWin:
                 {
-                    auto right_down = this->IsKeyDown(KeyCode::RWin);
+                    auto right_down = IsKeyDown(KeyCode::RWin);
                     auto right_key = right_down && !!!(::GetKeyState(VK_RWIN) & keystate_state_mask);
                     auto my_rightkey = ConvertWinVKToKeyCode(VK_RWIN);
                     my_key = right_key ? my_rightkey : KeyCode::Unknown;
@@ -815,8 +815,8 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             switch(my_key) {
             case KeyCode::Shift:
             {
-                auto left_down = this->IsKeyDown(KeyCode::LShift);
-                auto right_down = this->IsKeyDown(KeyCode::RShift);
+                auto left_down = IsKeyDown(KeyCode::LShift);
+                auto right_down = IsKeyDown(KeyCode::RShift);
                 auto left_key = left_down && !!!(::GetKeyState(VK_LSHIFT) & keystate_state_mask);
                 auto right_key = right_down && !!!(::GetKeyState(VK_RSHIFT) & keystate_state_mask);
                 auto my_leftkey = ConvertWinVKToKeyCode(VK_LSHIFT);
@@ -830,8 +830,8 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             }
             case KeyCode::Ctrl:
             {
-                auto left_down = this->IsKeyDown(KeyCode::LControl);
-                auto right_down = this->IsKeyDown(KeyCode::RControl);
+                auto left_down = IsKeyDown(KeyCode::LControl);
+                auto right_down = IsKeyDown(KeyCode::RControl);
                 auto left_key = left_down && !!!(::GetKeyState(VK_LCONTROL) & keystate_state_mask);
                 auto right_key = right_down && !!!(::GetKeyState(VK_RCONTROL) & keystate_state_mask);
                 auto my_leftkey = ConvertWinVKToKeyCode(VK_LCONTROL);
@@ -845,8 +845,8 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) {
             }
             case KeyCode::Alt:
             {
-                auto left_down = this->IsKeyDown(KeyCode::LAlt);
-                auto right_down = this->IsKeyDown(KeyCode::RAlt);
+                auto left_down = IsKeyDown(KeyCode::LAlt);
+                auto right_down = IsKeyDown(KeyCode::RAlt);
                 auto left_key = left_down && !!!(::GetKeyState(VK_LMENU) & keystate_state_mask);
                 auto right_key = right_down && !!!(::GetKeyState(VK_RMENU) & keystate_state_mask);
                 auto my_leftkey = ConvertWinVKToKeyCode(VK_LMENU);

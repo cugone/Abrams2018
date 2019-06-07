@@ -111,7 +111,9 @@ void ValidateXmlElement(const XMLElement& element,
 unsigned int GetAttributeCount(const XMLElement &element);
 unsigned int GetChildElementCount(const XMLElement &element, const std::string& elementName = std::string(""));
 
+std::string GetElementName(const XMLElement& elem);
 std::vector<std::string> GetChildElementNames(const XMLElement& element);
+std::string GetAttributeName(const XMLAttribute& attrib);
 std::vector<std::string> GetAttributeNames(const XMLElement& element);
 
 bool ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, bool defaultValue);

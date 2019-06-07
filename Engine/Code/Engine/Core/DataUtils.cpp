@@ -757,4 +757,20 @@ std::string ParseXmlAttribute(const XMLElement& element, const std::string& attr
     return (s ? s : defaultValue);
 }
 
+std::string GetElementName(const XMLElement& elem) {
+    auto* name = elem.Name();
+    if(name) {
+        return { name };
+    }
+    return {};
+}
+
+std::string GetAttributeName(const XMLAttribute& attrib) {
+    auto* name = attrib.Name();
+    if(name) {
+        return { name };
+    }
+    return {};
+}
+
 } //end DataUtils

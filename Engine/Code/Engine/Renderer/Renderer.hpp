@@ -396,6 +396,10 @@ private:
     Texture* CreateDefaultSpecularTexture();
     Texture* CreateDefaultOcclusionTexture();
     Texture* CreateDefaultEmissiveTexture();
+
+    void CreateDefaultColorTextures();
+    Texture* CreateDefaultColorTexture(const Rgba& color);
+    
     void CreateAndRegisterDefaultDepthStencil();
 
     void CreateAndRegisterDefaultShaderPrograms();

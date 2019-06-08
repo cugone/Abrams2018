@@ -2723,6 +2723,7 @@ void Renderer::CreateAndRegisterDefaultTextures() {
     emissive_texture->SetDebugName("__emissive");
     RegisterTexture("__emissive", emissive_texture);
 
+    CreateDefaultColorTextures();
 }
 
 Texture* Renderer::CreateDefaultTexture() {
@@ -2785,6 +2786,80 @@ Texture* Renderer::CreateDefaultOcclusionTexture() {
 Texture* Renderer::CreateDefaultEmissiveTexture() {
     std::vector<Rgba> data = {
         Rgba::Black
+    };
+    return Create2DTextureFromMemory(data, 1, 1);
+}
+
+void Renderer::CreateDefaultColorTextures() {
+    static const std::vector<Rgba> colors = {
+        Rgba::White
+        ,Rgba::Black
+        ,Rgba::Red
+        ,Rgba::Pink
+        ,Rgba::Green
+        ,Rgba::ForestGreen
+        ,Rgba::Blue
+        ,Rgba::NavyBlue
+        ,Rgba::Cyan
+        ,Rgba::Yellow
+        ,Rgba::Magenta
+        ,Rgba::Orange
+        ,Rgba::Violet
+        ,Rgba::LightGrey
+        ,Rgba::LightGray
+        ,Rgba::Grey
+        ,Rgba::Gray
+        ,Rgba::DarkGrey
+        ,Rgba::DarkGray
+        ,Rgba::Olive
+        ,Rgba::SkyBlue
+        ,Rgba::Lime
+        ,Rgba::Teal
+        ,Rgba::Turquoise
+        ,Rgba::Periwinkle
+        ,Rgba::NormalZ
+    };
+    static const std::vector<std::string> names = {
+     "__white"
+    ,"__black"
+    ,"__red"
+    ,"__pink"
+    ,"__green"
+    ,"__forestGreen"
+    ,"__blue"
+    ,"__navyBlue"
+    ,"__cyan"
+    ,"__yellow"
+    ,"__magenta"
+    ,"__orange"
+    ,"__violet"
+    ,"__lightGrey"
+    ,"__lightGray"
+    ,"__grey"
+    ,"__gray"
+    ,"__darkGrey"
+    ,"__darkGray"
+    ,"__olive"
+    ,"__skyBlue"
+    ,"__lime"
+    ,"__teal"
+    ,"__turquoise"
+    ,"__periwinkle"
+    ,"__normalZ"
+    };
+    const std::size_t n_s = names.size();
+    const std::size_t c_s = colors.size();
+    GUARANTEE_OR_DIE(n_s == c_s, "Renderer::CreateDefaultColorTextures: names and color vector sizes do not match!!");
+    for(std::size_t i = 0; i < n_s; ++i) {
+        auto tex = CreateDefaultColorTexture(colors[i]);
+        tex->SetDebugName(names[i]);
+        RegisterTexture(names[i], tex);
+    }
+}
+
+Texture* Renderer::CreateDefaultColorTexture(const Rgba& color) {
+    std::vector<Rgba> data = {
+        color
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }

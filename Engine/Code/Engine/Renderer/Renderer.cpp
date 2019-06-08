@@ -2727,14 +2727,14 @@ void Renderer::CreateAndRegisterDefaultTextures() {
 }
 
 Texture* Renderer::CreateDefaultTexture() {
-    std::vector<Rgba> data = {
+    static const std::vector<Rgba> data = {
         Rgba::White
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 Texture* Renderer::CreateInvalidTexture() {
-    std::vector<Rgba> data = {
+    static const std::vector<Rgba> data = {
         Rgba::Magenta, Rgba::Black,
         Rgba::Black,   Rgba::Magenta,
     };
@@ -2742,49 +2742,49 @@ Texture* Renderer::CreateInvalidTexture() {
 }
 
 Texture* Renderer::CreateInvalidMaterialTexture() {
-    std::vector<Rgba> data = {
+    static const std::vector<Rgba> data = {
         Rgba::Magenta
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 Texture* Renderer::CreateDefaultDiffuseTexture() {
-    std::vector<Rgba> data = {
+    static const std::vector<Rgba> data = {
         Rgba::White
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 Texture* Renderer::CreateDefaultNormalTexture() {
-    std::vector<Rgba> data = {
+    static const std::vector<Rgba> data = {
         Rgba::NormalZ
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 Texture* Renderer::CreateDefaultDisplacementTexture() {
-    std::vector<Rgba> data = {
+    static const std::vector<Rgba> data = {
         Rgba::Gray
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 Texture* Renderer::CreateDefaultSpecularTexture() {
-    std::vector<Rgba> data = {
+    static const std::vector<Rgba> data = {
         Rgba::Black
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 Texture* Renderer::CreateDefaultOcclusionTexture() {
-    std::vector<Rgba> data = {
+    static const std::vector<Rgba> data = {
         Rgba::White
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 Texture* Renderer::CreateDefaultEmissiveTexture() {
-    std::vector<Rgba> data = {
+    static const std::vector<Rgba> data = {
         Rgba::Black
     };
     return Create2DTextureFromMemory(data, 1, 1);

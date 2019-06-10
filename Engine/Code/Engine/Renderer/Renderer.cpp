@@ -3422,6 +3422,34 @@ Camera3D Renderer::GetCamera() const {
     return _camera;
 }
 
+Vector3 Renderer::ConvertScreenToWorldCoords(const Vector2& mouseCoords) const {
+    auto ndc = 2.0f * mouseCoords / Vector2(GetOutput()->GetDimensions()) - Vector2::ONE;
+    auto screenCoords4 = Vector4(ndc.x, -ndc.y, 1.0f, 1.0f);
+    auto sToW = _camera.GetInverseViewProjectionMatrix();
+    auto worldPos4 = sToW * screenCoords4;
+    auto worldPos3 = Vector3(worldPos4);
+    return Vector3(worldPos3);
+}
+
+Vector3 Renderer::ConvertScreenToWorldCoords(const Camera3D& camera, const Vector2& mouseCoords) const {
+    auto ndc = 2.0f * mouseCoords / Vector2(GetOutput()->GetDimensions()) - Vector2::ONE;
+    auto screenCoords4 = Vector4(ndc.x, -ndc.y, 1.0f, 1.0f);
+    auto sToW = camera.GetInverseViewProjectionMatrix();
+    auto worldPos4 = sToW * screenCoords4;
+    auto worldPos3 = Vector3(worldPos4);
+    return worldPos3;
+}
+
+Vector2 Renderer::ConvertScreenToWorldCoords(const Camera2D& camera, const Vector2& mouseCoords) const {
+    auto ndc = 2.0f * mouseCoords / Vector2(GetOutput()->GetDimensions()) - Vector2::ONE;
+    auto screenCoords4 = Vector4(ndc.x, -ndc.y, 1.0f, 1.0f);
+    auto sToW = camera.GetInverseViewProjectionMatrix();
+    auto worldPos4 = sToW * screenCoords4;
+    auto worldPos3 = Vector3(worldPos4);
+    auto worldPos2 = Vector2(worldPos3);
+    return worldPos2;
+}
+
 void Renderer::SetConstantBuffer(unsigned int index, ConstantBuffer* buffer) {
     _rhi_context->SetConstantBuffer(index, buffer);
 }

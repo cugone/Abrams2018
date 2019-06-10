@@ -121,8 +121,11 @@ public:
 
     Matrix4 operator*(const Matrix4& rhs) const;
     Vector4 operator*(const Vector4& rhs) const;
+    friend Vector4 operator*(const Vector4& lhs, const Matrix4& rhs);
     Vector3 operator*(const Vector3& rhs) const;
+    friend Vector3 operator*(const Vector3& lhs, const Matrix4& rhs);
     Vector2 operator*(const Vector2& rhs) const;
+    friend Vector2 operator*(const Vector2& lhs, const Matrix4& rhs);
     Matrix4& operator*=(const Matrix4& rhs);
     friend Matrix4 operator*(float lhs, const Matrix4& rhs);
     const float * operator*() const;

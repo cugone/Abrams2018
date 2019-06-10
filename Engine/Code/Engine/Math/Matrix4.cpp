@@ -820,7 +820,7 @@ Matrix4 Matrix4::operator*(const Matrix4& rhs) const {
     Vector4 rhsW = rhs.GetWComponents();
 
     float m00 = DotProduct(myX, rhsI);  float m01 = DotProduct(myX, rhsJ); float m02 = DotProduct(myX, rhsK);  float m03 = DotProduct(myX, rhsT);
-    float m04 = DotProduct(myY, rhsI);  float m05 = DotProduct(myY, rhsJ); float m06 = DotProduct(myY, rhsK); float m07 = DotProduct(myY, rhsT);
+    float m04 = DotProduct(myY, rhsI);  float m05 = DotProduct(myY, rhsJ); float m06 = DotProduct(myY, rhsK);  float m07 = DotProduct(myY, rhsT);
     float m08 = DotProduct(myZ, rhsI);  float m09 = DotProduct(myZ, rhsJ); float m10 = DotProduct(myZ, rhsK);  float m11 = DotProduct(myZ, rhsT);
     float m12 = DotProduct(myW, rhsI);  float m13 = DotProduct(myW, rhsJ); float m14 = DotProduct(myW, rhsK);  float m15 = DotProduct(myW, rhsT);
 
@@ -840,19 +840,47 @@ Matrix4 Matrix4::operator*(float scalar) const {
 }
 
 Vector4 Matrix4::operator*(const Vector4& rhs) const {
-    return Vector4(MathUtils::DotProduct(GetXComponents(), rhs),
-                   MathUtils::DotProduct(GetYComponents(), rhs),
-                   MathUtils::DotProduct(GetZComponents(), rhs),
-                   MathUtils::DotProduct(GetWComponents(), rhs));
+    const Vector4 my_x{GetXComponents()};
+    const Vector4 my_y{GetYComponents()};
+    const Vector4 my_z{GetZComponents()};
+    const Vector4 my_w{GetWComponents()};
+    const float x = MathUtils::DotProduct(rhs, my_x);
+    const float y = MathUtils::DotProduct(rhs, my_y);
+    const float z = MathUtils::DotProduct(rhs, my_z);
+    const float w = MathUtils::DotProduct(rhs, my_w);
+    return Vector4(x, y, z, w);
+}
+
+Vector4 operator*(const Vector4& lhs, const Matrix4& rhs) {
+    const Vector4 my_i(rhs.GetIBasis());
+    const Vector4 my_j(rhs.GetJBasis());
+    const Vector4 my_k(rhs.GetKBasis());
+    const Vector4 my_t(rhs.GetTBasis());
+    const float x = MathUtils::DotProduct(lhs, my_i);
+    const float y = MathUtils::DotProduct(lhs, my_j);
+    const float z = MathUtils::DotProduct(lhs, my_k);
+    const float w = MathUtils::DotProduct(lhs, my_t);
+    return Vector4(x, y, z, w);
 }
 
 Vector3 Matrix4::operator*(const Vector3& rhs) const {
     const Vector3 my_x(GetXComponents());
     const Vector3 my_y(GetYComponents());
     const Vector3 my_z(GetZComponents());
-    return Vector3(MathUtils::DotProduct(my_x, rhs)
-                   ,MathUtils::DotProduct(my_y, rhs)
-                   ,MathUtils::DotProduct(my_z, rhs));
+    const float x = MathUtils::DotProduct(my_x, rhs);
+    const float y = MathUtils::DotProduct(my_y, rhs);
+    const float z = MathUtils::DotProduct(my_z, rhs);
+    return Vector3(x, y, z);
+}
+
+Vector3 operator*(const Vector3& lhs, const Matrix4& rhs) {
+    const Vector3 my_i(rhs.GetIBasis());
+    const Vector3 my_j(rhs.GetJBasis());
+    const Vector3 my_k(rhs.GetKBasis());
+    const float x = MathUtils::DotProduct(lhs, my_i);
+    const float y = MathUtils::DotProduct(lhs, my_j);
+    const float z = MathUtils::DotProduct(lhs, my_k);
+    return Vector3(x, y, z);
 }
 
 Vector2 Matrix4::operator*(const Vector2& rhs) const {
@@ -860,6 +888,14 @@ Vector2 Matrix4::operator*(const Vector2& rhs) const {
     const Vector2 my_y{Vector3{ GetYComponents() }};
     const float x = MathUtils::DotProduct(my_x, rhs);
     const float y = MathUtils::DotProduct(my_y, rhs);
+    return Vector2(x, y);
+}
+
+Vector2 operator*(const Vector2& lhs, const Matrix4& rhs) {
+    const Vector2 my_i{Vector3{ rhs.GetIBasis() }};
+    const Vector2 my_j{Vector3{ rhs.GetKBasis() }};
+    const float x = MathUtils::DotProduct(lhs, my_i);
+    const float y = MathUtils::DotProduct(lhs, my_j);
     return Vector2(x, y);
 }
 

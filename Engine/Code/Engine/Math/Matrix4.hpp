@@ -73,6 +73,7 @@ public:
     static Matrix4 CalculateInverse(const Matrix4& mat);
 
     void OrthoNormalizeIKJ();
+    void OrthoNormalizeIJK();
 
     void Translate(const Vector2& translation2D);
     void Translate(const Vector3& translation3D);

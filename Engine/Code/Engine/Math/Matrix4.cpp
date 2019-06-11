@@ -497,6 +497,25 @@ void Matrix4::OrthoNormalizeIKJ() {
     SetKBasis(k);
 
 }
+
+void Matrix4::OrthoNormalizeIJK() {
+    Vector4 i = GetIBasis();
+    Vector4 k = GetKBasis();
+    Vector4 j = GetJBasis();
+
+    i.Normalize3D();
+    j -= MathUtils::Project(j, i);
+    j.Normalize3D();
+    k -= MathUtils::Project(k, i);
+    k -= MathUtils::Project(i, j);
+    k.Normalize3D();
+
+    SetIBasis(i);
+    SetJBasis(j);
+    SetKBasis(k);
+
+}
+
 float Matrix4::CalculateDeterminant(const Matrix4& mat) {
 
 

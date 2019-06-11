@@ -3422,6 +3422,27 @@ Camera3D Renderer::GetCamera() const {
     return _camera;
 }
 
+Vector2 Renderer::ConvertWorldToScreenCoords(const Vector3& worldCoords) const {
+    return ConvertWorldToScreenCoords(_camera, worldCoords);
+}
+
+Vector2 Renderer::ConvertWorldToScreenCoords(const Vector2& worldCoords) const {
+    return ConvertWorldToScreenCoords(_camera, Vector3{ worldCoords, 0.0f });
+}
+
+Vector2 Renderer::ConvertWorldToScreenCoords(const Camera2D& camera, const Vector2& worldCoords) const {
+    return ConvertWorldToScreenCoords(Camera3D{ camera }, Vector3{ worldCoords, 0.0f });
+}
+
+Vector2 Renderer::ConvertWorldToScreenCoords(const Camera3D& camera, const Vector3& worldCoords) const {
+    auto WtoS = camera.GetViewProjectionMatrix();
+    auto screenCoords4 = WtoS * worldCoords;
+    auto ndc = Vector2{screenCoords4.x, -screenCoords4.y};
+    auto screenDims = Vector2{GetOutput()->GetDimensions()};
+    auto mouseCoords = (ndc + Vector2::ONE) * screenDims * 0.5f;
+    return mouseCoords;
+}
+
 Vector3 Renderer::ConvertScreenToWorldCoords(const Vector2& mouseCoords) const {
     auto ndc = 2.0f * mouseCoords / Vector2(GetOutput()->GetDimensions()) - Vector2::ONE;
     auto screenCoords4 = Vector4(ndc.x, -ndc.y, 1.0f, 1.0f);

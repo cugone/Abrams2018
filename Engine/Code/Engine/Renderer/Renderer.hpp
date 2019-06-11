@@ -305,6 +305,10 @@ public:
     void SetCamera(const Camera2D& camera);
     Camera3D GetCamera() const;
 
+    Vector2 ConvertWorldToScreenCoords(const Vector3& worldCoords) const;
+    Vector2 ConvertWorldToScreenCoords(const Vector2& worldCoords) const;
+    Vector2 ConvertWorldToScreenCoords(const Camera3D& camera, const Vector3& worldCoords) const;
+    Vector2 ConvertWorldToScreenCoords(const Camera2D& camera, const Vector2& worldCoords) const;
     Vector3 ConvertScreenToWorldCoords(const Vector2& mouseCoords) const;
     Vector3 ConvertScreenToWorldCoords(const Camera3D& camera, const Vector2& mouseCoords) const;
     Vector2 ConvertScreenToWorldCoords(const Camera2D& camera, const Vector2& mouseCoords) const;

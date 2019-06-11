@@ -123,31 +123,31 @@ Matrix4 Matrix4::Create2DRotationMatrix(float angleRadians) {
 }
 
 Matrix4 Matrix4::Create3DXRotationMatrix(float angle) {
-    return Matrix4(1.0, 0.0, 0.0, 0.0,
-                   0.0, std::cos(angle), -std::sin(angle), 0.0,
-                   0.0, std::sin(angle), std::cos(angle), 0.0,
-                   0.0, 0.0, 0.0, 1.0);
+    return Matrix4(1.0f, 0.0f, 0.0f, 0.0f,
+                   0.0f, std::cos(angle), -std::sin(angle), 0.0f,
+                   0.0f, std::sin(angle), std::cos(angle), 0.0f,
+                   0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 Matrix4 Matrix4::Create3DYRotationMatrix(float angle) {
-    return Matrix4(std::cos(angle), 0.0, std::sin(angle), 0.0,
-                   0.0, 1.0, 0.0, 0.0,
-                   -std::sin(angle), 0.0, std::cos(angle), 0.0,
-                   0.0, 0.0, 0.0, 1.0);
+    return Matrix4(std::cos(angle), 0.0f, std::sin(angle), 0.0f,
+                   0.0f, 1.0f, 0.0f, 0.0f,
+                   -std::sin(angle), 0.0f, std::cos(angle), 0.0f,
+                   0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 Matrix4 Matrix4::Create3DZRotationMatrix(float angle) {
-    return Matrix4(std::cos(angle), -std::sin(angle), 0.0, 0.0,
-                   std::sin(angle), std::cos(angle), 0.0, 0.0,
-                   0.0, 0.0, 1.0, 0.0,
-                   0.0, 0.0, 0.0, 1.0);
+    return Matrix4(std::cos(angle), -std::sin(angle), 0.0f, 0.0f,
+                   std::sin(angle), std::cos(angle), 0.0f, 0.0f,
+                   0.0f, 0.0f, 1.0f, 0.0f,
+                   0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 Matrix4 Matrix4::CreateScaleMatrix(float scale_x, float scale_y, float scale_z) {
-    return Matrix4(scale_x, 0.0, 0.0, 0.0,
-                   0.0, scale_y, 0.0, 0.0,
-                   0.0, 0.0, scale_z, 0.0,
-                   0.0, 0.0, 0.0, 1.0);
+    return Matrix4(scale_x, 0.0f, 0.0f, 0.0f,
+                   0.0f, scale_y, 0.0f, 0.0f,
+                   0.0f, 0.0f, scale_z, 0.0f,
+                   0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 Matrix4 Matrix4::CreateScaleMatrix(const Vector3& scale) {

@@ -61,7 +61,10 @@ const Vector2& Ratio::GetValue() const {
 }
 
 void Ratio::SetValue(const Vector2& newValue) {
-    value = MathUtils::Clamp(newValue, Vector2::ZERO, Vector2::ONE);
+    auto clamped_newValue = newValue;
+    clamped_newValue.x = std::clamp(clamped_newValue.x, 0.0f, 1.0f);
+    clamped_newValue.y = std::clamp(clamped_newValue.y, 0.0f, 1.0f);
+    value = clamped_newValue;
 }
 
 } //End UI

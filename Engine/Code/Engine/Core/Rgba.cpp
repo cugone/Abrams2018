@@ -160,15 +160,15 @@ void Rgba::ScaleRGB(float scale) {
     float scaled_red = static_cast<float>(r) * scale;
     float scaled_green = static_cast<float>(g) * scale;
     float scaled_blue = static_cast<float>(b) * scale;
-    r = static_cast<unsigned char>(MathUtils::Clamp<float>(scaled_red, 0.0f, 255.0f));
-    g = static_cast<unsigned char>(MathUtils::Clamp<float>(scaled_green, 0.0f, 255.0f));
-    b = static_cast<unsigned char>(MathUtils::Clamp<float>(scaled_blue, 0.0f, 255.0f));
+    r = static_cast<unsigned char>(std::clamp(scaled_red, 0.0f, 255.0f));
+    g = static_cast<unsigned char>(std::clamp(scaled_green, 0.0f, 255.0f));
+    b = static_cast<unsigned char>(std::clamp(scaled_blue, 0.0f, 255.0f));
 
 }
 
 void Rgba::ScaleAlpha(float scale) {
     float scaled_alpha = static_cast<float>(a) * scale;
-    a = static_cast<unsigned char>(MathUtils::Clamp<float>(scaled_alpha, 0.0f, 255.0f));
+    a = static_cast<unsigned char>(std::clamp(scaled_alpha, 0.0f, 255.0f));
 }
 
 uint32_t Rgba::GetAsRawValue() const {

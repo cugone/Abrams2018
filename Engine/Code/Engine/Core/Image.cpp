@@ -208,7 +208,7 @@ bool Image::Export(const std::string& filepath, int bytes_per_pixel /*= 4*/, int
     int h = dims.y;
     int bbp = bytes_per_pixel;
     int stride = bbp * w;
-    int quality = MathUtils::Clamp(jpg_quality, 0, 100);
+    int quality = std::clamp(jpg_quality, 0, 100);
     int result = 0;
     if(extension == ".png") {
         std::scoped_lock<std::mutex> lock(_cs);

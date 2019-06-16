@@ -10,20 +10,19 @@
 #include "ThirdParty/stb/stb_image.h"
 #include "ThirdParty/stb/stb_image_write.h"
 
-#include <filesystem>
 #include <sstream>
 #include <vector>
 
-Image::Image(const std::string& filePath)
-    : m_filepath(filePath)
-    , m_memload(false) {
+Image::Image(std::filesystem::path filepath)
+: m_filepath(filepath)
+, m_memload(false)
+{
 
     namespace FS = std::filesystem;
-    FS::path fp(filePath);
-    fp = FS::canonical(fp);
-    fp.make_preferred();
+    filepath = FS::canonical(filepath);
+    filepath.make_preferred();
     std::vector<unsigned char> buf = {};
-    if(FileUtils::ReadBufferFromFile(buf, fp.string())) {
+    if(FileUtils::ReadBufferFromFile(buf, filepath)) {
         m_isGif = (buf[0] == 'G' && buf[1] == 'I' && buf[2] == 'F' && buf[3] == '8' && (buf[4] == '9' || buf[4] == '7') && buf[5] == 'a');
         if(!m_isGif) {
             int comp = 0;
@@ -43,7 +42,7 @@ Image::Image(const std::string& filePath)
         }
     } else {
         std::ostringstream ss;
-        ss << "Failed to load image. " << fp << " is not a supported image type.";
+        ss << "Failed to load image. " << filepath << " is not a supported image type.";
         ASSERT_OR_DIE(m_texelBytes != nullptr, ss.str());
     }
 }
@@ -171,7 +170,7 @@ void Image::SetTexel(const IntVector2& texelPos, const Rgba& color) {
     }
 }
 
-const std::string& Image::GetFilepath() const {
+const std::filesystem::path& Image::GetFilepath() const {
     return m_filepath;
 }
 
@@ -195,14 +194,13 @@ const std::vector<int>& Image::GetDelaysIfGif() const {
     return m_gifDelays;
 }
 
-bool Image::Export(const std::string& filepath, int bytes_per_pixel /*= 4*/, int jpg_quality /*= 100*/) {
+bool Image::Export(std::filesystem::path filepath, int bytes_per_pixel /*= 4*/, int jpg_quality /*= 100*/) {
 
     namespace FS = std::filesystem;
-    FS::path p(filepath);
-    p = FS::canonical(p);
-    p.make_preferred();
-    std::string extension = StringUtils::ToLowerCase(p.extension().string());
-    std::string p_str = p.string();
+    filepath = FS::canonical(filepath);
+    filepath.make_preferred();
+    std::string extension = StringUtils::ToLowerCase(filepath.extension().string());
+    std::string p_str = filepath.string();
     const auto& dims = GetDimensions();
     int w = dims.x;
     int h = dims.y;

@@ -101,7 +101,7 @@ using KerningMap = std::map<std::pair<int, int>, int>;
 
     const std::vector<std::string>& GetImagePaths() const;
     const std::filesystem::path& GetFilePath() const;
-    bool LoadFromFile(const std::string& filepath);
+    bool LoadFromFile(std::filesystem::path filepath);
     bool LoadFromBuffer(const std::vector<unsigned char>& buffer);
 
     Material* GetMaterial() const;

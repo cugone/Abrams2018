@@ -3,6 +3,7 @@
 #include "Engine/Core/StringUtils.hpp"
 
 #include <string>
+#include <filesystem>
 #include <vector>
 #include <memory>
 
@@ -41,7 +42,7 @@ public:
     };
 
     RiffChunk* GetNextChunk();
-    unsigned int Load(const std::string& filename);
+    unsigned int Load(std::filesystem::path filename);
     unsigned int Load(const std::vector<unsigned char>& data);
     static std::unique_ptr<Riff::RiffChunk> ReadListChunk(std::stringstream& stream);
 protected:

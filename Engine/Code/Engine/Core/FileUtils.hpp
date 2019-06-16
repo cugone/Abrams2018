@@ -66,10 +66,10 @@ enum class KnownPathID {
     , Max
 };
 
-bool WriteBufferToFile(void* buffer, std::size_t size, const std::string& filePath);
-bool WriteBufferToFile(const std::string& buffer, const std::string& filePath);
-bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::string& filePath);
-bool ReadBufferFromFile(std::string& out_buffer, const std::string& filePath);
+bool WriteBufferToFile(void* buffer, std::size_t size, std::filesystem::path filepath);
+bool WriteBufferToFile(const std::string& buffer, std::filesystem::path filepath);
+bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, std::filesystem::path filepath);
+bool ReadBufferFromFile(std::string& out_buffer, std::filesystem::path filepath);
 bool CreateFolders(const std::filesystem::path& filepath);
 bool IsSystemPathId(const KnownPathID& pathid);
 bool IsContentPathId(const KnownPathID& pathid);

@@ -155,7 +155,7 @@ public:
     StructuredBuffer* CreateStructuredBuffer(const StructuredBuffer::buffer_t& sbo, std::size_t element_size, std::size_t element_count) const;
 
     Texture* CreateOrGetTexture(const std::filesystem::path& filepath, const IntVector3& dimensions);
-    void RegisterTexturesFromFolder(const std::string& folderpath, bool recursive = false);
+    void RegisterTexturesFromFolder(std::filesystem::path folderpath, bool recursive = false);
     bool RegisterTexture(const std::string& name, Texture* texture);
     void SetTexture(Texture* texture, unsigned int registerIndex = 0);
 
@@ -171,19 +171,19 @@ public:
     void EnableDepth();
     void DisableDepth();
 
-    Texture* Create1DTexture(const std::string& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
+    Texture* Create1DTexture(std::filesystem::path filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
     Texture* Create1DTextureFromMemory(const unsigned char* data, unsigned int width = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
     Texture* Create1DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
-    Texture* Create2DTexture(const std::string& filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
+    Texture* Create2DTexture(std::filesystem::path filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
     Texture* Create2DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
     Texture* Create2DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
     Texture* Create2DTextureArrayFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
     Texture* Create2DTextureFromGifBuffer(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
     Texture* Create2DTextureArrayFromGifBuffer(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
-    Texture* Create3DTexture(const std::string& filepath, const IntVector3& dimensions, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
+    Texture* Create3DTexture(std::filesystem::path filepath, const IntVector3& dimensions, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
     Texture* Create3DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
     Texture* Create3DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
-    Texture* CreateTexture(const std::string& filepath
+    Texture* CreateTexture(std::filesystem::path filepath
         , const IntVector3& dimensions
         , const BufferUsage& bufferUsage = BufferUsage::Static
         , const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource
@@ -191,7 +191,7 @@ public:
 
     std::shared_ptr<SpriteSheet> CreateSpriteSheet(const std::filesystem::path& filepath, unsigned int width = 1, unsigned int height = 1);
     std::shared_ptr<SpriteSheet> CreateSpriteSheet(const XMLElement& elem);
-    std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(const std::string& filepath);
+    std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::filesystem::path filepath);
     std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const IntVector2& startSpriteCoords = IntVector2::ZERO);
     std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const XMLElement& elem);
     std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(const XMLElement& elem);
@@ -250,9 +250,8 @@ public:
     RHIOutput* GetOutput() const;
 
     ShaderProgram* GetShaderProgram(const std::string& nameOrFile);
-    ShaderProgram* CreateShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPointList, const PipelineStage& target) const;
-    void CreateAndRegisterShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPointList, const PipelineStage& target);
-    void RegisterShaderProgramsFromFolder(const std::string& folderpath, const std::string& entrypoint, const PipelineStage& target, bool recursive = false);
+    ShaderProgram* CreateShaderProgramFromHlslFile(std::filesystem::path filepath, const std::string& entryPointList, const PipelineStage& target) const;
+    void CreateAndRegisterShaderProgramFromHlslFile(std::filesystem::path filepath, const std::string& entryPointList, const PipelineStage& target);
     void CreateAndRegisterRasterStateFromRasterDescription(const std::string& name, const RasterDesc& desc);
     void SetRasterState(RasterState* raster);
     RasterState* GetRasterState(const std::string& name);
@@ -264,17 +263,18 @@ public:
     void SetVSync(bool value);
 
     Material* CreateMaterialFromFont(KerningFont* font);
-    bool RegisterMaterial(const std::string& filepath);
+    bool RegisterMaterial(std::filesystem::path filepath);
     void RegisterMaterial(Material* mat);
-    void RegisterMaterialsFromFolder(const std::string& folderpath, bool recursive = false);
+    void RegisterMaterialsFromFolder(std::filesystem::path folderpath, bool recursive = false);
+
     std::size_t GetMaterialCount();
     Material* GetMaterial(const std::string& nameOrFile);
     void SetMaterial(Material* material);
     const std::map<std::string, Texture*>& GetLoadedTextures() const;
 
-    bool RegisterShader(const std::string& filepath);
+    bool RegisterShader(std::filesystem::path filepath);
     void RegisterShader(Shader* shader);
-    void RegisterShadersFromFolder(const std::string& filepath, bool recursive = false);
+
     std::size_t GetShaderCount() const;
     Shader* GetShader(const std::string& nameOrFile);
     void SetComputeShader(Shader* shader);
@@ -283,9 +283,9 @@ public:
     std::size_t GetFontCount() const;
     KerningFont* GetFont(const std::string& nameOrFile);
 
-    bool RegisterFont(const std::string& filepath);
     void RegisterFont(KerningFont* font);
-    void RegisterFontsFromFolder(const std::string& folderpath, bool recursive = false);
+    bool RegisterFont(std::filesystem::path filepath);
+    void RegisterFontsFromFolder(std::filesystem::path folderpath, bool recursive = false);
 
     void UpdateGameTime(TimeUtils::FPSeconds deltaSeconds);
 
@@ -359,23 +359,16 @@ public:
 protected:
 private:
     void UpdateSystemTime(TimeUtils::FPSeconds deltaSeconds);
-    void RegisterTexturesFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
     bool RegisterTexture(const std::filesystem::path& filepath);
     void RegisterShaderProgram(const std::string& name, ShaderProgram * sp);
-    void RegisterShaderProgramsFromFolder(const std::filesystem::path& folderpath, const std::string& entrypoint, const PipelineStage& target, bool recursive = false);
+    void RegisterShaderProgramsFromFolder(std::filesystem::path folderpath, const std::string& entrypoint, const PipelineStage& target, bool recursive = false);
     void RegisterShader(const std::string& name, Shader* shader);
-    bool RegisterShader(std::filesystem::path filepath);
-    void RegisterShadersFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
+    void RegisterShadersFromFolder(std::filesystem::path folderpath, bool recursive = false);
     void RegisterMaterial(const std::string& name, Material* mat);
-    bool RegisterMaterial(const std::filesystem::path& filepath);
-    void RegisterMaterialsFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
     void RegisterRasterState(const std::string& name, RasterState* raster);
     void RegisterDepthStencilState(const std::string& name, DepthStencilState* depthstencil);
     void RegisterSampler(const std::string& name, Sampler* sampler);
     void RegisterFont(const std::string& name, KerningFont* font);
-    bool RegisterFont(const std::filesystem::path& filepath);
-    void RegisterFontsFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
-
 
     void CreateDefaultConstantBuffers();
     void CreateWorkingVboAndIbo();
@@ -385,9 +378,9 @@ private:
     void Draw(const PrimitiveType& topology, VertexBuffer* vbo, std::size_t vertex_count);
     void DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, IndexBuffer* ibo, std::size_t index_count, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0);
 
-    std::shared_ptr<SpriteSheet> CreateSpriteSheetFromGif(const std::filesystem::path& filepath);
+    std::shared_ptr<SpriteSheet> CreateSpriteSheetFromGif(std::filesystem::path filepath);
     std::shared_ptr<SpriteSheet> CreateSpriteSheet(Texture* texture, int tilesWide, int tilesHigh);
-    std::unique_ptr<AnimatedSprite> CreateAnimatedSpriteFromGif(const std::filesystem::path& filepath);
+    std::unique_ptr<AnimatedSprite> CreateAnimatedSpriteFromGif(std::filesystem::path filepath);
 
     void SetLightAtIndex(unsigned int index, const light_t& light);
     void SetPointLight(unsigned int index, const light_t& light);
@@ -424,7 +417,7 @@ private:
     Shader* CreateDefaultNormalShader();
     Shader* CreateDefaultNormalMapShader();
     Shader* CreateDefaultFontShader();
-    Shader* CreateShaderFromFile(const std::string& filePath);
+    Shader* CreateShaderFromFile(std::filesystem::path filepath);
 
     void CreateAndRegisterDefaultMaterials();
     Material* CreateDefaultMaterial();

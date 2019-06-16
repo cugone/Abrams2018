@@ -17,7 +17,7 @@ namespace FileUtils {
         }
     } //End AviChunkID
 
-    unsigned int Avi::Load(const std::string& filepath) {
+    unsigned int Avi::Load(std::filesystem::path filepath) {
         Riff riff_data{};
         if(riff_data.Load(filepath) != Riff::RIFF_SUCCESS) {
             return AVI_ERROR_NOT_A_AVI;

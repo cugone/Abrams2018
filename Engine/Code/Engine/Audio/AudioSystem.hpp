@@ -39,7 +39,7 @@ public:
     };
     class Sound {
     public:
-        Sound(AudioSystem& audiosystem, const std::string& filepath);
+        Sound(AudioSystem& audiosystem, std::filesystem::path filepath);
         void AddChannel(Channel* channel);
         void RemoveChannel(Channel* channel);
         const std::size_t GetId() const;
@@ -97,18 +97,18 @@ public:
     void SetFormat(const WAVEFORMATEXTENSIBLE& format);
     void SetFormat(const FileUtils::Wav::WavFormatChunk& format);
 
-    void RegisterWavFilesFromFolder(const std::string& folderpath, bool recursive = false);
-    void RegisterWavFile(const std::string& filepath);
+    void RegisterWavFilesFromFolder(std::filesystem::path folderpath, bool recursive = false);
+    void RegisterWavFile(std::filesystem::path filepath);
 
     void Play(Sound& snd);
-    void Play(const std::string& filepath);
-    Sound* CreateSound(const std::string& filepath);
+    void Play(std::filesystem::path filepath);
+    Sound* CreateSound(std::filesystem::path filepath);
 
     ChannelGroup* GetChannelGroup(const std::string& name);
     void AddChannelGroup(const std::string& name);
     void RemoveChannelGroup(const std::string& name);
     void AddSoundToChannelGroup(const std::string& channelGroupName, Sound* snd);
-    void AddSoundToChannelGroup(const std::string& channelGroupName, const std::string& filepath);
+    void AddSoundToChannelGroup(const std::string& channelGroupName, const std::filesystem::path& filepath);
 
     void SetEngineCallback(EngineCallback* callback);
     const WAVEFORMATEXTENSIBLE& GetFormat() const;
@@ -116,16 +116,12 @@ public:
 protected:
 private:
     void DeactivateChannel(Channel& channel);
-    void Play(const std::filesystem::path& filepath);
-    Sound* CreateSound(const std::filesystem::path& filepath);
 
-    void RegisterWavFilesFromFolder(const std::filesystem::path& folderpath, bool recursive = false);
-    void RegisterWavFile(const std::filesystem::path& filepath);
     WAVEFORMATEXTENSIBLE _audio_format_ex{};
     std::size_t _sound_count{};
     std::size_t _max_channels{};
-    std::map<std::string, std::unique_ptr<FileUtils::Wav>> _wave_files{};
-    std::map<std::string, std::unique_ptr<Sound>> _sounds{};
+    std::map<std::filesystem::path, std::unique_ptr<FileUtils::Wav>> _wave_files{};
+    std::map<std::filesystem::path, std::unique_ptr<Sound>> _sounds{};
     std::map<std::string, std::unique_ptr<ChannelGroup>> _channel_groups{};
     std::vector<std::unique_ptr<Channel>> _active_channels{};
     std::vector<std::unique_ptr<Channel>> _idle_channels{};

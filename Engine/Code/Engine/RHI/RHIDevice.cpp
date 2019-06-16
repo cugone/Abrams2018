@@ -488,12 +488,12 @@ ShaderProgram* RHIDevice::CreateShaderProgramFromHlslString(const std::string& n
     return new_sp;
 }
 
-ShaderProgram* RHIDevice::CreateShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPoint, const PipelineStage& target) const {
+ShaderProgram* RHIDevice::CreateShaderProgramFromHlslFile(std::filesystem::path filepath, const std::string& entryPoint, const PipelineStage& target) const {
     bool retry_requested = false;
     do {
         std::string source{};
         if(FileUtils::ReadBufferFromFile(source, filepath)) {
-            ShaderProgram* sp = CreateShaderProgramFromHlslString(filepath, source, entryPoint, nullptr, target);
+            ShaderProgram* sp = CreateShaderProgramFromHlslString(filepath.string(), source, entryPoint, nullptr, target);
             if(sp) {
                 return sp;
             }

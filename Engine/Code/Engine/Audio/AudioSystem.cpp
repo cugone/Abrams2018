@@ -2,6 +2,7 @@
 
 #include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/FileUtils.hpp"
+#include "Engine/Core/ErrorWarningAssert.hpp"
 
 #include "Engine/Audio/Wav.hpp"
 
@@ -123,7 +124,7 @@ void AudioSystem::AddSoundToChannelGroup(const std::string& channelGroupName, So
     }
 }
 
-void AudioSystem::AddSoundToChannelGroup(const std::string& channelGroupName, const std::string& filepath) {
+void AudioSystem::AddSoundToChannelGroup(const std::string& channelGroupName, const std::filesystem::path& filepath) {
     if(auto group = GetChannelGroup(channelGroupName)) {
         if(group->channel) {
             auto* snd = CreateSound(filepath);
@@ -183,16 +184,16 @@ void AudioSystem::SetFormat(const FileUtils::Wav::WavFormatChunk& format) {
     std::memcpy(&_audio_format_ex, fmt_buffer, sizeof(_audio_format_ex));
 }
 
-void AudioSystem::RegisterWavFilesFromFolder(const std::string& folderpath, bool recursive /*= false*/) {
+void AudioSystem::RegisterWavFilesFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
-    FS::path p{ folderpath };
-    p = FS::canonical(p);
-    p.make_preferred();
-    RegisterWavFilesFromFolder(p, recursive);
-}
-
-void AudioSystem::RegisterWavFilesFromFolder(const std::filesystem::path& folderpath, bool recursive /*= false*/) {
-    namespace FS = std::filesystem;
+    if(!FS::exists(folderpath)) {
+        std::ostringstream ss{};
+        ss << "Attempting to Register Wav Files from unknown path: " << FS::absolute(folderpath) << std::endl;
+        DebuggerPrintf(ss.str().c_str());
+        return;
+    }
+    folderpath = FS::canonical(folderpath);
+    folderpath.make_preferred();
     bool is_folder = FS::is_directory(folderpath);
     if(!is_folder) {
         return;
@@ -225,36 +226,32 @@ void AudioSystem::Play(Sound& snd) {
     _active_channels.back()->Play(snd);
 }
 
-void AudioSystem::Play(const std::string& filepath) {
+void AudioSystem::Play(std::filesystem::path filepath) {
     namespace FS = std::filesystem;
-    FS::path p(filepath);
-    p = FS::canonical(p);
-    p.make_preferred();
-    Play(p);
-}
-
-void AudioSystem::Play(const std::filesystem::path& filepath) {
-    auto filepathAsString = filepath.string();
-    auto found_iter = _sounds.find(filepathAsString);
+    if(!FS::exists(filepath)) {
+        return;
+    }
+    filepath = FS::canonical(filepath);
+    filepath.make_preferred();
+    auto found_iter = _sounds.find(filepath);
     if(found_iter == _sounds.end()) {
-        _sounds.insert_or_assign(filepathAsString, std::move(std::make_unique<Sound>(*this, filepathAsString)));
-        found_iter = _sounds.find(filepathAsString);
+        _sounds.insert_or_assign(filepath, std::move(std::make_unique<Sound>(*this, filepath)));
+        found_iter = _sounds.find(filepath);
     }
     Sound* snd = found_iter->second.get();
     Play(*snd);
 }
 
-
-AudioSystem::Sound* AudioSystem::CreateSound(const std::string& filepath) {
+AudioSystem::Sound* AudioSystem::CreateSound(std::filesystem::path filepath) {
     namespace FS = std::filesystem;
-    FS::path p(filepath);
-    p = FS::canonical(p);
-    p.make_preferred();
-    return CreateSound(p);
-}
+    {
+        std::ostringstream msg;
+        msg << "Could not find file: " << filepath << ".\n";
+        GUARANTEE_OR_DIE(FS::exists(filepath), msg.str().c_str());
+    }
 
-
-AudioSystem::Sound* AudioSystem::CreateSound(const std::filesystem::path& filepath) {
+    filepath = FS::canonical(filepath);
+    filepath.make_preferred();
     auto filepathAsString = filepath.string();
     auto found_iter = _sounds.find(filepathAsString);
     if(found_iter == _sounds.end()) {
@@ -264,16 +261,16 @@ AudioSystem::Sound* AudioSystem::CreateSound(const std::filesystem::path& filepa
     return found_iter->second.get();
 }
 
-void AudioSystem::RegisterWavFile(const std::string& filepath) {
+void AudioSystem::RegisterWavFile(std::filesystem::path filepath) {
     namespace FS = std::filesystem;
-    FS::path p{ filepath };
-    p = FS::canonical(p);
-    p.make_preferred();
-    RegisterWavFile(p);
-}
-
-void AudioSystem::RegisterWavFile(const std::filesystem::path& filepath) {
-    auto found_iter = _wave_files.find(filepath.string());
+    {
+        std::ostringstream msg;
+        msg << "Attempting to register wav file that does not exist:";
+        msg << '\n' << filepath;
+        GUARANTEE_OR_DIE(FS::exists(filepath), msg.str().c_str());
+    }
+    filepath = FS::canonical(filepath);
+    auto found_iter = _wave_files.find(filepath);
     if(found_iter != _wave_files.end()) {
         return;
     }
@@ -281,9 +278,9 @@ void AudioSystem::RegisterWavFile(const std::filesystem::path& filepath) {
     unsigned int wav_result = FileUtils::Wav::WAV_SUCCESS;
     {
         auto wav = std::make_unique<FileUtils::Wav>();
-        wav_result = wav->Load(filepath.string());
+        wav_result = wav->Load(filepath);
         if(wav_result == FileUtils::Wav::WAV_SUCCESS) {
-            _wave_files.insert_or_assign(filepath.string(), std::move(wav));
+            _wave_files.insert_or_assign(filepath, std::move(wav));
             return;
         }
     }
@@ -366,17 +363,16 @@ void AudioSystem::Channel::SetVolume(float newVolume) {
 
 std::size_t AudioSystem::Sound::_id = 0;
 
-AudioSystem::Sound::Sound(AudioSystem& audiosystem, const std::string& filepath)
+AudioSystem::Sound::Sound(AudioSystem& audiosystem, std::filesystem::path filepath)
     : _audio_system(&audiosystem)
 {
     namespace FS = std::filesystem;
-    auto p = FS::path{ filepath };
-    p = FS::canonical(p);
-    p.make_preferred();
-    auto found_iter = _audio_system->_wave_files.find(p.string());
+    filepath = FS::canonical(filepath);
+    filepath.make_preferred();
+    auto found_iter = _audio_system->_wave_files.find(filepath);
     if(found_iter == _audio_system->_wave_files.end()) {
-        _audio_system->RegisterWavFile(p.string());
-        found_iter = _audio_system->_wave_files.find(p.string());
+        _audio_system->RegisterWavFile(filepath);
+        found_iter = _audio_system->_wave_files.find(filepath);
     }
     if(found_iter != _audio_system->_wave_files.end()) {
         _my_id = _id++;

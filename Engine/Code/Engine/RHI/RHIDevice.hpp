@@ -12,6 +12,7 @@
 #include "Engine/Renderer/ConstantBuffer.hpp"
 #include "Engine/Renderer/VertexBuffer.hpp"
 
+#include <filesystem>
 #include <memory>
 #include <set>
 #include <vector>
@@ -46,7 +47,7 @@ public:
     bool IsAllowTearingSupported() const;
 
     ShaderProgram* CreateShaderProgramFromHlslString(const std::string& name, const std::string& hlslString, const std::string& entryPoint, InputLayout* inputLayout, const PipelineStage& target) const;
-    ShaderProgram* CreateShaderProgramFromHlslFile(const std::string& filepath, const std::string& entryPoint, const PipelineStage& target) const;
+    ShaderProgram* CreateShaderProgramFromHlslFile(std::filesystem::path filepath, const std::string& entryPoint, const PipelineStage& target) const;
 
     ID3DBlob* CompileShader(const std::string& name, const void*  sourceCode, std::size_t sourceCodeSize, const std::string& entryPoint, const PipelineStage& target) const;
     std::vector<ConstantBuffer*> CreateConstantBuffersFromByteCode(ID3DBlob* bytecode) const;

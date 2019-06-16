@@ -16,77 +16,72 @@ namespace FileUtils {
 
 GUID GetKnownPathIdForOS(const KnownPathID& pathid);
 
-bool WriteBufferToFile(void* buffer, std::size_t size, const std::string& filePath) {
+bool WriteBufferToFile(void* buffer, std::size_t size, std::filesystem::path filepath) {
     namespace FS = std::filesystem;
-    FS::path p(filePath);
-    p = FS::canonical(p);
-    p.make_preferred();
-    bool not_valid_path = FS::is_directory(p);
+    filepath = FS::absolute(filepath);
+    filepath.make_preferred();
+    bool not_valid_path = FS::is_directory(filepath);
     bool invalid = not_valid_path;
     if(invalid) {
         return false;
     }
 
-    std::ofstream ofs{p, std::ios_base::binary};
+    std::ofstream ofs{filepath, std::ios_base::binary};
     ofs.write(reinterpret_cast<const char*>(buffer), size);
     ofs.close();
     return true;
 }
 
-bool WriteBufferToFile(const std::string& buffer, const std::string& filePath) {
+bool WriteBufferToFile(const std::string& buffer, std::filesystem::path filepath) {
     namespace FS = std::filesystem;
-    FS::path p(filePath);
-    p = FS::canonical(p);
-    p.make_preferred();
-    bool not_valid_path = FS::is_directory(p);
+    filepath = FS::absolute(filepath);
+    filepath.make_preferred();
+    bool not_valid_path = FS::is_directory(filepath);
     bool invalid = not_valid_path;
     if(invalid) {
         return false;
     }
 
-    std::ofstream ofs{ p };
+    std::ofstream ofs{ filepath };
     ofs.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
     ofs.close();
     return true;
 
 }
 
-bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, const std::string& filePath) {
-
+bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, std::filesystem::path filepath) {
     namespace FS = std::filesystem;
-    FS::path p(filePath);
-    p = FS::canonical(p);
-    p.make_preferred();
-    bool path_is_directory = FS::is_directory(p);
-    bool path_not_exist = !FS::exists(p);
+    filepath = FS::canonical(filepath);
+    filepath.make_preferred();
+    bool path_is_directory = FS::is_directory(filepath);
+    bool path_not_exist = !FS::exists(filepath);
     bool not_valid_path = path_is_directory || path_not_exist;
     if(not_valid_path) {
         return false;
     }
 
-    std::size_t byte_size = FS::file_size(p);
+    std::size_t byte_size = FS::file_size(filepath);
     out_buffer.resize(byte_size);
-    std::ifstream ifs{ p, std::ios_base::binary };
+    std::ifstream ifs{ filepath, std::ios_base::binary };
     ifs.read(reinterpret_cast<char*>(out_buffer.data()), out_buffer.size());
     ifs.close();
     out_buffer.shrink_to_fit();
     return true;
 }
 
-bool ReadBufferFromFile(std::string& out_buffer, const std::string& filePath) {
+bool ReadBufferFromFile(std::string& out_buffer, std::filesystem::path filepath) {
 
     namespace FS = std::filesystem;
-    FS::path p(filePath);
-    p = FS::canonical(p);
-    p.make_preferred();
-    bool path_is_directory = FS::is_directory(p);
-    bool path_not_exist = !FS::exists(p);
+    filepath = FS::canonical(filepath);
+    filepath.make_preferred();
+    bool path_is_directory = FS::is_directory(filepath);
+    bool path_not_exist = !FS::exists(filepath);
     bool not_valid_path = path_is_directory || path_not_exist;
     if(not_valid_path) {
         return false;
     }
 
-    std::ifstream ifs{p};
+    std::ifstream ifs{filepath};
     out_buffer = std::string(static_cast<const std::stringstream&>(std::stringstream() << ifs.rdbuf()).str());
     return true;
 }

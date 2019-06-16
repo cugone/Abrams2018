@@ -149,7 +149,7 @@ Riff::RiffChunk* Riff::GetNextChunk() {
     return chunk;
 }
 
-unsigned int Riff::Load(const std::string& filename) {
+unsigned int Riff::Load(std::filesystem::path filename) {
     std::vector<unsigned char> buffer{};
     if(!FileUtils::ReadBufferFromFile(buffer, filename)) {
         return RIFF_ERROR_INVALID_ARGUMENT;

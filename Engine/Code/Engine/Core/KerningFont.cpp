@@ -96,30 +96,29 @@ const std::filesystem::path& KerningFont::GetFilePath() const {
     return _filepath;
 }
 
-bool KerningFont::LoadFromFile(const std::string& filepath) {
+bool KerningFont::LoadFromFile(std::filesystem::path filepath) {
     {
         namespace FS = std::filesystem;
-        FS::path path{ filepath };
-        path = FS::canonical(path);
-        path.make_preferred();
-        bool path_exists = FS::exists(path);
-        bool is_not_directory = !FS::is_directory(path);
-        bool is_file = FS::is_regular_file(path);
-        bool is_fnt = path.has_extension() && StringUtils::ToLowerCase(path.extension().string()) == ".fnt";
+        filepath = FS::canonical(filepath);
+        filepath.make_preferred();
+        bool path_exists = FS::exists(filepath);
+        bool is_not_directory = !FS::is_directory(filepath);
+        bool is_file = FS::is_regular_file(filepath);
+        bool is_fnt = filepath.has_extension() && StringUtils::ToLowerCase(filepath.extension().string()) == ".fnt";
         bool is_valid = path_exists && is_not_directory && is_file && is_fnt;
         if(!is_valid) {
             std::ostringstream ss;
-            ss << path << " is not a BMFont file.\n";
+            ss << filepath << " is not a BMFont file.\n";
             DebuggerPrintf(ss.str().c_str());
             return false;
         }
         if(_is_loaded) {
             std::ostringstream ss;
-            ss << path << " is already loaded.\n";
+            ss << filepath << " is already loaded.\n";
             DebuggerPrintf(ss.str().c_str());
             return false;
         }
-        _filepath = path;
+        _filepath = filepath;
     }
     std::vector<unsigned char> out_buffer{};
     if(!FileUtils::ReadBufferFromFile(out_buffer, _filepath.string())) {

@@ -4,6 +4,7 @@
 #include "Engine/Core/StringUtils.hpp"
 
 #include <string>
+#include <filesystem>
 
 namespace FileUtils {
 
@@ -48,7 +49,7 @@ public:
     static constexpr const unsigned int WAV_ERROR_NOT_A_WAV = 1;
     static constexpr const unsigned int WAV_ERROR_BAD_FILE = 2;
 
-    unsigned int Load(const std::string& filepath);
+    unsigned int Load(std::filesystem::path filepath);
     unsigned char* GetFormatAsBuffer();
     unsigned char* GetDataBuffer() const;
     const WavFormatChunk& GetFormatChunk() const;

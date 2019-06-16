@@ -14,7 +14,7 @@ constexpr const bool IsValid(const char* id) {
 }
 } //End WavChunkID
 
-unsigned int Wav::Load(const std::string& filepath) {
+unsigned int Wav::Load(std::filesystem::path filepath) {
     Riff riff_data{};
     if(riff_data.Load(filepath) != Riff::RIFF_SUCCESS) {
         return WAV_ERROR_NOT_A_WAV;

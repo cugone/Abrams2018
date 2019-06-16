@@ -6,6 +6,7 @@
 
 #include "Engine/Math/IntVector2.hpp"
 
+#include <filesystem>
 #include <memory>
 #include <string>
 
@@ -73,7 +74,7 @@ namespace FileUtils {
         static constexpr const unsigned int AVI_ERROR_NOT_A_AVI = 1;
         static constexpr const unsigned int AVI_ERROR_BAD_FILE = 2;
 
-        unsigned int Load(const std::string& filepath);
+        unsigned int Load(std::filesystem::path filepath);
         const AviHdrlChunk& GetHdrlChunk() const;
         const AviMoviChunk* GetFrame(std::size_t frame_idx) const;
         const std::size_t GetFrameCount() const;

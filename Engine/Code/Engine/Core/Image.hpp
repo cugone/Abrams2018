@@ -6,10 +6,11 @@
 
 #include <mutex>
 #include <string>
+#include <filesystem>
 
 class Image {
 public:
-    explicit Image(const std::string& filePath);
+    explicit Image(std::filesystem::path filepath);
     Image(const Image& img) = delete;
     Image(Image&& img) noexcept;
     Image& operator=(const Image& rhs) = delete;
@@ -25,7 +26,7 @@ public:
     Rgba GetTexel(const IntVector2& texelPos) const;
     void SetTexel(const IntVector2& texelPos, const Rgba& color);
 
-    const std::string& GetFilepath() const;
+    const std::filesystem::path& GetFilepath() const;
     const IntVector2& GetDimensions() const;
 
     unsigned char* GetData() const;
@@ -33,7 +34,7 @@ public:
     int GetBytesPerTexel() const;
 
     const std::vector<int>& GetDelaysIfGif() const;
-    bool Export(const std::string& filepath, int bytes_per_pixel = 4, int jpg_quality = 100);
+    bool Export(std::filesystem::path filepath, int bytes_per_pixel = 4, int jpg_quality = 100);
     static Image* CreateImageFromFileBuffer(const std::vector<unsigned char>& data);
     static std::string GetSupportedExtensionsList();
 protected:
@@ -43,7 +44,7 @@ private:
     IntVector2 m_dimensions{};
     unsigned int m_bytesPerTexel = 0;
     std::vector<int> m_gifDelays{};
-    std::string m_filepath{};
+    std::filesystem::path m_filepath{};
     bool m_memload = false;
     bool m_isGif = false;
     std::mutex _cs{};

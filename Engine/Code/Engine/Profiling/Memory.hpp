@@ -16,10 +16,10 @@ public:
     struct status_t {
         std::size_t leaked_objs  = 0;
         std::size_t leaked_bytes = 0;
-        operator bool() {
+        operator bool() const noexcept {
             return leaked_objs || leaked_bytes;
         }
-        operator std::string() {
+        operator std::string() const noexcept {
 #ifdef TRACK_MEMORY
             std::ostringstream ss;
             std::string s = ss.str();
@@ -29,7 +29,7 @@ public:
             return {};
 #endif
         }
-        friend std::ostream& operator<<(std::ostream& os, [[maybe_unused]]const status_t s) {
+        friend std::ostream& operator<<(std::ostream& os, [[maybe_unused]]const status_t s) noexcept {
 #ifdef TRACK_MEMORY
             os << "Leaked objects: " << s.leaked_objs << " for " << s.leaked_bytes << " bytes.\n";
 #endif
@@ -40,10 +40,10 @@ public:
         std::size_t frame_id = 0;
         std::size_t leaked_objs = 0;
         std::size_t leaked_bytes = 0;
-        operator bool() {
+        operator bool() const noexcept {
             return leaked_objs || leaked_bytes;
         }
-        operator std::string() {
+        operator std::string() const noexcept {
 #ifdef TRACK_MEMORY
             std::ostringstream ss;
             ss << "Frame " << frame_id << ": Leaked objects: " << leaked_objs << " for " << leaked_bytes << " bytes.\n";
@@ -55,7 +55,7 @@ public:
         }
     };
 
-    [[nodiscard]] static void* allocate(std::size_t n) {
+    [[nodiscard]] static void* allocate(std::size_t n) noexcept {
         if(is_enabled()) {
             ++frameCount;
             frameSize += n;
@@ -81,13 +81,13 @@ public:
         std::free(ptr);
     }
 
-    static void enable([[maybe_unused]]bool e) {
+    static void enable([[maybe_unused]]bool e) noexcept {
 #ifdef TRACK_MEMORY
         _active = e;
 #endif
     }
 
-    static bool is_enabled() {
+    static bool is_enabled() noexcept {
 #ifdef TRACK_MEMORY
         return _active;
 #else
@@ -95,13 +95,13 @@ public:
 #endif
     }
 
-    static void trace([[maybe_unused]]bool doTrace) {
+    static void trace([[maybe_unused]]bool doTrace) noexcept {
 #ifdef TRACK_MEMORY
         _trace = doTrace;
 #endif
     }
 
-    static void tick() {
+    static void tick() noexcept {
 #ifdef TRACK_MEMORY
         if(auto f = Memory::frame_status()) {
             std::string status = f;
@@ -112,7 +112,7 @@ public:
 #endif
     }
 
-    static void resetframecounters() {
+    static void resetframecounters() noexcept {
 #ifdef TRACK_MEMORY
         frameSize = 0;
         frameCount = 0;
@@ -121,11 +121,11 @@ public:
 #endif
     }
 
-    static status_t status() {
+    static status_t status() noexcept {
         return { allocCount - freeCount, allocSize - freeSize };
     }
 
-    static status_frame_t frame_status() {
+    static status_frame_t frame_status() noexcept {
         return { frameCounter, frameCount - framefreeCount, frameSize - framefreeSize };
     }
 

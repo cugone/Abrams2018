@@ -14,9 +14,9 @@
 
 namespace FileUtils {
 
-GUID GetKnownPathIdForOS(const KnownPathID& pathid);
+GUID GetKnownPathIdForOS(const KnownPathID& pathid) noexcept;
 
-bool WriteBufferToFile(void* buffer, std::size_t size, std::filesystem::path filepath) {
+bool WriteBufferToFile(void* buffer, std::size_t size, std::filesystem::path filepath) noexcept {
     namespace FS = std::filesystem;
     filepath = FS::absolute(filepath);
     filepath.make_preferred();
@@ -32,7 +32,7 @@ bool WriteBufferToFile(void* buffer, std::size_t size, std::filesystem::path fil
     return true;
 }
 
-bool WriteBufferToFile(const std::string& buffer, std::filesystem::path filepath) {
+bool WriteBufferToFile(const std::string& buffer, std::filesystem::path filepath) noexcept {
     namespace FS = std::filesystem;
     filepath = FS::absolute(filepath);
     filepath.make_preferred();
@@ -49,7 +49,7 @@ bool WriteBufferToFile(const std::string& buffer, std::filesystem::path filepath
 
 }
 
-bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, std::filesystem::path filepath) {
+bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, std::filesystem::path filepath) noexcept {
     namespace FS = std::filesystem;
     filepath = FS::canonical(filepath);
     filepath.make_preferred();
@@ -69,7 +69,7 @@ bool ReadBufferFromFile(std::vector<unsigned char>& out_buffer, std::filesystem:
     return true;
 }
 
-bool ReadBufferFromFile(std::string& out_buffer, std::filesystem::path filepath) {
+bool ReadBufferFromFile(std::string& out_buffer, std::filesystem::path filepath) noexcept {
 
     namespace FS = std::filesystem;
     filepath = FS::canonical(filepath);
@@ -86,14 +86,14 @@ bool ReadBufferFromFile(std::string& out_buffer, std::filesystem::path filepath)
     return true;
 }
 
-bool CreateFolders(const std::filesystem::path& filepath) {
+bool CreateFolders(const std::filesystem::path& filepath) noexcept {
     namespace FS = std::filesystem;
     auto p = filepath;
     p.make_preferred();
     return FS::create_directories(p);
 }
 
-bool IsContentPathId(const KnownPathID& pathid) {
+bool IsContentPathId(const KnownPathID& pathid) noexcept {
     if(!IsSystemPathId(pathid)) {
         switch(pathid) {
         case KnownPathID::GameData:                               return true;
@@ -107,7 +107,7 @@ bool IsContentPathId(const KnownPathID& pathid) {
     return false;
 }
 
-bool IsSystemPathId(const KnownPathID& pathid) {
+bool IsSystemPathId(const KnownPathID& pathid) noexcept {
     switch(pathid) {
     case KnownPathID::None:                                   return false;
     case KnownPathID::GameData:                               return false;
@@ -165,7 +165,7 @@ bool IsSystemPathId(const KnownPathID& pathid) {
     }
 }
 
-std::filesystem::path GetKnownFolderPath(const KnownPathID& pathid) {
+std::filesystem::path GetKnownFolderPath(const KnownPathID& pathid) noexcept {
     namespace FS = std::filesystem;
     FS::path p{};
     if(!(IsSystemPathId(pathid) || IsContentPathId(pathid))) {
@@ -197,7 +197,7 @@ std::filesystem::path GetKnownFolderPath(const KnownPathID& pathid) {
     return p;
 }
 
-GUID GetKnownPathIdForOS(const KnownPathID& pathid) {
+GUID GetKnownPathIdForOS(const KnownPathID& pathid) noexcept {
     switch(pathid) {
     case KnownPathID::Windows_AppDataRoaming:
         return FOLDERID_RoamingAppData;
@@ -241,7 +241,7 @@ GUID GetKnownPathIdForOS(const KnownPathID& pathid) {
     }
 }
 
-std::filesystem::path GetExePath() {
+std::filesystem::path GetExePath() noexcept {
     namespace FS = std::filesystem;
     FS::path result{};
     {
@@ -254,21 +254,21 @@ std::filesystem::path GetExePath() {
     return result;
 }
 
-std::filesystem::path GetWorkingDirectory() {
+std::filesystem::path GetWorkingDirectory() noexcept {
     namespace FS = std::filesystem;
     return FS::current_path();
 }
 
-void SetWorkingDirectory(const std::filesystem::path& p) {
+void SetWorkingDirectory(const std::filesystem::path& p) noexcept {
     namespace FS = std::filesystem;
     FS::current_path(p);
 }
 
-std::filesystem::path GetTempDirectory() {
+std::filesystem::path GetTempDirectory() noexcept {
     return std::filesystem::temp_directory_path();
 }
 
-bool HasDeletePermissions(const std::filesystem::path& p) {
+bool HasDeletePermissions(const std::filesystem::path& p) noexcept {
     namespace FS = std::filesystem;
     auto parent_path = p.parent_path();
     auto parent_status = FS::status(parent_path);
@@ -279,7 +279,7 @@ bool HasDeletePermissions(const std::filesystem::path& p) {
     return true;
 }
 
-bool HasExecuteOrSearchPermissions(const std::filesystem::path& p) {
+bool HasExecuteOrSearchPermissions(const std::filesystem::path& p) noexcept {
     namespace FS = std::filesystem;
     if(FS::is_directory(p)) {
         return HasSearchPermissions(p);
@@ -288,7 +288,7 @@ bool HasExecuteOrSearchPermissions(const std::filesystem::path& p) {
     }
 }
 
-bool HasExecutePermissions(const std::filesystem::path& p) {
+bool HasExecutePermissions(const std::filesystem::path& p) noexcept {
     namespace FS = std::filesystem;
     if(FS::is_directory(p)) {
         return false;
@@ -301,7 +301,7 @@ bool HasExecutePermissions(const std::filesystem::path& p) {
     return true;
 }
 
-bool HasSearchPermissions(const std::filesystem::path& p) {
+bool HasSearchPermissions(const std::filesystem::path& p) noexcept {
     namespace FS = std::filesystem;
     if(!FS::is_directory(p)) {
         return false;
@@ -315,7 +315,7 @@ bool HasSearchPermissions(const std::filesystem::path& p) {
     return true;
 }
 
-bool HasWritePermissions(const std::filesystem::path& p) {
+bool HasWritePermissions(const std::filesystem::path& p) noexcept {
     namespace FS = std::filesystem;
     auto my_status = FS::status(p);
     auto my_perms = my_status.permissions();
@@ -325,7 +325,7 @@ bool HasWritePermissions(const std::filesystem::path& p) {
     return true;
 }
 
-bool HasReadPermissions(const std::filesystem::path& p) {
+bool HasReadPermissions(const std::filesystem::path& p) noexcept {
     namespace FS = std::filesystem;
     auto my_status = FS::status(p);
     auto my_perms = my_status.permissions();
@@ -335,7 +335,7 @@ bool HasReadPermissions(const std::filesystem::path& p) {
     return true;
 }
 
-bool IsSafeWritePath(const std::filesystem::path& p) {
+bool IsSafeWritePath(const std::filesystem::path& p) noexcept {
     namespace FS = std::filesystem;
     if(!FS::exists(p)) {
         return false;
@@ -368,7 +368,7 @@ bool IsSafeWritePath(const std::filesystem::path& p) {
 
 }
 
-bool IsSafeReadPath(const std::filesystem::path& p) {
+bool IsSafeReadPath(const std::filesystem::path& p) noexcept {
     namespace FS = std::filesystem;
     if(!FS::exists(p)) {
         return false;
@@ -403,7 +403,7 @@ bool IsSafeReadPath(const std::filesystem::path& p) {
 
 }
 
-bool IsParentOf(const std::filesystem::path& p, const std::filesystem::path& child) {
+bool IsParentOf(const std::filesystem::path& p, const std::filesystem::path& child) noexcept {
     namespace FS = std::filesystem;
     auto p_canon = FS::canonical(p);
     auto child_canon = FS::canonical(child);
@@ -417,14 +417,14 @@ bool IsParentOf(const std::filesystem::path& p, const std::filesystem::path& chi
     return false;
 }
 
-bool IsSiblingOf(const std::filesystem::path& p, const std::filesystem::path& sibling) {
+bool IsSiblingOf(const std::filesystem::path& p, const std::filesystem::path& sibling) noexcept {
     namespace FS = std::filesystem;
     auto my_parent_path = FS::canonical(p.parent_path());
     auto sibling_parent_path = FS::canonical(sibling.parent_path());
     return my_parent_path == sibling_parent_path;
 }
 
-bool IsChildOf(const std::filesystem::path& p, const std::filesystem::path& parent) {
+bool IsChildOf(const std::filesystem::path& p, const std::filesystem::path& parent) noexcept {
     namespace FS = std::filesystem;
     auto parent_canon = FS::canonical(parent);
     auto p_canon = FS::canonical(p);
@@ -438,7 +438,7 @@ bool IsChildOf(const std::filesystem::path& p, const std::filesystem::path& pare
     return false;
 }
 
-void ForEachFileInFolder(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, const std::function<void(const std::filesystem::path&)>& callback /*= [](const std::filesystem::path& p) { (void*)p; }*/, bool recursive /*= false*/) {
+void ForEachFileInFolder(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, const std::function<void(const std::filesystem::path&)>& callback /*= [](const std::filesystem::path& p) { (void*)p; }*/, bool recursive /*= false*/) noexcept {
     namespace FS = std::filesystem;
     auto preferred_folderpath = FS::canonical(folderpath);
     preferred_folderpath.make_preferred();
@@ -456,7 +456,7 @@ void ForEachFileInFolder(const std::filesystem::path& folderpath, const std::str
     }
 }
 
-int CountFilesInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, bool recursive /*= false*/) {
+int CountFilesInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, bool recursive /*= false*/) noexcept {
     namespace FS = std::filesystem;
     int count = 0;
     auto cb = [&count](const FS::path& /*p*/)->void { ++count; };
@@ -464,7 +464,7 @@ int CountFilesInFolders(const std::filesystem::path& folderpath, const std::stri
     return count;
 }
 
-std::vector<std::filesystem::path> GetAllPathsInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, bool recursive /*= false*/) {
+std::vector<std::filesystem::path> GetAllPathsInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, bool recursive /*= false*/) noexcept {
     namespace FS = std::filesystem;
     std::vector<FS::path> paths{};
     auto add_path_cb = [&paths](const FS::path& p) { paths.push_back(p); };
@@ -472,7 +472,7 @@ std::vector<std::filesystem::path> GetAllPathsInFolders(const std::filesystem::p
     return paths;
 }
 
-void FileUtils::RemoveExceptMostRecentFiles(const std::filesystem::path& folderpath, int mostRecentCountToKeep, const std::string& validExtensionList /*= std::string{}*/) {
+void FileUtils::RemoveExceptMostRecentFiles(const std::filesystem::path& folderpath, int mostRecentCountToKeep, const std::string& validExtensionList /*= std::string{}*/) noexcept {
     auto working_dir = std::filesystem::current_path();
     if(!IsSafeWritePath(folderpath)) {
         return;
@@ -493,15 +493,15 @@ void FileUtils::RemoveExceptMostRecentFiles(const std::filesystem::path& folderp
 }
 
 
-uint16_t EndianSwap(uint16_t value) {
+uint16_t EndianSwap(uint16_t value) noexcept {
     return _byteswap_ushort(value);
 }
 
-uint32_t EndianSwap(uint32_t value) {
+uint32_t EndianSwap(uint32_t value) noexcept {
     return _byteswap_ulong(value);
 }
 
-uint64_t EndianSwap(uint64_t value) {
+uint64_t EndianSwap(uint64_t value) noexcept {
     return _byteswap_uint64(value);
 }
 

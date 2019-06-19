@@ -40,11 +40,11 @@ public:
     class Sound {
     public:
         Sound(AudioSystem& audiosystem, std::filesystem::path filepath);
-        void AddChannel(Channel* channel);
-        void RemoveChannel(Channel* channel);
-        const std::size_t GetId() const;
-        const std::size_t GetCount() const;
-        const FileUtils::Wav* const GetWav() const;
+        void AddChannel(Channel* channel) noexcept;
+        void RemoveChannel(Channel* channel) noexcept;
+        const std::size_t GetId() const noexcept;
+        const std::size_t GetCount() const noexcept;
+        const FileUtils::Wav* const GetWav() const noexcept;
     private:
         static std::size_t _id;
         AudioSystem* _audio_system{};
@@ -67,11 +67,11 @@ private:
             virtual void STDMETHODCALLTYPE OnLoopEnd(void* /*pBufferContext*/) override {};
             virtual void STDMETHODCALLTYPE OnVoiceError(void* /*pBufferContext*/, HRESULT /*Error*/) override {};
         };
-        explicit Channel(AudioSystem& audioSystem);
-        ~Channel();
-        void Play(Sound& snd);
-        void Stop();
-        void SetVolume(float newVolume);
+        explicit Channel(AudioSystem& audioSystem) noexcept;
+        ~Channel() noexcept;
+        void Play(Sound& snd) noexcept;
+        void Stop() noexcept;
+        void SetVolume(float newVolume) noexcept;
     private:
         XAUDIO2_BUFFER _buffer{};
         IXAudio2SourceVoice* _voice = nullptr;
@@ -82,40 +82,40 @@ private:
     struct ChannelGroup {
         Channel* channel = nullptr;
         std::vector<Sound*> sounds{};
-        void SetVolume(float newVolume);
+        void SetVolume(float newVolume) noexcept;
     };
 public:
     explicit AudioSystem(std::size_t max_channels = 1024);
-    virtual ~AudioSystem();
+    virtual ~AudioSystem() noexcept;
     virtual void Initialize() override;
     virtual void BeginFrame() override;
     virtual void Update([[maybe_unused]]TimeUtils::FPSeconds) override;
     virtual void Render() const override;
     virtual void EndFrame() override;
-    virtual bool ProcessSystemMessage(const EngineMessage& msg) override;
+    virtual bool ProcessSystemMessage(const EngineMessage& msg) noexcept override;
 
-    void SetFormat(const WAVEFORMATEXTENSIBLE& format);
-    void SetFormat(const FileUtils::Wav::WavFormatChunk& format);
+    void SetFormat(const WAVEFORMATEXTENSIBLE& format) noexcept;
+    void SetFormat(const FileUtils::Wav::WavFormatChunk& format) noexcept;
 
-    void RegisterWavFilesFromFolder(std::filesystem::path folderpath, bool recursive = false);
-    void RegisterWavFile(std::filesystem::path filepath);
+    void RegisterWavFilesFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept;
+    void RegisterWavFile(std::filesystem::path filepath) noexcept;
 
-    void Play(Sound& snd);
-    void Play(std::filesystem::path filepath);
-    Sound* CreateSound(std::filesystem::path filepath);
+    void Play(Sound& snd) noexcept;
+    void Play(std::filesystem::path filepath) noexcept;
+    Sound* CreateSound(std::filesystem::path filepath) noexcept;
 
-    ChannelGroup* GetChannelGroup(const std::string& name);
-    void AddChannelGroup(const std::string& name);
-    void RemoveChannelGroup(const std::string& name);
-    void AddSoundToChannelGroup(const std::string& channelGroupName, Sound* snd);
-    void AddSoundToChannelGroup(const std::string& channelGroupName, const std::filesystem::path& filepath);
+    ChannelGroup* GetChannelGroup(const std::string& name) noexcept;
+    void AddChannelGroup(const std::string& name) noexcept;
+    void RemoveChannelGroup(const std::string& name) noexcept;
+    void AddSoundToChannelGroup(const std::string& channelGroupName, Sound* snd) noexcept;
+    void AddSoundToChannelGroup(const std::string& channelGroupName, const std::filesystem::path& filepath) noexcept;
 
-    void SetEngineCallback(EngineCallback* callback);
-    const WAVEFORMATEXTENSIBLE& GetFormat() const;
-    FileUtils::Wav::WavFormatChunk GetLoadedWavFileFormat() const;
+    void SetEngineCallback(EngineCallback* callback) noexcept;
+    const WAVEFORMATEXTENSIBLE& GetFormat() const noexcept;
+    FileUtils::Wav::WavFormatChunk GetLoadedWavFileFormat() const noexcept;
 protected:
 private:
-    void DeactivateChannel(Channel& channel);
+    void DeactivateChannel(Channel& channel) noexcept;
 
     WAVEFORMATEXTENSIBLE _audio_format_ex{};
     std::size_t _sound_count{};

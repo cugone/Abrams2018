@@ -13,7 +13,7 @@
 #include <sstream>
 #include <vector>
 
-Image::Image(std::filesystem::path filepath)
+Image::Image(std::filesystem::path filepath) noexcept
 : m_filepath(filepath)
 , m_memload(false)
 {
@@ -43,10 +43,11 @@ Image::Image(std::filesystem::path filepath)
     } else {
         std::ostringstream ss;
         ss << "Failed to load image. " << filepath << " is not a supported image type.";
+        //TODO: Change to DebuggerPrintf message
         ASSERT_OR_DIE(m_texelBytes != nullptr, ss.str());
     }
 }
-Image::Image(unsigned int width, unsigned int height)
+Image::Image(unsigned int width, unsigned int height) noexcept
     : m_dimensions(width, height)
     , m_bytesPerTexel(4)
     , m_memload(true) {
@@ -55,7 +56,7 @@ Image::Image(unsigned int width, unsigned int height)
     std::fill(m_texelBytes, m_texelBytes + size, static_cast<unsigned char>(0));
 }
 
-Image::Image(unsigned char* data, unsigned int width, unsigned int height)
+Image::Image(unsigned char* data, unsigned int width, unsigned int height) noexcept
     : m_dimensions(width, height)
     , m_bytesPerTexel(4)
     , m_memload(true) {
@@ -64,7 +65,7 @@ Image::Image(unsigned char* data, unsigned int width, unsigned int height)
     std::memcpy(m_texelBytes, data, size);
 }
 
-Image::Image(Rgba* data, unsigned int width, unsigned int height)
+Image::Image(Rgba* data, unsigned int width, unsigned int height) noexcept
     : m_dimensions(width, height)
     , m_bytesPerTexel(4)
     , m_memload(true) {
@@ -73,7 +74,7 @@ Image::Image(Rgba* data, unsigned int width, unsigned int height)
     std::memcpy(m_texelBytes, data, size);
 }
 
-Image::Image(const std::vector<Rgba>& data, unsigned int width, unsigned int height)
+Image::Image(const std::vector<Rgba>& data, unsigned int width, unsigned int height) noexcept
     : m_dimensions(width, height)
     , m_bytesPerTexel(4)
     , m_memload(true) {
@@ -82,7 +83,7 @@ Image::Image(const std::vector<Rgba>& data, unsigned int width, unsigned int hei
     std::memcpy(m_texelBytes, data.data(), size);
 }
 
-Image::Image(const std::vector<unsigned char>& data, unsigned int width, unsigned int height)
+Image::Image(const std::vector<unsigned char>& data, unsigned int width, unsigned int height) noexcept
     : m_dimensions(width, height)
     , m_bytesPerTexel(4)
     , m_memload(true) {
@@ -131,7 +132,7 @@ Image& Image::operator=(Image&& rhs) noexcept {
 
     return *this;
 }
-Image::~Image() {
+Image::~Image() noexcept {
     if(m_memload) {
         delete[] m_texelBytes;
         m_texelBytes = nullptr;
@@ -140,7 +141,7 @@ Image::~Image() {
         m_texelBytes = nullptr;
     }
 }
-Rgba Image::GetTexel(const IntVector2& texelPos) const {
+Rgba Image::GetTexel(const IntVector2& texelPos) const noexcept {
 
     int index = texelPos.x + texelPos.y * m_dimensions.x;
     int byteOffset = index * m_bytesPerTexel;
@@ -156,7 +157,7 @@ Rgba Image::GetTexel(const IntVector2& texelPos) const {
     }
     return color;
 }
-void Image::SetTexel(const IntVector2& texelPos, const Rgba& color) {
+void Image::SetTexel(const IntVector2& texelPos, const Rgba& color) noexcept {
     Rgba oldColor = GetTexel(texelPos);
     int index = texelPos.x + texelPos.y * m_dimensions.x;
     int byteOffset = index * m_bytesPerTexel;
@@ -170,31 +171,31 @@ void Image::SetTexel(const IntVector2& texelPos, const Rgba& color) {
     }
 }
 
-const std::filesystem::path& Image::GetFilepath() const {
+const std::filesystem::path& Image::GetFilepath() const noexcept {
     return m_filepath;
 }
 
-const IntVector2& Image::GetDimensions() const {
+const IntVector2& Image::GetDimensions() const noexcept {
     return m_dimensions;
 }
 
-unsigned char* Image::GetData() const {
+unsigned char* Image::GetData() const noexcept {
     return m_texelBytes;
 }
 
-std::size_t Image::GetDataLength() const {
+std::size_t Image::GetDataLength() const noexcept {
     return static_cast<std::size_t>(m_dimensions.x) * m_dimensions.y * m_bytesPerTexel;
 }
 
-int Image::GetBytesPerTexel() const {
+int Image::GetBytesPerTexel() const noexcept {
     return m_bytesPerTexel;
 }
 
-const std::vector<int>& Image::GetDelaysIfGif() const {
+const std::vector<int>& Image::GetDelaysIfGif() const noexcept {
     return m_gifDelays;
 }
 
-bool Image::Export(std::filesystem::path filepath, int bytes_per_pixel /*= 4*/, int jpg_quality /*= 100*/) {
+bool Image::Export(std::filesystem::path filepath, int bytes_per_pixel /*= 4*/, int jpg_quality /*= 100*/) noexcept {
 
     namespace FS = std::filesystem;
     filepath = FS::canonical(filepath);
@@ -221,12 +222,15 @@ bool Image::Export(std::filesystem::path filepath, int bytes_per_pixel /*= 4*/, 
         std::scoped_lock<std::mutex> lock(_cs);
         result = stbi_write_jpg(p_str.c_str(), w, h, bbp, m_texelBytes, quality);
     } else if(extension == ".hdr") {
-        ERROR_AND_DIE("High Dynamic Range output is not supported.");
+        std::ostringstream ss;
+        ss << "Attempting to export " << filepath << " to an unsupported type: " << extension;
+        ss << "\nHigh Dynamic Range output is not supported.";
+        ERROR_RECOVERABLE(ss.str().c_str());
     }
     return 0 != result;
 }
 
-Image* Image::CreateImageFromFileBuffer(const std::vector<unsigned char>& data) {
+Image* Image::CreateImageFromFileBuffer(const std::vector<unsigned char>& data) noexcept {
     if(data.empty()) {
         return nullptr;
     }
@@ -267,7 +271,7 @@ Image* Image::CreateImageFromFileBuffer(const std::vector<unsigned char>& data) 
     return result;
 }
 
-std::string Image::GetSupportedExtensionsList() {
+std::string Image::GetSupportedExtensionsList() noexcept {
     return std::string(".png,.bmp,.tga,.jpg");
 
 }

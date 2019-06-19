@@ -7,15 +7,16 @@
 
 class Stopwatch {
 public:
-    explicit Stopwatch(const TimeUtils::FPSeconds& seconds);
-    explicit Stopwatch(unsigned int frequency);
-    void SetSeconds(const TimeUtils::FPSeconds& seconds);
-    void SetFrequency(unsigned int hz);
-    bool Check();
-    bool CheckAndDecrement();
-    bool CheckAndReset();
-    unsigned int DecrementAll();
-    void Reset();
+    //TODO: Add special member functions
+    explicit Stopwatch(const TimeUtils::FPSeconds& seconds) noexcept;
+    explicit Stopwatch(unsigned int frequency) noexcept;
+    void SetSeconds(const TimeUtils::FPSeconds& seconds) noexcept;
+    void SetFrequency(unsigned int hz) noexcept;
+    bool Check() const noexcept;
+    bool CheckAndDecrement() noexcept;
+    bool CheckAndReset() noexcept;
+    unsigned int DecrementAll() noexcept;
+    void Reset() noexcept;
 private:
     TimeUtils::FPSeconds interval_time{};
     TimeUtils::FPSeconds target_time{};

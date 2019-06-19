@@ -10,7 +10,7 @@
 namespace FileUtils {
 
 namespace RiffChunkID {
-constexpr const bool IsValid(const char* id) {
+constexpr const bool IsValid(const char* id) noexcept {
     return (StringUtils::FourCC(id) == RiffChunkID::RIFF
             || StringUtils::FourCC(id) == RiffChunkID::LIST
             || StringUtils::FourCC(id) == RiffChunkID::INFO
@@ -19,7 +19,7 @@ constexpr const bool IsValid(const char* id) {
 }
 } //End RiffChunkID
 
-bool Riff::ParseDataIntoChunks(std::vector<unsigned char>& buffer) {
+bool Riff::ParseDataIntoChunks(std::vector<unsigned char>& buffer) noexcept {
     std::stringstream stream(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     stream.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
     buffer.clear();
@@ -111,7 +111,7 @@ bool Riff::ParseDataIntoChunks(std::vector<unsigned char>& buffer) {
     return true;
 }
 
-void Riff::ShowRiffChunkHeaders() {
+void Riff::ShowRiffChunkHeaders() noexcept {
 #ifdef AUDIO_DEBUG
     std::ostringstream ss;
     ss << "Chunks:\n";
@@ -140,7 +140,7 @@ void Riff::ShowRiffChunkHeaders() {
 #endif
 }
 
-Riff::RiffChunk* Riff::GetNextChunk() {
+Riff::RiffChunk* Riff::GetNextChunk() noexcept {
     if(_current_chunk == _chunks.end()) {
         return nullptr;
     }
@@ -149,7 +149,7 @@ Riff::RiffChunk* Riff::GetNextChunk() {
     return chunk;
 }
 
-unsigned int Riff::Load(std::filesystem::path filename) {
+unsigned int Riff::Load(std::filesystem::path filename) noexcept {
     std::vector<unsigned char> buffer{};
     if(!FileUtils::ReadBufferFromFile(buffer, filename)) {
         return RIFF_ERROR_INVALID_ARGUMENT;
@@ -157,7 +157,7 @@ unsigned int Riff::Load(std::filesystem::path filename) {
     return Load(buffer);
 }
 
-unsigned int Riff::Load(const std::vector<unsigned char>& data) {
+unsigned int Riff::Load(const std::vector<unsigned char>& data) noexcept {
     std::vector<unsigned char> buffer = data;
     if(!ParseDataIntoChunks(buffer)) {
         return RIFF_ERROR_NOT_A_RIFF;
@@ -166,7 +166,7 @@ unsigned int Riff::Load(const std::vector<unsigned char>& data) {
     return RIFF_SUCCESS;
 }
 
-std::unique_ptr<Riff::RiffChunk> Riff::ReadListChunk(std::stringstream& stream) {
+std::unique_ptr<Riff::RiffChunk> Riff::ReadListChunk(std::stringstream& stream) noexcept {
     if(!stream) {
         return false;
     }

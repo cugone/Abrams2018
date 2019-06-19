@@ -13,19 +13,20 @@
 namespace FileUtils {
 
 //Run only as an asynchronous operation highly recommended.
-Obj::Obj(std::filesystem::path filepath) {
+Obj::Obj(std::filesystem::path filepath) noexcept {
     namespace FS = std::filesystem;
-    auto path_copy = filepath;
-    path_copy = FS::canonical(path_copy);
-    path_copy.make_preferred();
+    if(!FS::exists(filepath)) {
+        filepath = FS::canonical(filepath);
+    }
+    filepath.make_preferred();
     if(!Load(filepath)) {
         std::ostringstream ss;
-        ss << "Obj: " << path_copy << " failed to load.";
+        ss << "Obj: " << filepath << " failed to load.";
         ERROR_AND_DIE(ss.str().c_str());
     }
 }
 
-bool Obj::Load(std::filesystem::path filepath) {
+bool Obj::Load(std::filesystem::path filepath) noexcept {
     PROFILE_LOG_SCOPE_FUNCTION();
 
     namespace FS = std::filesystem;
@@ -44,7 +45,7 @@ bool Obj::Load(std::filesystem::path filepath) {
     return Parse(filepath);
 }
 
-bool Obj::Save(std::filesystem::path filepath) {
+bool Obj::Save(std::filesystem::path filepath) noexcept {
     PROFILE_LOG_SCOPE_FUNCTION();
 
     namespace FS = std::filesystem;
@@ -128,31 +129,31 @@ bool Obj::Save(std::filesystem::path filepath) {
     return false;
 }
 
-bool Obj::IsLoaded() const {
+bool Obj::IsLoaded() const noexcept {
     return _is_loaded;
 }
 
-bool Obj::IsLoading() const {
+bool Obj::IsLoading() const noexcept {
     return _is_loading;
 }
 
-bool Obj::IsSaving() const {
+bool Obj::IsSaving() const noexcept {
     return _is_saving;
 }
 
-bool Obj::IsSaved() const {
+bool Obj::IsSaved() const noexcept {
     return _is_saved;
 }
 
-const std::vector<Vertex3D>& Obj::GetVbo() const {
+const std::vector<Vertex3D>& Obj::GetVbo() const noexcept {
     return _vbo;
 }
 
-const std::vector<unsigned int>& Obj::GetIbo() const {
+const std::vector<unsigned int>& Obj::GetIbo() const noexcept {
     return _ibo;
 }
 
-void Obj::Unload() {
+void Obj::Unload() noexcept {
     _vbo.clear();
     _vbo.shrink_to_fit();
     _ibo.clear();
@@ -171,7 +172,7 @@ void Obj::Unload() {
     _face_idxs.shrink_to_fit();
 }
 
-bool Obj::Parse(const std::filesystem::path& filepath) {
+bool Obj::Parse(const std::filesystem::path& filepath) noexcept {
     PROFILE_LOG_SCOPE_FUNCTION();
     _verts.clear();
     _tex_coords.clear();
@@ -323,7 +324,7 @@ bool Obj::Parse(const std::filesystem::path& filepath) {
     return false;
 }
 
-void Obj::PrintErrorToDebugger(std::filesystem::path filepath, const std::string& elementType, unsigned long long line_index) const {
+void Obj::PrintErrorToDebugger(std::filesystem::path filepath, const std::string& elementType, unsigned long long line_index) const noexcept {
     namespace FS = std::filesystem;
     std::ostringstream error_ss{};
     filepath = FS::canonical(filepath);

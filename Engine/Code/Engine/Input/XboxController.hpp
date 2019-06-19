@@ -36,55 +36,56 @@ public:
         ,Right
         ,Both
     };
+    //TODO: Evaluate rule of six or rule of zero.
     XboxController() = default;
     ~XboxController() = default;
 
-    const Vector2& GetLeftThumbPosition() const;
-    const Vector2& GetRightThumbPosition() const;
+    const Vector2& GetLeftThumbPosition() const noexcept;
+    const Vector2& GetRightThumbPosition() const noexcept;
 
-    float GetLeftTriggerPosition() const;
-    float GetRightTriggerPosition() const;
+    float GetLeftTriggerPosition() const noexcept;
+    float GetRightTriggerPosition() const noexcept;
 
-    bool IsButtonUp(const Button& button) const;
-    bool WasButtonJustPressed(const Button& button) const;
-    bool IsButtonDown(const Button& button) const;
-    bool WasButtonJustReleased(const Button& button) const;
+    bool IsButtonUp(const Button& button) const noexcept;
+    bool WasButtonJustPressed(const Button& button) const noexcept;
+    bool IsButtonDown(const Button& button) const noexcept;
+    bool WasButtonJustReleased(const Button& button) const noexcept;
 
-    bool WasJustConnected() const;
-    bool IsConnected() const;
-    bool WasJustDisconnected() const;
-    bool IsDisconnected() const;
+    bool WasJustConnected() const noexcept;
+    bool IsConnected() const noexcept;
+    bool WasJustDisconnected() const noexcept;
+    bool IsDisconnected() const noexcept;
 
-    bool WasAnyButtonJustPressed() const;
-    bool WasAnyButtonJustReleased() const;
-    bool IsAnyButtonDown() const;
+    bool WasAnyButtonJustPressed() const noexcept;
+    bool WasAnyButtonJustReleased() const noexcept;
+    bool IsAnyButtonDown() const noexcept;
 
-    void Update(int controller_number);
+    void Update(int controller_number) noexcept;
 
-    void StopLeftMotor();
-    void StopRightMotor();
-    void StopMotors();
+    void StopLeftMotor() noexcept;
+    void StopRightMotor() noexcept;
+    void StopMotors() noexcept;
 
-    void SetLeftMotorSpeed(unsigned short speed);
-    void SetRightMotorSpeed(unsigned short speed);
-    void SetBothMotorSpeed(unsigned short speed);
+    void SetLeftMotorSpeed(unsigned short speed) noexcept;
+    void SetRightMotorSpeed(unsigned short speed) noexcept;
+    void SetBothMotorSpeed(unsigned short speed) noexcept;
 
-    void SetLeftMotorSpeedToMax();
-    void SetRightMotorSpeedToMax();
-    void SetBothMotorSpeedToMax();
+    void SetLeftMotorSpeedToMax() noexcept;
+    void SetRightMotorSpeedToMax() noexcept;
+    void SetBothMotorSpeedToMax() noexcept;
 
-    void SetLeftMotorSpeedAsPercent(float speed);
-    void SetRightMotorSpeedAsPercent(float speed);
-    void SetBothMotorSpeedAsPercent(float speed);
+    void SetLeftMotorSpeedAsPercent(float speed) noexcept;
+    void SetRightMotorSpeedAsPercent(float speed) noexcept;
+    void SetBothMotorSpeedAsPercent(float speed) noexcept;
 
-    void UpdateConnectedState(int controller_number);
+    void UpdateConnectedState(int controller_number) noexcept;
 
 protected:
 private:
-    void UpdateState();
-    void SetMotorSpeed(int controller_number, const Motor& motor, unsigned short value);
+    void UpdateState() noexcept;
+    void SetMotorSpeed(int controller_number, const Motor& motor, unsigned short value) noexcept;
 
-    bool DidMotorStateChange() const;
+    bool DidMotorStateChange() const noexcept;
 
     enum class ActiveState {
         Connected

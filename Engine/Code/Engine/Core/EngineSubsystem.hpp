@@ -138,10 +138,10 @@ public:
     virtual void Render() const = 0;
     virtual void EndFrame() = 0;
 
-    virtual bool ProcessSystemMessage(const EngineMessage& msg);
+    virtual bool ProcessSystemMessage(const EngineMessage& msg) noexcept;
 
-    static WindowsSystemMessage GetWindowsSystemMessageFromUintMessage(unsigned int wmMessage);
-    void SetNextHandler(EngineSubsystem* next_handler);
+    static WindowsSystemMessage GetWindowsSystemMessageFromUintMessage(unsigned int wmMessage) noexcept;
+    void SetNextHandler(EngineSubsystem* next_handler) noexcept;
 protected:
 private:
     EngineSubsystem* _next_subsystem = nullptr;

@@ -20,7 +20,7 @@ AudioSystem::AudioSystem(std::size_t max_channels /*= 1024*/)
     GUARANTEE_OR_DIE(xaudio2_create_succeeded, "Failed to create Audio System.");
 }
 
-AudioSystem::~AudioSystem() {
+AudioSystem::~AudioSystem() noexcept {
 
     {
     std::scoped_lock<std::mutex> _lock(_cs);
@@ -88,7 +88,7 @@ void AudioSystem::Initialize() {
     SetEngineCallback(&_engine_callback);
 }
 
-AudioSystem::ChannelGroup* AudioSystem::GetChannelGroup(const std::string& name) {
+AudioSystem::ChannelGroup* AudioSystem::GetChannelGroup(const std::string& name) noexcept {
     auto found = _channel_groups.find(name);
     if(found != std::end(_channel_groups)) {
         return found->second.get();
@@ -96,7 +96,7 @@ AudioSystem::ChannelGroup* AudioSystem::GetChannelGroup(const std::string& name)
     return nullptr;
 }
 
-void AudioSystem::AddChannelGroup(const std::string& name) {
+void AudioSystem::AddChannelGroup(const std::string& name) noexcept {
     auto group = std::make_unique<ChannelGroup>();
     auto found = _channel_groups.find(name);
     if(found != std::end(_channel_groups)) {
@@ -105,7 +105,7 @@ void AudioSystem::AddChannelGroup(const std::string& name) {
     _channel_groups.insert_or_assign(name, std::move(group));
 }
 
-void AudioSystem::RemoveChannelGroup(const std::string& name) {
+void AudioSystem::RemoveChannelGroup(const std::string& name) noexcept {
     auto found = _channel_groups.find(name);
     if(found != std::end(_channel_groups)) {
         found->second.reset(nullptr);
@@ -113,7 +113,7 @@ void AudioSystem::RemoveChannelGroup(const std::string& name) {
     }
 }
 
-void AudioSystem::AddSoundToChannelGroup(const std::string& channelGroupName, Sound* snd) {
+void AudioSystem::AddSoundToChannelGroup(const std::string& channelGroupName, Sound* snd) noexcept {
     if(!snd) {
         return;
     }
@@ -124,7 +124,7 @@ void AudioSystem::AddSoundToChannelGroup(const std::string& channelGroupName, So
     }
 }
 
-void AudioSystem::AddSoundToChannelGroup(const std::string& channelGroupName, const std::filesystem::path& filepath) {
+void AudioSystem::AddSoundToChannelGroup(const std::string& channelGroupName, const std::filesystem::path& filepath) noexcept {
     if(auto group = GetChannelGroup(channelGroupName)) {
         if(group->channel) {
             auto* snd = CreateSound(filepath);
@@ -133,7 +133,7 @@ void AudioSystem::AddSoundToChannelGroup(const std::string& channelGroupName, co
     }
 }
 
-void AudioSystem::SetEngineCallback(EngineCallback* callback) {
+void AudioSystem::SetEngineCallback(EngineCallback* callback) noexcept {
     if(&_engine_callback == callback) {
         return;
     }
@@ -142,11 +142,11 @@ void AudioSystem::SetEngineCallback(EngineCallback* callback) {
     _xaudio2->RegisterForCallbacks(&_engine_callback);
 }
 
-const WAVEFORMATEXTENSIBLE& AudioSystem::GetFormat() const {
+const WAVEFORMATEXTENSIBLE& AudioSystem::GetFormat() const noexcept {
     return _audio_format_ex;
 }
 
-FileUtils::Wav::WavFormatChunk AudioSystem::GetLoadedWavFileFormat() const {
+FileUtils::Wav::WavFormatChunk AudioSystem::GetLoadedWavFileFormat() const noexcept {
     FileUtils::Wav::WavFormatChunk fmt{};
     if(_wave_files.empty()) {
         return fmt;
@@ -171,20 +171,20 @@ void AudioSystem::EndFrame() {
     _idle_channels.erase(std::remove_if(std::begin(_idle_channels), std::end(_idle_channels), [](const std::unique_ptr<Channel>& c) { return c == nullptr; }), std::end(_idle_channels));
 }
 
-bool AudioSystem::ProcessSystemMessage(const EngineMessage& /*msg*/) {
+bool AudioSystem::ProcessSystemMessage(const EngineMessage& /*msg*/) noexcept {
     return false;
 }
 
-void AudioSystem::SetFormat(const WAVEFORMATEXTENSIBLE& format) {
+void AudioSystem::SetFormat(const WAVEFORMATEXTENSIBLE& format) noexcept {
     _audio_format_ex = format;
 }
 
-void AudioSystem::SetFormat(const FileUtils::Wav::WavFormatChunk& format) {
+void AudioSystem::SetFormat(const FileUtils::Wav::WavFormatChunk& format) noexcept {
     auto fmt_buffer = reinterpret_cast<const unsigned char*>(&format);
     std::memcpy(&_audio_format_ex, fmt_buffer, sizeof(_audio_format_ex));
 }
 
-void AudioSystem::RegisterWavFilesFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) {
+void AudioSystem::RegisterWavFilesFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) noexcept {
     namespace FS = std::filesystem;
     if(!FS::exists(folderpath)) {
         std::ostringstream ss{};
@@ -205,7 +205,7 @@ void AudioSystem::RegisterWavFilesFromFolder(std::filesystem::path folderpath, b
     FileUtils::ForEachFileInFolder(folderpath, ".wav", cb, recursive);
 }
 
-void AudioSystem::DeactivateChannel(Channel& channel) {
+void AudioSystem::DeactivateChannel(Channel& channel) noexcept {
     std::scoped_lock<std::mutex> _lock(_cs);
     auto found_iter = std::find_if(std::begin(_active_channels), std::end(_active_channels),
                                    [&channel](const std::unique_ptr<Channel>& c) { return c.get() == &channel; });
@@ -213,7 +213,7 @@ void AudioSystem::DeactivateChannel(Channel& channel) {
     _active_channels.erase(found_iter);
 }
 
-void AudioSystem::Play(Sound& snd) {
+void AudioSystem::Play(Sound& snd) noexcept {
     std::scoped_lock<std::mutex> _lock(_cs);
     if(_max_channels <= _idle_channels.size()) {
         return;
@@ -226,7 +226,7 @@ void AudioSystem::Play(Sound& snd) {
     _active_channels.back()->Play(snd);
 }
 
-void AudioSystem::Play(std::filesystem::path filepath) {
+void AudioSystem::Play(std::filesystem::path filepath) noexcept {
     namespace FS = std::filesystem;
     if(!FS::exists(filepath)) {
         return;
@@ -242,12 +242,13 @@ void AudioSystem::Play(std::filesystem::path filepath) {
     Play(*snd);
 }
 
-AudioSystem::Sound* AudioSystem::CreateSound(std::filesystem::path filepath) {
+AudioSystem::Sound* AudioSystem::CreateSound(std::filesystem::path filepath) noexcept {
     namespace FS = std::filesystem;
-    {
+    if(!FS::exists(filepath)) {
         std::ostringstream msg;
         msg << "Could not find file: " << filepath << ".\n";
-        GUARANTEE_OR_DIE(FS::exists(filepath), msg.str().c_str());
+        DebuggerPrintf(msg.str().c_str());
+        return nullptr;
     }
 
     filepath = FS::canonical(filepath);
@@ -261,13 +262,14 @@ AudioSystem::Sound* AudioSystem::CreateSound(std::filesystem::path filepath) {
     return found_iter->second.get();
 }
 
-void AudioSystem::RegisterWavFile(std::filesystem::path filepath) {
+void AudioSystem::RegisterWavFile(std::filesystem::path filepath) noexcept {
     namespace FS = std::filesystem;
-    {
+    if(!FS::exists(filepath)) {
         std::ostringstream msg;
         msg << "Attempting to register wav file that does not exist:";
         msg << '\n' << filepath;
-        GUARANTEE_OR_DIE(FS::exists(filepath), msg.str().c_str());
+        DebuggerPrintf(msg.str().c_str());
+        return;
     }
     filepath = FS::canonical(filepath);
     auto found_iter = _wave_files.find(filepath);
@@ -314,14 +316,16 @@ void STDMETHODCALLTYPE AudioSystem::Channel::VoiceCallback::OnBufferEnd(void* pB
     channel._audio_system->DeactivateChannel(channel);
 }
 
-AudioSystem::Channel::Channel(AudioSystem& audioSystem) : _audio_system(&audioSystem) {
+AudioSystem::Channel::Channel(AudioSystem& audioSystem) noexcept
+: _audio_system(&audioSystem)
+{
     static VoiceCallback vcb;
     _buffer.pContext = this;
     auto fmt = reinterpret_cast<const WAVEFORMATEX*>(&(_audio_system->GetFormat()));
     _audio_system->_xaudio2->CreateSourceVoice(&_voice, fmt, 0, 2.0f, &vcb);
 }
 
-AudioSystem::Channel::~Channel() {
+AudioSystem::Channel::~Channel() noexcept {
     if(_voice) {
         Stop();
         {
@@ -332,7 +336,7 @@ AudioSystem::Channel::~Channel() {
     }
 }
 
-void AudioSystem::Channel::Play(Sound& snd) {
+void AudioSystem::Channel::Play(Sound& snd) noexcept {
     snd.AddChannel(this);
     _sound = &snd;
     if(auto* wav = snd.GetWav()) {
@@ -346,7 +350,7 @@ void AudioSystem::Channel::Play(Sound& snd) {
     }
 }
 
-void AudioSystem::Channel::Stop() {
+void AudioSystem::Channel::Stop() noexcept {
     if(_voice && _sound) {
         std::scoped_lock<std::mutex> _lock(_cs);
         _voice->Stop();
@@ -354,7 +358,7 @@ void AudioSystem::Channel::Stop() {
     }
 }
 
-void AudioSystem::Channel::SetVolume(float newVolume) {
+void AudioSystem::Channel::SetVolume(float newVolume) noexcept {
     if(_voice) {
         std::scoped_lock<std::mutex> _lock(_cs);
         _voice->SetVolume(newVolume);
@@ -380,27 +384,27 @@ AudioSystem::Sound::Sound(AudioSystem& audiosystem, std::filesystem::path filepa
     }
 }
 
-void AudioSystem::Sound::AddChannel(Channel* channel) {
+void AudioSystem::Sound::AddChannel(Channel* channel) noexcept {
     std::scoped_lock<std::mutex> _lock(_cs);
     _channels.push_back(channel);
 }
 
-void AudioSystem::Sound::RemoveChannel(Channel* channel) {
+void AudioSystem::Sound::RemoveChannel(Channel* channel) noexcept {
     std::scoped_lock<std::mutex> _lock(_cs);
     _channels.erase(std::remove_if(std::begin(_channels), std::end(_channels),
                                    [channel](Channel* c)->bool { return c == channel; })
                     , std::end(_channels));
 }
 
-const std::size_t AudioSystem::Sound::GetId() const {
+const std::size_t AudioSystem::Sound::GetId() const noexcept {
     return _my_id;
 }
 
-const std::size_t AudioSystem::Sound::GetCount() const {
+const std::size_t AudioSystem::Sound::GetCount() const noexcept {
     return _id;
 }
 
-const FileUtils::Wav* const AudioSystem::Sound::GetWav() const {
+const FileUtils::Wav* const AudioSystem::Sound::GetWav() const noexcept {
     return _wave_file;
 }
 
@@ -411,6 +415,6 @@ void STDMETHODCALLTYPE AudioSystem::EngineCallback::OnCriticalError(HRESULT erro
     ERROR_AND_DIE(ss.str().c_str());
 }
 
-void AudioSystem::ChannelGroup::SetVolume(float newVolume) {
+void AudioSystem::ChannelGroup::SetVolume(float newVolume) noexcept {
     channel->SetVolume(newVolume);
 }

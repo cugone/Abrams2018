@@ -8,7 +8,7 @@
 
 namespace TimeUtils {
 
-std::string GetDateTimeStampFromNow(const DateTimeStampOptions& options /*= DateTimeStampOptions{}*/) {
+std::string GetDateTimeStampFromNow(const DateTimeStampOptions& options /*= DateTimeStampOptions{}*/) noexcept {
     using namespace std::chrono;
     auto now = Now<system_clock>();
     std::time_t t = system_clock::to_time_t(now);
@@ -30,7 +30,7 @@ std::string GetDateTimeStampFromNow(const DateTimeStampOptions& options /*= Date
     return msg.str();
 }
 
-std::string GetTimeStampFromNow(const DateTimeStampOptions& options /*= DateTimeStampOptions{}*/) {
+std::string GetTimeStampFromNow(const DateTimeStampOptions& options /*= DateTimeStampOptions{}*/) noexcept {
     using namespace std::chrono;
     auto now = Now<system_clock>();
     auto t = system_clock::to_time_t(now);
@@ -52,7 +52,7 @@ std::string GetTimeStampFromNow(const DateTimeStampOptions& options /*= DateTime
     return msg.str();
 }
 
-std::string GetDateStampFromNow(const DateTimeStampOptions& options /*= DateTimeStampOptions{}*/) {
+std::string GetDateStampFromNow(const DateTimeStampOptions& options /*= DateTimeStampOptions{}*/) noexcept {
     using namespace std::chrono;
     auto now = Now<system_clock>();
     auto t = system_clock::to_time_t(now);

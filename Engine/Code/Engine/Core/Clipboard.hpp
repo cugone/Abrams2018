@@ -7,23 +7,23 @@
 class Clipboard {
 public:
     Clipboard() = default;
-    explicit Clipboard(HWND hwnd);
+    explicit Clipboard(HWND hwnd) noexcept;
     Clipboard(const Clipboard& other) = default;
     Clipboard(Clipboard&& other) = default;
     Clipboard& operator=(const Clipboard& other) = default;
     Clipboard& operator=(Clipboard&& other) = default;
-    ~Clipboard();
+    ~Clipboard() noexcept;
 
-    bool Open(HWND hwnd);
-    bool IsOpen() const;
-    bool IsClosed() const;
-    static bool HasText();
-    static bool HasUnicodeText();
-    bool Copy(const std::string& text);
-    bool Copy(const std::wstring& text);
-    std::string Paste();
-    bool Empty();
-    void Close();
+    bool Open(HWND hwnd) noexcept;
+    bool IsOpen() const noexcept;
+    bool IsClosed() const noexcept;
+    static bool HasText() noexcept;
+    static bool HasUnicodeText() noexcept;
+    bool Copy(const std::string& text) noexcept;
+    bool Copy(const std::wstring& text) noexcept;
+    std::string Paste() noexcept;
+    bool Empty() noexcept;
+    void Close() noexcept;
 
 protected:
 private:

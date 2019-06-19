@@ -44,14 +44,14 @@ std::atomic_uint64_t StackTrace::_refs(0);
 std::shared_mutex StackTrace::_cs{};
 std::atomic_bool StackTrace::_did_init(false);
 
-StackTrace::StackTrace()
+StackTrace::StackTrace() noexcept
     : StackTrace(1ul, 30ul)
 {
     /* DO NOTHING */
 }
 
 StackTrace::StackTrace([[maybe_unused]]unsigned long framesToSkip,
-                       [[maybe_unused]]unsigned long framesToCapture) {
+                       [[maybe_unused]]unsigned long framesToCapture) noexcept {
 #ifdef PROFILE_BUILD
     if(!_refs) {
         Initialize();
@@ -70,7 +70,7 @@ StackTrace::StackTrace([[maybe_unused]]unsigned long framesToSkip,
 #endif
 }
 
-StackTrace::~StackTrace() {
+StackTrace::~StackTrace() noexcept {
 #ifdef PROFILE_BUILD
     --_refs;
     if(!_refs) {
@@ -79,7 +79,7 @@ StackTrace::~StackTrace() {
 #endif
 }
 
-void StackTrace::Initialize() {
+void StackTrace::Initialize() noexcept {
 #ifdef PROFILE_BUILD
     debugHelpModule = ::LoadLibraryA("DbgHelp.dll");
     if(!debugHelpModule) {
@@ -117,7 +117,7 @@ void StackTrace::Initialize() {
 }
 
 void StackTrace::GetLines([[maybe_unused]]StackTrace* st,
-                          [[maybe_unused]]unsigned long max_lines) {
+                          [[maybe_unused]]unsigned long max_lines) noexcept {
 #ifndef PROFILE_BUILD
     return;
 #else
@@ -169,7 +169,7 @@ void StackTrace::GetLines([[maybe_unused]]StackTrace* st,
 #endif
 }
 
-void StackTrace::Shutdown() {
+void StackTrace::Shutdown() noexcept {
 #ifdef PROFILE_BUILD
     if(symbol) {
         std::free(symbol);
@@ -187,10 +187,10 @@ void StackTrace::Shutdown() {
 #endif
 }
 
-bool StackTrace::operator!=(const StackTrace& rhs) {
+bool StackTrace::operator!=(const StackTrace& rhs) const noexcept {
     return !(*this == rhs);
 }
 
-bool StackTrace::operator==(const StackTrace& rhs) {
+bool StackTrace::operator==(const StackTrace& rhs) const noexcept {
     return hash == rhs.hash;
 }

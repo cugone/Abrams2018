@@ -18,7 +18,7 @@ void ValidateXmlElement(const XMLElement& element,
                         const std::string& requiredChildElements,
                         const std::string& requiredAttributes,
                         const std::string& optionalChildElements /*= std::string("")*/,
-                        const std::string& optionalAttributes /*= std::string("")*/) {
+                        const std::string& optionalAttributes /*= std::string("")*/) noexcept {
 
     if(name.empty()) {
         std::ostringstream err_ss;
@@ -139,7 +139,7 @@ void ValidateXmlElement(const XMLElement& element,
 #endif //#if _DEBUG
 }
 
-void ForEachChildElement(const XMLElement& element, const std::string& childname /*= std::string{}*/, const std::function<void(const XMLElement&)>& callback /*= [](const XMLElement&) { / * DO NOTHING * / }*/) {
+void ForEachChildElement(const XMLElement& element, const std::string& childname /*= std::string{}*/, const std::function<void(const XMLElement&)>& callback /*= [](const XMLElement&) { / * DO NOTHING * / }*/) noexcept {
     auto childNameAsCStr = childname.empty() ? nullptr : childname.c_str();
     for(auto xml_iter = element.FirstChildElement(childNameAsCStr);
         xml_iter != nullptr;
@@ -148,13 +148,13 @@ void ForEachChildElement(const XMLElement& element, const std::string& childname
     }
 }
 
-void ForEachAttribute(const XMLElement& element, const std::function<void(const XMLAttribute&)>& callback /*= [](const XMLAttribute&) { / * DO NOTHING * / }*/) {
+void ForEachAttribute(const XMLElement& element, const std::function<void(const XMLAttribute&)>& callback /*= [](const XMLAttribute&) { / * DO NOTHING * / }*/) noexcept {
     for(auto attribute = element.FirstAttribute(); attribute != nullptr; attribute = attribute->Next()) {
         callback(*attribute);
     }
 }
 
-unsigned int GetAttributeCount(const XMLElement &element) {
+unsigned int GetAttributeCount(const XMLElement &element) noexcept {
     unsigned int attributeCount = 0;
     ForEachAttribute(element,
     [&](const XMLAttribute& /*attribute*/) {
@@ -163,7 +163,7 @@ unsigned int GetAttributeCount(const XMLElement &element) {
     return attributeCount;
 }
 
-std::vector<std::string> GetAttributeNames(const XMLElement& element) {
+std::vector<std::string> GetAttributeNames(const XMLElement& element) noexcept {
     std::vector<std::string> attributeNames{};
     attributeNames.reserve(GetAttributeCount(element));
     ForEachAttribute(element,
@@ -173,7 +173,7 @@ std::vector<std::string> GetAttributeNames(const XMLElement& element) {
     return attributeNames;
 }
 
-unsigned int GetChildElementCount(const XMLElement &element, const std::string& elementName /*= std::string("")*/) {
+unsigned int GetChildElementCount(const XMLElement &element, const std::string& elementName /*= std::string("")*/) noexcept {
     unsigned int childCount = 0;
     ForEachChildElement(element, elementName,
     [&](const XMLElement& /*elem*/) {
@@ -182,7 +182,7 @@ unsigned int GetChildElementCount(const XMLElement &element, const std::string& 
     return childCount;
 }
 
-std::vector<std::string> GetChildElementNames(const XMLElement& element) {
+std::vector<std::string> GetChildElementNames(const XMLElement& element) noexcept {
     std::vector<std::string> childElementNames{};
     childElementNames.reserve(GetChildElementCount(element));
     ForEachChildElement(element, std::string{},
@@ -192,22 +192,22 @@ std::vector<std::string> GetChildElementNames(const XMLElement& element) {
     return childElementNames;
 }
 
-bool ParseXmlElementText(const XMLElement& element, bool defaultValue) {
+bool ParseXmlElementText(const XMLElement& element, bool defaultValue) noexcept {
     bool retVal = defaultValue;
     element.QueryBoolText(&retVal);
     return retVal;
 }
-unsigned char ParseXmlElementText(const XMLElement& element, unsigned char defaultValue) {
+unsigned char ParseXmlElementText(const XMLElement& element, unsigned char defaultValue) noexcept {
     unsigned int retVal = defaultValue;
     element.QueryUnsignedText(&retVal);
     return static_cast<unsigned char>(retVal);
 }
-signed char ParseXmlElementText(const XMLElement& element, signed char defaultValue) {
+signed char ParseXmlElementText(const XMLElement& element, signed char defaultValue) noexcept {
     int retVal = defaultValue;
     element.QueryIntText(&retVal);
     return static_cast<signed char>(retVal);
 }
-char ParseXmlElementText(const XMLElement& element, char defaultValue) {
+char ParseXmlElementText(const XMLElement& element, char defaultValue) noexcept {
     char retVal = defaultValue;
     auto s = element.GetText();
     std::string str(s ? s : "");
@@ -217,58 +217,58 @@ char ParseXmlElementText(const XMLElement& element, char defaultValue) {
     retVal = str[0];
     return retVal;
 }
-unsigned short ParseXmlElementText(const XMLElement& element, unsigned short defaultValue) {
+unsigned short ParseXmlElementText(const XMLElement& element, unsigned short defaultValue) noexcept {
     unsigned int retVal = defaultValue;
     element.QueryUnsignedText(&retVal);
     return static_cast<unsigned short>(retVal);
 }
-short ParseXmlElementText(const XMLElement& element, short defaultValue) {
+short ParseXmlElementText(const XMLElement& element, short defaultValue) noexcept {
     int retVal = defaultValue;
     element.QueryIntText(&retVal);
     return static_cast<short>(retVal);
 }
-unsigned int ParseXmlElementText(const XMLElement& element, unsigned int defaultValue) {
+unsigned int ParseXmlElementText(const XMLElement& element, unsigned int defaultValue) noexcept {
     unsigned int retVal = defaultValue;
     element.QueryUnsignedText(&retVal);
     return retVal;
 }
-int ParseXmlElementText(const XMLElement& element, int defaultValue) {
+int ParseXmlElementText(const XMLElement& element, int defaultValue) noexcept {
     int retVal = defaultValue;
     element.QueryIntText(&retVal);
     return retVal;
 }
-unsigned long ParseXmlElementText(const XMLElement& element, unsigned long defaultValue) {
+unsigned long ParseXmlElementText(const XMLElement& element, unsigned long defaultValue) noexcept {
     unsigned int retVal = defaultValue;
     element.QueryUnsignedText(&retVal);
     return static_cast<unsigned long>(retVal);
 }
-long ParseXmlElementText(const XMLElement& element, long defaultValue) {
+long ParseXmlElementText(const XMLElement& element, long defaultValue) noexcept {
     long long retVal = defaultValue;
     element.QueryInt64Text(&retVal);
     return static_cast<long>(retVal);
 }
-unsigned long long ParseXmlElementText(const XMLElement& element, unsigned long long defaultValue) {
+unsigned long long ParseXmlElementText(const XMLElement& element, unsigned long long defaultValue) noexcept {
     unsigned long long retVal = defaultValue;
     element.QueryUnsigned64Text(&retVal);
     return static_cast<unsigned long long>(retVal);
 }
-long long ParseXmlElementText(const XMLElement& element, long long defaultValue) {
+long long ParseXmlElementText(const XMLElement& element, long long defaultValue) noexcept {
     long long retVal = defaultValue;
     element.QueryInt64Text(&retVal);
     return retVal;
 }
-float ParseXmlElementText(const XMLElement& element, float defaultValue) {
+float ParseXmlElementText(const XMLElement& element, float defaultValue) noexcept {
     float retVal = defaultValue;
     element.QueryFloatText(&retVal);
     return retVal;
 }
-double ParseXmlElementText(const XMLElement& element, double defaultValue) {
+double ParseXmlElementText(const XMLElement& element, double defaultValue) noexcept {
     double retVal = defaultValue;
     element.QueryDoubleText(&retVal);
     return retVal;
 }
 
-long double ParseXmlElementText(const XMLElement& element, long double defaultValue) {
+long double ParseXmlElementText(const XMLElement& element, long double defaultValue) noexcept {
     long double retVal = defaultValue;
     auto txtAsCStr = element.GetText();
     std::string txt(txtAsCStr ? txtAsCStr : "");
@@ -291,7 +291,7 @@ long double ParseXmlElementText(const XMLElement& element, long double defaultVa
     return retVal;
 }
 
-Rgba ParseXmlElementText(const XMLElement& element, const Rgba& defaultValue) {
+Rgba ParseXmlElementText(const XMLElement& element, const Rgba& defaultValue) noexcept {
     auto s = element.GetText();
     std::string textVal(s ? s : "");
     if(textVal.empty()) {
@@ -300,7 +300,7 @@ Rgba ParseXmlElementText(const XMLElement& element, const Rgba& defaultValue) {
         return Rgba(textVal);
     }
 }
-Vector2 ParseXmlElementText(const XMLElement& element, const Vector2& defaultValue) {
+Vector2 ParseXmlElementText(const XMLElement& element, const Vector2& defaultValue) noexcept {
     auto s = element.GetText();
     std::string textVal(s ? s : "");
     if(textVal.empty()) {
@@ -309,7 +309,7 @@ Vector2 ParseXmlElementText(const XMLElement& element, const Vector2& defaultVal
         return Vector2(textVal);
     }
 }
-IntVector2 ParseXmlElementText(const XMLElement& element, const IntVector2& defaultValue) {
+IntVector2 ParseXmlElementText(const XMLElement& element, const IntVector2& defaultValue) noexcept {
     auto s = element.GetText();
     std::string textVal(s ? s : "");
     if(textVal.empty()) {
@@ -318,7 +318,7 @@ IntVector2 ParseXmlElementText(const XMLElement& element, const IntVector2& defa
         return IntVector2(textVal);
     }
 }
-Vector3 ParseXmlElementText(const XMLElement& element, const Vector3& defaultValue) {
+Vector3 ParseXmlElementText(const XMLElement& element, const Vector3& defaultValue) noexcept {
     auto s = element.GetText();
     std::string textVal(s ? s : "");
     if(textVal.empty()) {
@@ -327,7 +327,7 @@ Vector3 ParseXmlElementText(const XMLElement& element, const Vector3& defaultVal
         return Vector3(textVal);
     }
 }
-IntVector3 ParseXmlElementText(const XMLElement& element, const IntVector3& defaultValue) {
+IntVector3 ParseXmlElementText(const XMLElement& element, const IntVector3& defaultValue) noexcept {
     auto s = element.GetText();
     std::string textVal(s ? s : "");
     if(textVal.empty()) {
@@ -336,7 +336,7 @@ IntVector3 ParseXmlElementText(const XMLElement& element, const IntVector3& defa
         return IntVector3(textVal);
     }
 }
-Vector4 ParseXmlElementText(const XMLElement& element, const Vector4& defaultValue) {
+Vector4 ParseXmlElementText(const XMLElement& element, const Vector4& defaultValue) noexcept {
     auto s = element.GetText();
     std::string textVal(s ? s : "");
     if(textVal.empty()) {
@@ -345,7 +345,7 @@ Vector4 ParseXmlElementText(const XMLElement& element, const Vector4& defaultVal
         return Vector4(textVal);
     }
 }
-IntVector4 ParseXmlElementText(const XMLElement& element, const IntVector4& defaultValue) {
+IntVector4 ParseXmlElementText(const XMLElement& element, const IntVector4& defaultValue) noexcept {
     auto s = element.GetText();
     std::string textVal(s ? s : "");
     if(textVal.empty()) {
@@ -354,7 +354,7 @@ IntVector4 ParseXmlElementText(const XMLElement& element, const IntVector4& defa
         return IntVector4(textVal);
     }
 }
-Matrix4 ParseXmlElementText(const XMLElement& element, const Matrix4& defaultValue) {
+Matrix4 ParseXmlElementText(const XMLElement& element, const Matrix4& defaultValue) noexcept {
     auto s = element.GetText();
     std::string textVal(s ? s : "");
     if(textVal.empty()) {
@@ -364,12 +364,12 @@ Matrix4 ParseXmlElementText(const XMLElement& element, const Matrix4& defaultVal
     }
 }
 
-std::string ParseXmlElementText(const XMLElement& element, const char* defaultValue) {
+std::string ParseXmlElementText(const XMLElement& element, const char* defaultValue) noexcept {
     std::string textVal_default(defaultValue ? defaultValue : "");
     return ParseXmlElementText(element, textVal_default);
 }
 
-std::string ParseXmlElementText(const XMLElement& element, const std::string& defaultValue) {
+std::string ParseXmlElementText(const XMLElement& element, const std::string& defaultValue) noexcept {
     auto s = element.GetText();
     std::string textVal(s ? s : "");
     if(textVal.empty()) {
@@ -379,13 +379,13 @@ std::string ParseXmlElementText(const XMLElement& element, const std::string& de
     }
 }
 
-bool ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, bool defaultValue) {
+bool ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, bool defaultValue) noexcept {
     bool retVal = defaultValue;
     element.QueryBoolAttribute(attributeName.c_str(), &retVal);
     return retVal;
 }
 
-unsigned char ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, unsigned char defaultValue) {
+unsigned char ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, unsigned char defaultValue) noexcept {
     unsigned int retVal = defaultValue;
     auto attrAsCStr = element.Attribute(attributeName.c_str());
     auto attr = std::string(attrAsCStr ? attrAsCStr : "");
@@ -404,7 +404,7 @@ unsigned char ParseXmlAttribute(const XMLElement& element, const std::string& at
     return static_cast<unsigned char>(retVal);
 }
 
-signed char ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, signed char defaultValue) {
+signed char ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, signed char defaultValue) noexcept {
     signed int retVal = defaultValue;
     auto attrAsCStr = element.Attribute(attributeName.c_str());
     auto attr = std::string(attrAsCStr ? attrAsCStr : "");
@@ -423,7 +423,7 @@ signed char ParseXmlAttribute(const XMLElement& element, const std::string& attr
     return static_cast<signed char>(retVal);
 }
 
-char ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, char defaultValue) {
+char ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, char defaultValue) noexcept {
     char retVal = defaultValue;
     auto attrAsCStr = element.Attribute(attributeName.c_str());
     auto attr = std::string(attrAsCStr ? attrAsCStr : "");
@@ -447,7 +447,7 @@ char ParseXmlAttribute(const XMLElement& element, const std::string& attributeNa
     return static_cast<char>(retVal);
 }
 
-unsigned short ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, unsigned short defaultValue) {
+unsigned short ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, unsigned short defaultValue) noexcept {
     unsigned int retVal = defaultValue;
     auto attrAsCStr = element.Attribute(attributeName.c_str());
     auto attr = std::string(attrAsCStr ? attrAsCStr : "");
@@ -466,7 +466,7 @@ unsigned short ParseXmlAttribute(const XMLElement& element, const std::string& a
     return static_cast<unsigned short>(retVal);
 }
 
-short ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, short defaultValue) {
+short ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, short defaultValue) noexcept {
     int retVal = defaultValue;
     auto attrAsCStr = element.Attribute(attributeName.c_str());
     auto attr = std::string(attrAsCStr ? attrAsCStr : "");
@@ -485,7 +485,7 @@ short ParseXmlAttribute(const XMLElement& element, const std::string& attributeN
     return static_cast<unsigned short>(retVal);
 }
 
-unsigned int ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, unsigned int defaultValue) {
+unsigned int ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, unsigned int defaultValue) noexcept {
     unsigned int retVal = defaultValue;
     auto attrAsCStr = element.Attribute(attributeName.c_str());
     auto attr = std::string(attrAsCStr ? attrAsCStr : "");
@@ -504,7 +504,7 @@ unsigned int ParseXmlAttribute(const XMLElement& element, const std::string& att
     return static_cast<unsigned int>(retVal);
 }
 
-int ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, int defaultValue) {
+int ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, int defaultValue) noexcept {
     int retVal = defaultValue;
     auto attrAsCStr = element.Attribute(attributeName.c_str());
     auto attr = std::string(attrAsCStr ? attrAsCStr : "");
@@ -523,7 +523,7 @@ int ParseXmlAttribute(const XMLElement& element, const std::string& attributeNam
     return retVal;
 }
 
-unsigned long ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, unsigned long defaultValue) {
+unsigned long ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, unsigned long defaultValue) noexcept {
     long long retVal = defaultValue;
     auto attrAsCStr = element.Attribute(attributeName.c_str());
     auto attr = std::string(attrAsCStr ? attrAsCStr : "");
@@ -542,7 +542,7 @@ unsigned long ParseXmlAttribute(const XMLElement& element, const std::string& at
     return static_cast<unsigned long>(retVal);
 }
 
-long ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, long defaultValue) {
+long ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, long defaultValue) noexcept {
     long long retVal = defaultValue;
     auto attrAsCStr = element.Attribute(attributeName.c_str());
     auto attr = std::string(attrAsCStr ? attrAsCStr : "");
@@ -561,7 +561,7 @@ long ParseXmlAttribute(const XMLElement& element, const std::string& attributeNa
     return static_cast<long>(retVal);
 }
 
-unsigned long long ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, unsigned long long defaultValue) {
+unsigned long long ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, unsigned long long defaultValue) noexcept {
     unsigned long long retVal = defaultValue;
     auto attrAsCStr = element.Attribute(attributeName.c_str());
     auto attr = std::string(attrAsCStr ? attrAsCStr : "");
@@ -580,7 +580,7 @@ unsigned long long ParseXmlAttribute(const XMLElement& element, const std::strin
     return static_cast<unsigned long long>(retVal);
 }
 
-long long ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, long long defaultValue) {
+long long ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, long long defaultValue) noexcept {
     long long retVal = defaultValue;
     auto attrAsCStr = element.Attribute(attributeName.c_str());
     auto attr = std::string(attrAsCStr ? attrAsCStr : "");
@@ -599,7 +599,7 @@ long long ParseXmlAttribute(const XMLElement& element, const std::string& attrib
     return static_cast<long long>(retVal);
 }
 
-float ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, float defaultValue) {
+float ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, float defaultValue) noexcept {
     float retVal = defaultValue;
     auto attrAsCStr = element.Attribute(attributeName.c_str());
     auto attr = std::string(attrAsCStr ? attrAsCStr : "");
@@ -618,7 +618,7 @@ float ParseXmlAttribute(const XMLElement& element, const std::string& attributeN
     return retVal;
 }
 
-double ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, double defaultValue) {
+double ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, double defaultValue) noexcept {
     double retVal = defaultValue;
     auto attrAsCStr = element.Attribute(attributeName.c_str());
     auto attr = std::string(attrAsCStr ? attrAsCStr : "");
@@ -637,7 +637,7 @@ double ParseXmlAttribute(const XMLElement& element, const std::string& attribute
     return retVal;
 }
 
-long double ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, long double defaultValue) {
+long double ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, long double defaultValue) noexcept {
     long double retVal = defaultValue;
     auto attrAsCStr = element.Attribute(attributeName.c_str());
     auto attr = std::string(attrAsCStr ? attrAsCStr : "");
@@ -664,7 +664,7 @@ long double ParseXmlAttribute(const XMLElement& element, const std::string& attr
     return retVal;
 }
 
-Rgba ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const Rgba& defaultValue) {
+Rgba ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const Rgba& defaultValue) noexcept {
     auto s = element.Attribute(attributeName.c_str()); //returns nullptr when Attribute not found!
     std::string textVal(s ? s : "");
     if(textVal.empty()) {
@@ -674,7 +674,7 @@ Rgba ParseXmlAttribute(const XMLElement& element, const std::string& attributeNa
     }
 }
 
-Vector2 ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const Vector2& defaultValue) {
+Vector2 ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const Vector2& defaultValue) noexcept {
     auto s = element.Attribute(attributeName.c_str()); //returns nullptr when Attribute not found!
     std::string textVal(s ? s : "");
     if(textVal.empty()) {
@@ -684,7 +684,7 @@ Vector2 ParseXmlAttribute(const XMLElement& element, const std::string& attribut
     }
 }
 
-IntVector2 ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const IntVector2& defaultValue) {
+IntVector2 ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const IntVector2& defaultValue) noexcept {
     auto s = element.Attribute(attributeName.c_str()); //returns nullptr when Attribute not found!
     std::string textVal(s ? s : "");
     if(textVal.empty()) {
@@ -694,7 +694,7 @@ IntVector2 ParseXmlAttribute(const XMLElement& element, const std::string& attri
     }
 }
 
-Vector3 ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const Vector3& defaultValue) {
+Vector3 ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const Vector3& defaultValue) noexcept {
     auto s = element.Attribute(attributeName.c_str()); //returns nullptr when Attribute not found!
     std::string textVal(s ? s : "");
     if(textVal.empty()) {
@@ -704,7 +704,7 @@ Vector3 ParseXmlAttribute(const XMLElement& element, const std::string& attribut
     }
 }
 
-IntVector3 ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const IntVector3& defaultValue) {
+IntVector3 ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const IntVector3& defaultValue) noexcept {
     auto s = element.Attribute(attributeName.c_str()); //returns nullptr when Attribute not found!
     std::string textVal(s ? s : "");
     if(textVal.empty()) {
@@ -714,7 +714,7 @@ IntVector3 ParseXmlAttribute(const XMLElement& element, const std::string& attri
     }
 }
 
-Vector4 ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const Vector4& defaultValue) {
+Vector4 ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const Vector4& defaultValue) noexcept {
     auto s = element.Attribute(attributeName.c_str()); //returns nullptr when Attribute not found!
     std::string textVal(s ? s : "");
     if(textVal.empty()) {
@@ -724,7 +724,7 @@ Vector4 ParseXmlAttribute(const XMLElement& element, const std::string& attribut
     }
 }
 
-IntVector4 ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const IntVector4& defaultValue) {
+IntVector4 ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const IntVector4& defaultValue) noexcept {
     auto s = element.Attribute(attributeName.c_str()); //returns nullptr when Attribute not found!
     std::string textVal(s ? s : "");
     if(textVal.empty()) {
@@ -735,7 +735,7 @@ IntVector4 ParseXmlAttribute(const XMLElement& element, const std::string& attri
 
 }
 
-Matrix4 ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const Matrix4& defaultValue) {
+Matrix4 ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const Matrix4& defaultValue) noexcept {
     auto s = element.Attribute(attributeName.c_str()); //returns nullptr when Attribute not found!
     std::string textVal(s ? s : "");
     if(textVal.empty()) {
@@ -746,18 +746,18 @@ Matrix4 ParseXmlAttribute(const XMLElement& element, const std::string& attribut
 }
 
 
-std::string ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const char* defaultValue) {
+std::string ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const char* defaultValue) noexcept {
     std::string textVal_default(defaultValue ? defaultValue : "");
     return ParseXmlAttribute(element, attributeName, textVal_default);
 }
 
 
-std::string ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const std::string& defaultValue) {
+std::string ParseXmlAttribute(const XMLElement& element, const std::string& attributeName, const std::string& defaultValue) noexcept {
     auto s = element.Attribute(attributeName.c_str()); //returns nullptr when Attribute not found!
     return (s ? s : defaultValue);
 }
 
-std::string GetElementName(const XMLElement& elem) {
+std::string GetElementName(const XMLElement& elem) noexcept {
     auto* name = elem.Name();
     if(name) {
         return { name };
@@ -765,7 +765,7 @@ std::string GetElementName(const XMLElement& elem) {
     return {};
 }
 
-std::string GetAttributeName(const XMLAttribute& attrib) {
+std::string GetAttributeName(const XMLAttribute& attrib) noexcept {
     auto* name = attrib.Name();
     if(name) {
         return { name };

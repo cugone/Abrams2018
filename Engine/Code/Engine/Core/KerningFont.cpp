@@ -12,13 +12,13 @@
 #include <filesystem>
 #include <sstream>
 
-KerningFont::KerningFont(Renderer* renderer)
+KerningFont::KerningFont(Renderer* renderer) noexcept
     : _renderer(renderer)
 {
     /* DO NOTHING */
 }
 
-float KerningFont::CalculateTextWidth(const KerningFont& font, const std::string& text, float scale /*= 1.0f*/) {
+float KerningFont::CalculateTextWidth(const KerningFont& font, const std::string& text, float scale /*= 1.0f*/) noexcept {
 
     if(text.find('\n') != std::string::npos) {
         return CalculateLongestMultiline(font, text, scale);
@@ -45,31 +45,31 @@ float KerningFont::CalculateTextWidth(const KerningFont& font, const std::string
     return cursor_x * scale;
 }
 
-float KerningFont::CalculateTextWidth(const std::string& text, float scale /*= 1.0f*/) const {
+float KerningFont::CalculateTextWidth(const std::string& text, float scale /*= 1.0f*/) const noexcept {
     return CalculateTextWidth(*this, text, scale);
 }
 
-float KerningFont::CalculateTextHeight(const KerningFont& font, const std::string& text, float scale /*= 1.0f*/) {
+float KerningFont::CalculateTextHeight(const KerningFont& font, const std::string& text, float scale /*= 1.0f*/) noexcept {
     return (1.0f + static_cast<float>(std::count(text.begin(), text.end(), '\n'))) * font.GetLineHeight() * scale;
 }
 
-float KerningFont::CalculateTextHeight(const std::string& text, float scale /*= 1.0f*/) const {
+float KerningFont::CalculateTextHeight(const std::string& text, float scale /*= 1.0f*/) const noexcept {
     return CalculateTextHeight(*this, text, scale);
 }
 
-float KerningFont::GetLineHeight() const {
+float KerningFont::GetLineHeight() const noexcept {
     return static_cast<float>(_common.line_height);
 }
 
-float KerningFont::GetLineHeightAsUV() const {
+float KerningFont::GetLineHeightAsUV() const noexcept {
     return GetLineHeight() / static_cast<float>(_common.scale.y);
 }
 
-const std::string& KerningFont::GetName() const {
+const std::string& KerningFont::GetName() const noexcept {
     return _name;
 }
 
-KerningFont::CharDef KerningFont::GetCharDef(int ch) const {
+KerningFont::CharDef KerningFont::GetCharDef(int ch) const noexcept {
     auto chardef_iter = _charmap.find(ch);
     if(chardef_iter == _charmap.end()) {
         chardef_iter = _charmap.find(-1);
@@ -80,23 +80,23 @@ KerningFont::CharDef KerningFont::GetCharDef(int ch) const {
     return chardef_iter->second;
 }
 
-const KerningFont::CommonDef& KerningFont::GetCommonDef() const {
+const KerningFont::CommonDef& KerningFont::GetCommonDef() const noexcept {
     return _common;
 }
 
-const KerningFont::InfoDef& KerningFont::GetInfoDef() const {
+const KerningFont::InfoDef& KerningFont::GetInfoDef() const noexcept {
     return _info;
 }
 
-const std::vector<std::string>& KerningFont::GetImagePaths() const {
+const std::vector<std::string>& KerningFont::GetImagePaths() const noexcept {
     return _image_paths;
 }
 
-const std::filesystem::path& KerningFont::GetFilePath() const {
+const std::filesystem::path& KerningFont::GetFilePath() const noexcept {
     return _filepath;
 }
 
-bool KerningFont::LoadFromFile(std::filesystem::path filepath) {
+bool KerningFont::LoadFromFile(std::filesystem::path filepath) noexcept {
     {
         namespace FS = std::filesystem;
         filepath = FS::canonical(filepath);
@@ -136,7 +136,7 @@ bool KerningFont::LoadFromFile(std::filesystem::path filepath) {
     return LoadFromBuffer(out_buffer);
 }
 
-bool KerningFont::LoadFromBuffer(const std::vector<unsigned char>& buffer) {
+bool KerningFont::LoadFromBuffer(const std::vector<unsigned char>& buffer) noexcept {
     std::vector<unsigned char> out_buffer(buffer);
     bool is_binary = out_buffer[0] == 66 && out_buffer[1] == 77 && out_buffer[2] == 70;
     bool is_text = out_buffer[0] == 105 && out_buffer[1] == 110 && out_buffer[2] == 102 && out_buffer[3] == 111;
@@ -150,15 +150,15 @@ bool KerningFont::LoadFromBuffer(const std::vector<unsigned char>& buffer) {
     return _is_loaded;
 }
 
-Material* KerningFont::GetMaterial() const {
+Material* KerningFont::GetMaterial() const noexcept {
     return _material;
 }
 
-void KerningFont::SetMaterial(Material* mat) {
+void KerningFont::SetMaterial(Material* mat) noexcept {
     _material = mat;
 }
 
-int KerningFont::GetKerningValue(int first, int second) const {
+int KerningFont::GetKerningValue(int first, int second) const noexcept {
     auto iter = _kernmap.find(std::make_pair(first, second));
     if(iter != _kernmap.end()) {
         return (*iter).second;
@@ -166,7 +166,7 @@ int KerningFont::GetKerningValue(int first, int second) const {
     return 0;
 }
 
-float KerningFont::CalculateLongestMultiline(const KerningFont& font, const std::string& text, float scale /*= 1.0f*/) {
+float KerningFont::CalculateLongestMultiline(const KerningFont& font, const std::string& text, float scale /*= 1.0f*/) noexcept {
     auto lines = StringUtils::Split(text, '\n', false);
     float length = 0.0f;
     auto max_iter = std::max_element(std::begin(lines), std::end(lines), [](const std::string& a, const std::string& b) { return a.size() < b.size(); });
@@ -174,11 +174,11 @@ float KerningFont::CalculateLongestMultiline(const KerningFont& font, const std:
     return length;
 }
 
-float KerningFont::CalculateLongestMultiline(const std::string& text, float scale /*= 1.0f*/) const {
+float KerningFont::CalculateLongestMultiline(const std::string& text, float scale /*= 1.0f*/) const noexcept {
     return CalculateLongestMultiline(*this, text, scale);
 }
 
-bool KerningFont::LoadFromText(std::vector<unsigned char>& buffer) {
+bool KerningFont::LoadFromText(std::vector<unsigned char>& buffer) noexcept {
     for(std::size_t i = 0; i < buffer.size() - 1; ++i) {
         if(buffer[i] == '\r' && buffer[i + 1] == '\n') {
             buffer.erase(buffer.begin() + i);
@@ -236,34 +236,34 @@ bool KerningFont::LoadFromText(std::vector<unsigned char>& buffer) {
     return true;
 }
 
-bool KerningFont::IsInfoLine(const std::string& cur_line) {
+bool KerningFont::IsInfoLine(const std::string& cur_line) noexcept {
     return StringUtils::StartsWith(cur_line, "info");
 }
 
-bool KerningFont::IsCommonLine(const std::string& cur_line) {
+bool KerningFont::IsCommonLine(const std::string& cur_line) noexcept {
     return StringUtils::StartsWith(cur_line, "common");
 }
-bool KerningFont::IsPageLine(const std::string& cur_line) {
+bool KerningFont::IsPageLine(const std::string& cur_line) noexcept {
     return StringUtils::StartsWith(cur_line, "page");
 }
 
-bool KerningFont::IsCharsLine(const std::string& cur_line) {
+bool KerningFont::IsCharsLine(const std::string& cur_line) noexcept {
     return StringUtils::StartsWith(cur_line, "chars");
 }
 
-bool KerningFont::IsCharLine(const std::string& cur_line) {
+bool KerningFont::IsCharLine(const std::string& cur_line) noexcept {
     return StringUtils::StartsWith(cur_line, "char");
 }
 
-bool KerningFont::IsKerningsLine(const std::string& cur_line) {
+bool KerningFont::IsKerningsLine(const std::string& cur_line) noexcept {
     return StringUtils::StartsWith(cur_line, "kernings");
 }
 
-bool KerningFont::IsKerningLine(const std::string& cur_line) {
+bool KerningFont::IsKerningLine(const std::string& cur_line) noexcept {
     return StringUtils::StartsWith(cur_line, "kerning");
 }
 
-bool KerningFont::ParseInfoLine(const std::string& infoLine) {
+bool KerningFont::ParseInfoLine(const std::string& infoLine) noexcept {
     auto key_values = StringUtils::Split(infoLine, ' ', true);
     std::string key{};
     std::string value{};
@@ -327,7 +327,7 @@ bool KerningFont::ParseInfoLine(const std::string& infoLine) {
     return true;
 }
 
-bool KerningFont::ParseCommonLine(const std::string& commonLine) {
+bool KerningFont::ParseCommonLine(const std::string& commonLine) noexcept {
     auto key_values = StringUtils::Split(commonLine, ' ', true);
     std::string key{};
     std::string value{};
@@ -377,7 +377,7 @@ bool KerningFont::ParseCommonLine(const std::string& commonLine) {
     return true;
 }
 
-bool KerningFont::ParsePageLine(const std::string& pageLine) {
+bool KerningFont::ParsePageLine(const std::string& pageLine) noexcept {
     auto key_values = StringUtils::Split(pageLine, ' ', true);
     std::string key{};
     std::string value{};
@@ -411,7 +411,7 @@ bool KerningFont::ParsePageLine(const std::string& pageLine) {
     return true;
 }
 
-bool KerningFont::ParseCharsLine(const std::string& charsLine) {
+bool KerningFont::ParseCharsLine(const std::string& charsLine) noexcept {
     auto key_values = StringUtils::Split(charsLine, ' ', true);
     std::string key{};
     std::string value{};
@@ -433,7 +433,7 @@ bool KerningFont::ParseCharsLine(const std::string& charsLine) {
     return true;
 }
 
-bool KerningFont::ParseCharLine(const std::string& charLine) {
+bool KerningFont::ParseCharLine(const std::string& charLine) noexcept {
     auto key_values = StringUtils::Split(charLine, ' ', true);
     std::string key{};
     std::string value{};
@@ -484,7 +484,7 @@ bool KerningFont::ParseCharLine(const std::string& charLine) {
     return true;
 }
 
-bool KerningFont::ParseKerningsLine(const std::string& kerningsLine) {
+bool KerningFont::ParseKerningsLine(const std::string& kerningsLine) noexcept {
     auto key_values = StringUtils::Split(kerningsLine, ' ', true);
     std::string key{};
     std::string value{};
@@ -507,7 +507,7 @@ bool KerningFont::ParseKerningsLine(const std::string& kerningsLine) {
 
 }
 
-bool KerningFont::ParseKerningLine(const std::string& kerningLine) {
+bool KerningFont::ParseKerningLine(const std::string& kerningLine) noexcept {
     auto key_values = StringUtils::Split(kerningLine, ' ', true);
     std::string key{};
     std::string value{};
@@ -537,7 +537,7 @@ bool KerningFont::ParseKerningLine(const std::string& kerningLine) {
     return true;
 }
 
-bool KerningFont::LoadFromXml(std::vector<unsigned char>& buffer) {
+bool KerningFont::LoadFromXml(std::vector<unsigned char>& buffer) noexcept {
     tinyxml2::XMLDocument doc;
     for(std::size_t i = 0; i < buffer.size() - 1; ++i) {
         if(buffer[i] == '\r' && buffer[i + 1] == '\n') {
@@ -673,7 +673,7 @@ bool KerningFont::LoadFromXml(std::vector<unsigned char>& buffer) {
     return true;
 }
 
-bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) {
+bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) noexcept {
     //See https://www.angelcode.com/products/bmfont/doc/file_format.html#bin
     //for specifics regarding layout
 

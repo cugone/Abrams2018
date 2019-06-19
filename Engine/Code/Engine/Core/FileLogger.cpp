@@ -19,16 +19,16 @@
 
 namespace FS = std::filesystem;
 
-FileLogger::FileLogger(JobSystem& jobSystem, const std::string& logName) {
+FileLogger::FileLogger(JobSystem& jobSystem, const std::string& logName) noexcept {
     Initialize(jobSystem, logName);
 }
 
-FileLogger::~FileLogger() {
+FileLogger::~FileLogger() noexcept {
     Shutdown();
     _job_system = nullptr;
 }
 
-void FileLogger::Log_worker() {
+void FileLogger::Log_worker() noexcept {
     JobConsumer jc;
     jc.AddCategory(JobType::Logging);
     _job_system->SetCategorySignal(JobType::Logging, &_signal);
@@ -47,14 +47,14 @@ void FileLogger::Log_worker() {
     }
 }
 
-void FileLogger::RequestFlush() {
+void FileLogger::RequestFlush() noexcept {
     if(_requesting_flush) {
         _stream.flush();
         _requesting_flush = false;
     }
 }
 
-bool FileLogger::IsRunning() {
+bool FileLogger::IsRunning() const noexcept {
     bool running = false;
     {
     std::scoped_lock<std::mutex> lock(_cs);
@@ -68,7 +68,7 @@ struct copy_log_job_t {
     std::filesystem::path to{};
 };
 
-void FileLogger::DoCopyLog() {
+void FileLogger::DoCopyLog() noexcept {
     if(IsRunning()) {
         auto job_data = new copy_log_job_t;
         auto from_p = _current_log_path;
@@ -84,7 +84,7 @@ void FileLogger::DoCopyLog() {
     }
 }
 
-void FileLogger::CopyLog(void* user_data) {
+void FileLogger::CopyLog(void* user_data) noexcept {
     if(IsRunning()) {
         auto job_data = reinterpret_cast<copy_log_job_t*>(user_data);
         auto from = job_data->from;
@@ -99,7 +99,7 @@ void FileLogger::CopyLog(void* user_data) {
     }
 }
 
-void FileLogger::FinalizeLog() {
+void FileLogger::FinalizeLog() noexcept {
     auto from_p = _current_log_path;
     from_p = FS::canonical(from_p);
     from_p.make_preferred();
@@ -118,7 +118,7 @@ void FileLogger::FinalizeLog() {
     std::filesystem::copy_file(from_p, to_p, std::filesystem::copy_options::overwrite_existing);
 }
 
-void FileLogger::Initialize(JobSystem& jobSystem, const std::string& log_name) {
+void FileLogger::Initialize(JobSystem& jobSystem, const std::string& log_name) noexcept {
     if(IsRunning()) {
         LogLine("FileLogger already running.");
         return;
@@ -158,7 +158,7 @@ void FileLogger::Initialize(JobSystem& jobSystem, const std::string& log_name) {
     LogLine(ss.str().c_str());
 }
 
-void FileLogger::Shutdown() {
+void FileLogger::Shutdown() noexcept {
     if(IsRunning()) {
         {
             std::ostringstream ss;
@@ -176,7 +176,7 @@ void FileLogger::Shutdown() {
     }
 }
 
-void FileLogger::Log(const std::string& msg) {
+void FileLogger::Log(const std::string& msg) noexcept {
     {
         std::scoped_lock<std::mutex> _lock(_cs);
         _queue.push(msg);
@@ -184,33 +184,33 @@ void FileLogger::Log(const std::string& msg) {
     _signal.notify_all();
 }
 
-void FileLogger::LogLine(const std::string& msg) {
+void FileLogger::LogLine(const std::string& msg) noexcept {
     Log(msg + '\n');
 }
 
-void FileLogger::LogAndFlush(const std::string& msg) {
+void FileLogger::LogAndFlush(const std::string& msg) noexcept {
     Log(msg);
     Flush();
 }
 
-void FileLogger::LogLineAndFlush(const std::string& msg) {
+void FileLogger::LogLineAndFlush(const std::string& msg) noexcept {
     LogLine(msg);
     Flush();
 }
 
-void FileLogger::LogPrint(const std::string& msg) {
+void FileLogger::LogPrint(const std::string& msg) noexcept {
     LogTag("log", msg);
 }
 
-void FileLogger::LogWarn(const std::string& msg) {
+void FileLogger::LogWarn(const std::string& msg) noexcept {
     LogTag("warning", msg);
 }
 
-void FileLogger::LogError(const std::string& msg) {
+void FileLogger::LogError(const std::string& msg) noexcept {
     LogTag("error", msg);
 }
 
-void FileLogger::LogTag(const std::string& tag, const std::string& msg) {
+void FileLogger::LogTag(const std::string& tag, const std::string& msg) noexcept {
 
     std::stringstream ss;
     InsertTimeStamp(ss);
@@ -220,48 +220,48 @@ void FileLogger::LogTag(const std::string& tag, const std::string& msg) {
     Log(ss.str());
 }
 
-void FileLogger::LogPrintLine(const std::string& msg) {
+void FileLogger::LogPrintLine(const std::string& msg) noexcept {
     LogTagLine("log", msg);
 }
 
-void FileLogger::LogWarnLine(const std::string& msg) {
+void FileLogger::LogWarnLine(const std::string& msg) noexcept {
     LogTagLine("warning", msg);
 }
 
-void FileLogger::LogErrorLine(const std::string& msg) {
+void FileLogger::LogErrorLine(const std::string& msg) noexcept {
     LogTagLine("error", msg);
 }
 
-void FileLogger::LogTagLine(const std::string& tag, const std::string& msg) {
+void FileLogger::LogTagLine(const std::string& tag, const std::string& msg) noexcept {
     LogTag(tag, msg + '\n');
 }
 
-void FileLogger::InsertTimeStamp(std::stringstream& msg) {
+void FileLogger::InsertTimeStamp(std::stringstream& msg) noexcept {
     TimeUtils::DateTimeStampOptions opts{};
     opts.use_separator = true;
     msg << "[" << TimeUtils::GetDateTimeStampFromNow(opts) << "]";
 }
 
-void FileLogger::InsertTag(std::stringstream& msg, const std::string& tag) {
+void FileLogger::InsertTag(std::stringstream& msg, const std::string& tag) noexcept {
     msg << "[" << tag << "]";
 }
 
-void FileLogger::InsertMessage(std::stringstream& msg, const std::string& messageLiteral) {
+void FileLogger::InsertMessage(std::stringstream& msg, const std::string& messageLiteral) noexcept {
     msg << messageLiteral;
 }
 
-void FileLogger::Flush() {
+void FileLogger::Flush() noexcept {
     _requesting_flush = true;
     while(_requesting_flush) {
         std::this_thread::yield();
     }
 }
 
-void FileLogger::SetIsRunning(bool value /*= true*/) {
+void FileLogger::SetIsRunning(bool value /*= true*/) noexcept {
     std::scoped_lock<std::mutex> lock(_cs);
     _is_running = value;
 }
 
-void FileLogger::SaveLog() {
+void FileLogger::SaveLog() noexcept {
     DoCopyLog();
 }

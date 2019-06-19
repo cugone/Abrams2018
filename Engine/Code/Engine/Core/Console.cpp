@@ -36,11 +36,11 @@ constexpr const uint16_t IDM_CUT = 2;
 constexpr const uint16_t IDM_SELECTALL = 3;
 HACCEL hAcceleratorTable{};
 
-void* Console::GetAcceleratorTable() const {
+void* Console::GetAcceleratorTable() const noexcept {
     return reinterpret_cast<void*>(hAcceleratorTable);
 }
 
-Console::Console(Renderer* renderer)
+Console::Console(Renderer* renderer) noexcept
     : EngineSubsystem()
     , _renderer(renderer)
     , _show_cursor(false)
@@ -77,7 +77,7 @@ Console::Console(Renderer* renderer)
     hAcceleratorTable = ::CreateAcceleratorTableA(accelerators.data(), static_cast<int>(accelerators.size()));
 }
 
-Console::~Console() {
+Console::~Console() noexcept {
 
     ::DestroyAcceleratorTable(hAcceleratorTable);
 
@@ -88,7 +88,7 @@ Console::~Console() {
     _renderer = nullptr;
 }
 
-bool Console::ProcessSystemMessage(const EngineMessage& msg) {
+bool Console::ProcessSystemMessage(const EngineMessage& msg) noexcept {
 
     LPARAM lp = msg.lparam;
     WPARAM wp = msg.wparam;
@@ -286,7 +286,7 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) {
 
 }
 
-bool Console::HandleClipboardCopy() const {
+bool Console::HandleClipboardCopy() const noexcept {
     bool did_copy = false;
     if(Clipboard::HasText()) {
         auto hwnd = _renderer->GetOutput()->GetWindow()->GetWindowHandle();
@@ -301,7 +301,7 @@ bool Console::HandleClipboardCopy() const {
     return did_copy;
 }
 
-void Console::HandleClipboardPaste() {
+void Console::HandleClipboardPaste() noexcept {
     if(Clipboard::HasText()) {
         auto hwnd = _renderer->GetOutput()->GetWindow()->GetWindowHandle();
         Clipboard c{hwnd};
@@ -310,28 +310,28 @@ void Console::HandleClipboardPaste() {
     }
 }
 
-void Console::HandleClipboardCut() {
+void Console::HandleClipboardCut() noexcept {
     if(HandleClipboardCopy()) {
         RemoveText(_cursor_position, _selection_position);
     }
 }
 
-void Console::HandleSelectAll() {
+void Console::HandleSelectAll() noexcept {
     _cursor_position = _entryline.end();
     _selection_position = _entryline.begin();
 }
 
-bool Console::HandleEscapeKey() {
+bool Console::HandleEscapeKey() noexcept {
     _entryline.empty() ? Close() : ClearEntryLine();
     return true;
 }
 
-bool Console::HandleTabKey() {
+bool Console::HandleTabKey() noexcept {
     AutoCompleteEntryline();
     return true;
 }
 
-void Console::AutoCompleteEntryline() {
+void Console::AutoCompleteEntryline() noexcept {
     for(const auto& entry : _commands) {
         if(StringUtils::StartsWith(entry.first, _entryline)) {
             _entryline = entry.first;
@@ -340,7 +340,7 @@ void Console::AutoCompleteEntryline() {
     }
 }
 
-bool Console::HandleBackspaceKey() {
+bool Console::HandleBackspaceKey() noexcept {
     if(_cursor_position != _selection_position) {
         RemoveText(_cursor_position, _selection_position);
     } else {
@@ -349,22 +349,22 @@ bool Console::HandleBackspaceKey() {
     return true;
 }
 
-bool Console::HandleUpKey() {
+bool Console::HandleUpKey() noexcept {
     HistoryUp();
     return true;
 }
 
-bool Console::HandleDownKey() {
+bool Console::HandleDownKey() noexcept {
     HistoryDown();
     return true;
 }
 
-bool Console::HandleReturnKey() {
+bool Console::HandleReturnKey() noexcept {
     PostEntryLine();
     return true;
 }
 
-bool Console::HandleTildeKey() {
+bool Console::HandleTildeKey() noexcept {
     ToggleConsole();
     if(IsOpen()) {
         _non_rendering_char = true;
@@ -373,31 +373,31 @@ bool Console::HandleTildeKey() {
     return true;
 }
 
-void Console::SetHighlightMode(bool value) {
+void Console::SetHighlightMode(bool value) noexcept {
     _highlight_mode = value;
 }
 
-void Console::SetOutputChanged(bool value) {
+void Console::SetOutputChanged(bool value) noexcept {
     _output_changed = value;
 }
 
-void Console::SetSkipNonWhitespaceMode(bool value) {
+void Console::SetSkipNonWhitespaceMode(bool value) noexcept {
     _skip_nonwhitespace_mode = value;
 }
 
-bool Console::HandleEndKey() {
+bool Console::HandleEndKey() noexcept {
     auto offset = std::distance(_cursor_position, std::cend(_entryline));
     MoveCursorRight(offset);
     return true;
 }
 
-bool Console::HandleHomeKey() {
+bool Console::HandleHomeKey() noexcept {
     auto offset = std::distance(std::cbegin(_entryline), _cursor_position);
     MoveCursorLeft(offset);
     return true;
 }
 
-bool Console::HandleDelKey() {
+bool Console::HandleDelKey() noexcept {
     if(_cursor_position != _selection_position) {
         RemoveText(_cursor_position, _selection_position);
     } else {
@@ -406,21 +406,21 @@ bool Console::HandleDelKey() {
     return true;
 }
 
-bool Console::HandleRightKey() {
+bool Console::HandleRightKey() noexcept {
     auto offset = std::distance(std::cbegin(_entryline), _cursor_position);
     auto offset_from_next_space = _entryline.find_first_of(' ', offset);
     MoveCursorRight(_skip_nonwhitespace_mode ? offset + offset_from_next_space : 1);
     return true;
 }
 
-bool Console::HandleLeftKey() {
+bool Console::HandleLeftKey() noexcept {
     auto offset = std::distance(std::cbegin(_entryline), _cursor_position);
     auto offset_from_previous_space = _entryline.find_last_of(' ', offset - 1);
     MoveCursorLeft(_skip_nonwhitespace_mode ? offset - offset_from_previous_space : 1);
     return true;
 }
 
-void Console::RunCommand(std::string name_and_args) {
+void Console::RunCommand(std::string name_and_args) noexcept {
     if(name_and_args.empty()) {
         return;
     }
@@ -436,7 +436,7 @@ void Console::RunCommand(std::string name_and_args) {
     iter->second.command_function(args);
 }
 
-void Console::RegisterCommand(const Command& command) {
+void Console::RegisterCommand(const Command& command) noexcept {
     if(command.command_name.empty()) {
         return;
     }
@@ -446,46 +446,46 @@ void Console::RegisterCommand(const Command& command) {
     }
 }
 
-void Console::UnregisterCommand(const std::string& command_name) {
+void Console::UnregisterCommand(const std::string& command_name) noexcept {
     auto iter = _commands.find(command_name);
     if(iter != _commands.end()) {
         _commands.erase(command_name);
     }
 }
 
-void Console::UnregisterAllCommands() {
+void Console::UnregisterAllCommands() noexcept {
     _commands.clear();
 }
 
-void Console::ToggleConsole() {
+void Console::ToggleConsole() noexcept {
     _is_open = !_is_open;
 }
 
-bool Console::IsOpen() const {
+bool Console::IsOpen() const noexcept {
     return _is_open;
 }
 
-bool Console::IsClosed() const {
+bool Console::IsClosed() const noexcept {
     return !_is_open;
 }
 
-void Console::Open() {
+void Console::Open() noexcept {
     _is_open = true;
 }
 
-void Console::Close() {
+void Console::Close() noexcept {
     _is_open = false;
 }
 
-void Console::ToggleHighlightMode() {
+void Console::ToggleHighlightMode() noexcept {
     _highlight_mode = !_highlight_mode;
 }
 
-bool Console::IsHighlighting() const {
+bool Console::IsHighlighting() const noexcept {
     return _highlight_mode;
 }
 
-void Console::PostEntryLine() {
+void Console::PostEntryLine() noexcept {
     if(_entryline.empty()) {
         return;
     }
@@ -495,11 +495,11 @@ void Console::PostEntryLine() {
     ClearEntryLine();
 }
 
-void Console::PushEntrylineToOutputBuffer() {
+void Console::PushEntrylineToOutputBuffer() noexcept {
     PrintMsg(_entryline);
 }
 
-void Console::PushEntrylineToBuffer() {
+void Console::PushEntrylineToBuffer() noexcept {
     auto already_in_buffer = !_entryline_buffer.empty() && _entryline_buffer.back() == _entryline;
     if(already_in_buffer) {
         return;
@@ -508,13 +508,13 @@ void Console::PushEntrylineToBuffer() {
     _current_history_position = _entryline_buffer.end();
 }
 
-void Console::ClearEntryLine() {
+void Console::ClearEntryLine() noexcept {
     _entryline.clear();
     _cursor_position = std::begin(_entryline);
     _selection_position = std::begin(_entryline);
 }
 
-void Console::MoveCursorLeft(std::string::difference_type distance /*= 1*/) {
+void Console::MoveCursorLeft(std::string::difference_type distance /*= 1*/) noexcept {
     if(_cursor_position != _entryline.begin()) {
         if(!_highlight_mode) {
             if(std::distance(std::cbegin(_entryline), _cursor_position) > distance) {
@@ -529,7 +529,7 @@ void Console::MoveCursorLeft(std::string::difference_type distance /*= 1*/) {
     }
 }
 
-void Console::MoveCursorRight(std::string::difference_type distance /*= 1*/) {
+void Console::MoveCursorRight(std::string::difference_type distance /*= 1*/) noexcept {
     if(_cursor_position != _entryline.end()) {
         if(!_highlight_mode) {
             if(distance < std::distance(_cursor_position, std::cend(_entryline))) {
@@ -544,15 +544,15 @@ void Console::MoveCursorRight(std::string::difference_type distance /*= 1*/) {
     }
 }
 
-void Console::MoveCursorToEnd() {
+void Console::MoveCursorToEnd() noexcept {
     MoveCursorRight(_entryline.size() + 1);
 }
 
-void Console::MoveCursorToFront() {
+void Console::MoveCursorToFront() noexcept {
     MoveCursorLeft(_entryline.size() + 1);
 }
 
-void Console::UpdateSelectedRange(std::string::difference_type distance) {
+void Console::UpdateSelectedRange(std::string::difference_type distance) noexcept {
     if(distance > 0) {
         auto distance_from_end = std::distance(_cursor_position, std::cend(_entryline));
         if(distance_from_end > std::abs(distance)) {
@@ -588,7 +588,7 @@ void Console::UpdateSelectedRange(std::string::difference_type distance) {
     }
 }
 
-void Console::RemoveTextInFrontOfCaret() {
+void Console::RemoveTextInFrontOfCaret() noexcept {
     if(!_entryline.empty()) {
         if(_cursor_position != _entryline.end()) {
             _cursor_position = _entryline.erase(_cursor_position);
@@ -598,7 +598,7 @@ void Console::RemoveTextInFrontOfCaret() {
     }
 }
 
-void Console::PopConsoleBuffer() {
+void Console::PopConsoleBuffer() noexcept {
     if(!_entryline.empty()) {
         if(_cursor_position == _entryline.end()) {
             _entryline.pop_back();
@@ -607,7 +607,7 @@ void Console::PopConsoleBuffer() {
         }
     }
 }
-void Console::RemoveTextBehindCaret() {
+void Console::RemoveTextBehindCaret() noexcept {
     if(!_entryline.empty()) {
         if(_cursor_position != _entryline.end()) {
             if(_cursor_position != _entryline.begin()) {
@@ -621,7 +621,7 @@ void Console::RemoveTextBehindCaret() {
     }
 }
 
-void Console::RemoveText(std::string::const_iterator start, std::string::const_iterator end) {
+void Console::RemoveText(std::string::const_iterator start, std::string::const_iterator end) noexcept {
     if(end < start) {
         std::swap(start, end);
     }
@@ -630,14 +630,14 @@ void Console::RemoveText(std::string::const_iterator start, std::string::const_i
     _entryline_changed = true;
 }
 
-std::string Console::CopyText(std::string::const_iterator start, std::string::const_iterator end) const {
+std::string Console::CopyText(std::string::const_iterator start, std::string::const_iterator end) const noexcept {
     if(end < start) {
         std::swap(start, end);
     }
     return std::string(start, end);
 }
 
-void Console::PasteText(const std::string& text, std::string::const_iterator loc) {
+void Console::PasteText(const std::string& text, std::string::const_iterator loc) noexcept {
     if(text.empty()) {
         return;
     }
@@ -655,7 +655,7 @@ void Console::Initialize() {
     RegisterDefaultFont();
 }
 
-void Console::RegisterDefaultCommands() {
+void Console::RegisterDefaultCommands() noexcept {
     Console::Command help{};
     help.command_name = "help";
     help.help_text_short = "Displays every command with brief description.";
@@ -737,7 +737,7 @@ void Console::Render() const {
 
 }
 
-void Console::DrawCursor(const Vector2& view_half_extents) const {
+void Console::DrawCursor(const Vector2& view_half_extents) const noexcept {
     if(!_show_cursor) {
         return;
     }
@@ -755,7 +755,7 @@ void Console::DrawCursor(const Vector2& view_half_extents) const {
     _renderer->DrawTextLine(font, "|", Rgba::White);
 }
 
-void Console::DrawOutput(const Vector2& view_half_extents) const {
+void Console::DrawOutput(const Vector2& view_half_extents) const noexcept {
     if(_output_buffer.empty()) {
         return;
     }
@@ -782,12 +782,12 @@ void Console::DrawOutput(const Vector2& view_half_extents) const {
     _renderer->DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
 }
 
-void Console::OutputMsg(const std::string& msg, const Rgba& color) {
+void Console::OutputMsg(const std::string& msg, const Rgba& color) noexcept {
     _output_changed = true;
     _output_buffer.push_back({msg, color});
 }
 
-void Console::RegisterDefaultFont() {
+void Console::RegisterDefaultFont() noexcept {
 
 #pragma region system32_font_data
     //TURN OFF WORD WRAP AND DO NOT SCROLL TO THE RIGHT!
@@ -833,7 +833,7 @@ void Console::RegisterDefaultFont() {
     }
 }
 
-void Console::HistoryUp() {
+void Console::HistoryUp() noexcept {
     if(_current_history_position == _entryline_buffer.begin()) {
         return;
     }
@@ -842,7 +842,7 @@ void Console::HistoryUp() {
     MoveCursorToEnd();
 }
 
-void Console::HistoryDown() {
+void Console::HistoryDown() noexcept {
     if(_current_history_position != _entryline_buffer.end()) {
         ++_current_history_position;
         if(_current_history_position == _entryline_buffer.end()) {
@@ -854,7 +854,7 @@ void Console::HistoryDown() {
     MoveCursorToEnd();
 }
 
-void Console::InsertCharInEntryLine(unsigned char c) {
+void Console::InsertCharInEntryLine(unsigned char c) noexcept {
     _entryline_changed = true;
     if(!_entryline.empty()) {
         if(_cursor_position != _selection_position) {
@@ -874,25 +874,25 @@ void Console::InsertCharInEntryLine(unsigned char c) {
     _selection_position = _cursor_position;
 }
 
-void Console::PrintMsg(const std::string& msg) {
+void Console::PrintMsg(const std::string& msg) noexcept {
     OutputMsg(msg, Rgba::White);
 }
 
-void Console::WarnMsg(const std::string& msg) {
+void Console::WarnMsg(const std::string& msg) noexcept {
     OutputMsg(msg, Rgba::Yellow);
 }
 
-void Console::ErrorMsg(const std::string& msg) {
+void Console::ErrorMsg(const std::string& msg) noexcept {
     OutputMsg(msg, Rgba::Red);
 }
 
-void Console::DrawBackground(const Vector2& view_half_extents) const {
+void Console::DrawBackground(const Vector2& view_half_extents) const noexcept {
     _renderer->SetModelMatrix(Matrix4::CreateScaleMatrix(view_half_extents * 2.0f));
     _renderer->SetMaterial(_renderer->GetMaterial("__2D"));
     _renderer->DrawQuad2D(Rgba(0, 0, 0, 128));
 }
 
-void Console::DrawEntryLine(const Vector2& view_half_extents) const {
+void Console::DrawEntryLine(const Vector2& view_half_extents) const noexcept {
 
     auto font = _renderer->GetFont("System32");
     float textline_bottom = view_half_extents.y * 0.99f;
@@ -940,7 +940,7 @@ void Console::DrawEntryLine(const Vector2& view_half_extents) const {
     }
 }
 
-Vector2 Console::SetupViewFromCamera() const {
+Vector2 Console::SetupViewFromCamera() const noexcept {
     const auto& window = _renderer->GetOutput();
     const auto& window_dimensions = window->GetDimensions();
     const auto& aspect = window->GetAspectRatio();

@@ -14,7 +14,7 @@ AnimatedSprite::AnimatedSprite(Renderer& renderer,
                                TimeUtils::FPSeconds durationSeconds,
                                int startSpriteIndex,
                                int frameLength,
-                               SpriteAnimMode playbackMode /*= SpriteAnimMode::LOOPING*/)
+                               SpriteAnimMode playbackMode /*= SpriteAnimMode::LOOPING*/) noexcept
     : _renderer(&renderer)
     , _sheet(spriteSheet)
     , _duration_seconds(durationSeconds)
@@ -26,7 +26,7 @@ AnimatedSprite::AnimatedSprite(Renderer& renderer,
     _max_seconds_per_frame = TimeUtils::FPSeconds{ _duration_seconds / (has_frames ? static_cast<float>(_end_index - _start_index) : 1.0f) };
 }
 
-AnimatedSprite::AnimatedSprite(Renderer& renderer, std::weak_ptr<SpriteSheet> spriteSheet, TimeUtils::FPSeconds durationSeconds, const IntVector2& startSpriteCoords, int frameLength, SpriteAnimMode playbackMode /*= SpriteAnimMode::Looping*/)
+AnimatedSprite::AnimatedSprite(Renderer& renderer, std::weak_ptr<SpriteSheet> spriteSheet, TimeUtils::FPSeconds durationSeconds, const IntVector2& startSpriteCoords, int frameLength, SpriteAnimMode playbackMode /*= SpriteAnimMode::Looping*/) noexcept
     : _renderer(&renderer)
     , _sheet(spriteSheet)
     , _duration_seconds(durationSeconds)
@@ -38,30 +38,30 @@ AnimatedSprite::AnimatedSprite(Renderer& renderer, std::weak_ptr<SpriteSheet> sp
     _max_seconds_per_frame = TimeUtils::FPSeconds{_duration_seconds / (has_frames ? static_cast<float>(_end_index - _start_index) : 1.0f)};
 }
 
-AnimatedSprite::AnimatedSprite(Renderer& renderer, const XMLElement& elem)
+AnimatedSprite::AnimatedSprite(Renderer& renderer, const XMLElement& elem) noexcept
     : _renderer(&renderer)
 {
     LoadFromXml(*_renderer, elem);
 }
 
-AnimatedSprite::AnimatedSprite(Renderer& renderer, std::weak_ptr<SpriteSheet> sheet, const XMLElement& elem)
+AnimatedSprite::AnimatedSprite(Renderer& renderer, std::weak_ptr<SpriteSheet> sheet, const XMLElement& elem) noexcept
     : _renderer(&renderer)
     , _sheet(sheet)
 {
     LoadFromXml(*_renderer, elem);
 }
 
-AnimatedSprite::AnimatedSprite(Renderer& renderer, std::weak_ptr<SpriteSheet> sheet, const IntVector2& startSpriteCoords /* = IntVector2::ZERO*/)
+AnimatedSprite::AnimatedSprite(Renderer& renderer, std::weak_ptr<SpriteSheet> sheet, const IntVector2& startSpriteCoords /* = IntVector2::ZERO*/) noexcept
     : AnimatedSprite(renderer, sheet, TimeUtils::FPFrames{ 1 }, startSpriteCoords, 0) {
     /* DO NOTHING */
 }
 
-AnimatedSprite::~AnimatedSprite() {
+AnimatedSprite::~AnimatedSprite() noexcept {
     _renderer = nullptr;
     _sheet.reset();
 }
 
-void AnimatedSprite::Update(TimeUtils::FPSeconds deltaSeconds) {
+void AnimatedSprite::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
 
     _elapsed_frame_delta_seconds += deltaSeconds;
     while(_elapsed_frame_delta_seconds >= _max_seconds_per_frame) {
@@ -112,7 +112,7 @@ void AnimatedSprite::Update(TimeUtils::FPSeconds deltaSeconds) {
     _elapsed_seconds += deltaSeconds;
 }
 
-AABB2 AnimatedSprite::GetCurrentTexCoords() const {
+AABB2 AnimatedSprite::GetCurrentTexCoords() const noexcept {
 
     int length = _end_index - _start_index;
     auto framesPerSecond = TimeUtils::FPSeconds{ 1.0f } / _max_seconds_per_frame;
@@ -154,44 +154,44 @@ AABB2 AnimatedSprite::GetCurrentTexCoords() const {
     return {};
 }
 
-const Texture* const AnimatedSprite::GetTexture() const {
+const Texture* const AnimatedSprite::GetTexture() const noexcept {
     if(!_sheet.expired()) {
         return _sheet.lock()->GetTexture();
     }
     return nullptr;
 }
 
-int AnimatedSprite::GetNumSprites() const {
+int AnimatedSprite::GetNumSprites() const noexcept {
     if(!_sheet.expired()) {
         return _sheet.lock()->GetNumSprites();
     }
     return 0;
 }
 
-IntVector2 AnimatedSprite::GetFrameDimensions() const {
+IntVector2 AnimatedSprite::GetFrameDimensions() const noexcept {
     if(!_sheet.expired()) {
         return _sheet.lock()->GetFrameDimensions();
     }
     return {};
 }
 
-void AnimatedSprite::TogglePause() {
+void AnimatedSprite::TogglePause() noexcept {
     _is_playing = !_is_playing;
 }
 
-void AnimatedSprite::Pause() {
+void AnimatedSprite::Pause() noexcept {
     _is_playing = false;
 }
 
-void AnimatedSprite::Resume() {
+void AnimatedSprite::Resume() noexcept {
     _is_playing = true;
 }
 
-void AnimatedSprite::Reset() {
+void AnimatedSprite::Reset() noexcept {
     _elapsed_seconds = TimeUtils::FPSeconds{0.0f};
 }
 
-bool AnimatedSprite::IsFinished() const {
+bool AnimatedSprite::IsFinished() const noexcept {
     if(!_is_playing) {
         return false;
     }
@@ -209,47 +209,47 @@ bool AnimatedSprite::IsFinished() const {
     }
 }
 
-bool AnimatedSprite::IsPlaying() const {
+bool AnimatedSprite::IsPlaying() const noexcept {
     return _is_playing;
 }
 
-TimeUtils::FPSeconds AnimatedSprite::GetDurationSeconds() const {
+TimeUtils::FPSeconds AnimatedSprite::GetDurationSeconds() const noexcept {
     return _duration_seconds;
 }
 
-TimeUtils::FPSeconds AnimatedSprite::GetSecondsElapsed() const {
+TimeUtils::FPSeconds AnimatedSprite::GetSecondsElapsed() const noexcept {
     return _elapsed_seconds;
 }
 
-TimeUtils::FPSeconds AnimatedSprite::GetSecondsRemaining() const {
+TimeUtils::FPSeconds AnimatedSprite::GetSecondsRemaining() const noexcept {
     return _duration_seconds - _elapsed_seconds;
 }
 
-float AnimatedSprite::GetFractionElapsed() const {
+float AnimatedSprite::GetFractionElapsed() const noexcept {
     return _elapsed_seconds / _duration_seconds;
 }
 
-float AnimatedSprite::GetFractionRemaining() const {
+float AnimatedSprite::GetFractionRemaining() const noexcept {
     return (_duration_seconds - _elapsed_seconds) / _duration_seconds;
 }
 
-void AnimatedSprite::SetSecondsElapsed(TimeUtils::FPSeconds secondsElapsed) {
+void AnimatedSprite::SetSecondsElapsed(TimeUtils::FPSeconds secondsElapsed) noexcept {
     _elapsed_seconds = secondsElapsed;
 }
 
-void AnimatedSprite::SetFractionElapsed(float fractionElapsed) {
+void AnimatedSprite::SetFractionElapsed(float fractionElapsed) noexcept {
     _elapsed_seconds = _duration_seconds * fractionElapsed;
 }
 
-void AnimatedSprite::SetMaterial(Material* mat) {
+void AnimatedSprite::SetMaterial(Material* mat) noexcept {
     _material = mat;
 }
 
-Material* AnimatedSprite::GetMaterial() const {
+Material* AnimatedSprite::GetMaterial() const noexcept {
     return _material;
 }
 
-AnimatedSprite::SpriteAnimMode AnimatedSprite::GetAnimModeFromOptions(bool looping, bool backwards, bool ping_pong /*= false*/) {
+AnimatedSprite::SpriteAnimMode AnimatedSprite::GetAnimModeFromOptions(bool looping, bool backwards, bool ping_pong /*= false*/) noexcept {
     if(ping_pong) {
         return SpriteAnimMode::Ping_Pong;
     }
@@ -267,7 +267,7 @@ AnimatedSprite::SpriteAnimMode AnimatedSprite::GetAnimModeFromOptions(bool loopi
 }
 
 
-int AnimatedSprite::GetIndexFromCoords(const IntVector2& coords) {
+int AnimatedSprite::GetIndexFromCoords(const IntVector2& coords) noexcept {
     if(!_sheet.expired()) {
         const auto& layout = _sheet.lock()->GetLayout();
         return coords.x + coords.y * layout.x;
@@ -275,7 +275,7 @@ int AnimatedSprite::GetIndexFromCoords(const IntVector2& coords) {
     return 0;
 }
 
-void AnimatedSprite::LoadFromXml(Renderer& renderer, const XMLElement& elem) {
+void AnimatedSprite::LoadFromXml(Renderer& renderer, const XMLElement& elem) noexcept {
     DataUtils::ValidateXmlElement(elem, "animation", "animationset", "", "spritesheet", "name");
     if(auto xml_sheet = elem.FirstChildElement("spritesheet")) {
         DataUtils::ValidateXmlElement(*xml_sheet, "spritesheet", "", "src,dimensions");

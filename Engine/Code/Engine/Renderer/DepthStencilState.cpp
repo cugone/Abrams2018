@@ -16,13 +16,13 @@ void DepthStencilState::SetDebugName([[maybe_unused]] const std::string& name) c
 #endif
 }
 
-DepthStencilState::DepthStencilState(const RHIDevice* device, const XMLElement& element)
+DepthStencilState::DepthStencilState(const RHIDevice* device, const XMLElement& element) noexcept
 : DepthStencilState(device, DepthStencilDesc{ element })
 {
     /* DO NOTHING */
 }
 
-DepthStencilState::DepthStencilState(const RHIDevice* device, const DepthStencilDesc& desc)
+DepthStencilState::DepthStencilState(const RHIDevice* device, const DepthStencilDesc& desc) noexcept
     : _desc(desc)
 {
     if(!CreateDepthStencilState(device, desc)) {
@@ -34,22 +34,22 @@ DepthStencilState::DepthStencilState(const RHIDevice* device, const DepthStencil
     }
 }
 
-DepthStencilState::~DepthStencilState() {
+DepthStencilState::~DepthStencilState() noexcept {
     if(_dx_state) {
         _dx_state->Release();
         _dx_state = nullptr;
     }
 }
 
-ID3D11DepthStencilState* DepthStencilState::GetDxDepthStencilState() const {
+ID3D11DepthStencilState* DepthStencilState::GetDxDepthStencilState() const noexcept {
     return _dx_state;
 }
 
-DepthStencilDesc DepthStencilState::GetDesc() const {
+DepthStencilDesc DepthStencilState::GetDesc() const noexcept {
     return _desc;
 }
 
-bool DepthStencilState::CreateDepthStencilState(const RHIDevice* device, const DepthStencilDesc& desc /*= DepthStencilDesc{}*/) {
+bool DepthStencilState::CreateDepthStencilState(const RHIDevice* device, const DepthStencilDesc& desc /*= DepthStencilDesc{}*/) noexcept {
     D3D11_DEPTH_STENCIL_DESC dx_desc;
     dx_desc.DepthEnable = desc.depth_enabled ? TRUE : FALSE;
     dx_desc.DepthWriteMask = desc.depth_write ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
@@ -72,7 +72,7 @@ bool DepthStencilState::CreateDepthStencilState(const RHIDevice* device, const D
     return SUCCEEDED(hr);
 }
 
-DepthStencilDesc::DepthStencilDesc(const XMLElement &element) {
+DepthStencilDesc::DepthStencilDesc(const XMLElement &element) noexcept {
     if(auto xml_depth = element.FirstChildElement("depth")) {
         DataUtils::ValidateXmlElement(*xml_depth, "depth", "", "", "", "enable,writable,test");
         depth_enabled = DataUtils::ParseXmlAttribute(*xml_depth, "enable", depth_enabled);

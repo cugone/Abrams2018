@@ -17,12 +17,12 @@ public:
         ViewportDesc view_desc{};
     };
 
-	explicit RenderTargetStack(Renderer* renderer);
+	explicit RenderTargetStack(Renderer* renderer) noexcept;
     ~RenderTargetStack() = default;
 
-    void Push(const RenderTargetStack::Node& node = RenderTargetStack::Node{});
-    void Pop();
-    const RenderTargetStack::Node& Top() const;
+    void Push(const RenderTargetStack::Node& node = RenderTargetStack::Node{}) noexcept;
+    void Pop() noexcept;
+    const RenderTargetStack::Node& Top() const noexcept;
 protected:
 private:
     Renderer* _renderer{};

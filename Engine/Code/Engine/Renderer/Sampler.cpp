@@ -14,12 +14,12 @@ void Sampler::SetDebugName([[maybe_unused]] const std::string& name) const noexc
 #endif
 }
 
-Sampler::Sampler(const RHIDevice* device, const XMLElement& element)
+Sampler::Sampler(const RHIDevice* device, const XMLElement& element) noexcept
     : Sampler(device, SamplerDesc{ element }) {
     /* DO NOTHING */
 }
 
-Sampler::Sampler(const RHIDevice* device, const SamplerDesc& desc) {
+Sampler::Sampler(const RHIDevice* device, const SamplerDesc& desc) noexcept {
     if(!CreateSamplerState(device, desc)) {
         if(_dx_state) {
             _dx_state->Release();
@@ -29,18 +29,18 @@ Sampler::Sampler(const RHIDevice* device, const SamplerDesc& desc) {
     }
 }
 
-Sampler::~Sampler() {
+Sampler::~Sampler() noexcept {
     if(_dx_state) {
         _dx_state->Release();
         _dx_state = nullptr;
     }
 }
 
-ID3D11SamplerState* Sampler::GetDxSampler() const {
+ID3D11SamplerState* Sampler::GetDxSampler() const noexcept {
     return _dx_state;
 }
 
-bool Sampler::CreateSamplerState(const RHIDevice* device, const SamplerDesc& desc /*= SamplerDesc()*/) {
+bool Sampler::CreateSamplerState(const RHIDevice* device, const SamplerDesc& desc /*= SamplerDesc()*/) noexcept {
 
     D3D11_SAMPLER_DESC dx_desc{};
 
@@ -73,7 +73,7 @@ bool Sampler::CreateSamplerState(const RHIDevice* device, const SamplerDesc& des
     return SUCCEEDED(hr);
 }
 
-SamplerDesc::SamplerDesc(const XMLElement& element) {
+SamplerDesc::SamplerDesc(const XMLElement& element) noexcept {
     if(auto xml_sampler = element.FirstChildElement("sampler")) {
         DataUtils::ValidateXmlElement(*xml_sampler, "sampler", "", "", "filter,textureAddress,lod", "borderColor,test,maxAF");
 

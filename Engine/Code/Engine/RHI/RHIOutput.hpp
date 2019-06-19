@@ -28,7 +28,7 @@ public:
     void SetDisplayMode(const RHIOutputMode& newMode) noexcept;
     void SetDimensions(const IntVector2& clientSize) noexcept;
 
-    void Present(bool vsync);
+    void Present(bool vsync) noexcept;
 
 protected:
     void CreateBackbuffer() noexcept;

@@ -121,15 +121,15 @@ struct ComputeJob {
                Shader* computeShader,
                unsigned int threadGroupCountX,
                unsigned int threadGroupCountY,
-               unsigned int threadGroupCountZ);
-    ~ComputeJob();
+               unsigned int threadGroupCountZ) noexcept;
+    ~ComputeJob() noexcept;
 };
 
 class Renderer {
 public:
     Renderer() = default;
-    Renderer(unsigned int width, unsigned int height);
-    ~Renderer();
+    Renderer(unsigned int width, unsigned int height) noexcept;
+    ~Renderer() noexcept;
 
     void Initialize(bool headless = false);
     void BeginFrame();
@@ -137,212 +137,212 @@ public:
     void Render() const;
     void EndFrame();
 
-    TimeUtils::FPSeconds GetGameFrameTime() const;
-    TimeUtils::FPSeconds GetSystemFrameTime() const;
-    TimeUtils::FPSeconds GetGameTime() const;
-    TimeUtils::FPSeconds GetSystemTime() const;
+    TimeUtils::FPSeconds GetGameFrameTime() const noexcept;
+    TimeUtils::FPSeconds GetSystemFrameTime() const noexcept;
+    TimeUtils::FPSeconds GetGameTime() const noexcept;
+    TimeUtils::FPSeconds GetSystemTime() const noexcept;
 
-    void SetFullscreen(bool isFullscreen);
-    void SetBorderless(bool isBorderless);
-    void SetFullscreenMode();
-    void SetWindowedMode();
-    void SetBorderlessWindowedMode();
-    void SetWindowTitle(const std::string& newTitle);
+    void SetFullscreen(bool isFullscreen) noexcept;
+    void SetBorderless(bool isBorderless) noexcept;
+    void SetFullscreenMode() noexcept;
+    void SetWindowedMode() noexcept;
+    void SetBorderlessWindowedMode() noexcept;
+    void SetWindowTitle(const std::string& newTitle) noexcept;
 
-    VertexBuffer* CreateVertexBuffer(const VertexBuffer::buffer_t& vbo) const;
-    IndexBuffer* CreateIndexBuffer(const IndexBuffer::buffer_t& ibo) const;
-    ConstantBuffer* CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) const;
-    StructuredBuffer* CreateStructuredBuffer(const StructuredBuffer::buffer_t& sbo, std::size_t element_size, std::size_t element_count) const;
+    VertexBuffer* CreateVertexBuffer(const VertexBuffer::buffer_t& vbo) const noexcept;
+    IndexBuffer* CreateIndexBuffer(const IndexBuffer::buffer_t& ibo) const noexcept;
+    ConstantBuffer* CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) const noexcept;
+    StructuredBuffer* CreateStructuredBuffer(const StructuredBuffer::buffer_t& sbo, std::size_t element_size, std::size_t element_count) const noexcept;
 
-    Texture* CreateOrGetTexture(const std::filesystem::path& filepath, const IntVector3& dimensions);
-    void RegisterTexturesFromFolder(std::filesystem::path folderpath, bool recursive = false);
-    bool RegisterTexture(const std::string& name, Texture* texture);
-    void SetTexture(Texture* texture, unsigned int registerIndex = 0);
+    Texture* CreateOrGetTexture(const std::filesystem::path& filepath, const IntVector3& dimensions) noexcept;
+    void RegisterTexturesFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept;
+    bool RegisterTexture(const std::string& name, Texture* texture) noexcept;
+    void SetTexture(Texture* texture, unsigned int registerIndex = 0) noexcept;
 
-    Texture* GetTexture(const std::string& nameOrFile);
+    Texture* GetTexture(const std::string& nameOrFile) noexcept;
 
-    Texture* CreateDepthStencil(const RHIDevice* owner, const IntVector2& dimensions);
-    Texture* CreateRenderableDepthStencil(const RHIDevice* owner, const IntVector2& dimensions);
+    Texture* CreateDepthStencil(const RHIDevice* owner, const IntVector2& dimensions) noexcept;
+    Texture* CreateRenderableDepthStencil(const RHIDevice* owner, const IntVector2& dimensions) noexcept;
 
-    Texture* GetDefaultDepthStencil() const;
-    void SetDepthStencilState(DepthStencilState* depthstencil);
-    DepthStencilState* GetDepthStencilState(const std::string& name);
-    void CreateAndRegisterDepthStencilStateFromDepthStencilDescription(const std::string& name, const DepthStencilDesc& desc);
-    void EnableDepth();
-    void DisableDepth();
+    Texture* GetDefaultDepthStencil() const noexcept;
+    void SetDepthStencilState(DepthStencilState* depthstencil) noexcept;
+    DepthStencilState* GetDepthStencilState(const std::string& name) noexcept;
+    void CreateAndRegisterDepthStencilStateFromDepthStencilDescription(const std::string& name, const DepthStencilDesc& desc) noexcept;
+    void EnableDepth() noexcept;
+    void DisableDepth() noexcept;
 
-    Texture* Create1DTexture(std::filesystem::path filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
-    Texture* Create1DTextureFromMemory(const unsigned char* data, unsigned int width = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
-    Texture* Create1DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
-    Texture* Create2DTexture(std::filesystem::path filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
-    Texture* Create2DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
-    Texture* Create2DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
-    Texture* Create2DTextureArrayFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
-    Texture* Create2DTextureFromGifBuffer(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
-    Texture* Create2DTextureArrayFromGifBuffer(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
-    Texture* Create3DTexture(std::filesystem::path filepath, const IntVector3& dimensions, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat);
-    Texture* Create3DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
-    Texture* Create3DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
+    Texture* Create1DTexture(std::filesystem::path filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) noexcept;
+    Texture* Create1DTextureFromMemory(const unsigned char* data, unsigned int width = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
+    Texture* Create1DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
+    Texture* Create2DTexture(std::filesystem::path filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) noexcept;
+    Texture* Create2DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
+    Texture* Create2DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
+    Texture* Create2DTextureArrayFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
+    Texture* Create2DTextureFromGifBuffer(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
+    Texture* Create2DTextureArrayFromGifBuffer(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
+    Texture* Create3DTexture(std::filesystem::path filepath, const IntVector3& dimensions, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) noexcept;
+    Texture* Create3DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
+    Texture* Create3DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
     Texture* CreateTexture(std::filesystem::path filepath
         , const IntVector3& dimensions
         , const BufferUsage& bufferUsage = BufferUsage::Static
         , const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource
-        , const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm);
+        , const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
 
-    std::shared_ptr<SpriteSheet> CreateSpriteSheet(const std::filesystem::path& filepath, unsigned int width = 1, unsigned int height = 1);
-    std::shared_ptr<SpriteSheet> CreateSpriteSheet(const XMLElement& elem);
-    std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::filesystem::path filepath);
-    std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const IntVector2& startSpriteCoords = IntVector2::ZERO);
-    std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const XMLElement& elem);
-    std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(const XMLElement& elem);
+    std::shared_ptr<SpriteSheet> CreateSpriteSheet(const std::filesystem::path& filepath, unsigned int width = 1, unsigned int height = 1) noexcept;
+    std::shared_ptr<SpriteSheet> CreateSpriteSheet(const XMLElement& elem) noexcept;
+    std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::filesystem::path filepath) noexcept;
+    std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const IntVector2& startSpriteCoords = IntVector2::ZERO) noexcept;
+    std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const XMLElement& elem) noexcept;
+    std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(const XMLElement& elem) noexcept;
 
-    const RenderTargetStack& GetRenderTargetStack() const;
-    void PushRenderTarget(const RenderTargetStack::Node& newRenderTarget = RenderTargetStack::Node{});
-    void PopRenderTarget();
-    void ClearRenderTargets(const RenderTargetType& rtt);
-    void SetRenderTarget(Texture* color_target = nullptr, Texture* depthstencil_target = nullptr);
-    void SetRenderTargetsToBackBuffer();
-    void SetViewport(const ViewportDesc& desc);
-    void SetViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
-    void SetViewportAndScissor(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
-    void SetViewports(const std::vector<AABB3>& viewports);
-    void SetViewportAsPercent(float x = 0.0f, float y = 0.0f, float w = 1.0f, float h = 1.0f);
+    const RenderTargetStack& GetRenderTargetStack() const noexcept;
+    void PushRenderTarget(const RenderTargetStack::Node& newRenderTarget = RenderTargetStack::Node{}) noexcept;
+    void PopRenderTarget() noexcept;
+    void ClearRenderTargets(const RenderTargetType& rtt) noexcept;
+    void SetRenderTarget(Texture* color_target = nullptr, Texture* depthstencil_target = nullptr) noexcept;
+    void SetRenderTargetsToBackBuffer() noexcept;
+    void SetViewport(const ViewportDesc& desc) noexcept;
+    void SetViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height) noexcept;
+    void SetViewportAndScissor(unsigned int x, unsigned int y, unsigned int width, unsigned int height) noexcept;
+    void SetViewports(const std::vector<AABB3>& viewports) noexcept;
+    void SetViewportAsPercent(float x = 0.0f, float y = 0.0f, float w = 1.0f, float h = 1.0f) noexcept;
 
-    void SetScissor(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
-    void SetScissorAndViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
-    void SetScissors(const std::vector<AABB2>& scissors);
+    void SetScissor(unsigned int x, unsigned int y, unsigned int width, unsigned int height) noexcept;
+    void SetScissorAndViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height) noexcept;
+    void SetScissors(const std::vector<AABB2>& scissors) noexcept;
 
-    void ClearColor(const Rgba& color);
-    void ClearTargetColor(Texture* target, const Rgba& color);
-    void ClearTargetDepthStencilBuffer(Texture* target, bool depth = true, bool stencil = true, float depthValue = 1.0f, unsigned char stencilValue = 0);
-    void ClearDepthStencilBuffer();
-    void Present();
+    void ClearColor(const Rgba& color) noexcept;
+    void ClearTargetColor(Texture* target, const Rgba& color) noexcept;
+    void ClearTargetDepthStencilBuffer(Texture* target, bool depth = true, bool stencil = true, float depthValue = 1.0f, unsigned char stencilValue = 0) noexcept;
+    void ClearDepthStencilBuffer() noexcept;
+    void Present() noexcept;
 
-    void DrawPoint(const Vertex3D& point);
-    void DrawPoint(const Vector3& point, const Rgba& color = Rgba::White, const Vector2& tex_coords = Vector2::ZERO);
-    void DrawFrustum(const Frustum& frustum, const Rgba& color = Rgba::Yellow, const Vector2& tex_coords = Vector2::ZERO);
-    void DrawWorldGridXZ(float radius = 500.0f, float major_gridsize = 20.0f, float minor_gridsize = 5.0f, const Rgba& major_color = Rgba::White, const Rgba& minor_color = Rgba::DarkGray);
-    void DrawWorldGridXY(float radius = 500.0f, float major_gridsize = 20.0f, float minor_gridsize = 5.0f, const Rgba& major_color = Rgba::White, const Rgba& minor_color = Rgba::DarkGray);
-    void DrawWorldGrid2D(const IntVector2& dimensions, const Rgba& color = Rgba::White);
-    void DrawWorldGrid2D(int width, int height, const Rgba& color = Rgba::White);
+    void DrawPoint(const Vertex3D& point) noexcept;
+    void DrawPoint(const Vector3& point, const Rgba& color = Rgba::White, const Vector2& tex_coords = Vector2::ZERO) noexcept;
+    void DrawFrustum(const Frustum& frustum, const Rgba& color = Rgba::Yellow, const Vector2& tex_coords = Vector2::ZERO) noexcept;
+    void DrawWorldGridXZ(float radius = 500.0f, float major_gridsize = 20.0f, float minor_gridsize = 5.0f, const Rgba& major_color = Rgba::White, const Rgba& minor_color = Rgba::DarkGray) noexcept;
+    void DrawWorldGridXY(float radius = 500.0f, float major_gridsize = 20.0f, float minor_gridsize = 5.0f, const Rgba& major_color = Rgba::White, const Rgba& minor_color = Rgba::DarkGray) noexcept;
+    void DrawWorldGrid2D(const IntVector2& dimensions, const Rgba& color = Rgba::White) noexcept;
+    void DrawWorldGrid2D(int width, int height, const Rgba& color = Rgba::White) noexcept;
 
-    void DrawAxes(float maxlength = 1000.0f, bool disable_unit_depth = true);
-    void DrawDebugSphere(const Rgba& color);
+    void DrawAxes(float maxlength = 1000.0f, bool disable_unit_depth = true) noexcept;
+    void DrawDebugSphere(const Rgba& color) noexcept;
 
-    void Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo);
-    void Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, std::size_t vertex_count);
-    void DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo);
-    void DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo, std::size_t vertex_count, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0);
+    void Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo) noexcept;
+    void Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, std::size_t vertex_count) noexcept;
+    void DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo) noexcept;
+    void DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo, std::size_t vertex_count, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0) noexcept;
 
-    void SetLightingEyePosition(const Vector3& position);
-    void SetAmbientLight(const Rgba& ambient);
-    void SetAmbientLight(const Rgba& color, float intensity);
-    void SetSpecGlossEmitFactors(Material* mat);
-    void SetUseVertexNormalsForLighting(bool value);
+    void SetLightingEyePosition(const Vector3& position) noexcept;
+    void SetAmbientLight(const Rgba& ambient) noexcept;
+    void SetAmbientLight(const Rgba& color, float intensity) noexcept;
+    void SetSpecGlossEmitFactors(Material* mat) noexcept;
+    void SetUseVertexNormalsForLighting(bool value) noexcept;
 
-    const light_t& GetLight(unsigned int index) const;
-    void SetPointLight(unsigned int index, const PointLightDesc& desc);
-    void SetDirectionalLight(unsigned int index, const DirectionalLightDesc& desc);
-    void SetSpotlight(unsigned int index, const SpotLightDesc& desc);
+    const light_t& GetLight(unsigned int index) const noexcept;
+    void SetPointLight(unsigned int index, const PointLightDesc& desc) noexcept;
+    void SetDirectionalLight(unsigned int index, const DirectionalLightDesc& desc) noexcept;
+    void SetSpotlight(unsigned int index, const SpotLightDesc& desc) noexcept;
 
-    RHIDeviceContext* GetDeviceContext() const;
-    const RHIDevice* GetDevice() const;
-    RHIOutput* GetOutput() const;
+    RHIDeviceContext* GetDeviceContext() const noexcept;
+    const RHIDevice* GetDevice() const noexcept;
+    RHIOutput* GetOutput() const noexcept;
 
-    ShaderProgram* GetShaderProgram(const std::string& nameOrFile);
-    ShaderProgram* CreateShaderProgramFromHlslFile(std::filesystem::path filepath, const std::string& entryPointList, const PipelineStage& target) const;
-    void CreateAndRegisterShaderProgramFromHlslFile(std::filesystem::path filepath, const std::string& entryPointList, const PipelineStage& target);
-    void CreateAndRegisterRasterStateFromRasterDescription(const std::string& name, const RasterDesc& desc);
-    void SetRasterState(RasterState* raster);
-    RasterState* GetRasterState(const std::string& name);
+    ShaderProgram* GetShaderProgram(const std::string& nameOrFile) noexcept;
+    ShaderProgram* CreateShaderProgramFromHlslFile(std::filesystem::path filepath, const std::string& entryPointList, const PipelineStage& target) const noexcept;
+    void CreateAndRegisterShaderProgramFromHlslFile(std::filesystem::path filepath, const std::string& entryPointList, const PipelineStage& target) noexcept;
+    void CreateAndRegisterRasterStateFromRasterDescription(const std::string& name, const RasterDesc& desc) noexcept;
+    void SetRasterState(RasterState* raster) noexcept;
+    RasterState* GetRasterState(const std::string& name) noexcept;
 
-    void CreateAndRegisterSamplerFromSamplerDescription(const std::string& name, const SamplerDesc& desc);
-    Sampler* GetSampler(const std::string& name);
-    void SetSampler(Sampler* sampler);
+    void CreateAndRegisterSamplerFromSamplerDescription(const std::string& name, const SamplerDesc& desc) noexcept;
+    Sampler* GetSampler(const std::string& name) noexcept;
+    void SetSampler(Sampler* sampler) noexcept;
 
-    void SetVSync(bool value);
+    void SetVSync(bool value) noexcept;
 
-    Material* CreateMaterialFromFont(KerningFont* font);
-    bool RegisterMaterial(std::filesystem::path filepath);
-    void RegisterMaterial(Material* mat);
-    void RegisterMaterialsFromFolder(std::filesystem::path folderpath, bool recursive = false);
+    Material* CreateMaterialFromFont(KerningFont* font) noexcept;
+    bool RegisterMaterial(std::filesystem::path filepath) noexcept;
+    void RegisterMaterial(Material* mat) noexcept;
+    void RegisterMaterialsFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept;
 
-    std::size_t GetMaterialCount();
-    Material* GetMaterial(const std::string& nameOrFile);
-    void SetMaterial(Material* material);
-    const std::map<std::string, Texture*>& GetLoadedTextures() const;
+    std::size_t GetMaterialCount() noexcept;
+    Material* GetMaterial(const std::string& nameOrFile) noexcept;
+    void SetMaterial(Material* material) noexcept;
+    const std::map<std::string, Texture*>& GetLoadedTextures() const noexcept;
 
-    bool RegisterShader(std::filesystem::path filepath);
-    void RegisterShader(Shader* shader);
+    bool RegisterShader(std::filesystem::path filepath) noexcept;
+    void RegisterShader(Shader* shader) noexcept;
 
-    std::size_t GetShaderCount() const;
-    Shader* GetShader(const std::string& nameOrFile);
-    void SetComputeShader(Shader* shader);
-    void DispatchComputeJob(const ComputeJob& job);
+    std::size_t GetShaderCount() const noexcept;
+    Shader* GetShader(const std::string& nameOrFile) noexcept;
+    void SetComputeShader(Shader* shader) noexcept;
+    void DispatchComputeJob(const ComputeJob& job) noexcept;
 
-    std::size_t GetFontCount() const;
-    KerningFont* GetFont(const std::string& nameOrFile);
+    std::size_t GetFontCount() const noexcept;
+    KerningFont* GetFont(const std::string& nameOrFile) noexcept;
 
-    void RegisterFont(KerningFont* font);
-    bool RegisterFont(std::filesystem::path filepath);
-    void RegisterFontsFromFolder(std::filesystem::path folderpath, bool recursive = false);
+    void RegisterFont(KerningFont* font) noexcept;
+    bool RegisterFont(std::filesystem::path filepath) noexcept;
+    void RegisterFontsFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept;
 
-    void UpdateGameTime(TimeUtils::FPSeconds deltaSeconds);
+    void UpdateGameTime(TimeUtils::FPSeconds deltaSeconds) noexcept;
 
-    void ResetModelViewProjection();
-    void AppendModelMatrix(const Matrix4& modelMatrix);
-    void SetModelMatrix(const Matrix4& mat = Matrix4::I);
-    void SetViewMatrix(const Matrix4& mat = Matrix4::I);
-    void SetProjectionMatrix(const Matrix4& mat = Matrix4::I);
-    void SetOrthoProjection(const Vector2& leftBottom, const Vector2& rightTop, const Vector2& near_far);
-    void SetOrthoProjection(const Vector2& dimensions, const Vector2& origin, float nearz, float farz);
-    void SetOrthoProjectionFromViewHeight(float viewHeight, float aspectRatio, float nearz, float farz);
-    void SetOrthoProjectionFromViewWidth(float viewWidth, float aspectRatio, float nearz, float farz);
-    void SetOrthoProjectionFromCamera(const Camera3D& camera);
-    void SetPerspectiveProjection(const Vector2& vfovDegrees_aspect, const Vector2& nz_fz);
-    void SetPerspectiveProjectionFromCamera(const Camera3D& camera);
-    void SetCamera(const Camera3D& camera);
-    void SetCamera(const Camera2D& camera);
-    Camera3D GetCamera() const;
+    void ResetModelViewProjection() noexcept;
+    void AppendModelMatrix(const Matrix4& modelMatrix) noexcept;
+    void SetModelMatrix(const Matrix4& mat = Matrix4::I) noexcept;
+    void SetViewMatrix(const Matrix4& mat = Matrix4::I) noexcept;
+    void SetProjectionMatrix(const Matrix4& mat = Matrix4::I) noexcept;
+    void SetOrthoProjection(const Vector2& leftBottom, const Vector2& rightTop, const Vector2& near_far) noexcept;
+    void SetOrthoProjection(const Vector2& dimensions, const Vector2& origin, float nearz, float farz) noexcept;
+    void SetOrthoProjectionFromViewHeight(float viewHeight, float aspectRatio, float nearz, float farz) noexcept;
+    void SetOrthoProjectionFromViewWidth(float viewWidth, float aspectRatio, float nearz, float farz) noexcept;
+    void SetOrthoProjectionFromCamera(const Camera3D& camera) noexcept;
+    void SetPerspectiveProjection(const Vector2& vfovDegrees_aspect, const Vector2& nz_fz) noexcept;
+    void SetPerspectiveProjectionFromCamera(const Camera3D& camera) noexcept;
+    void SetCamera(const Camera3D& camera) noexcept;
+    void SetCamera(const Camera2D& camera) noexcept;
+    Camera3D GetCamera() const noexcept;
 
-    Vector2 ConvertWorldToScreenCoords(const Vector3& worldCoords) const;
-    Vector2 ConvertWorldToScreenCoords(const Vector2& worldCoords) const;
-    Vector2 ConvertWorldToScreenCoords(const Camera3D& camera, const Vector3& worldCoords) const;
-    Vector2 ConvertWorldToScreenCoords(const Camera2D& camera, const Vector2& worldCoords) const;
-    Vector3 ConvertScreenToWorldCoords(const Vector2& mouseCoords) const;
-    Vector3 ConvertScreenToWorldCoords(const Camera3D& camera, const Vector2& mouseCoords) const;
-    Vector2 ConvertScreenToWorldCoords(const Camera2D& camera, const Vector2& mouseCoords) const;
+    Vector2 ConvertWorldToScreenCoords(const Vector3& worldCoords) const noexcept;
+    Vector2 ConvertWorldToScreenCoords(const Vector2& worldCoords) const noexcept;
+    Vector2 ConvertWorldToScreenCoords(const Camera3D& camera, const Vector3& worldCoords) const noexcept;
+    Vector2 ConvertWorldToScreenCoords(const Camera2D& camera, const Vector2& worldCoords) const noexcept;
+    Vector3 ConvertScreenToWorldCoords(const Vector2& mouseCoords) const noexcept;
+    Vector3 ConvertScreenToWorldCoords(const Camera3D& camera, const Vector2& mouseCoords) const noexcept;
+    Vector2 ConvertScreenToWorldCoords(const Camera2D& camera, const Vector2& mouseCoords) const noexcept;
 
-    void SetConstantBuffer(unsigned int index, ConstantBuffer* buffer);
-    void SetStructuredBuffer(unsigned int index, StructuredBuffer* buffer);
-    void SetComputeConstantBuffer(unsigned int index, ConstantBuffer* buffer);
-    void SetComputeStructuredBuffer(unsigned int index, StructuredBuffer* buffer);
+    void SetConstantBuffer(unsigned int index, ConstantBuffer* buffer) noexcept;
+    void SetStructuredBuffer(unsigned int index, StructuredBuffer* buffer) noexcept;
+    void SetComputeConstantBuffer(unsigned int index, ConstantBuffer* buffer) noexcept;
+    void SetComputeStructuredBuffer(unsigned int index, StructuredBuffer* buffer) noexcept;
 
-    void DrawQuad(const Vector3& position = Vector3::ZERO, const Vector3& halfExtents = Vector3::XY_AXIS * 0.5f, const Rgba& color = Rgba::White, const Vector4& texCoords = Vector4::ZW_AXIS, const Vector3& normalFront = Vector3::Z_AXIS, const Vector3& worldUp = Vector3::Y_AXIS);
-    void DrawQuad(const Rgba& frontColor, const Rgba& backColor, const Vector3& position = Vector3::ZERO, const Vector3& halfExtents = Vector3::XY_AXIS * 0.5f, const Vector4& texCoords = Vector4::ZW_AXIS, const Vector3& normalFront = Vector3::Z_AXIS, const Vector3& worldUp = Vector3::Y_AXIS);
-    void DrawPoint2D(float pointX, float pointY, const Rgba& color = Rgba::White);
-    void DrawPoint2D(const Vector2& point, const Rgba& color = Rgba::White);
-    void DrawLine2D(float startX, float startY, float endX, float endY, const Rgba& color = Rgba::White, float thickness = 0.0f);
-    void DrawLine2D(const Vector2& start, const Vector2& end, const Rgba& color = Rgba::White, float thickness = 0.0f);
-    void DrawQuad2D(float left, float bottom, float right, float top, const Rgba& color = Rgba::White, const Vector4& texCoords = Vector4::ZW_AXIS);
-    void DrawQuad2D(const Vector2& position = Vector2::ZERO, const Vector2& halfExtents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::White, const Vector4& texCoords = Vector4::ZW_AXIS);
-    void DrawQuad2D(const Rgba& color);
-    void DrawQuad2D(const Vector4& texCoords);
-    void DrawQuad2D(const Rgba& color, const Vector4& texCoords);
-    void DrawCircle2D(float centerX, float centerY, float radius, const Rgba& color = Rgba::White);
-    void DrawCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::White);
-    void DrawFilledCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::White);
-    void DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents = Vector2::ZERO);
-    void DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor);
-    void DrawOBB2(const OBB2& obb, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents = Vector2::ZERO);
-    void DrawOBB2(float orientationDegrees, const Rgba& edgeColor, const Rgba& fillColor);
-    void DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White);
-    void DrawPolygon2D(const Vector2& center, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White);
-    void DrawX2D(const Vector2& position = Vector2::ZERO, const Vector2& half_extents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::White);
-    void DrawX2D(const Rgba& color);
-    void DrawTextLine(const KerningFont* font, const std::string& text, const Rgba& color = Rgba::White);
-    void DrawMultilineText(KerningFont* font, const std::string& text, const Rgba& color = Rgba::White);
-    void AppendMultiLineTextBuffer(KerningFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo);
+    void DrawQuad(const Vector3& position = Vector3::ZERO, const Vector3& halfExtents = Vector3::XY_AXIS * 0.5f, const Rgba& color = Rgba::White, const Vector4& texCoords = Vector4::ZW_AXIS, const Vector3& normalFront = Vector3::Z_AXIS, const Vector3& worldUp = Vector3::Y_AXIS) noexcept;
+    void DrawQuad(const Rgba& frontColor, const Rgba& backColor, const Vector3& position = Vector3::ZERO, const Vector3& halfExtents = Vector3::XY_AXIS * 0.5f, const Vector4& texCoords = Vector4::ZW_AXIS, const Vector3& normalFront = Vector3::Z_AXIS, const Vector3& worldUp = Vector3::Y_AXIS) noexcept;
+    void DrawPoint2D(float pointX, float pointY, const Rgba& color = Rgba::White) noexcept;
+    void DrawPoint2D(const Vector2& point, const Rgba& color = Rgba::White) noexcept;
+    void DrawLine2D(float startX, float startY, float endX, float endY, const Rgba& color = Rgba::White, float thickness = 0.0f) noexcept;
+    void DrawLine2D(const Vector2& start, const Vector2& end, const Rgba& color = Rgba::White, float thickness = 0.0f) noexcept;
+    void DrawQuad2D(float left, float bottom, float right, float top, const Rgba& color = Rgba::White, const Vector4& texCoords = Vector4::ZW_AXIS) noexcept;
+    void DrawQuad2D(const Vector2& position = Vector2::ZERO, const Vector2& halfExtents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::White, const Vector4& texCoords = Vector4::ZW_AXIS) noexcept;
+    void DrawQuad2D(const Rgba& color) noexcept;
+    void DrawQuad2D(const Vector4& texCoords) noexcept;
+    void DrawQuad2D(const Rgba& color, const Vector4& texCoords) noexcept;
+    void DrawCircle2D(float centerX, float centerY, float radius, const Rgba& color = Rgba::White) noexcept;
+    void DrawCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::White) noexcept;
+    void DrawFilledCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::White) noexcept;
+    void DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents = Vector2::ZERO) noexcept;
+    void DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor) noexcept;
+    void DrawOBB2(const OBB2& obb, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents = Vector2::ZERO) noexcept;
+    void DrawOBB2(float orientationDegrees, const Rgba& edgeColor, const Rgba& fillColor) noexcept;
+    void DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White) noexcept;
+    void DrawPolygon2D(const Vector2& center, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White) noexcept;
+    void DrawX2D(const Vector2& position = Vector2::ZERO, const Vector2& half_extents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::White) noexcept;
+    void DrawX2D(const Rgba& color) noexcept;
+    void DrawTextLine(const KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept;
+    void DrawMultilineText(KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept;
+    void AppendMultiLineTextBuffer(KerningFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo) noexcept;
 
     constexpr static unsigned int MATRIX_BUFFER_INDEX = 0;
     constexpr static unsigned int TIME_BUFFER_INDEX = 1;
@@ -351,111 +351,111 @@ public:
     constexpr static unsigned int STRUCTURED_BUFFER_START_INDEX = 64;
     constexpr static unsigned int MAX_LIGHT_COUNT = max_light_count;
 
-    std::vector<ConstantBuffer*> CreateConstantBuffersFromShaderProgram(const ShaderProgram* _shader_program) const;
+    std::vector<ConstantBuffer*> CreateConstantBuffersFromShaderProgram(const ShaderProgram* _shader_program) const noexcept;
 
-    void SetWinProc(const std::function<bool(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) >& windowProcedure);
+    void SetWinProc(const std::function<bool(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) >& windowProcedure) noexcept;
 
-    void CopyTexture(Texture* src, Texture* dst);
+    void CopyTexture(Texture* src, Texture* dst) noexcept;
 protected:
 private:
-    void UpdateSystemTime(TimeUtils::FPSeconds deltaSeconds);
-    bool RegisterTexture(const std::filesystem::path& filepath);
-    void RegisterShaderProgram(const std::string& name, ShaderProgram * sp);
-    void RegisterShaderProgramsFromFolder(std::filesystem::path folderpath, const std::string& entrypoint, const PipelineStage& target, bool recursive = false);
-    void RegisterShader(const std::string& name, Shader* shader);
-    void RegisterShadersFromFolder(std::filesystem::path folderpath, bool recursive = false);
-    void RegisterMaterial(const std::string& name, Material* mat);
-    void RegisterRasterState(const std::string& name, RasterState* raster);
-    void RegisterDepthStencilState(const std::string& name, DepthStencilState* depthstencil);
-    void RegisterSampler(const std::string& name, Sampler* sampler);
-    void RegisterFont(const std::string& name, KerningFont* font);
+    void UpdateSystemTime(TimeUtils::FPSeconds deltaSeconds) noexcept;
+    bool RegisterTexture(const std::filesystem::path& filepath) noexcept;
+    void RegisterShaderProgram(const std::string& name, ShaderProgram * sp) noexcept;
+    void RegisterShaderProgramsFromFolder(std::filesystem::path folderpath, const std::string& entrypoint, const PipelineStage& target, bool recursive = false) noexcept;
+    void RegisterShader(const std::string& name, Shader* shader) noexcept;
+    void RegisterShadersFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept;
+    void RegisterMaterial(const std::string& name, Material* mat) noexcept;
+    void RegisterRasterState(const std::string& name, RasterState* raster) noexcept;
+    void RegisterDepthStencilState(const std::string& name, DepthStencilState* depthstencil) noexcept;
+    void RegisterSampler(const std::string& name, Sampler* sampler) noexcept;
+    void RegisterFont(const std::string& name, KerningFont* font) noexcept;
 
-    void CreateDefaultConstantBuffers();
-    void CreateWorkingVboAndIbo();
-    void UpdateVbo(const VertexBuffer::buffer_t& vbo);
-    void UpdateIbo(const IndexBuffer::buffer_t& ibo);
+    void CreateDefaultConstantBuffers() noexcept;
+    void CreateWorkingVboAndIbo() noexcept;
+    void UpdateVbo(const VertexBuffer::buffer_t& vbo) noexcept;
+    void UpdateIbo(const IndexBuffer::buffer_t& ibo) noexcept;
 
-    void Draw(const PrimitiveType& topology, VertexBuffer* vbo, std::size_t vertex_count);
-    void DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, IndexBuffer* ibo, std::size_t index_count, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0);
+    void Draw(const PrimitiveType& topology, VertexBuffer* vbo, std::size_t vertex_count) noexcept;
+    void DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, IndexBuffer* ibo, std::size_t index_count, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0) noexcept;
 
-    std::shared_ptr<SpriteSheet> CreateSpriteSheetFromGif(std::filesystem::path filepath);
-    std::shared_ptr<SpriteSheet> CreateSpriteSheet(Texture* texture, int tilesWide, int tilesHigh);
-    std::unique_ptr<AnimatedSprite> CreateAnimatedSpriteFromGif(std::filesystem::path filepath);
+    std::shared_ptr<SpriteSheet> CreateSpriteSheetFromGif(std::filesystem::path filepath) noexcept;
+    std::shared_ptr<SpriteSheet> CreateSpriteSheet(Texture* texture, int tilesWide, int tilesHigh) noexcept;
+    std::unique_ptr<AnimatedSprite> CreateAnimatedSpriteFromGif(std::filesystem::path filepath) noexcept;
 
-    void SetLightAtIndex(unsigned int index, const light_t& light);
-    void SetPointLight(unsigned int index, const light_t& light);
-    void SetDirectionalLight(unsigned int index, const light_t& light);
-    void SetSpotlight(unsigned int index, const light_t& light);
+    void SetLightAtIndex(unsigned int index, const light_t& light) noexcept;
+    void SetPointLight(unsigned int index, const light_t& light) noexcept;
+    void SetDirectionalLight(unsigned int index, const light_t& light) noexcept;
+    void SetSpotlight(unsigned int index, const light_t& light) noexcept;
     
-    void CreateAndRegisterDefaultTextures();
-    Texture* CreateDefaultTexture();
-    Texture* CreateInvalidTexture();
-    Texture* CreateInvalidMaterialTexture();
-    Texture* CreateDefaultDiffuseTexture();
-    Texture* CreateDefaultNormalTexture();
-    Texture* CreateDefaultDisplacementTexture();
-    Texture* CreateDefaultSpecularTexture();
-    Texture* CreateDefaultOcclusionTexture();
-    Texture* CreateDefaultEmissiveTexture();
+    void CreateAndRegisterDefaultTextures() noexcept;
+    Texture* CreateDefaultTexture() noexcept;
+    Texture* CreateInvalidTexture() noexcept;
+    Texture* CreateInvalidMaterialTexture() noexcept;
+    Texture* CreateDefaultDiffuseTexture() noexcept;
+    Texture* CreateDefaultNormalTexture() noexcept;
+    Texture* CreateDefaultDisplacementTexture() noexcept;
+    Texture* CreateDefaultSpecularTexture() noexcept;
+    Texture* CreateDefaultOcclusionTexture() noexcept;
+    Texture* CreateDefaultEmissiveTexture() noexcept;
 
-    void CreateDefaultColorTextures();
-    Texture* CreateDefaultColorTexture(const Rgba& color);
+    void CreateDefaultColorTextures() noexcept;
+    Texture* CreateDefaultColorTexture(const Rgba& color) noexcept;
     
-    void CreateAndRegisterDefaultDepthStencil();
+    void CreateAndRegisterDefaultDepthStencil() noexcept;
 
-    void CreateAndRegisterDefaultShaderPrograms();
-    ShaderProgram* CreateDefaultShaderProgram();
-    ShaderProgram* CreateDefaultUnlitShaderProgram();
-    ShaderProgram* CreateDefaultNormalShaderProgram();
-    ShaderProgram* CreateDefaultNormalMapShaderProgram();
-    ShaderProgram* CreateDefaultFontShaderProgram();
+    void CreateAndRegisterDefaultShaderPrograms() noexcept;
+    ShaderProgram* CreateDefaultShaderProgram() noexcept;
+    ShaderProgram* CreateDefaultUnlitShaderProgram() noexcept;
+    ShaderProgram* CreateDefaultNormalShaderProgram() noexcept;
+    ShaderProgram* CreateDefaultNormalMapShaderProgram() noexcept;
+    ShaderProgram* CreateDefaultFontShaderProgram() noexcept;
 
-    void CreateAndRegisterDefaultShaders();
-    Shader* CreateDefaultShader();
-    Shader* CreateDefaultUnlitShader();
-    Shader* CreateDefault2DShader();
-    Shader* CreateDefaultNormalShader();
-    Shader* CreateDefaultNormalMapShader();
-    Shader* CreateDefaultFontShader();
-    Shader* CreateShaderFromFile(std::filesystem::path filepath);
+    void CreateAndRegisterDefaultShaders() noexcept;
+    Shader* CreateDefaultShader() noexcept;
+    Shader* CreateDefaultUnlitShader() noexcept;
+    Shader* CreateDefault2DShader() noexcept;
+    Shader* CreateDefaultNormalShader() noexcept;
+    Shader* CreateDefaultNormalMapShader() noexcept;
+    Shader* CreateDefaultFontShader() noexcept;
+    Shader* CreateShaderFromFile(std::filesystem::path filepath) noexcept;
 
-    void CreateAndRegisterDefaultMaterials();
-    Material* CreateDefaultMaterial();
-    Material* CreateDefaultUnlitMaterial();
-    Material* CreateDefault2DMaterial();
-    Material* CreateDefaultNormalMaterial();
-    Material* CreateDefaultNormalMapMaterial();
-    Material* CreateDefaultInvalidMaterial();
+    void CreateAndRegisterDefaultMaterials() noexcept;
+    Material* CreateDefaultMaterial() noexcept;
+    Material* CreateDefaultUnlitMaterial() noexcept;
+    Material* CreateDefault2DMaterial() noexcept;
+    Material* CreateDefaultNormalMaterial() noexcept;
+    Material* CreateDefaultNormalMapMaterial() noexcept;
+    Material* CreateDefaultInvalidMaterial() noexcept;
 
-    void CreateAndRegisterDefaultFonts();
+    void CreateAndRegisterDefaultFonts() noexcept;
 
-    void CreateAndRegisterDefaultSamplers();
-    Sampler* CreateDefaultSampler();
-    Sampler* CreateLinearSampler();
-    Sampler* CreatePointSampler();
+    void CreateAndRegisterDefaultSamplers() noexcept;
+    Sampler* CreateDefaultSampler() noexcept;
+    Sampler* CreateLinearSampler() noexcept;
+    Sampler* CreatePointSampler() noexcept;
 
-    void CreateAndRegisterDefaultRasterStates();
-    RasterState* CreateDefaultRaster();
-    RasterState* CreateWireframeRaster();
-    RasterState* CreateSolidRaster();
-    RasterState* CreateWireframeNoCullingRaster();
-    RasterState* CreateSolidNoCullingRaster();
-    RasterState* CreateWireframeFrontCullingRaster();
-    RasterState* CreateSolidFrontCullingRaster();
+    void CreateAndRegisterDefaultRasterStates() noexcept;
+    RasterState* CreateDefaultRaster() noexcept;
+    RasterState* CreateWireframeRaster() noexcept;
+    RasterState* CreateSolidRaster() noexcept;
+    RasterState* CreateWireframeNoCullingRaster() noexcept;
+    RasterState* CreateSolidNoCullingRaster() noexcept;
+    RasterState* CreateWireframeFrontCullingRaster() noexcept;
+    RasterState* CreateSolidFrontCullingRaster() noexcept;
 
-    void CreateAndRegisterDefaultDepthStencilStates();
-    DepthStencilState* CreateDefaultDepthStencilState();
-    DepthStencilState* CreateDisabledDepth();
-    DepthStencilState* CreateEnabledDepth();
-    DepthStencilState* CreateDisabledStencil();
-    DepthStencilState* CreateEnabledStencil();
+    void CreateAndRegisterDefaultDepthStencilStates() noexcept;
+    DepthStencilState* CreateDefaultDepthStencilState() noexcept;
+    DepthStencilState* CreateDisabledDepth() noexcept;
+    DepthStencilState* CreateEnabledDepth() noexcept;
+    DepthStencilState* CreateDisabledStencil() noexcept;
+    DepthStencilState* CreateEnabledStencil() noexcept;
 
-    void UnbindAllShaderResources();
-    void UnbindAllConstantBuffers();
-    void UnbindComputeShaderResources();
-    void UnbindComputeConstantBuffers();
+    void UnbindAllShaderResources() noexcept;
+    void UnbindAllConstantBuffers() noexcept;
+    void UnbindComputeShaderResources() noexcept;
+    void UnbindComputeConstantBuffers() noexcept;
 
-    void LogAvailableDisplays();
+    void LogAvailableDisplays() noexcept;
 
     Camera3D _camera{};
     matrix_buffer_t _matrix_data{};

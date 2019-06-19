@@ -8,7 +8,7 @@
 
 #include "Engine/RHI/RHIDevice.hpp"
 
-Texture2D::Texture2D(const RHIDevice* device, ID3D11Texture2D* dxTexture)
+Texture2D::Texture2D(const RHIDevice* device, ID3D11Texture2D* dxTexture) noexcept
     : Texture(device)
     , _dx_tex(dxTexture)
 {
@@ -21,7 +21,7 @@ void Texture2D::SetDebugName([[maybe_unused]] const std::string& name) const noe
 #endif
 }
 
-Texture2D::~Texture2D() {
+Texture2D::~Texture2D() noexcept {
     _device = nullptr;
     if(_dx_tex) {
         _dx_tex->Release();
@@ -33,11 +33,11 @@ IntVector2 Texture2D::GetDimensions() const noexcept {
     return IntVector2(_dimensions);
 }
 
-ID3D11Resource* Texture2D::GetDxResource() const {
+ID3D11Resource* Texture2D::GetDxResource() const noexcept {
     return _dx_tex;
 }
 
-ID3D11Texture2D* Texture2D::GetDxTexture() {
+ID3D11Texture2D* Texture2D::GetDxTexture() noexcept {
     return reinterpret_cast<ID3D11Texture2D*>(GetDxResource());
 }
 

@@ -22,19 +22,19 @@ struct SamplerDesc {
     float minLOD = (std::numeric_limits<float>::lowest)();
     float maxLOD = (std::numeric_limits<float>::max)();
     SamplerDesc() = default;
-    explicit SamplerDesc(const XMLElement& element);
+    explicit SamplerDesc(const XMLElement& element) noexcept;
 };
 
 class Sampler {
 public:
-    explicit Sampler(const RHIDevice* device, const SamplerDesc& desc);
-    explicit Sampler(const RHIDevice* device, const XMLElement& element);
-    ~Sampler();
-    ID3D11SamplerState* GetDxSampler() const;
+    explicit Sampler(const RHIDevice* device, const SamplerDesc& desc) noexcept;
+    explicit Sampler(const RHIDevice* device, const XMLElement& element) noexcept;
+    ~Sampler() noexcept;
+    ID3D11SamplerState* GetDxSampler() const noexcept;
     void SetDebugName([[maybe_unused]] const std::string& name) const noexcept;
 protected:
 private:
-    bool CreateSamplerState(const RHIDevice* device, const SamplerDesc& desc = SamplerDesc());
+    bool CreateSamplerState(const RHIDevice* device, const SamplerDesc& desc = SamplerDesc()) noexcept;
 
     SamplerDesc _desc{};
     ID3D11SamplerState* _dx_state = nullptr;

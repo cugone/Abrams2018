@@ -89,7 +89,7 @@ void RHIOutput::SetDimensions(const IntVector2& clientSize) noexcept {
     _window->SetDimensions(clientSize);
 }
 
-void RHIOutput::Present(bool vsync) {
+void RHIOutput::Present(bool vsync) noexcept {
     DXGI_PRESENT_PARAMETERS present_params{};
     present_params.DirtyRectsCount = 0;
     present_params.pDirtyRects = nullptr;

@@ -3,13 +3,13 @@
 #include "Engine/Renderer/DepthStencilState.hpp"
 #include "Engine/Renderer/Renderer.hpp"
 
-RenderTargetStack::RenderTargetStack(Renderer* renderer)
+RenderTargetStack::RenderTargetStack(Renderer* renderer) noexcept
     : _renderer(renderer)
 {
     /* DO NOTHING */
 }
 
-void RenderTargetStack::Push(const RenderTargetStack::Node& node) {
+void RenderTargetStack::Push(const RenderTargetStack::Node& node) noexcept {
     _stack.push_back(node);
     const auto& top = _stack.back();
     _renderer->SetRenderTarget(top.color_target, top.depthstencil_target);
@@ -20,7 +20,7 @@ void RenderTargetStack::Push(const RenderTargetStack::Node& node) {
     _renderer->SetViewport(x, y, w, h);
 }
 
-void RenderTargetStack::Pop() {
+void RenderTargetStack::Pop() noexcept {
     _stack.pop_back();
     const auto& top = _stack.back();
     _renderer->SetRenderTarget(top.color_target, top.depthstencil_target);
@@ -33,6 +33,6 @@ void RenderTargetStack::Pop() {
     _renderer->SetViewport(x, y, w, h);
 }
 
-const RenderTargetStack::Node& RenderTargetStack::Top() const {
+const RenderTargetStack::Node& RenderTargetStack::Top() const noexcept {
     return _stack.back();
 }

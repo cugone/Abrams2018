@@ -26,36 +26,36 @@ struct ShaderProgramDesc {
     ShaderProgramDesc& operator=(ShaderProgramDesc&& other) noexcept;
     ShaderProgramDesc(const ShaderProgramDesc& other) = delete;
     ShaderProgramDesc& operator=(const ShaderProgramDesc& other) = delete;
-    ~ShaderProgramDesc();
+    ~ShaderProgramDesc() noexcept;
 };
 
 class ShaderProgram {
 public:
-    explicit ShaderProgram(ShaderProgramDesc&& desc);
+    explicit ShaderProgram(ShaderProgramDesc&& desc) noexcept;
     ShaderProgram(ShaderProgram&& other) = default;
     ShaderProgram& operator=(ShaderProgram&& other) = default;
     ShaderProgram(const ShaderProgram& other) = delete;
     ShaderProgram& operator=(const ShaderProgram& other) = delete;
     ~ShaderProgram() = default;
 
-    ShaderProgramDesc&& GetDescription();
-    void SetDescription(ShaderProgramDesc&& description);
+    ShaderProgramDesc&& GetDescription() noexcept;
+    void SetDescription(ShaderProgramDesc&& description) noexcept;
 
-    const std::string& GetName() const;
-    const RHIDevice* GetParentDevice() const;
-    ID3DBlob* GetVSByteCode() const;
-    ID3DBlob* GetHSByteCode() const;
-    ID3DBlob* GetDSByteCode() const;
-    ID3DBlob* GetGSByteCode() const;
-    ID3DBlob* GetPSByteCode() const;
-    ID3DBlob* GetCSByteCode() const;
-    InputLayout* GetInputLayout() const;
-    ID3D11VertexShader* GetVS() const;
-    ID3D11HullShader* GetHS() const;
-    ID3D11DomainShader* GetDS() const;
-    ID3D11GeometryShader* GetGS() const;
-    ID3D11PixelShader* GetPS() const;
-    ID3D11ComputeShader* GetCS() const;
+    const std::string& GetName() const noexcept;
+    const RHIDevice* GetParentDevice() const noexcept;
+    ID3DBlob* GetVSByteCode() const noexcept;
+    ID3DBlob* GetHSByteCode() const noexcept;
+    ID3DBlob* GetDSByteCode() const noexcept;
+    ID3DBlob* GetGSByteCode() const noexcept;
+    ID3DBlob* GetPSByteCode() const noexcept;
+    ID3DBlob* GetCSByteCode() const noexcept;
+    InputLayout* GetInputLayout() const noexcept;
+    ID3D11VertexShader* GetVS() const noexcept;
+    ID3D11HullShader* GetHS() const noexcept;
+    ID3D11DomainShader* GetDS() const noexcept;
+    ID3D11GeometryShader* GetGS() const noexcept;
+    ID3D11PixelShader* GetPS() const noexcept;
+    ID3D11ComputeShader* GetCS() const noexcept;
 
 protected:
 private:

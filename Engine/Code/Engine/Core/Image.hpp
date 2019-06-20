@@ -8,6 +8,7 @@
 #include <string>
 #include <filesystem>
 
+//TODO: Refactor resource management to use std::unique.
 class Image {
 public:
     explicit Image(std::filesystem::path filepath) noexcept;
@@ -37,7 +38,9 @@ public:
     bool Export(std::filesystem::path filepath, int bytes_per_pixel = 4, int jpg_quality = 100) noexcept;
     static Image* CreateImageFromFileBuffer(const std::vector<unsigned char>& data) noexcept;
     static std::string GetSupportedExtensionsList() noexcept;
-    //TODO: Add swap noexcept;
+
+    friend void swap(Image& a, Image& b) noexcept;
+
 protected:
 private:
     Image() = default;

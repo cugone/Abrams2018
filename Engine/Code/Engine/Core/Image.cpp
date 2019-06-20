@@ -19,6 +19,11 @@ Image::Image(std::filesystem::path filepath) noexcept
 {
 
     namespace FS = std::filesystem;
+    if(!FS::exists(filepath)) {
+        std::ostringstream ss;
+        ss << "Failed to load image. Could not find file: " << filepath << ".\n";
+        ERROR_AND_DIE(ss.str().c_str());
+    }
     filepath = FS::canonical(filepath);
     filepath.make_preferred();
     std::vector<unsigned char> buf = {};
@@ -43,8 +48,8 @@ Image::Image(std::filesystem::path filepath) noexcept
     } else {
         std::ostringstream ss;
         ss << "Failed to load image. " << filepath << " is not a supported image type.";
-        //TODO: Change to DebuggerPrintf message
-        ASSERT_OR_DIE(m_texelBytes != nullptr, ss.str());
+        DebuggerPrintf(ss.str().c_str());
+        GUARANTEE_RECOVERABLE(m_texelBytes != nullptr, ss.str());
     }
 }
 Image::Image(unsigned int width, unsigned int height) noexcept
@@ -142,7 +147,9 @@ Image::~Image() noexcept {
     }
 }
 Rgba Image::GetTexel(const IntVector2& texelPos) const noexcept {
-
+    if(!m_texelBytes) {
+        return Rgba::Magenta;
+    }
     int index = texelPos.x + texelPos.y * m_dimensions.x;
     int byteOffset = index * m_bytesPerTexel;
     //HACK: If too slow, use following commented line instead.
@@ -158,6 +165,9 @@ Rgba Image::GetTexel(const IntVector2& texelPos) const noexcept {
     return color;
 }
 void Image::SetTexel(const IntVector2& texelPos, const Rgba& color) noexcept {
+    if(!m_texelBytes) {
+        return;
+    }
     Rgba oldColor = GetTexel(texelPos);
     int index = texelPos.x + texelPos.y * m_dimensions.x;
     int byteOffset = index * m_bytesPerTexel;
@@ -196,9 +206,14 @@ const std::vector<int>& Image::GetDelaysIfGif() const noexcept {
 }
 
 bool Image::Export(std::filesystem::path filepath, int bytes_per_pixel /*= 4*/, int jpg_quality /*= 100*/) noexcept {
-
+    if(!m_texelBytes) {
+        std::ostringstream ss;
+        ss << "Attempting to write empty Image: " << filepath;
+        DebuggerPrintf(ss.str().c_str());
+        return false;
+    }
     namespace FS = std::filesystem;
-    filepath = FS::canonical(filepath);
+    filepath = FS::absolute(filepath);
     filepath.make_preferred();
     std::string extension = StringUtils::ToLowerCase(filepath.extension().string());
     std::string p_str = filepath.string();
@@ -274,4 +289,15 @@ Image* Image::CreateImageFromFileBuffer(const std::vector<unsigned char>& data) 
 std::string Image::GetSupportedExtensionsList() noexcept {
     return std::string(".png,.bmp,.tga,.jpg");
 
+}
+
+void swap(Image& a, Image& b) noexcept {
+    std::scoped_lock<std::mutex, std::mutex> _lock(a._cs, b._cs);
+    std::swap(a.m_bytesPerTexel, b.m_bytesPerTexel);
+    std::swap(a.m_dimensions, b.m_dimensions);
+    std::swap(a.m_filepath, b.m_filepath);
+    std::swap(a.m_gifDelays, b.m_gifDelays);
+    std::swap(a.m_isGif, b.m_isGif);
+    std::swap(a.m_memload, b.m_memload);
+    std::swap(a.m_texelBytes, b.m_texelBytes);
 }

@@ -278,15 +278,17 @@ void Shader::ValidatePipelineStages(const PipelineStage& targets) noexcept {
     } else if(targets == PipelineStage::All) {
         result = true;
     } else {
-        //geometry and compute stages are entirely optional and do not rely on each other.
         bool has_vs = (targets & PipelineStage::Vs) == PipelineStage::Vs;
         bool has_ps = (targets & PipelineStage::Ps) == PipelineStage::Ps;
         bool has_hs = (targets & PipelineStage::Hs) == PipelineStage::Hs;
         bool has_ds = (targets & PipelineStage::Ds) == PipelineStage::Ds;
+        bool has_cs = (targets & PipelineStage::Cs) == PipelineStage::Cs;
+        bool has_gs = (targets & PipelineStage::Gs) == PipelineStage::Gs;
         bool valid_vsps = !(has_vs ^ has_ps);
         bool valid_hsds = !(has_hs ^ has_ds);
-        //TODO: Validate compute and geometry stages
-        result = valid_vsps && valid_hsds;
+        bool valid_cs = has_cs;
+        bool valid_gs = has_gs;
+        result = valid_cs || valid_gs || valid_vsps || valid_hsds;
     }
     if(!result) {
         std::ostringstream ss;

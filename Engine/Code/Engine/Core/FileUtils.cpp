@@ -337,9 +337,6 @@ bool HasReadPermissions(const std::filesystem::path& p) noexcept {
 
 bool IsSafeWritePath(const std::filesystem::path& p) noexcept {
     namespace FS = std::filesystem;
-    if(!FS::exists(p)) {
-        return false;
-    }
     //Check for any write permissions on the file and parent directory
     if(!(HasWritePermissions(p) || HasDeletePermissions(p))) {
         return false;

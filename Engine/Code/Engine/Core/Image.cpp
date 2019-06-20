@@ -98,14 +98,12 @@ Image::Image(const std::vector<unsigned char>& data, unsigned int width, unsigne
 Image::Image(Image&& img) noexcept
     : m_dimensions(std::move(img.m_dimensions))
     , m_bytesPerTexel(std::move(img.m_bytesPerTexel))
-    //Notice comma operator.
-    //Perform both operations, return right side, then lock goes out of scope.
-    , m_texelBytes((std::scoped_lock<std::mutex, std::mutex>(_cs, img._cs), std::move(img.m_texelBytes)))
     , m_gifDelays(std::move(img.m_gifDelays))
     , m_filepath(std::move(img.m_filepath))
     , m_isGif(std::move(m_isGif))
 {
-    /* DO NOTHING */
+    std::scoped_lock<std::mutex, std::mutex>(_cs, img._cs);
+    m_texelBytes = std::move(img.m_texelBytes);
 }
 
 
@@ -252,6 +250,7 @@ Image Image::CreateImageFromFileBuffer(const std::vector<unsigned char>& data) n
         bytes = nullptr;
     }
     Image result{};
+    result.m_dimensions = IntVector2(dim_x, dim_y);
     result.m_bytesPerTexel = comp;
     result.m_isGif = data.size() > 6 ? (data[0] == 'G' && data[1] == 'I' && data[2] == 'F' && data[3] == '8' && (data[4] == '9' || data[4] == '7') && data[5] == 'a') : false;
     if(!result.m_isGif) {

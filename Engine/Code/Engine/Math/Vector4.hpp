@@ -94,6 +94,8 @@ public:
     Vector4 GetNormalize4D() const noexcept;
     Vector4 GetNormalize3D() const noexcept;
 
+    friend void swap(Vector4& a, Vector4& b) noexcept;
+
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;

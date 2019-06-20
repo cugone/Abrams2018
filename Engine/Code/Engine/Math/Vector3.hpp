@@ -77,7 +77,7 @@ public:
     float y = 0.0f;
     float z = 0.0f;
 
-    //TODO: Add friend void swap noexcept
+    friend void swap(Vector3& a, Vector3& b) noexcept;
 
 protected:
 private:

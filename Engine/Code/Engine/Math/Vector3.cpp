@@ -251,3 +251,9 @@ void Vector3::SetXYZ(float newX, float newY, float newZ) noexcept {
     y = newY;
     z = newZ;
 }
+
+void swap(Vector3& a, Vector3& b) noexcept {
+    std::swap(a.x, b.x);
+    std::swap(a.y, b.y);
+    std::swap(a.z, b.z);
+}

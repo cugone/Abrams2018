@@ -316,3 +316,10 @@ bool Vector4::operator!=(const Vector4& rhs) const noexcept {
 bool Vector4::operator==(const Vector4& rhs) const noexcept {
     return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w;
 }
+
+void swap(Vector4& a, Vector4& b) noexcept {
+    std::swap(a.x, b.x);
+    std::swap(a.y, b.y);
+    std::swap(a.z, b.z);
+    std::swap(a.w, b.w);
+}

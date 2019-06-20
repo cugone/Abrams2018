@@ -65,10 +65,7 @@ bool XboxController::IsDisconnected() const noexcept {
 }
 
 void XboxController::Update(int controller_number) noexcept {
-    //TODO: Use braced initialization instead of memset zero
-    XINPUT_STATE state;
-    std::memset(&state, 0, sizeof(state));
-
+    XINPUT_STATE state{};
     auto error_status = ::XInputGetState(controller_number, &state);
     _previousPacketNumber = _currentPacketNumber;
     _currentPacketNumber = state.dwPacketNumber;
@@ -180,10 +177,7 @@ void XboxController::SetBothMotorSpeedAsPercent(float speed) noexcept {
 }
 
 void XboxController::UpdateConnectedState(int controller_number) noexcept {
-    //TODO: Use braced initialization instead of memset zero
-    XINPUT_STATE state;
-    std::memset(&state, 0, sizeof(state));
-
+    XINPUT_STATE state{};
     auto error_status = ::XInputGetState(controller_number, &state);
     _previousPacketNumber = _currentPacketNumber;
     _currentPacketNumber = state.dwPacketNumber;
@@ -230,9 +224,7 @@ void XboxController::UpdateState() noexcept {
 }
 
 void XboxController::SetMotorSpeed(int controller_number, const Motor& motor, unsigned short value) noexcept {
-    //TODO: Use braced initialization instead of memset zero
-    XINPUT_VIBRATION vibration;
-    std::memset(&vibration, 0, sizeof(vibration));
+    XINPUT_VIBRATION vibration{};
     switch(motor) {
         case Motor::Left:
             vibration.wLeftMotorSpeed = value;

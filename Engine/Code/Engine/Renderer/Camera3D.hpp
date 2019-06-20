@@ -13,7 +13,12 @@ class Camera2D;
 class Camera3D {
 public:
     Camera3D() = default;
+    Camera3D(const Camera3D& camera3D) noexcept = default;
+    Camera3D(Camera3D&& camera3D) noexcept = default;
+    Camera3D& operator=(const Camera3D& camera3D) noexcept = default;
+    Camera3D& operator=(Camera3D&& camera3D) noexcept = default;
     ~Camera3D() = default;
+
     explicit Camera3D(const Camera2D& camera2D) noexcept;
     Camera3D& operator=(const Camera2D& camera2D) noexcept;
 
@@ -88,16 +93,16 @@ private:
     float far_distance = 1.0f;
     Vector3 position = Vector3::ZERO;
     Vector3 world_up = Vector3::Y_AXIS;
-    //TODO: Set to Matrix::I
-    Matrix4 view_matrix = Matrix4::GetIdentity();
-    Matrix4 rotation_matrix = Matrix4::GetIdentity();
-    Matrix4 projection_matrix = Matrix4::GetIdentity();
-    Matrix4 view_projection_matrix = Matrix4::GetIdentity();
-    Matrix4 inv_view_matrix = Matrix4::GetIdentity();
-    Matrix4 inv_projection_matrix = Matrix4::GetIdentity();
-    Matrix4 inv_view_projection_matrix = Matrix4::GetIdentity();
 
-    Quaternion rotation = Quaternion::GetIdentity();
+    Matrix4 view_matrix = Matrix4::I;
+    Matrix4 rotation_matrix = Matrix4::I;
+    Matrix4 projection_matrix = Matrix4::I;
+    Matrix4 view_projection_matrix = Matrix4::I;
+    Matrix4 inv_view_matrix = Matrix4::I;
+    Matrix4 inv_projection_matrix = Matrix4::I;
+    Matrix4 inv_view_projection_matrix = Matrix4::I;
+
+    Quaternion rotation = Quaternion::I;
     float rotationPitch = 0.0f;
     float rotationYaw = 0.0f;
     float rotationRoll = 0.0f;

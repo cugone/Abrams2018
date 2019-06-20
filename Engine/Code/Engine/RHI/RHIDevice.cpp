@@ -23,7 +23,6 @@
 #include <sstream>
 
 RHIDevice::~RHIDevice() {
-    _immediate_context = nullptr;
     if(_dx_device) {
         _dx_device->Release();
         _dx_device = nullptr;
@@ -90,7 +89,6 @@ std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevi
     auto device_info = CreateDeviceFromFirstAdapter(adapters);
     _dx_device = device_info.dx_device;
     _dx_highestSupportedFeatureLevel = device_info.highest_supported_feature_level;
-    _immediate_context = std::make_unique<RHIDeviceContext>(this, device_info.dx_context);
 
     auto dxgi_swap_chain = CreateSwapChain(*window, factory);
     _allow_tearing_supported = factory.QueryForAllowTearingSupport();
@@ -103,7 +101,7 @@ std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevi
 
     return std::make_pair(
         std::move(std::make_unique<RHIOutput>(this, window, dxgi_swap_chain)),
-        std::move(_immediate_context));
+        std::move(std::make_unique<RHIDeviceContext>(this, device_info.dx_context)));
 }
 
 DeviceInfo RHIDevice::CreateDeviceFromFirstAdapter(const std::vector<AdapterInfo>& adapters) noexcept {
@@ -299,11 +297,6 @@ std::vector<ConstantBuffer*> RHIDevice::CreateConstantBuffersFromByteCode(ID3DBl
     cbufferReflection->Release();
     cbufferReflection = nullptr;
     return cbuffers;
-}
-
-
-RHIDeviceContext* RHIDevice::GetImmediateContext() const noexcept {
-    return _immediate_context.release();
 }
 
 std::vector<ConstantBuffer*> RHIDevice::CreateConstantBuffersUsingReflection(ID3D11ShaderReflection& cbufferReflection) const noexcept {

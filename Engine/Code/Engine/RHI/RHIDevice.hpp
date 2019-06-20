@@ -54,8 +54,6 @@ public:
 
     mutable std::set<DisplayDesc, DisplayDescGTComparator> displayModes{};
 
-    RHIDeviceContext* GetImmediateContext() const noexcept;
-
 private:
     std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> CreateOutputAndContextFromWindow(Window*& window) noexcept;
 
@@ -73,7 +71,6 @@ private:
     void GetDisplayModeDescriptions(const AdapterInfo& adapter, const OutputInfo& output, decltype(displayModes)& descriptions) const noexcept;
     DisplayDesc GetDisplayModeMatchingDimensions(const std::vector<DisplayDesc>& descriptions, unsigned int w, unsigned int h) noexcept;
 
-    mutable std::unique_ptr<RHIDeviceContext> _immediate_context = nullptr;
     ID3D11Device5* _dx_device = nullptr;
     D3D_FEATURE_LEVEL _dx_highestSupportedFeatureLevel{};
     bool _allow_tearing_supported = false;

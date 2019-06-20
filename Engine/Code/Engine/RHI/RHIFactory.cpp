@@ -54,6 +54,20 @@ bool RHIFactory::QueryForAllowTearingSupport() const noexcept {
     return false;
 }
 
+
+std::vector<AdapterInfo> RHIFactory::GetAdaptersByPreference(const AdapterPreference& preference) const noexcept {
+    switch(preference) {
+    case AdapterPreference::HighPerformance:
+        return GetAdaptersByHighPerformancePreference();
+    case AdapterPreference::MinimumPower:
+        return GetAdaptersByMinimumPowerPreference();
+    case AdapterPreference::Unspecified: [[fallthrough]];
+    /*case AdapterPreference::None: [[fallthrough]]; Also Unspecified */
+    default:
+        return GetAdaptersByUnspecifiedPreference();
+    }
+}
+
 std::vector<AdapterInfo> RHIFactory::GetAdaptersByHighPerformancePreference() const noexcept {
     std::vector<AdapterInfo> adapters{};
     IDXGIAdapter4* cur_adapter = nullptr;

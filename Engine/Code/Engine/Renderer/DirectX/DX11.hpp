@@ -37,6 +37,13 @@ struct AdapterInfo {
     }
 };
 
+enum class AdapterPreference {
+    None
+    ,Unspecified = None
+    ,HighPerformance
+    ,MinimumPower
+};
+
 GraphicsCardDesc AdapterInfoToGraphicsCardDesc(const AdapterInfo& adapterInfo) noexcept;
 
 struct OutputInfo {

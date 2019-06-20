@@ -16,7 +16,8 @@ public:
     IDXGISwapChain4* CreateSwapChainForHwnd(RHIDevice* device, const Window& window, const DXGI_SWAP_CHAIN_DESC1& swapchain_desc) noexcept;
     IDXGIFactory6* GetDxFactory() const noexcept;
     bool QueryForAllowTearingSupport() const noexcept;
-    //TODO: Add GetAdapterByPreference
+
+    std::vector<AdapterInfo> GetAdaptersByPreference(const AdapterPreference& preference) const noexcept;
     std::vector<AdapterInfo> GetAdaptersByHighPerformancePreference() const noexcept;
     std::vector<AdapterInfo> GetAdaptersByMinimumPowerPreference() const noexcept;
     std::vector<AdapterInfo> GetAdaptersByUnspecifiedPreference() const noexcept;

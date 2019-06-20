@@ -2,7 +2,7 @@
 
 #include "Engine/Core/Win.hpp"
 
-EngineSubsystem::~EngineSubsystem() {
+EngineSubsystem::~EngineSubsystem() noexcept {
     _next_subsystem = nullptr;
 }
 

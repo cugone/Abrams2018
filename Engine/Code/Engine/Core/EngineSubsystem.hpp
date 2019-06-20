@@ -130,7 +130,7 @@ struct EngineMessage32 {
 
 class EngineSubsystem {
 public:
-    virtual ~EngineSubsystem() = 0;
+    virtual ~EngineSubsystem() noexcept = 0;
 
     virtual void Initialize() = 0;
     virtual void BeginFrame() = 0;

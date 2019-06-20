@@ -15,12 +15,8 @@ namespace ThreadUtils {
     }
 
     void GetThreadDescription(std::thread& thread, std::string& description) noexcept {
-        //TODO: Delegate to GetThreadDescription(std::thread&,std::wstring&)
-        PWSTR d{};
-        ::GetThreadDescription(thread.native_handle(), &d);
-        std::wstring wide_description{d};
-        ::LocalFree(d);
-        d = nullptr;
+        auto wide_description = StringUtils::ConvertMultiByteToUnicode(description);
+        GetThreadDescription(thread, wide_description);
         description = StringUtils::ConvertUnicodeToMultiByte(wide_description);
     }
 

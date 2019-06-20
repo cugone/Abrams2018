@@ -50,14 +50,13 @@ private:
     void CalcProjectionMatrix() noexcept;
     void CalcViewProjectionMatrix() noexcept;
 
-    //TODO: Change to Matrix4::I
-    Matrix4 view_matrix = Matrix4::GetIdentity();
-    Matrix4 projection_matrix = Matrix4::GetIdentity();
-    Matrix4 view_projection_matrix = Matrix4::GetIdentity();
+    Matrix4 view_matrix = Matrix4::I;
+    Matrix4 projection_matrix = Matrix4::I;
+    Matrix4 view_projection_matrix = Matrix4::I;
     
-    Matrix4 inv_view_matrix = Matrix4::GetIdentity();
-    Matrix4 inv_projection_matrix = Matrix4::GetIdentity();
-    Matrix4 inv_view_projection_matrix = Matrix4::GetIdentity();
+    Matrix4 inv_view_matrix = Matrix4::I;
+    Matrix4 inv_projection_matrix = Matrix4::I;
+    Matrix4 inv_view_projection_matrix = Matrix4::I;
 
     Vector2 leftBottom_view = Vector2{ -1.0f, 1.0f };
     Vector2 rightTop_view = Vector2{ 1.0f, -1.0f };

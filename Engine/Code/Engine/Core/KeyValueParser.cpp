@@ -163,7 +163,6 @@ void KeyValueParser::ConvertFromMultiParam(std::string& whole_line) noexcept {
 void KeyValueParser::CollapseMultiParamWhitespace(std::string& whole_line) noexcept {
     //Remove spaces around equals
     auto eq_loc = std::find(whole_line.begin(), whole_line.end(), '=');
-    //TODO: Refactor to use std::unique
     while(eq_loc != std::end(whole_line)) {
         auto left_space_eq = eq_loc - 1;
         while(std::isspace(*left_space_eq, std::locale(""))) {

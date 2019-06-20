@@ -36,10 +36,6 @@ public:
         ,Right
         ,Both
     };
-    //TODO: Evaluate rule of six or rule of zero.
-    XboxController() = default;
-    ~XboxController() = default;
-
     const Vector2& GetLeftThumbPosition() const noexcept;
     const Vector2& GetRightThumbPosition() const noexcept;
 

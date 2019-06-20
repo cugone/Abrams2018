@@ -283,9 +283,12 @@ KeyCode operator++(KeyCode& keycode, int) noexcept;
 
 class InputSystem : public EngineSubsystem {
 public:
-    InputSystem() = default;
-    //TODO: Evaluate rule of six or rule of zero
-    virtual ~InputSystem() = default;
+    InputSystem() noexcept = default;
+    InputSystem(const InputSystem& other) noexcept = default;
+    InputSystem(InputSystem&& r_other) noexcept = default;
+    InputSystem& operator=(const InputSystem& rhs) noexcept = default;
+    InputSystem& operator=(InputSystem&& rhs) noexcept = default;
+    virtual ~InputSystem() noexcept = default;
 
     void RegisterKeyDown(unsigned char keyIndex) noexcept;
     void RegisterKeyUp(unsigned char keyIndex) noexcept;

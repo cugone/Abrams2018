@@ -24,7 +24,12 @@ public:
         std::string help_text_long{};
         std::function<void(const std::string& args)> command_function = [](const std::string& /*args*/) {};
     };
+    Console() = delete;
     explicit Console(Renderer* renderer) noexcept;
+    Console(const Console& other) = delete;
+    Console(Console&& other) = delete;
+    Console& operator=(const Console& other) = delete;
+    Console& operator=(Console&& other) = delete;
     virtual ~Console() noexcept;
 
     virtual void Initialize() override;

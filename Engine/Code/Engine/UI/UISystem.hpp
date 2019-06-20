@@ -16,7 +16,7 @@ class Renderer;
 
 class UISystem : public EngineSubsystem {
 public:
-    //TODO: Evaluate rule of six or zero
+    UISystem() = delete;
     explicit UISystem(Renderer* renderer) noexcept;
     UISystem(const UISystem& other) = default;
     UISystem(UISystem&& other) = default;

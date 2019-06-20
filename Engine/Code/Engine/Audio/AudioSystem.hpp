@@ -86,6 +86,10 @@ private:
     };
 public:
     explicit AudioSystem(std::size_t max_channels = 1024);
+    AudioSystem(const AudioSystem& other) = delete;
+    AudioSystem(AudioSystem&& other) = delete;
+    AudioSystem& operator=(const AudioSystem& rhs) = delete;
+    AudioSystem& operator=(AudioSystem&& rhs) = delete;
     virtual ~AudioSystem() noexcept;
     virtual void Initialize() override;
     virtual void BeginFrame() override;

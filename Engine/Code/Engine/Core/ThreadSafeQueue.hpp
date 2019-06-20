@@ -6,10 +6,6 @@
 template<typename T>
 class ThreadSafeQueue {
 public:
-    ThreadSafeQueue() = default;
-    //TODO: Evaluate rule of six or rule of zero.
-    ~ThreadSafeQueue() noexcept;
-
     void push(const T& t) noexcept;
     void pop() noexcept;
     decltype(auto) size() const noexcept;
@@ -20,6 +16,8 @@ public:
     T& front() const noexcept;
     T& front() noexcept;
 
+    void swap(ThreadSafeQueue<T>& b) noexcept;
+
 protected:
 private:
     mutable std::mutex _cs{};
@@ -27,10 +25,9 @@ private:
 };
 
 template<typename T>
-ThreadSafeQueue<T>::~ThreadSafeQueue() noexcept {
-    std::scoped_lock<std::mutex> lock(_cs);
-    std::queue<T> temp{};
-    _queue.swap(temp);
+void ThreadSafeQueue<T>::swap(ThreadSafeQueue<T>& b) noexcept {
+    std::scoped_lock<std::mutex, std::mutex> lock(_cs, b._cs);
+    _queue.swap(b._queue);
 }
 
 template<typename T>

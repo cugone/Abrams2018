@@ -4,20 +4,224 @@
 
 #include "Engine/Core/StringUtils.hpp"
 
+#include <string>
 #include <vector>
 
-TEST(StringUtilsFunctions, Split) {
-    EXPECT_EQ(std::vector{"a","b","c"}, Split(std::string{"a,b,c"}));
+TEST(StringUtilsFunctions, SplitDefault) {
+    auto input = std::string{"a,b,c"};
+    auto result = StringUtils::Split(input);
+    auto expected = std::vector<std::string>{ "a","b","c" };
+    EXPECT_EQ(expected, result);
+    
+    input = std::string{"abc"};
+    result = StringUtils::Split(input);
+    expected = std::vector<std::string>{ "abc" };
+    EXPECT_EQ(expected, result);
+    
+    input = std::string{",abc"};
+    result = StringUtils::Split(input);
+    expected = std::vector<std::string>{ "abc" };
+    EXPECT_EQ(expected, result);
+    
+    input = std::string{"a,bc"};
+    result = StringUtils::Split(input);
+    expected = std::vector<std::string>{ "a", "bc" };
+    EXPECT_EQ(expected, result);
+    
+    input = std::string{"ab,c"};
+    result = StringUtils::Split(input);
+    expected = std::vector<std::string>{ "ab", "c" };
+    EXPECT_EQ(expected, result);
+    
+    input = std::string{"abc,"};
+    result = StringUtils::Split(input);
+    expected = std::vector<std::string>{ "abc" };
+    EXPECT_EQ(expected, result);
+
 }
 
-//std::vector<std::string> Split(const std::string& string, char delim = ',', bool skip_empty = true) noexcept;
-//std::vector<std::wstring> Split(const std::wstring& string, wchar_t delim = ',', bool skip_empty = true) noexcept;
-//std::vector<std::string> SplitOnUnquoted(const std::string& string, char delim = ',', bool skip_empty = true) noexcept;
-//std::vector<std::wstring> SplitOnUnquoted(const std::wstring& string, wchar_t delim = ',', bool skip_empty = true) noexcept;
+TEST(StringUtilsFunctions, SplitExplicitDelimiter) {
+    auto input = std::string{"a.b.c"};
+    auto result = StringUtils::Split(input, '.');
+    auto expected = std::vector<std::string>{ "a","b","c" };
+    EXPECT_EQ(expected, result);
+    
+    input = std::string{"abc"};
+    result = StringUtils::Split(input, '.');
+    expected = std::vector<std::string>{ "abc" };
+    EXPECT_EQ(expected, result);
+    
+    input = std::string{".abc"};
+    result = StringUtils::Split(input, '.');
+    expected = std::vector<std::string>{ "abc" };
+    EXPECT_EQ(expected, result);
+    
+    input = std::string{"a.bc"};
+    result = StringUtils::Split(input, '.');
+    expected = std::vector<std::string>{ "a", "bc" };
+    EXPECT_EQ(expected, result);
+    
+    input = std::string{"ab.c"};
+    result = StringUtils::Split(input, '.');
+    expected = std::vector<std::string>{ "ab", "c" };
+    EXPECT_EQ(expected, result);
+    
+    input = std::string{"abc."};
+    result = StringUtils::Split(input, '.');
+    expected = std::vector<std::string>{ "abc" };
+    EXPECT_EQ(expected, result);
+
+}
+
+TEST(StringUtilsFunctions, SplitNoSkipEmpty) {
+    auto input = std::string{"a.b.c"};
+    auto result = StringUtils::Split(input, '.', false);
+    auto expected = std::vector<std::string>{ "a","b","c" };
+    EXPECT_EQ(expected, result);
+    
+    input = std::string{"abc"};
+    result = StringUtils::Split(input, '.', false);
+    expected = std::vector<std::string>{ "abc" };
+    EXPECT_EQ(expected, result);
+    
+    input = std::string{".abc"};
+    result = StringUtils::Split(input, '.', false);
+    expected = std::vector<std::string>{ "", "abc" };
+    EXPECT_EQ(expected, result);
+    
+    input = std::string{"a..bc"};
+    result = StringUtils::Split(input, '.', false);
+    expected = std::vector<std::string>{ "a", "", "bc" };
+    EXPECT_EQ(expected, result);
+    
+    input = std::string{"a.bc"};
+    result = StringUtils::Split(input, '.', false);
+    expected = std::vector<std::string>{ "a", "bc" };
+    EXPECT_EQ(expected, result);
+    
+    input = std::string{"ab.c"};
+    result = StringUtils::Split(input, '.', false);
+    expected = std::vector<std::string>{ "ab", "c" };
+    EXPECT_EQ(expected, result);
+    
+    input = std::string{"abc."};
+    result = StringUtils::Split(input, '.', false);
+    expected = std::vector<std::string>{ "abc", "" };
+    EXPECT_EQ(expected, result);
+
+}
+
+
+TEST(StringUtilsFunctions, WSplitDefault) {
+    auto input = std::wstring{ L"a,b,c" };
+    auto result = StringUtils::Split(input);
+    auto expected = std::vector<std::wstring>{ L"a", L"b", L"c" };
+    EXPECT_EQ(expected, result);
+
+    input = std::wstring{ L"abc" };
+    result = StringUtils::Split(input);
+    expected = std::vector<std::wstring>{ L"abc" };
+    EXPECT_EQ(expected, result);
+
+    input = std::wstring{ L",abc" };
+    result = StringUtils::Split(input);
+    expected = std::vector<std::wstring>{ L"abc" };
+    EXPECT_EQ(expected, result);
+
+    input = std::wstring{ L"a,bc" };
+    result = StringUtils::Split(input);
+    expected = std::vector<std::wstring>{ L"a", L"bc" };
+    EXPECT_EQ(expected, result);
+
+    input = std::wstring{ L"ab,c" };
+    result = StringUtils::Split(input);
+    expected = std::vector<std::wstring>{ L"ab", L"c" };
+    EXPECT_EQ(expected, result);
+
+    input = std::wstring{ L"abc," };
+    result = StringUtils::Split(input);
+    expected = std::vector<std::wstring>{ L"abc" };
+    EXPECT_EQ(expected, result);
+
+}
+
+TEST(StringUtilsFunctions, WSplitExplicitDelimiter) {
+    auto input = std::wstring{ L"a.b.c" };
+    auto result = StringUtils::Split(input, L'.');
+    auto expected = std::vector<std::wstring>{ L"a", L"b", L"c" };
+    EXPECT_EQ(expected, result);
+
+    input = std::wstring{ L"abc" };
+    result = StringUtils::Split(input, L'.');
+    expected = std::vector<std::wstring>{ L"abc" };
+    EXPECT_EQ(expected, result);
+
+    input = std::wstring{ L".abc" };
+    result = StringUtils::Split(input, L'.');
+    expected = std::vector<std::wstring>{ L"abc" };
+    EXPECT_EQ(expected, result);
+
+    input = std::wstring{ L"a.bc" };
+    result = StringUtils::Split(input, L'.');
+    expected = std::vector<std::wstring>{ L"a", L"bc" };
+    EXPECT_EQ(expected, result);
+
+    input = std::wstring{ L"ab.c" };
+    result = StringUtils::Split(input, L'.');
+    expected = std::vector<std::wstring>{ L"ab", L"c" };
+    EXPECT_EQ(expected, result);
+
+    input = std::wstring{ L"abc." };
+    result = StringUtils::Split(input, L'.');
+    expected = std::vector<std::wstring>{ L"abc" };
+    EXPECT_EQ(expected, result);
+
+}
+
+TEST(StringUtilsFunctions, WSplitNoSkipEmpty) {
+    auto input = std::wstring{ L"a.b.c" };
+    auto result = StringUtils::Split(input, '.', false);
+    auto expected = std::vector<std::wstring>{ L"a", L"b", L"c" };
+    EXPECT_EQ(expected, result);
+
+    input = std::wstring{ L"abc" };
+    result = StringUtils::Split(input, L'.', false);
+    expected = std::vector<std::wstring>{ L"abc" };
+    EXPECT_EQ(expected, result);
+
+    input = std::wstring{ L".abc" };
+    result = StringUtils::Split(input, L'.', false);
+    expected = std::vector<std::wstring>{ L"", L"abc" };
+    EXPECT_EQ(expected, result);
+
+    input = std::wstring{ L"a..bc" };
+    result = StringUtils::Split(input, L'.', false);
+    expected = std::vector<std::wstring>{ L"a", L"", L"bc" };
+    EXPECT_EQ(expected, result);
+
+    input = std::wstring{ L"a.bc" };
+    result = StringUtils::Split(input, L'.', false);
+    expected = std::vector<std::wstring>{ L"a", L"bc" };
+    EXPECT_EQ(expected, result);
+
+    input = std::wstring{ L"ab.c" };
+    result = StringUtils::Split(input, L'.', false);
+    expected = std::vector<std::wstring>{ L"ab", L"c" };
+    EXPECT_EQ(expected, result);
+
+    input = std::wstring{ L"abc." };
+    result = StringUtils::Split(input, L'.', false);
+    expected = std::vector<std::wstring>{ L"abc", L"" };
+    EXPECT_EQ(expected, result);
+
+}
+
 //std::pair<std::string, std::string> SplitOnFirst(const std::string& string, char delim) noexcept;
 //std::pair<std::wstring, std::wstring> SplitOnFirst(const std::wstring& string, wchar_t delim) noexcept;
 //std::pair<std::string, std::string> SplitOnLast(const std::string& string, char delim) noexcept;
 //std::pair<std::wstring, std::wstring> SplitOnLast(const std::wstring& string, wchar_t delim) noexcept;
+//std::vector<std::string> SplitOnUnquoted(const std::string& string, char delim = ',', bool skip_empty = true) noexcept;
+//std::vector<std::wstring> SplitOnUnquoted(const std::wstring& string, wchar_t delim = ',', bool skip_empty = true) noexcept;
 //
 //std::string Join(const std::vector<std::string>& strings, char delim, bool skip_empty = true) noexcept;
 //std::wstring Join(const std::vector<std::wstring>& strings, wchar_t delim, bool skip_empty = true) noexcept;
@@ -92,3 +296,4 @@ TEST(StringUtilsFunctions, Split) {
 //} //End Encryption
 //
 //} //End StringUtils
+

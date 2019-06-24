@@ -244,13 +244,48 @@ TEST(StringUtilsFunctions, WSplitOnLast) {
     EXPECT_EQ(expected, result);
 }
 
-//std::pair<std::string, std::string> SplitOnFirst(const std::string& string, char delim) noexcept;
-//std::pair<std::wstring, std::wstring> SplitOnFirst(const std::wstring& string, wchar_t delim) noexcept;
-//std::pair<std::string, std::string> SplitOnLast(const std::string& string, char delim) noexcept;
-//std::pair<std::wstring, std::wstring> SplitOnLast(const std::wstring& string, wchar_t delim) noexcept;
-//std::vector<std::string> SplitOnUnquoted(const std::string& string, char delim = ',', bool skip_empty = true) noexcept;
-//std::vector<std::wstring> SplitOnUnquoted(const std::wstring& string, wchar_t delim = ',', bool skip_empty = true) noexcept;
-//
+TEST(StringUtilsFunctions, SplitOnUnquotedDefault) {
+    auto input = std::string{ "command,and,\"then,arguments\",Hello,World" };
+    auto result = StringUtils::SplitOnUnquoted(input);
+    auto expected = std::vector<std::string>{"command", "and", "\"then,arguments\"","Hello","World" };
+    EXPECT_EQ(expected, result);
+}
+
+TEST(StringUtilsFunctions, WSplitOnUnquotedDefault) {
+    auto input = std::wstring{ L"command,and,\"then,arguments\",Hello,World" };
+    auto result = StringUtils::SplitOnUnquoted(input);
+    auto expected = std::vector<std::wstring>{ L"command", L"and", L"\"then,arguments\"",L"Hello",L"World" };
+    EXPECT_EQ(expected, result);
+}
+
+TEST(StringUtilsFunctions, SplitOnUnquotedExplicitDelimiter) {
+    auto input = std::string{ "key1=value1\nkey2=\"value2\nvalue3\"\nkey3=value4\nkey5=value5" };
+    auto result = StringUtils::SplitOnUnquoted(input, '\n');
+    auto expected = std::vector<std::string>{ "key1=value1", "key2=\"value2\nvalue3\"", "key3=value4", "key5=value5" };
+    EXPECT_EQ(expected, result);
+}
+
+TEST(StringUtilsFunctions, WSplitOnUnquotedExplicitDelimiter) {
+    auto input = std::wstring{ L"key1=value1\nkey2=\"value2\nvalue3\"\nkey3=value4\nkey5=value5" };
+    auto result = StringUtils::SplitOnUnquoted(input, L'\n');
+    auto expected = std::vector<std::wstring>{ L"key1=value1", L"key2=\"value2\nvalue3\"", L"key3=value4", L"key5=value5" };
+    EXPECT_EQ(expected, result);
+}
+
+TEST(StringUtilsFunctions, SplitOnUnquotedNoSkipEmpty) {
+    auto input = std::string{ "key1=value1\n\n\n\n\nkey2=\"value2\nvalue3\"\nkey3=value4\nkey5=value5" };
+    auto result = StringUtils::SplitOnUnquoted(input, '\n', false);
+    auto expected = std::vector<std::string>{ "key1=value1", "", "", "", "", "key2=\"value2\nvalue3\"", "key3=value4", "key5=value5" };
+    EXPECT_EQ(expected, result);
+}
+
+TEST(StringUtilsFunctions, WSplitOnUnquotedNoSkipEmpty) {
+    auto input = std::wstring{ L"key1=value1\n\n\n\n\nkey2=\"value2\nvalue3\"\nkey3=value4\nkey5=value5" };
+    auto result = StringUtils::SplitOnUnquoted(input, L'\n', false);
+    auto expected = std::vector<std::wstring>{ L"key1=value1", L"", L"", L"", L"", L"key2=\"value2\nvalue3\"", L"key3=value4", L"key5=value5" };
+    EXPECT_EQ(expected, result);
+}
+
 //std::string Join(const std::vector<std::string>& strings, char delim, bool skip_empty = true) noexcept;
 //std::wstring Join(const std::vector<std::wstring>& strings, wchar_t delim, bool skip_empty = true) noexcept;
 //std::string Join(const std::vector<std::string>& strings, bool skip_empty = true) noexcept;

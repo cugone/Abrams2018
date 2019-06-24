@@ -286,11 +286,66 @@ TEST(StringUtilsFunctions, WSplitOnUnquotedNoSkipEmpty) {
     EXPECT_EQ(expected, result);
 }
 
-//std::string Join(const std::vector<std::string>& strings, char delim, bool skip_empty = true) noexcept;
-//std::wstring Join(const std::vector<std::wstring>& strings, wchar_t delim, bool skip_empty = true) noexcept;
-//std::string Join(const std::vector<std::string>& strings, bool skip_empty = true) noexcept;
-//std::wstring Join(const std::vector<std::wstring>& strings, bool skip_empty = true) noexcept;
-//
+TEST(StringUtilsFunctions, JoinDefault) {
+    auto input = std::vector<std::string>{ "a","b","c" };
+    auto result = StringUtils::Join(input);
+    auto expected = std::string{ "abc" };
+    EXPECT_EQ(expected, result);
+
+}
+
+TEST(StringUtilsFunctions, JoinDefaultNoSkipEmpty) {
+    auto input = std::vector<std::string>{ "a","b","","c" };
+    auto result = StringUtils::Join(input, false);
+    auto expected = std::string{ "abc" };
+    EXPECT_EQ(expected, result);
+
+}
+
+TEST(StringUtilsFunctions, WJoinDefault) {
+    auto input = std::vector<std::wstring>{ L"a",L"b",L"c" };
+    auto result = StringUtils::Join(input);
+    auto expected = std::wstring{ L"abc" };
+    EXPECT_EQ(expected, result);
+
+}
+
+TEST(StringUtilsFunctions, WJoinDefaultNoSkipEmpty) {
+    auto input = std::vector<std::wstring>{ L"a",L"b",L"",L"c" };
+    auto result = StringUtils::Join(input, false);
+    auto expected = std::wstring{ L"abc" };
+    EXPECT_EQ(expected, result);
+
+}
+
+TEST(StringUtilsFunctions, JoinExplicitDelimiter) {
+    auto input = std::vector<std::string>{ "a","b","c" };
+    auto result = StringUtils::Join(input, '.');
+    auto expected = std::string{ "a.b.c" };
+    EXPECT_EQ(expected, result);
+}
+
+TEST(StringUtilsFunctions, WJoinExplicitDelimiter) {
+    auto input = std::vector<std::wstring>{ L"a",L"b",L"c" };
+    auto result = StringUtils::Join(input, L'.');
+    auto expected = std::wstring{ L"a.b.c" };
+    EXPECT_EQ(expected, result);
+}
+
+TEST(StringUtilsFunctions, JoinExplicitDelimiterNoSkipEmpty) {
+    auto input = std::vector<std::string>{ "a","b","c" };
+    auto result = StringUtils::Join(input, '.', false);
+    auto expected = std::string{ "a.b.c" };
+    EXPECT_EQ(expected, result);
+}
+
+TEST(StringUtilsFunctions, WJoinExplicitDelimiterNoSkipEmpty) {
+    auto input = std::vector<std::wstring>{ L"a",L"b",L"c" };
+    auto result = StringUtils::Join(input, L'.', false);
+    auto expected = std::wstring{ L"a.b.c" };
+    EXPECT_EQ(expected, result);
+}
+
 //template<typename T, typename... U>
 //T Join(char delim, const T& arg, const U& ... args) noexcept {
 //    return detail::Join(delim, arg, args ...);

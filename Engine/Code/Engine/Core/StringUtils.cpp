@@ -156,6 +156,9 @@ std::vector<std::string> Split(const std::string& string, char delim /*= ','*/, 
         if(skip_empty && curString.empty()) continue;
         result.push_back(curString);
     }
+    if(!skip_empty && ss.eof() && string.back() == delim) {
+        result.push_back(std::string{});
+    }
     result.shrink_to_fit();
     return result;
 }
@@ -176,6 +179,9 @@ std::vector<std::wstring> Split(const std::wstring& string, wchar_t delim /*= ',
     while(std::getline(ss, curString, delim)) {
         if(skip_empty && curString.empty()) continue;
         result.push_back(curString);
+    }
+    if (!skip_empty && ss.eof() && string.back() == delim) {
+        result.push_back(std::wstring{});
     }
     result.shrink_to_fit();
     return result;

@@ -230,6 +230,20 @@ TEST(StringUtilsFunctions, WSplitOnFirst) {
     EXPECT_EQ(expected, result);
 }
 
+TEST(StringUtilsFunctions, SplitOnLast) {
+    auto input = std::string{ "command and then arguments" };
+    auto result = StringUtils::SplitOnLast(input, ' ');
+    auto expected = std::make_pair(std::string{"command and then"}, std::string{"arguments"});
+    EXPECT_EQ(expected, result);
+}
+
+TEST(StringUtilsFunctions, WSplitOnLast) {
+    auto input = std::wstring{ L"command and then arguments" };
+    auto result = StringUtils::SplitOnLast(input, L' ');
+    auto expected = std::make_pair(std::wstring{L"command and then"}, std::wstring{L"arguments"});
+    EXPECT_EQ(expected, result);
+}
+
 //std::pair<std::string, std::string> SplitOnFirst(const std::string& string, char delim) noexcept;
 //std::pair<std::wstring, std::wstring> SplitOnFirst(const std::wstring& string, wchar_t delim) noexcept;
 //std::pair<std::string, std::string> SplitOnLast(const std::string& string, char delim) noexcept;

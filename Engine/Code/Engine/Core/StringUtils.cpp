@@ -232,25 +232,31 @@ std::vector<std::wstring> SplitOnUnquoted(const std::wstring& string, wchar_t de
     result.reserve(potential_count);
     auto start = std::begin(string);
     auto end = std::end(string);
-    for(auto iter = std::begin(string); iter != std::end(string); /* DO NOTHING */) {
-        if(*iter == '"') {
+    for (auto iter = std::begin(string); iter != std::end(string); /* DO NOTHING */) {
+        if (*iter == '"') {
             inQuote = !inQuote;
             ++iter;
             continue;
         }
-        if(!inQuote) {
-            if(*iter == delim) {
-                end = ++iter;
+        if (!inQuote) {
+            if (*iter == delim) {
+                end = iter++;
                 std::wstring s(start, end);
-                if(skip_empty && s.empty()) {
+                if (skip_empty && s.empty()) {
+                    start = iter;
                     continue;
                 }
                 result.push_back(std::wstring(start, end));
-                start = ++iter;
+                start = iter;
+                continue;
             }
-        } else {
-            ++iter;
         }
+        ++iter;
+    }
+    end = std::end(string);
+    auto last_s = std::wstring(start, end);
+    if (!(skip_empty && last_s.empty())) {
+        result.push_back(std::wstring(start, end));
     }
     result.shrink_to_fit();
     return result;

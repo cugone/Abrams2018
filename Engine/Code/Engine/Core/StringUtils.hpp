@@ -55,6 +55,16 @@ T JoinSkipEmpty(char delim, const T& arg, const U& ... args) noexcept {
 }
 
 template<typename T, typename... U>
+T Join(wchar_t delim, const T& arg, const U& ... args) noexcept {
+    return detail::Join(delim, arg, args ...);
+}
+
+template<typename T, typename... U>
+T JoinSkipEmpty(wchar_t delim, const T& arg, const U& ... args) noexcept {
+    return detail::JoinSkipEmpty(delim, arg, args ...);
+}
+
+template<typename T, typename... U>
 T Join(const T& arg, const U& ... args) noexcept {
     return detail::Join(arg, args ...);
 }
@@ -147,6 +157,21 @@ namespace detail {
     }
 
     template<typename First, typename... Rest>
+    First Join([[maybe_unused]]wchar_t delim) noexcept {
+        return First{};
+    }
+
+    template<typename First, typename... Rest>
+    First Join([[maybe_unused]]wchar_t delim, const First& first) noexcept {
+        return first;
+    }
+
+    template<typename First, typename... Rest>
+    First Join(wchar_t delim, const First& first, const Rest& ... rest) noexcept {
+        return first + First{ delim } +detail::Join(delim, rest...);
+    }
+
+    template<typename First, typename... Rest>
     First JoinSkipEmpty() noexcept {
         return First{};
     }
@@ -180,6 +205,27 @@ namespace detail {
             return detail::JoinSkipEmpty(delim, rest...);
         }
         return first + First{ delim } + detail::JoinSkipEmpty(delim, rest...);
+    }
+
+    template<typename First, typename... Rest>
+    First JoinSkipEmpty([maybe_unused]wchar_t delim) noexcept {
+        return First{};
+    }
+
+    template<typename First, typename... Rest>
+    First JoinSkipEmpty(wchar_t delim, const First& first) noexcept {
+        if (first.empty()) {
+            return First{};
+        }
+        return first + First{ delim };
+    }
+
+    template<typename First, typename... Rest>
+    First JoinSkipEmpty(wchar_t delim, const First& first, const Rest& ... rest) noexcept {
+        if (first.empty()) {
+            return detail::JoinSkipEmpty(delim, rest...);
+        }
+        return first + First{ delim } +detail::JoinSkipEmpty(delim, rest...);
     }
 
     struct encode_tag {};

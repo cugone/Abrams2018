@@ -44,50 +44,25 @@ std::wstring Join(const std::vector<std::wstring>& strings, wchar_t delim, bool 
 std::string Join(const std::vector<std::string>& strings, bool skip_empty = true) noexcept;
 std::wstring Join(const std::vector<std::wstring>& strings, bool skip_empty = true) noexcept;
 
-//TODO variadic join
-
-/*
-template<typename T>
-T Join(char delim, bool skip_empty) {
-    return T{};
+template<typename T, typename... U>
+T Join(char delim, const T& arg, const U& ... args) noexcept {
+    return detail::Join(delim, arg, args ...);
 }
 
-template<typename T>
-T Join(char delim, bool skip_empty, const T& arg) {
-    return arg;
+template<typename T, typename... U>
+T JoinSkipEmpty(char delim, const T& arg, const U& ... args) noexcept {
+    return detail::JoinSkipEmpty(delim, arg, args ...);
 }
 
-template<typename T>
-T Join(char delim, bool skip_empty, const T& arg, const T& args...) {
-    return arg;
+template<typename T, typename... U>
+T Join(const T& arg, const U& ... args) noexcept {
+    return detail::Join(arg, args ...);
 }
 
-template<typename T>
-T Join(char delim, bool skip_empty, const T& args...) {
-    
+template<typename T, typename... U>
+T JoinSkipEmpty(const T& arg, const U& ... args) noexcept {
+    return detail::JoinSkipEmpty(arg, args ...);
 }
-
-template<typename T>
-T Join(char delim) {
-    return T{};
-}
-
-template<typename T>
-T Join(char delim, const T& arg) {
-    return arg.append(delim);
-}
-
-template<typename T>
-T Join(char delim, const T& arg, const T& args...) {
-    T a = Join(delim, arg);
-    return Join(delim, a, args);
-}
-
-template<typename T>
-T Join(char delim, const T& args...) {
-    return Join(delim, args);
-}
-*/
 
 std::string ToUpperCase(std::string string) noexcept;
 std::wstring ToUpperCase(std::wstring string) noexcept;
@@ -134,7 +109,78 @@ std::string CaesarShiftEncode(int key, std::string plaintext) noexcept;
 //NOT USEFUL AS TRUE ENCRYPTION!! DO NOT USE IF SERIOUS ENCRYPTION IS NEEDED!!!
 std::string CaesarShiftDecode(int key, std::string ciphertext) noexcept;
 
+} //End Encryption
+
+} //End StringUtils
+
+
 namespace detail {
+
+    template<typename First, typename... Rest>
+    First Join() noexcept {
+        return First{};
+    }
+
+    template<typename First, typename... Rest>
+    First Join(const First& first) noexcept {
+        return first;
+    }
+
+    template<typename First, typename... Rest>
+    First Join(const First& first, const Rest& ... rest) noexcept {
+        return first + detail::Join(rest...);
+    }
+
+    template<typename First, typename... Rest>
+    First Join([[maybe_unused]]char delim) noexcept {
+        return First{};
+    }
+
+    template<typename First, typename... Rest>
+    First Join([[maybe_unused]]char delim, const First& first) noexcept {
+        return first;
+    }
+
+    template<typename First, typename... Rest>
+    First Join(char delim, const First& first, const Rest& ... rest) noexcept {
+        return first + First{ delim } + detail::Join(delim, rest...);
+    }
+
+    template<typename First, typename... Rest>
+    First JoinSkipEmpty() noexcept {
+        return First{};
+    }
+
+    template<typename First, typename... Rest>
+    First JoinSkipEmpty(const First& first) noexcept {
+        return first;
+    }
+
+    template<typename First, typename... Rest>
+    First JoinSkipEmpty(const First& first, const Rest& ... rest) noexcept {
+        return first + detail::JoinSkipEmpty(rest...);
+    }
+
+    template<typename First, typename... Rest>
+    First JoinSkipEmpty([maybe_unused]char delim) noexcept {
+        return First{};
+    }
+
+    template<typename First, typename... Rest>
+    First JoinSkipEmpty(char delim, const First& first) noexcept {
+        if (first.empty()) {
+            return First{};
+        }
+        return first + First{delim};
+    }
+
+    template<typename First, typename... Rest>
+    First JoinSkipEmpty(char delim, const First& first, const Rest& ... rest) noexcept {
+        if (first.empty()) {
+            return detail::JoinSkipEmpty(delim, rest...);
+        }
+        return first + First{ delim } + detail::JoinSkipEmpty(delim, rest...);
+    }
 
     struct encode_tag {};
     struct decode_tag {};
@@ -146,19 +192,20 @@ namespace detail {
             bool lower = 'a' <= a && a <= 'z';
             bool upper = 'A' <= a && a <= 'Z';
             char base = lower ? 'a' : upper ? 'A' : 0;
-            if(!base) {
+            if (!base) {
                 return a;
             }
             int shift_result = 0;
-            if(std::is_same_v<Op, encode_tag>) {
+            if (std::is_same_v<Op, encode_tag>) {
                 shift_result = (a - base + key) % 26;
-            } else if(std::is_same_v<Op, decode_tag>) {
+            }
+            else if (std::is_same_v<Op, decode_tag>) {
                 shift_result = (a - base - key) % 26;
             }
-            if(shift_result < 0) {
+            if (shift_result < 0) {
                 shift_result += 26;
             }
-            if(25 < shift_result) {
+            if (25 < shift_result) {
                 shift_result -= 26;
             }
             return static_cast<unsigned char>(static_cast<char>(base + shift_result));
@@ -179,9 +226,4 @@ namespace detail {
     std::string CaesarShiftDecode(std::string ciphertext) noexcept {
         return detail::CaesarShift<key, detail::decode_tag>(ciphertext);
     }
-
-
 } //End detail
-} //End Encryption
-
-} //End StringUtils

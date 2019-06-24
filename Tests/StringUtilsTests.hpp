@@ -216,6 +216,20 @@ TEST(StringUtilsFunctions, WSplitNoSkipEmpty) {
 
 }
 
+TEST(StringUtilsFunctions, SplitOnFirst) {
+    auto input = std::string{ "command and then arguments" };
+    auto result = StringUtils::SplitOnFirst(input, ' ');
+    auto expected = std::make_pair(std::string{"command"}, std::string{"and then arguments"});
+    EXPECT_EQ(expected, result);
+}
+
+TEST(StringUtilsFunctions, WSplitOnFirst) {
+    auto input = std::wstring{ L"command and then arguments" };
+    auto result = StringUtils::SplitOnFirst(input, L' ');
+    auto expected = std::make_pair(std::wstring{L"command"}, std::wstring{L"and then arguments"});
+    EXPECT_EQ(expected, result);
+}
+
 //std::pair<std::string, std::string> SplitOnFirst(const std::string& string, char delim) noexcept;
 //std::pair<std::wstring, std::wstring> SplitOnFirst(const std::wstring& string, wchar_t delim) noexcept;
 //std::pair<std::string, std::string> SplitOnLast(const std::string& string, char delim) noexcept;

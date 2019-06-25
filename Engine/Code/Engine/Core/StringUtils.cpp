@@ -420,8 +420,11 @@ bool StartsWith(const std::wstring& string, const std::wstring& start) noexcept 
     return found_loc != std::wstring::npos && found_loc == 0;
 }
 
-
 bool StartsWith(const std::string& string, char start) noexcept {
+    return string.front() == start;
+}
+
+bool StartsWith(const std::wstring& string, wchar_t start) noexcept {
     return string.front() == start;
 }
 

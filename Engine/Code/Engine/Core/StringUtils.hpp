@@ -86,6 +86,7 @@ std::wstring ConvertMultiByteToUnicode(const std::string& multi_byte_string) noe
 bool StartsWith(const std::string& string, const std::string& start) noexcept;
 bool StartsWith(const std::wstring& string, const std::wstring& start) noexcept;
 bool StartsWith(const std::string& string, char start) noexcept;
+bool StartsWith(const std::wstring& string, wchar_t start) noexcept;
 
 bool EndsWith(const std::string& string, const std::string& end) noexcept;
 bool EndsWith(const std::wstring& string, const std::wstring& end) noexcept;

@@ -785,18 +785,95 @@ TEST(StringUtilsFunctions, WEndsWith) {
 
 }
 
+TEST(StringUtilsFunctions, TrimWhitespace) {
+    auto result = StringUtils::TrimWhitespace(std::string{});
+    auto expected = std::string{};
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::TrimWhitespace(std::string{ " " });
+    expected = std::string{};
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::TrimWhitespace(std::string{ " Hello World " });
+    expected = std::string{ "Hello World" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::TrimWhitespace(std::string{ "      Hello World       " });
+    expected = std::string{ "Hello World" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::TrimWhitespace(std::string{ "      Hello     World       " });
+    expected = std::string{ "Hello     World" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::TrimWhitespace(std::string{ "\t\t\t\t  \t\t\t\t\r\n\vHello World\t\t\t\t  \t\t\t\t\r\n\v\f" });
+    expected = std::string{ "Hello World" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::TrimWhitespace(std::string{ "\t\t\t\t  \t\t\t\t\r\n\vHello\nWorld\t\t\t\t  \t\t\t\t\r\n\v\f" });
+    expected = std::string{ "Hello\nWorld" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::TrimWhitespace(std::string{ "\t\t\t\t  \t\t\t\t\r\n\vHello\tWorld\t\t\t\t  \t\t\t\t\r\n\v\f" });
+    expected = std::string{ "Hello\tWorld" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::TrimWhitespace(std::string{ "\t\t\t\t  \t\t\t\t\r\n\vHello\r\nWorld\t\t\t\t  \t\t\t\t\r\n\v\f" });
+    expected = std::string{ "Hello\r\nWorld" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::TrimWhitespace(std::string{ "\t\v\t\t  \t\f\t\t\r\n\vHello\vWorld\t\t\t\t  \t\t\t\t\r\n\v" });
+    expected = std::string{ "Hello\vWorld" };
+    EXPECT_EQ(expected, result);
+
+}
+
+TEST(StringUtilsFunctions, WTrimWhitespace) {
+    auto result = StringUtils::TrimWhitespace(std::wstring{});
+    auto expected = std::wstring{};
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::TrimWhitespace(std::wstring{ L" " });
+    expected = std::wstring{};
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::TrimWhitespace(std::wstring{ L" Hello World " });
+    expected = std::wstring{ L"Hello World" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::TrimWhitespace(std::wstring{ L"      Hello World       " });
+    expected = std::wstring{ L"Hello World" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::TrimWhitespace(std::wstring{ L"      Hello     World       " });
+    expected = std::wstring{ L"Hello     World" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::TrimWhitespace(std::wstring{ L"\t\t\t\t  \t\t\t\t\r\n\vHello World\t\t\t\t  \t\t\t\t\r\n\v\f" });
+    expected = std::wstring{ L"Hello World" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::TrimWhitespace(std::wstring{ L"\t\t\t\t  \t\t\t\t\r\n\vHello\nWorld\t\t\t\t  \t\t\t\t\r\n\v\f" });
+    expected = std::wstring{ L"Hello\nWorld" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::TrimWhitespace(std::wstring{ L"\t\t\t\t  \t\t\t\t\r\n\vHello\tWorld\t\t\t\t  \t\t\t\t\r\n\v\f" });
+    expected = std::wstring{ L"Hello\tWorld" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::TrimWhitespace(std::wstring{ L"\t\t\t\t  \t\t\t\t\r\n\vHello\r\nWorld\t\t\t\t  \t\t\t\t\r\n\v\f" });
+    expected = std::wstring{ L"Hello\r\nWorld" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::TrimWhitespace(std::wstring{ L"\t\v\t\t  \t\f\t\t\r\n\vHello\vWorld\t\t\t\t  \t\t\t\t\r\n\v" });
+    expected = std::wstring{ L"Hello\vWorld" };
+    EXPECT_EQ(expected, result);
+}
+
 
 //std::string ConvertUnicodeToMultiByte(const std::wstring& unicode_string) noexcept;
 //std::wstring ConvertMultiByteToUnicode(const std::string& multi_byte_string) noexcept;
-//
-//bool StartsWith(const std::string& string, const std::string& start) noexcept;
-//bool StartsWith(const std::wstring& string, const std::wstring& start) noexcept;
-//bool StartsWith(const std::string& string, char start) noexcept;
-//
-//bool EndsWith(const std::string& string, const std::string& end) noexcept;
-//bool EndsWith(const std::wstring& string, const std::wstring& end) noexcept;
-//bool EndsWith(const std::string& string, char end) noexcept;
-//
+
 //std::string ReplaceAll(std::string string, const std::string& from, const std::string& to) noexcept;
 //std::wstring ReplaceAll(std::wstring string, const std::wstring& from, const std::wstring& to) noexcept;
 //

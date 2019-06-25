@@ -287,9 +287,24 @@ TEST(StringUtilsFunctions, WSplitOnUnquotedNoSkipEmpty) {
 }
 
 TEST(StringUtilsFunctions, JoinDefault) {
-    auto input = std::vector<std::string>{ "a","b","c" };
+    auto input = std::vector<std::string>{};
     auto result = StringUtils::Join(input);
-    auto expected = std::string{ "abc" };
+    auto expected = std::string{};
+    EXPECT_EQ(expected, result);
+
+    input = std::vector<std::string>{ "a" };
+    result = StringUtils::Join(input);
+    expected = std::string{ "a" };
+    EXPECT_EQ(expected, result);
+
+    input = std::vector<std::string>{ "a","b" };
+    result = StringUtils::Join(input);
+    expected = std::string{ "ab" };
+    EXPECT_EQ(expected, result);
+
+    input = std::vector<std::string>{ "a","b","c" };
+    result = StringUtils::Join(input);
+    expected = std::string{ "abc" };
     EXPECT_EQ(expected, result);
 
 }
@@ -345,6 +360,142 @@ TEST(StringUtilsFunctions, WJoinExplicitDelimiterNoSkipEmpty) {
     auto expected = std::wstring{ L"a.b.c" };
     EXPECT_EQ(expected, result);
 }
+
+TEST(StringUtilsFunctions, JoinVariadicDefault) {
+    auto result = StringUtils::Join(std::string{"a"}, std::string{"b"}, std::string{"c"});
+    auto expected = std::string{ "abc" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::Join(std::string{ "a" }, std::string{}, std::string{ "c" });
+    expected = std::string{ "ac" };
+    EXPECT_EQ(expected, result);
+
+}
+
+TEST(StringUtilsFunctions, WJoinVariadicDefault) {
+    auto result = StringUtils::Join(std::wstring{L"a"}, std::wstring{L"b"}, std::wstring{L"c"});
+    auto expected = std::wstring{ L"abc" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::Join(std::wstring{L"a"}, std::wstring{}, std::wstring{L"c"});
+    expected = std::wstring{ L"ac" };
+    EXPECT_EQ(expected, result);
+
+}
+
+TEST(StringUtilsFunctions, JoinVariadicExplicitDelimiter) {
+
+    auto result = StringUtils::Join(',', std::string{ "a" });
+    auto expected = std::string{ "a" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::Join(',', std::string{ "a" }, std::string{ "b" });
+    expected = std::string{ "a,b" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::Join(',', std::string{ "a" }, std::string{ "b" }, std::string{ "c" });
+    expected = std::string{ "a,b,c" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::Join(',', std::string{"a"}, std::string{}, std::string{"c"});
+    expected = std::string{ "a,,c" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::Join(',', std::string{ "a" }, std::string{ "b" }, std::string{ "c" }, std::string{});
+    expected = std::string{ "a,b,c," };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::Join(',', std::string{}, std::string{ "a" }, std::string{ "b" }, std::string{ "c" });
+    expected = std::string{ ",a,b,c" };
+    EXPECT_EQ(expected, result);
+
+}
+
+TEST(StringUtilsFunctions, WJoinVariadicExplicitDelimiter) {
+    auto result = StringUtils::Join(L',', std::wstring{L"a"}, std::wstring{L"b"}, std::wstring{L"c"});
+    auto expected = std::wstring{ L"a,b,c" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::Join(L',', std::wstring{ L"a" }, std::wstring{}, std::wstring{ L"c" });
+    expected = std::wstring{ L"a,,c" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::Join(L',', std::wstring{ L"a" }, std::wstring{ L"b" }, std::wstring{ L"c" }, std::wstring{});
+    expected = std::wstring{ L"a,b,c," };
+    EXPECT_EQ(expected, result);
+
+}
+
+TEST(StringUtilsFunctions, JoinVariadicSkipEmpty) {
+    auto result = StringUtils::JoinSkipEmpty(std::string{ "a" }, std::string{ "b" }, std::string{ "c" });
+    auto expected = std::string{ "abc" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::JoinSkipEmpty(std::string{ "a" }, std::string{}, std::string{ "c" });
+    expected = std::string{ "ac" };
+    EXPECT_EQ(expected, result);
+
+}
+
+TEST(StringUtilsFunctions, WJoinVariadicSkipEmpty) {
+    auto result = StringUtils::JoinSkipEmpty(std::wstring{ L"a" }, std::wstring{ L"b" }, std::wstring{ L"c" });
+    auto expected = std::wstring{ L"abc" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::JoinSkipEmpty(std::wstring{ L"a" }, std::wstring{}, std::wstring{ L"c" });
+    expected = std::wstring{ L"ac" };
+    EXPECT_EQ(expected, result);
+
+}
+
+TEST(StringUtilsFunctions, JoinVariadicSkipEmptyExplicitDelimiter) {
+
+    auto result = StringUtils::JoinSkipEmpty(',', std::string{ "a" });
+    auto expected = std::string{ "a" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::JoinSkipEmpty(',', std::string{ "a" }, std::string{ "c" });
+    expected = std::string{ "a,c" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::JoinSkipEmpty(',', std::string{ "a" }, std::string{"b"}, std::string{ "c" });
+    expected = std::string{ "a,b,c" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::JoinSkipEmpty(',', std::string{ "a" }, std::string{}, std::string{ "c" });
+    expected = std::string{ "a,c" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::JoinSkipEmpty(',', std::string{ "a" }, std::string{ "b" }, std::string{ "c" }, std::string{});
+    expected = std::string{ "a,b,c" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::JoinSkipEmpty(',', std::string{}, std::string{"a"}, std::string{ "b" }, std::string{ "c" });
+    expected = std::string{ "a,b,c" };
+    EXPECT_EQ(expected, result);
+
+}
+
+TEST(StringUtilsFunctions, WJoinVariadicSkipEmptyExplicitDelimiter) {
+    auto result = StringUtils::JoinSkipEmpty(L',', std::wstring{ L"a" }, std::wstring{ L"b" }, std::wstring{ L"c" });
+    auto expected = std::wstring{ L"a,b,c" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::JoinSkipEmpty(L',', std::wstring{ L"a" }, std::wstring{}, std::wstring{ L"c" });
+    expected = std::wstring{ L"a,c" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::JoinSkipEmpty(L',', std::wstring{ L"a" }, std::wstring{ L"b" }, std::wstring{ L"c" }, std::wstring{});
+    expected = std::wstring{ L"a,b,c" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::JoinSkipEmpty(L',', std::wstring{}, std::wstring{ L"a" }, std::wstring{ L"b" }, std::wstring{ L"c" });
+    expected = std::wstring{ L"a,b,c" };
+    EXPECT_EQ(expected, result);
+
+}
+
+
 
 //template<typename T, typename... U>
 //T Join(char delim, const T& arg, const U& ... args) noexcept {

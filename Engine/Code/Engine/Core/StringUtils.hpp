@@ -91,6 +91,7 @@ bool StartsWith(const std::wstring& string, wchar_t start) noexcept;
 bool EndsWith(const std::string& string, const std::string& end) noexcept;
 bool EndsWith(const std::wstring& string, const std::wstring& end) noexcept;
 bool EndsWith(const std::string& string, char end) noexcept;
+bool EndsWith(const std::wstring& string, wchar_t end) noexcept;
 
 std::string ReplaceAll(std::string string, const std::string& from, const std::string& to) noexcept;
 std::wstring ReplaceAll(std::wstring string, const std::wstring& from, const std::wstring& to) noexcept;

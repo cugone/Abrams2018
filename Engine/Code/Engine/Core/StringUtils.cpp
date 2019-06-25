@@ -442,6 +442,10 @@ bool EndsWith(const std::string& string, char end) noexcept {
     return string.back() == end;
 }
 
+bool EndsWith(const std::wstring& string, wchar_t end) noexcept {
+    return string.back() == end;
+}
+
 //From https://stackoverflow.com/a/3418285/421178
 std::string ReplaceAll(std::string string, const std::string& from, const std::string& to) noexcept {
     if(from.empty()) {

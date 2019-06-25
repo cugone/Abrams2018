@@ -495,28 +495,135 @@ TEST(StringUtilsFunctions, WJoinVariadicSkipEmptyExplicitDelimiter) {
 
 }
 
+TEST(StringUtilsFunctions, ToUpperCase) {
+    auto result = StringUtils::ToUpperCase(std::string{});
+    auto expected = std::string{};
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::string{"a"});
+    expected = std::string{"A"};
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::string{ "A" });
+    expected = std::string{ "A" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::string{ "ab" });
+    expected = std::string{ "AB" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::string{ "Ab" });
+    expected = std::string{ "AB" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::string{ "aB" });
+    expected = std::string{ "AB" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::string{ "AB" });
+    expected = std::string{ "AB" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::string{ "abc" });
+    expected = std::string{ "ABC" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::string{ "abC" });
+    expected = std::string{ "ABC" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::string{ "aBc" });
+    expected = std::string{ "ABC" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::string{ "aBC" });
+    expected = std::string{ "ABC" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::string{ "Abc" });
+    expected = std::string{ "ABC" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::string{ "AbC" });
+    expected = std::string{ "ABC" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::string{ "ABc" });
+    expected = std::string{ "ABC" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::string{ "ABC" });
+    expected = std::string{ "ABC" };
+    EXPECT_EQ(expected, result);
+
+}
 
 
-//template<typename T, typename... U>
-//T Join(char delim, const T& arg, const U& ... args) noexcept {
-//    return detail::Join(delim, arg, args ...);
-//}
-//
-//template<typename T, typename... U>
-//T JoinSkipEmpty(char delim, const T& arg, const U& ... args) noexcept {
-//    return detail::JoinSkipEmpty(delim, arg, args ...);
-//}
-//
-//template<typename T, typename... U>
-//T Join(const T& arg, const U& ... args) noexcept {
-//    return detail::Join(arg, args ...);
-//}
-//
-//template<typename T, typename... U>
-//T JoinSkipEmpty(const T& arg, const U& ... args) noexcept {
-//    return detail::JoinSkipEmpty(arg, args ...);
-//}
-//
+TEST(StringUtilsFunctions, WToUpperCase) {
+    auto result = StringUtils::ToUpperCase(std::wstring{});
+    auto expected = std::wstring{};
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::wstring{ L"a" });
+    expected = std::wstring{ L"A" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::wstring{ L"A" });
+    expected = std::wstring{ L"A" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::wstring{ L"ab" });
+    expected = std::wstring{ L"AB" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::wstring{ L"Ab" });
+    expected = std::wstring{ L"AB" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::wstring{ L"aB" });
+    expected = std::wstring{ L"AB" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::wstring{ L"AB" });
+    expected = std::wstring{ L"AB" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::wstring{ L"abc" });
+    expected = std::wstring{ L"ABC" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::wstring{ L"abC" });
+    expected = std::wstring{ L"ABC" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::wstring{ L"aBc" });
+    expected = std::wstring{ L"ABC" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::wstring{ L"aBC" });
+    expected = std::wstring{ L"ABC" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::wstring{ L"Abc" });
+    expected = std::wstring{ L"ABC" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::wstring{ L"AbC" });
+    expected = std::wstring{ L"ABC" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::wstring{ L"ABc" });
+    expected = std::wstring{ L"ABC" };
+    EXPECT_EQ(expected, result);
+
+    result = StringUtils::ToUpperCase(std::wstring{ L"ABC" });
+    expected = std::wstring{ L"ABC" };
+    EXPECT_EQ(expected, result);
+
+}
+
+
+
 //std::string ToUpperCase(std::string string) noexcept;
 //std::wstring ToUpperCase(std::wstring string) noexcept;
 //std::string ToLowerCase(std::string string) noexcept;

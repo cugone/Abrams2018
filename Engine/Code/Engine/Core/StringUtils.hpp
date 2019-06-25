@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -127,11 +128,6 @@ std::string CaesarShiftDecode(int key, std::string ciphertext) noexcept;
 namespace detail {
 
     template<typename First, typename... Rest>
-    First Join() noexcept {
-        return First{};
-    }
-
-    template<typename First, typename... Rest>
     First Join(const First& first) noexcept {
         return first;
     }
@@ -139,11 +135,6 @@ namespace detail {
     template<typename First, typename... Rest>
     First Join(const First& first, const Rest& ... rest) noexcept {
         return first + detail::Join(rest...);
-    }
-
-    template<typename First, typename... Rest>
-    First Join([[maybe_unused]]char delim) noexcept {
-        return First{};
     }
 
     template<typename First, typename... Rest>
@@ -157,23 +148,13 @@ namespace detail {
     }
 
     template<typename First, typename... Rest>
-    First Join([[maybe_unused]]wchar_t delim) noexcept {
-        return First{};
-    }
-
-    template<typename First, typename... Rest>
     First Join([[maybe_unused]]wchar_t delim, const First& first) noexcept {
         return first;
     }
 
     template<typename First, typename... Rest>
     First Join(wchar_t delim, const First& first, const Rest& ... rest) noexcept {
-        return first + First{ delim } +detail::Join(delim, rest...);
-    }
-
-    template<typename First, typename... Rest>
-    First JoinSkipEmpty() noexcept {
-        return First{};
+        return first + First{ delim } + detail::Join(delim, rest...);
     }
 
     template<typename First, typename... Rest>
@@ -187,16 +168,8 @@ namespace detail {
     }
 
     template<typename First, typename... Rest>
-    First JoinSkipEmpty([maybe_unused]char delim) noexcept {
-        return First{};
-    }
-
-    template<typename First, typename... Rest>
     First JoinSkipEmpty(char delim, const First& first) noexcept {
-        if (first.empty()) {
-            return First{};
-        }
-        return first + First{delim};
+        return first;
     }
 
     template<typename First, typename... Rest>
@@ -204,9 +177,16 @@ namespace detail {
         if (first.empty()) {
             return detail::JoinSkipEmpty(delim, rest...);
         }
-        return first + First{ delim } + detail::JoinSkipEmpty(delim, rest...);
+        if(sizeof...(rest) == 1) {
+            auto t = std::make_tuple(rest...);
+            auto last = std::get<0>(t);
+            if(last.empty()) {
+                return first;
+            }
+        }
+        return first + First{delim} + detail::JoinSkipEmpty(delim, rest...);
     }
-
+    
     template<typename First, typename... Rest>
     First JoinSkipEmpty([maybe_unused]wchar_t delim) noexcept {
         return First{};
@@ -214,16 +194,20 @@ namespace detail {
 
     template<typename First, typename... Rest>
     First JoinSkipEmpty(wchar_t delim, const First& first) noexcept {
-        if (first.empty()) {
-            return First{};
-        }
-        return first + First{ delim };
+        return first;
     }
 
     template<typename First, typename... Rest>
     First JoinSkipEmpty(wchar_t delim, const First& first, const Rest& ... rest) noexcept {
         if (first.empty()) {
             return detail::JoinSkipEmpty(delim, rest...);
+        }
+        if (sizeof...(rest) == 1) {
+            auto t = std::make_tuple(rest...);
+            auto last = std::get<0>(t);
+            if (last.empty()) {
+                return first;
+            }
         }
         return first + First{ delim } +detail::JoinSkipEmpty(delim, rest...);
     }

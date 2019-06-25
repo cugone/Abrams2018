@@ -9,7 +9,6 @@
 #include <string>
 #include <filesystem>
 
-//TODO: Refactor resource management to use std::unique.
 class Image {
 public:
     Image() = default;

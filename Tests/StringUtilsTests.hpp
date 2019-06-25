@@ -754,6 +754,37 @@ TEST(StringUtilsFunctions, WStartsWith) {
 
 }
 
+TEST(StringUtilsFunctions, EndsWith) {
+    EXPECT_FALSE(StringUtils::EndsWith(std::string{ "Hello" }, std::string{ "He" }));
+    EXPECT_FALSE(StringUtils::EndsWith(std::string{ "Hello" }, std::string{ "he" }));
+    EXPECT_FALSE(StringUtils::EndsWith(std::string{ "Hello" }, std::string{ "ll" }));
+    EXPECT_FALSE(StringUtils::EndsWith(std::string{ "Hello" }, std::string{ "lO" }));
+    EXPECT_TRUE(StringUtils::EndsWith(std::string{ "Hello" }, std::string{ "lo" }));
+
+    EXPECT_FALSE(StringUtils::EndsWith(std::string{ "Hello" }, 'H'));
+    EXPECT_FALSE(StringUtils::EndsWith(std::string{ "Hello" }, 'h'));
+    EXPECT_FALSE(StringUtils::EndsWith(std::string{ "Hello" }, 'e'));
+    EXPECT_FALSE(StringUtils::EndsWith(std::string{ "Hello" }, 'l'));
+    EXPECT_FALSE(StringUtils::EndsWith(std::string{ "Hello" }, 'l'));
+    EXPECT_TRUE(StringUtils::EndsWith(std::string{ "Hello" }, 'o'));
+
+}
+
+TEST(StringUtilsFunctions, WEndsWith) {
+    EXPECT_FALSE(StringUtils::EndsWith(std::wstring{ L"Hello" }, std::wstring{ L"He" }));
+    EXPECT_FALSE(StringUtils::EndsWith(std::wstring{ L"Hello" }, std::wstring{ L"he" }));
+    EXPECT_FALSE(StringUtils::EndsWith(std::wstring{ L"Hello" }, std::wstring{ L"ll" }));
+    EXPECT_FALSE(StringUtils::EndsWith(std::wstring{ L"Hello" }, std::wstring{ L"lO" }));
+    EXPECT_TRUE(StringUtils::EndsWith(std::wstring{ L"Hello" }, std::wstring{ L"lo" }));
+    EXPECT_FALSE(StringUtils::EndsWith(std::wstring{ L"Hello" }, L'H'));
+    EXPECT_FALSE(StringUtils::EndsWith(std::wstring{ L"Hello" }, L'h'));
+    EXPECT_FALSE(StringUtils::EndsWith(std::wstring{ L"Hello" }, L'e'));
+    EXPECT_FALSE(StringUtils::EndsWith(std::wstring{ L"Hello" }, L'l'));
+    EXPECT_FALSE(StringUtils::EndsWith(std::wstring{ L"Hello" }, L'l'));
+    EXPECT_TRUE(StringUtils::EndsWith(std::wstring{ L"Hello" }, L'o'));
+
+}
+
 
 //std::string ConvertUnicodeToMultiByte(const std::wstring& unicode_string) noexcept;
 //std::wstring ConvertMultiByteToUnicode(const std::string& multi_byte_string) noexcept;

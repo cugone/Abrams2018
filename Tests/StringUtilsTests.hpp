@@ -723,6 +723,7 @@ TEST(StringUtilsFunctions, WToLowerCase) {
 }
 
 TEST(StringUtilsFunctions, StartsWith) {
+    EXPECT_TRUE(StringUtils::StartsWith(std::string{ "Hello" }, std::string{}));
     EXPECT_TRUE(StringUtils::StartsWith(std::string{ "Hello" }, std::string{ "He" }));
     EXPECT_FALSE(StringUtils::StartsWith(std::string{ "Hello" }, std::string{ "he" }));
     EXPECT_FALSE(StringUtils::StartsWith(std::string{ "Hello" }, std::string{ "ll" }));
@@ -739,6 +740,7 @@ TEST(StringUtilsFunctions, StartsWith) {
 }
 
 TEST(StringUtilsFunctions, WStartsWith) {
+    EXPECT_TRUE(StringUtils::StartsWith(std::wstring{ L"Hello" }, std::wstring{}));
     EXPECT_TRUE(StringUtils::StartsWith( std::wstring{ L"Hello" }, std::wstring{ L"He" }));
     EXPECT_FALSE(StringUtils::StartsWith(std::wstring{ L"Hello" }, std::wstring{ L"he" }));
     EXPECT_FALSE(StringUtils::StartsWith(std::wstring{ L"Hello" }, std::wstring{ L"ll" }));
@@ -755,6 +757,7 @@ TEST(StringUtilsFunctions, WStartsWith) {
 }
 
 TEST(StringUtilsFunctions, EndsWith) {
+    EXPECT_TRUE(StringUtils::StartsWith(std::string{ "Hello" }, std::string{}));
     EXPECT_FALSE(StringUtils::EndsWith(std::string{ "Hello" }, std::string{ "He" }));
     EXPECT_FALSE(StringUtils::EndsWith(std::string{ "Hello" }, std::string{ "he" }));
     EXPECT_FALSE(StringUtils::EndsWith(std::string{ "Hello" }, std::string{ "ll" }));
@@ -771,6 +774,7 @@ TEST(StringUtilsFunctions, EndsWith) {
 }
 
 TEST(StringUtilsFunctions, WEndsWith) {
+    EXPECT_TRUE(StringUtils::StartsWith(std::wstring{ L"Hello" }, std::wstring{}));
     EXPECT_FALSE(StringUtils::EndsWith(std::wstring{ L"Hello" }, std::wstring{ L"He" }));
     EXPECT_FALSE(StringUtils::EndsWith(std::wstring{ L"Hello" }, std::wstring{ L"he" }));
     EXPECT_FALSE(StringUtils::EndsWith(std::wstring{ L"Hello" }, std::wstring{ L"ll" }));

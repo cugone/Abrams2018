@@ -198,94 +198,363 @@ bool ParseXmlElementText(const XMLElement& element, bool defaultValue) noexcept 
     return retVal;
 }
 unsigned char ParseXmlElementText(const XMLElement& element, unsigned char defaultValue) noexcept {
-    unsigned int retVal = defaultValue;
-    element.QueryUnsignedText(&retVal);
-    return static_cast<unsigned char>(retVal);
+    auto retVal = defaultValue;
+    auto txtAsCStr = element.GetText();
+    std::string txt(txtAsCStr ? txtAsCStr : "");
+    auto is_range = txt.find('~') != std::string::npos;
+    if (!is_range) {
+        try {
+            retVal = static_cast<decltype(retVal)>(std::stoul(txt));
+        } catch (...) {
+            return defaultValue;
+        }
+    }
+    else {
+        auto values = StringUtils::Split(txt, '~');
+        if (values.size() == 1) {
+            retVal = static_cast<decltype(retVal)>(std::stoul(values[0]));
+        } else {
+            auto lower = static_cast<decltype(retVal)>(std::stoul(values[0]));
+            auto upper = static_cast<decltype(retVal)>(std::stoul(values[1]));
+            retVal = static_cast<decltype(retVal)>(MathUtils::GetRandomIntInRange(lower, upper));
+        }
+    }
+    return retVal;
 }
 signed char ParseXmlElementText(const XMLElement& element, signed char defaultValue) noexcept {
-    int retVal = defaultValue;
-    element.QueryIntText(&retVal);
-    return static_cast<signed char>(retVal);
+    auto retVal = defaultValue;
+    auto txtAsCStr = element.GetText();
+    std::string txt(txtAsCStr ? txtAsCStr : "");
+    auto is_range = txt.find('~') != std::string::npos;
+    if (!is_range) {
+        try {
+            retVal = static_cast<decltype(retVal)>(std::stoi(txt));
+        }
+        catch (...) {
+            return defaultValue;
+        }
+    }
+    else {
+        auto values = StringUtils::Split(txt, '~');
+        if (values.size() == 1) {
+            retVal = static_cast<decltype(retVal)>(std::stoi(values[0]));
+        }
+        else {
+            auto lower = static_cast<decltype(retVal)>(std::stoi(values[0]));
+            auto upper = static_cast<decltype(retVal)>(std::stoi(values[1]));
+            retVal = static_cast<decltype(retVal)>(MathUtils::GetRandomIntInRange(lower, upper));
+        }
+    }
+    return retVal;
 }
 char ParseXmlElementText(const XMLElement& element, char defaultValue) noexcept {
-    char retVal = defaultValue;
-    auto s = element.GetText();
-    std::string str(s ? s : "");
-    if(str.empty()) {
-        return retVal;
+    auto retVal = defaultValue;
+    auto txtAsCStr = element.GetText();
+    std::string txt(txtAsCStr ? txtAsCStr : "");
+    auto is_range = txt.find('~') != std::string::npos;
+    if (!is_range) {
+        try {
+            retVal = static_cast<decltype(retVal)>(std::stoi(txt));
+        }
+        catch (...) {
+            return defaultValue;
+        }
     }
-    retVal = str[0];
+    else {
+        auto values = StringUtils::Split(txt, '~');
+        if (values.size() == 1) {
+            retVal = static_cast<decltype(retVal)>(std::stoi(values[0]));
+        }
+        else {
+            auto lower = static_cast<decltype(retVal)>(std::stoi(values[0]));
+            auto upper = static_cast<decltype(retVal)>(std::stoi(values[1]));
+            retVal = static_cast<decltype(retVal)>(MathUtils::GetRandomIntInRange(lower, upper));
+        }
+    }
     return retVal;
 }
 unsigned short ParseXmlElementText(const XMLElement& element, unsigned short defaultValue) noexcept {
-    unsigned int retVal = defaultValue;
-    element.QueryUnsignedText(&retVal);
-    return static_cast<unsigned short>(retVal);
+    auto retVal = defaultValue;
+    auto txtAsCStr = element.GetText();
+    std::string txt(txtAsCStr ? txtAsCStr : "");
+    auto is_range = txt.find('~') != std::string::npos;
+    if (!is_range) {
+        try {
+            retVal = static_cast<decltype(retVal)>(std::stoul(txt));
+        }
+        catch (...) {
+            return defaultValue;
+        }
+    }
+    else {
+        auto values = StringUtils::Split(txt, '~');
+        if (values.size() == 1) {
+            retVal = static_cast<decltype(retVal)>(std::stoul(values[0]));
+        }
+        else {
+            auto lower = static_cast<decltype(retVal)>(std::stoul(values[0]));
+            auto upper = static_cast<decltype(retVal)>(std::stoul(values[1]));
+            retVal = static_cast<decltype(retVal)>(MathUtils::GetRandomIntInRange(lower, upper));
+        }
+    }
+    return retVal;
 }
 short ParseXmlElementText(const XMLElement& element, short defaultValue) noexcept {
-    int retVal = defaultValue;
-    element.QueryIntText(&retVal);
-    return static_cast<short>(retVal);
+    auto retVal = defaultValue;
+    auto txtAsCStr = element.GetText();
+    std::string txt(txtAsCStr ? txtAsCStr : "");
+    auto is_range = txt.find('~') != std::string::npos;
+    if (!is_range) {
+        try {
+            retVal = static_cast<decltype(retVal)>(std::stoi(txt));
+        }
+        catch (...) {
+            return defaultValue;
+        }
+    }
+    else {
+        auto values = StringUtils::Split(txt, '~');
+        if (values.size() == 1) {
+            retVal = static_cast<decltype(retVal)>(std::stoi(values[0]));
+        }
+        else {
+            auto lower = static_cast<decltype(retVal)>(std::stoi(values[0]));
+            auto upper = static_cast<decltype(retVal)>(std::stoi(values[1]));
+            retVal = static_cast<decltype(retVal)>(MathUtils::GetRandomIntInRange(lower, upper));
+        }
+    }
+    return retVal;
 }
 unsigned int ParseXmlElementText(const XMLElement& element, unsigned int defaultValue) noexcept {
-    unsigned int retVal = defaultValue;
-    element.QueryUnsignedText(&retVal);
+    auto retVal = defaultValue;
+    auto txtAsCStr = element.GetText();
+    std::string txt(txtAsCStr ? txtAsCStr : "");
+    auto is_range = txt.find('~') != std::string::npos;
+    if (!is_range) {
+        try {
+            retVal = static_cast<decltype(retVal)>(std::stoul(txt));
+        }
+        catch (...) {
+            return defaultValue;
+        }
+    }
+    else {
+        auto values = StringUtils::Split(txt, '~');
+        if (values.size() == 1) {
+            retVal = static_cast<decltype(retVal)>(std::stoul(values[0]));
+        }
+        else {
+            auto lower = static_cast<decltype(retVal)>(std::stoul(values[0]));
+            auto upper = static_cast<decltype(retVal)>(std::stoul(values[1]));
+            retVal = static_cast<decltype(retVal)>(MathUtils::GetRandomLongInRange(lower, upper));
+        }
+    }
     return retVal;
 }
 int ParseXmlElementText(const XMLElement& element, int defaultValue) noexcept {
-    int retVal = defaultValue;
-    element.QueryIntText(&retVal);
+    auto retVal = defaultValue;
+    auto txtAsCStr = element.GetText();
+    std::string txt(txtAsCStr ? txtAsCStr : "");
+    auto is_range = txt.find('~') != std::string::npos;
+    if (!is_range) {
+        try {
+            retVal = static_cast<decltype(retVal)>(std::stoi(txt));
+        }
+        catch (...) {
+            return defaultValue;
+        }
+    }
+    else {
+        auto values = StringUtils::Split(txt, '~');
+        if (values.size() == 1) {
+            retVal = static_cast<decltype(retVal)>(std::stoi(values[0]));
+        }
+        else {
+            auto lower = static_cast<decltype(retVal)>(std::stoi(values[0]));
+            auto upper = static_cast<decltype(retVal)>(std::stoi(values[1]));
+            retVal = static_cast<decltype(retVal)>(MathUtils::GetRandomIntInRange(lower, upper));
+        }
+    }
     return retVal;
 }
 unsigned long ParseXmlElementText(const XMLElement& element, unsigned long defaultValue) noexcept {
-    unsigned int retVal = defaultValue;
-    element.QueryUnsignedText(&retVal);
-    return static_cast<unsigned long>(retVal);
+    auto retVal = defaultValue;
+    auto txtAsCStr = element.GetText();
+    std::string txt(txtAsCStr ? txtAsCStr : "");
+    auto is_range = txt.find('~') != std::string::npos;
+    if (!is_range) {
+        try {
+            retVal = static_cast<decltype(retVal)>(std::stoul(txt));
+        }
+        catch (...) {
+            return defaultValue;
+        }
+    }
+    else {
+        auto values = StringUtils::Split(txt, '~');
+        if (values.size() == 1) {
+            retVal = static_cast<decltype(retVal)>(std::stoul(values[0]));
+        }
+        else {
+            auto lower = static_cast<decltype(retVal)>(std::stoul(values[0]));
+            auto upper = static_cast<decltype(retVal)>(std::stoul(values[1]));
+            retVal = static_cast<decltype(retVal)>(MathUtils::GetRandomLongLongInRange(lower, upper));
+        }
+    }
+    return retVal;
 }
 long ParseXmlElementText(const XMLElement& element, long defaultValue) noexcept {
-    long long retVal = defaultValue;
-    element.QueryInt64Text(&retVal);
-    return static_cast<long>(retVal);
+    auto retVal = defaultValue;
+    auto txtAsCStr = element.GetText();
+    std::string txt(txtAsCStr ? txtAsCStr : "");
+    auto is_range = txt.find('~') != std::string::npos;
+    if (!is_range) {
+        try {
+            retVal = static_cast<decltype(retVal)>(std::stoll(txt));
+        }
+        catch (...) {
+            return defaultValue;
+        }
+    }
+    else {
+        auto values = StringUtils::Split(txt, '~');
+        if (values.size() == 1) {
+            retVal = static_cast<decltype(retVal)>(std::stoll(values[0]));
+        }
+        else {
+            auto lower = static_cast<decltype(retVal)>(std::stoll(values[0]));
+            auto upper = static_cast<decltype(retVal)>(std::stoll(values[1]));
+            retVal = static_cast<decltype(retVal)>(MathUtils::GetRandomLongLongInRange(lower, upper));
+        }
+    }
+    return retVal;
 }
 unsigned long long ParseXmlElementText(const XMLElement& element, unsigned long long defaultValue) noexcept {
-    unsigned long long retVal = defaultValue;
-    element.QueryUnsigned64Text(&retVal);
-    return static_cast<unsigned long long>(retVal);
+    auto retVal = defaultValue;
+    auto txtAsCStr = element.GetText();
+    std::string txt(txtAsCStr ? txtAsCStr : "");
+    auto is_range = txt.find('~') != std::string::npos;
+    if (!is_range) {
+        try {
+            retVal = static_cast<decltype(retVal)>(std::stoull(txt));
+        }
+        catch (...) {
+            return defaultValue;
+        }
+    }
+    else {
+        auto values = StringUtils::Split(txt, '~');
+        if (values.size() == 1) {
+            retVal = static_cast<decltype(retVal)>(std::stoull(values[0]));
+        }
+        else {
+            auto lower = static_cast<decltype(retVal)>(std::stoull(values[0]));
+            auto upper = static_cast<decltype(retVal)>(std::stoull(values[1]));
+            retVal = static_cast<decltype(retVal)>(MathUtils::GetRandomLongLongInRange(lower, upper));
+        }
+    }
+    return retVal;
 }
 long long ParseXmlElementText(const XMLElement& element, long long defaultValue) noexcept {
-    long long retVal = defaultValue;
-    element.QueryInt64Text(&retVal);
+    auto retVal = defaultValue;
+    auto txtAsCStr = element.GetText();
+    std::string txt(txtAsCStr ? txtAsCStr : "");
+    auto is_range = txt.find('~') != std::string::npos;
+    if (!is_range) {
+        try {
+            retVal = static_cast<decltype(retVal)>(std::stoll(txt));
+        }
+        catch (...) {
+            return defaultValue;
+        }
+    }
+    else {
+        auto values = StringUtils::Split(txt, '~');
+        if (values.size() == 1) {
+            retVal = static_cast<decltype(retVal)>(std::stoll(values[0]));
+        }
+        else {
+            auto lower = static_cast<decltype(retVal)>(std::stoll(values[0]));
+            auto upper = static_cast<decltype(retVal)>(std::stoll(values[1]));
+            retVal = static_cast<decltype(retVal)>(MathUtils::GetRandomLongLongInRange(lower, upper));
+        }
+    }
     return retVal;
 }
 float ParseXmlElementText(const XMLElement& element, float defaultValue) noexcept {
-    float retVal = defaultValue;
-    element.QueryFloatText(&retVal);
+    auto retVal = defaultValue;
+    auto txtAsCStr = element.GetText();
+    std::string txt(txtAsCStr ? txtAsCStr : "");
+    auto is_range = txt.find('~') != std::string::npos;
+    if (!is_range) {
+        try {
+            retVal = static_cast<decltype(retVal)>(std::stof(txt));
+        }
+        catch (...) {
+            return defaultValue;
+        }
+    }
+    else {
+        auto values = StringUtils::Split(txt, '~');
+        if (values.size() == 1) {
+            retVal = static_cast<decltype(retVal)>(std::stof(values[0]));
+        }
+        else {
+            auto lower = static_cast<decltype(retVal)>(std::stof(values[0]));
+            auto upper = static_cast<decltype(retVal)>(std::stof(values[1]));
+            retVal = static_cast<decltype(retVal)>(MathUtils::GetRandomFloatInRange(lower, upper));
+        }
+    }
     return retVal;
 }
 double ParseXmlElementText(const XMLElement& element, double defaultValue) noexcept {
-    double retVal = defaultValue;
-    element.QueryDoubleText(&retVal);
+    auto retVal = defaultValue;
+    auto txtAsCStr = element.GetText();
+    std::string txt(txtAsCStr ? txtAsCStr : "");
+    auto is_range = txt.find('~') != std::string::npos;
+    if (!is_range) {
+        try {
+            retVal = static_cast<decltype(retVal)>(std::stod(txt));
+        }
+        catch (...) {
+            return defaultValue;
+        }
+    }
+    else {
+        auto values = StringUtils::Split(txt, '~');
+        if (values.size() == 1) {
+            retVal = static_cast<decltype(retVal)>(std::stod(values[0]));
+        }
+        else {
+            auto lower = static_cast<decltype(retVal)>(std::stod(values[0]));
+            auto upper = static_cast<decltype(retVal)>(std::stod(values[1]));
+            retVal = static_cast<decltype(retVal)>(MathUtils::GetRandomDoubleInRange(lower, upper));
+        }
+    }
     return retVal;
 }
 
 long double ParseXmlElementText(const XMLElement& element, long double defaultValue) noexcept {
-    long double retVal = defaultValue;
+    auto retVal = defaultValue;
     auto txtAsCStr = element.GetText();
     std::string txt(txtAsCStr ? txtAsCStr : "");
-    if(!txt.empty()) {
+    auto is_range = txt.find('~') != std::string::npos;
+    if (!is_range) {
         try {
-            retVal = std::stold(txt);
-        } catch(...) {
-            return retVal;
+            retVal = static_cast<decltype(retVal)>(std::stold(txt));
         }
-    } else {
+        catch (...) {
+            return defaultValue;
+        }
+    }
+    else {
         auto values = StringUtils::Split(txt, '~');
-        if(values.size() == 1) {
-            retVal = std::stold(values[0]);
+        if (values.size() == 1) {
+            retVal = static_cast<decltype(retVal)>(std::stold(values[0]));
         } else {
-            auto lower = std::stold(values[0]);
-            auto upper = std::stold(values[1]);
-            retVal = MathUtils::GetRandomLongDoubleInRange(lower, upper);
+            auto lower = static_cast<decltype(retVal)>(std::stold(values[0]));
+            auto upper = static_cast<decltype(retVal)>(std::stold(values[1]));
+            retVal = static_cast<decltype(retVal)>(MathUtils::GetRandomLongDoubleInRange(lower, upper));
         }
     }
     return retVal;

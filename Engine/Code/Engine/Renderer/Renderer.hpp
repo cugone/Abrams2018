@@ -390,7 +390,6 @@ private:
     void CreateAndRegisterDefaultTextures() noexcept;
     Texture* CreateDefaultTexture() noexcept;
     Texture* CreateInvalidTexture() noexcept;
-    Texture* CreateInvalidMaterialTexture() noexcept;
     Texture* CreateDefaultDiffuseTexture() noexcept;
     Texture* CreateDefaultNormalTexture() noexcept;
     Texture* CreateDefaultDisplacementTexture() noexcept;
@@ -416,6 +415,7 @@ private:
     Shader* CreateDefault2DShader() noexcept;
     Shader* CreateDefaultNormalShader() noexcept;
     Shader* CreateDefaultNormalMapShader() noexcept;
+    Shader* CreateDefaultInvalidShader() noexcept;
     Shader* CreateDefaultFontShader() noexcept;
     Shader* CreateShaderFromFile(std::filesystem::path filepath) noexcept;
 
@@ -433,6 +433,7 @@ private:
     Sampler* CreateDefaultSampler() noexcept;
     Sampler* CreateLinearSampler() noexcept;
     Sampler* CreatePointSampler() noexcept;
+    Sampler* CreateInvalidSampler() noexcept;
 
     void CreateAndRegisterDefaultRasterStates() noexcept;
     RasterState* CreateDefaultRaster() noexcept;

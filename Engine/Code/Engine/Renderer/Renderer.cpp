@@ -2090,6 +2090,9 @@ void Renderer::CreateAndRegisterDefaultMaterials() noexcept {
     auto mat_normmap = CreateDefaultNormalMapMaterial();
     RegisterMaterial(mat_normmap->GetName(), mat_normmap);
 
+    auto mat_invalid = CreateDefaultInvalidMaterial();
+    RegisterMaterial(mat_invalid->GetName(), mat_invalid);
+
 }
 
 Material* Renderer::CreateDefaultMaterial() noexcept {
@@ -2181,9 +2184,9 @@ Material* Renderer::CreateDefaultInvalidMaterial() noexcept {
     std::string material =
         R"(
 <material name="__invalid">
-    <shader src="__2D" />
+    <shader src="__invalid" />
     <textures>
-        <diffuse src="__invalid_material" />
+        <diffuse src="__invalid" />
     </textures>
 </material>
 )";
@@ -2258,6 +2261,10 @@ void Renderer::CreateAndRegisterDefaultSamplers() noexcept {
     point_sampler->SetDebugName("__point_sampler");
     RegisterSampler("__point", point_sampler);
 
+    auto invalid_sampler = CreateInvalidSampler();
+    point_sampler->SetDebugName("__invalid_sampler");
+    RegisterSampler("__invalid", invalid_sampler);
+
 }
 
 Sampler* Renderer::CreateDefaultSampler() noexcept {
@@ -2277,6 +2284,17 @@ Sampler* Renderer::CreatePointSampler() noexcept {
     desc.mag_filter = FilterMode::Point;
     desc.min_filter = FilterMode::Point;
     desc.mip_filter = FilterMode::Point;
+    return new Sampler(_rhi_device.get(), desc);
+}
+
+Sampler* Renderer::CreateInvalidSampler() noexcept {
+    SamplerDesc desc{};
+    desc.mag_filter = FilterMode::Point;
+    desc.min_filter = FilterMode::Point;
+    desc.mip_filter = FilterMode::Point;
+    desc.UaddressMode = TextureAddressMode::Wrap;
+    desc.VaddressMode = TextureAddressMode::Wrap;
+    desc.WaddressMode = TextureAddressMode::Wrap;
     return new Sampler(_rhi_device.get(), desc);
 }
 
@@ -2673,10 +2691,6 @@ void Renderer::CreateAndRegisterDefaultTextures() noexcept {
     invalid_texture->SetDebugName("__invalid");
     RegisterTexture("__invalid", invalid_texture);
 
-    auto invalid_material_texture = CreateInvalidMaterialTexture();
-    invalid_material_texture->SetDebugName("__invalid_material");
-    RegisterTexture("__invalid_material", invalid_material_texture);
-
     auto diffuse_texture = CreateDefaultDiffuseTexture();
     diffuse_texture->SetDebugName("__diffuse");
     RegisterTexture("__diffuse", diffuse_texture);
@@ -2717,13 +2731,6 @@ Texture* Renderer::CreateInvalidTexture() noexcept {
         Rgba::Black,   Rgba::Magenta,
     };
     return Create2DTextureFromMemory(data, 2, 2);
-}
-
-Texture* Renderer::CreateInvalidMaterialTexture() noexcept {
-    static const std::vector<Rgba> data = {
-        Rgba::Magenta
-    };
-    return Create2DTextureFromMemory(data, 1, 1);
 }
 
 Texture* Renderer::CreateDefaultDiffuseTexture() noexcept {
@@ -2861,6 +2868,9 @@ void Renderer::CreateAndRegisterDefaultShaders() noexcept {
     auto default_font = CreateDefaultFontShader();
     RegisterShader(default_font->GetName(), default_font);
 
+    auto default_invalid = CreateDefaultInvalidShader();
+    RegisterShader(default_invalid->GetName(), default_invalid);
+
 }
 
 Shader* Renderer::CreateDefaultShader() noexcept {
@@ -2982,6 +2992,28 @@ Shader* Renderer::CreateDefaultNormalMapShader() noexcept {
     return new Shader(this, *doc.RootElement());
 }
 
+Shader* Renderer::CreateDefaultInvalidShader() noexcept {
+    std::string shader =
+        R"(
+<shader name="__invalid">
+    <shaderprogram src="__unlit" />
+    <raster src="__solid" />
+    <sampler src="__invalid" />
+    <blends>
+        <blend enable="true">
+            <color src="src_alpha" dest="inv_src_alpha" op="add" />
+        </blend>
+    </blends>
+</shader>
+)";
+    tinyxml2::XMLDocument doc;
+    auto parse_result = doc.Parse(shader.c_str(), shader.size());
+    if (parse_result != tinyxml2::XML_SUCCESS) {
+        return nullptr;
+    }
+
+    return new Shader(this, *doc.RootElement());
+}
 
 Shader* Renderer::CreateDefaultFontShader() noexcept {
     std::string shader =
@@ -3219,14 +3251,14 @@ void Renderer::SetVSync(bool value) noexcept {
 Material* Renderer::GetMaterial(const std::string& nameOrFile) noexcept {
     auto found_iter = _materials.find(nameOrFile);
     if(found_iter == _materials.end()) {
-        return nullptr;
+        return GetMaterial("__invalid");
     }
     return found_iter->second;
 }
 
 void Renderer::SetMaterial(Material* material) noexcept {
     if(material == nullptr) {
-        material = GetMaterial("__default");
+        material = GetMaterial("__invalid");
     }
     if(_current_material == material) {
         return;
@@ -3708,7 +3740,7 @@ Texture* Renderer::CreateTexture(std::filesystem::path filepath,
 
 void Renderer::SetTexture(Texture* texture, unsigned int registerIndex /*= 0*/) noexcept {
     if(texture == nullptr) {
-        texture = GetTexture("__default");
+        texture = GetTexture("__invalid");
     }
     if(_current_target == texture) {
         return;

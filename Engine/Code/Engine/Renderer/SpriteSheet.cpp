@@ -1,7 +1,10 @@
 #include "Engine/Renderer/SpriteSheet.hpp"
 
+#include "Engine/Core/ErrorWarningAssert.hpp"
+
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Texture.hpp"
+#include <sstream>
 
 SpriteSheet::SpriteSheet(Renderer& renderer, const XMLElement& elem) noexcept
 {
@@ -82,7 +85,15 @@ void SpriteSheet::LoadFromXml(Renderer& renderer, const XMLElement& elem) noexce
     std::string texturePathAsString{};
     texturePathAsString = DataUtils::ParseXmlAttribute(elem, "src", texturePathAsString);
     FS::path p{ texturePathAsString };
-    p = FS::canonical(p);
+    {
+        std::error_code ec{};
+        p = FS::canonical(p, ec);
+        if(ec) {
+            std::ostringstream ss;
+            ss << "Error loading spritesheet at " << texturePathAsString << ":\n" << ec.message();
+            ERROR_AND_DIE(ss.str().c_str());
+        }
+    }
     p.make_preferred();
     _spriteSheetTexture = renderer.CreateOrGetTexture(p.string(), IntVector3::XY_AXIS);
 }

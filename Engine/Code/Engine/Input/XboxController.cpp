@@ -164,10 +164,12 @@ void XboxController::SetBothMotorSpeedToMax() noexcept {
 }
 
 void XboxController::SetLeftMotorSpeedAsPercent(float speed) noexcept {
+    speed = std::clamp(speed, 0.0f, 1.0f);
     SetLeftMotorSpeed(static_cast<unsigned short>(static_cast<float>((std::numeric_limits<unsigned short>::max)()) * speed));
 }
 
 void XboxController::SetRightMotorSpeedAsPercent(float speed) noexcept {
+    speed = std::clamp(speed, 0.0f, 1.0f);
     SetRightMotorSpeed(static_cast<unsigned short>(static_cast<float>((std::numeric_limits<unsigned short>::max)()) * speed));
 }
 

@@ -15,7 +15,7 @@ namespace ThreadUtils {
     }
 
     void GetThreadDescription(std::thread& thread, std::string& description) noexcept {
-        auto wide_description = StringUtils::ConvertMultiByteToUnicode(description);
+        std::wstring wide_description{};
         GetThreadDescription(thread, wide_description);
         description = StringUtils::ConvertUnicodeToMultiByte(wide_description);
     }

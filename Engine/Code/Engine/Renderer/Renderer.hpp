@@ -483,6 +483,7 @@ private:
     ConstantBuffer* _matrix_cb = nullptr;
     ConstantBuffer* _time_cb = nullptr;
     ConstantBuffer* _lighting_cb = nullptr;
+    //TODO: Refactor to use std::unique_ptr
     std::map<std::string, Texture*> _textures{};
     std::map<std::string, ShaderProgram*> _shader_programs{};
     std::map<std::string, Material*> _materials{};

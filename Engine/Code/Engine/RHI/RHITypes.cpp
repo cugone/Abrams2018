@@ -5,6 +5,22 @@
 #include <iomanip>
 #include <type_traits>
 
+
+bool operator==(const ViewportDesc& a, const ViewportDesc& b) noexcept {
+    bool x = MathUtils::IsEquivalent(a.x, b.x);
+    bool y = MathUtils::IsEquivalent(a.y, b.y);
+    bool w = MathUtils::IsEquivalent(a.width, b.width);
+    bool h = MathUtils::IsEquivalent(a.height, b.height);
+    bool i = MathUtils::IsEquivalent(a.minDepth, b.minDepth);
+    bool m = MathUtils::IsEquivalent(a.maxDepth, b.maxDepth);
+    return x && y && w && h && i && m;
+}
+
+bool operator!=(const ViewportDesc& a, const ViewportDesc& b) noexcept {
+    return !(a == b);
+}
+
+
 std::ostream& operator<<(std::ostream& out_stream, const GraphicsCardDesc& graphicsCardDesc) noexcept {
     auto name = graphicsCardDesc.Description;
     out_stream << std::left << std::setw(22) << "Name:" << std::right << std::setw(30) << name << '\n';

@@ -15,6 +15,9 @@ struct ViewportDesc {
     float maxDepth = 1.0f;
 };
 
+bool operator==(const ViewportDesc& a, const ViewportDesc& b) noexcept;
+bool operator!=(const ViewportDesc& a, const ViewportDesc& b) noexcept;
+
 struct DisplayDesc {
     unsigned int width = 0u;
     unsigned int height = 0u;

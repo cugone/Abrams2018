@@ -510,16 +510,22 @@ std::vector<std::size_t> FindAll(std::wstring string, const std::wstring& sequen
 }
 
 std::string TrimWhitespace(std::string string) noexcept {
-    auto first_non_space = string.find_first_not_of(" \r\n\t\v\f");
-    auto last_non_space = string.find_last_not_of(" \r\n\t\v\f");
-    return string.substr(first_non_space, last_non_space - first_non_space + 1);
+    auto first_non_wspace = string.find_first_not_of(" \r\n\t\v\f");
+    if(first_non_wspace == std::string::npos) {
+        return {};
+    }
+    auto last_non_wspace = string.find_last_not_of(" \r\n\t\v\f");
+    return string.substr(first_non_wspace, last_non_wspace - first_non_wspace + 1);
 }
 
 
 std::wstring TrimWhitespace(std::wstring string) noexcept {
-    auto first_non_space = string.find_first_not_of(L" \r\n\t\v\f");
-    auto last_non_space = string.find_last_not_of(L" \r\n\t\v\f");
-    return string.substr(first_non_space, last_non_space - first_non_space + 1);
+    auto first_non_wspace = string.find_first_not_of(L" \r\n\t\v\f");
+    if(first_non_wspace == std::wstring::npos) {
+        return {};
+    }
+    auto last_non_wspace = string.find_last_not_of(L" \r\n\t\v\f");
+    return string.substr(first_non_wspace, last_non_wspace - first_non_wspace + 1);
 }
 
 void CopyFourCC(char* destFCC, const char* srcFCC) noexcept {

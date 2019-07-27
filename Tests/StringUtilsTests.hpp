@@ -798,6 +798,10 @@ TEST(StringUtilsFunctions, TrimWhitespace) {
     expected = std::string{};
     EXPECT_EQ(expected, result);
 
+    result = StringUtils::TrimWhitespace(std::string{ " \r\n\t\v\f" });
+    expected = std::string{};
+    EXPECT_EQ(expected, result);
+
     result = StringUtils::TrimWhitespace(std::string{ " Hello World " });
     expected = std::string{ "Hello World" };
     EXPECT_EQ(expected, result);

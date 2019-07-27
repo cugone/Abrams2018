@@ -148,14 +148,6 @@ Renderer::~Renderer() noexcept {
     }
     _depthstencils.clear();
 
-    delete _temp_vbo;
-    _temp_vbo = nullptr;
-    _current_vbo_size = 0;
-
-    delete _temp_ibo;
-    _temp_ibo = nullptr;
-    _current_ibo_size = 0;
-
     _default_depthstencil = nullptr;
     _current_target = nullptr;
     _current_depthstencil = nullptr;
@@ -163,15 +155,6 @@ Renderer::~Renderer() noexcept {
     _current_raster_state = nullptr;
     _current_sampler = nullptr;
     _current_material = nullptr;
-
-    delete _lighting_cb;
-    _lighting_cb = nullptr;
-
-    delete _time_cb;
-    _time_cb = nullptr;
-
-    delete _matrix_cb;
-    _matrix_cb = nullptr;
 
     _rhi_context.reset();
     _rhi_device.reset();
@@ -260,14 +243,14 @@ void Renderer::UpdateGameTime(TimeUtils::FPSeconds deltaSeconds) noexcept {
     _time_data.game_time += deltaSeconds.count();
     _time_data.game_frame_time = deltaSeconds.count();
     _time_cb->Update(_rhi_context.get(), &_time_data);
-    SetConstantBuffer(TIME_BUFFER_INDEX, _time_cb);
+    SetConstantBuffer(TIME_BUFFER_INDEX, _time_cb.get());
 }
 
 void Renderer::UpdateSystemTime(TimeUtils::FPSeconds deltaSeconds) noexcept {
     _time_data.system_time += deltaSeconds.count();
     _time_data.system_frame_time = deltaSeconds.count();
     _time_cb->Update(_rhi_context.get(), &_time_data);
-    SetConstantBuffer(TIME_BUFFER_INDEX, _time_cb);
+    SetConstantBuffer(TIME_BUFFER_INDEX, _time_cb.get());
 }
 
 void Renderer::Render() const {
@@ -294,19 +277,19 @@ TimeUtils::FPSeconds Renderer::GetSystemTime() const noexcept {
     return TimeUtils::FPSeconds{_time_data.system_time};
 }
 
-ConstantBuffer* Renderer::CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) const noexcept {
+std::unique_ptr<ConstantBuffer> Renderer::CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) const noexcept {
     return _rhi_device->CreateConstantBuffer(buffer, buffer_size, BufferUsage::Dynamic, BufferBindUsage::Constant_Buffer);
 }
 
-VertexBuffer* Renderer::CreateVertexBuffer(const VertexBuffer::buffer_t& vbo) const noexcept {
+std::unique_ptr<VertexBuffer> Renderer::CreateVertexBuffer(const VertexBuffer::buffer_t& vbo) const noexcept {
     return _rhi_device->CreateVertexBuffer(vbo, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer);
 }
 
-IndexBuffer* Renderer::CreateIndexBuffer(const IndexBuffer::buffer_t& ibo) const noexcept {
+std::unique_ptr<IndexBuffer> Renderer::CreateIndexBuffer(const IndexBuffer::buffer_t& ibo) const noexcept {
     return _rhi_device->CreateIndexBuffer(ibo, BufferUsage::Dynamic, BufferBindUsage::Index_Buffer);
 }
 
-StructuredBuffer* Renderer::CreateStructuredBuffer(const StructuredBuffer::buffer_t& sbo, std::size_t element_size, std::size_t element_count) const noexcept {
+std::unique_ptr<StructuredBuffer> Renderer::CreateStructuredBuffer(const StructuredBuffer::buffer_t& sbo, std::size_t element_size, std::size_t element_count) const noexcept {
     return _rhi_device->CreateStructuredBuffer(sbo, element_size, element_count, BufferUsage::Static, BufferBindUsage::Shader_Resource);
 }
 
@@ -622,30 +605,30 @@ void Renderer::DrawDebugSphere(const Rgba& color) noexcept {
 
 void Renderer::Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo) noexcept {
     UpdateVbo(vbo);
-    Draw(topology, _temp_vbo, vbo.size());
+    Draw(topology, _temp_vbo.get(), vbo.size());
 }
 
 void Renderer::Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, std::size_t vertex_count) noexcept {
     UpdateVbo(vbo);
-    Draw(topology, _temp_vbo, vertex_count);
+    Draw(topology, _temp_vbo.get(), vertex_count);
 }
 
 void Renderer::DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo) noexcept {
     UpdateVbo(vbo);
     UpdateIbo(ibo);
-    DrawIndexed(topology, _temp_vbo, _temp_ibo, ibo.size());
+    DrawIndexed(topology, _temp_vbo.get(), _temp_ibo.get(), ibo.size());
 }
 
 void Renderer::DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo, std::size_t vertex_count, std::size_t startVertex /*= 0*/, std::size_t baseVertexLocation /*= 0*/) noexcept {
     UpdateVbo(vbo);
     UpdateIbo(ibo);
-    DrawIndexed(topology, _temp_vbo, _temp_ibo, vertex_count, startVertex, baseVertexLocation);
+    DrawIndexed(topology, _temp_vbo.get(), _temp_ibo.get(), vertex_count, startVertex, baseVertexLocation);
 }
 
 void Renderer::SetLightingEyePosition(const Vector3& position) noexcept {
     _lighting_data.eye_position = Vector4(position, 1.0f);
     _lighting_cb->Update(_rhi_context.get(), &_lighting_data);
-    SetConstantBuffer(Renderer::LIGHTING_BUFFER_INDEX, _lighting_cb);
+    SetConstantBuffer(Renderer::LIGHTING_BUFFER_INDEX, _lighting_cb.get());
 }
 
 void Renderer::SetAmbientLight(const Rgba& ambient) noexcept {
@@ -656,7 +639,7 @@ void Renderer::SetAmbientLight(const Rgba& ambient) noexcept {
 void Renderer::SetAmbientLight(const Rgba& color, float intensity) noexcept {
     _lighting_data.ambient = Vector4(color.GetRgbAsFloats(), intensity);
     _lighting_cb->Update(_rhi_context.get(), &_lighting_data);
-    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
+    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb.get());
 }
 
 void Renderer::SetSpecGlossEmitFactors(Material* mat) noexcept {
@@ -665,7 +648,7 @@ void Renderer::SetSpecGlossEmitFactors(Material* mat) noexcept {
     float emit = mat ? mat->GetEmissiveFactor() : 0.0f;
     _lighting_data.specular_glossy_emissive_factors = Vector4(spec, gloss, emit, 1.0f);
     _lighting_cb->Update(_rhi_context.get(), &_lighting_data);
-    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
+    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb.get());
 }
 
 void Renderer::SetUseVertexNormalsForLighting(bool value) noexcept {
@@ -675,7 +658,7 @@ void Renderer::SetUseVertexNormalsForLighting(bool value) noexcept {
         _lighting_data.useVertexNormals = 0;
     }
     _lighting_cb->Update(_rhi_context.get(), &_lighting_data);
-    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
+    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb.get());
 }
 
 const light_t& Renderer::GetLight(unsigned int index) const noexcept {
@@ -726,7 +709,7 @@ void Renderer::SetSpotlight(unsigned int index, const SpotLightDesc& desc) noexc
 void Renderer::SetLightAtIndex(unsigned int index, const light_t& light) noexcept {
     _lighting_data.lights[index] = light;
     _lighting_cb->Update(_rhi_context.get(), &_lighting_data);
-    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb);
+    SetConstantBuffer(LIGHTING_BUFFER_INDEX, _lighting_cb.get());
 }
 
 void Renderer::SetPointLight(unsigned int index, const light_t& light) noexcept {
@@ -1295,13 +1278,13 @@ void Renderer::AppendMultiLineTextBuffer(KerningFont* font, const std::string& t
     }
 }
 
-std::vector<ConstantBuffer*> Renderer::CreateConstantBuffersFromShaderProgram(const ShaderProgram* _shader_program) const noexcept {
-    const auto vs_cbuffers = _rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetVSByteCode());
-    const auto hs_cbuffers = _rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetHSByteCode());
-    const auto ds_cbuffers = _rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetDSByteCode());
-    const auto gs_cbuffers = _rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetGSByteCode());
-    const auto ps_cbuffers = _rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetPSByteCode());
-    const auto cs_cbuffers = _rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetCSByteCode());
+std::vector<std::unique_ptr<ConstantBuffer>>&& Renderer::CreateConstantBuffersFromShaderProgram(const ShaderProgram* _shader_program) const noexcept {
+    auto vs_cbuffers = std::move(_rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetVSByteCode()));
+    auto hs_cbuffers = std::move(_rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetHSByteCode()));
+    auto ds_cbuffers = std::move(_rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetDSByteCode()));
+    auto gs_cbuffers = std::move(_rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetGSByteCode()));
+    auto ps_cbuffers = std::move(_rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetPSByteCode()));
+    auto cs_cbuffers = std::move(_rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetCSByteCode()));
     const auto sizes = std::vector<std::size_t>{
         vs_cbuffers.size(),
         hs_cbuffers.size(),
@@ -1314,16 +1297,14 @@ std::vector<ConstantBuffer*> Renderer::CreateConstantBuffersFromShaderProgram(co
     if(!cbuffer_count) {
         return {};
     }
-    auto cbuffers = std::vector<ConstantBuffer*>{};
-    cbuffers.reserve(cbuffer_count);
-    std::copy(std::begin(vs_cbuffers), std::end(vs_cbuffers), std::back_inserter(cbuffers));
-    std::copy(std::begin(hs_cbuffers), std::end(hs_cbuffers), std::back_inserter(cbuffers));
-    std::copy(std::begin(ds_cbuffers), std::end(ds_cbuffers), std::back_inserter(cbuffers));
-    std::copy(std::begin(gs_cbuffers), std::end(gs_cbuffers), std::back_inserter(cbuffers));
-    std::copy(std::begin(ps_cbuffers), std::end(ps_cbuffers), std::back_inserter(cbuffers));
-    std::copy(std::begin(cs_cbuffers), std::end(cs_cbuffers), std::back_inserter(cbuffers));
+    auto cbuffers = std::move(vs_cbuffers);
+    std::move(std::begin(hs_cbuffers), std::end(hs_cbuffers), std::back_inserter(cbuffers));
+    std::move(std::begin(ds_cbuffers), std::end(ds_cbuffers), std::back_inserter(cbuffers));
+    std::move(std::begin(gs_cbuffers), std::end(gs_cbuffers), std::back_inserter(cbuffers));
+    std::move(std::begin(ps_cbuffers), std::end(ps_cbuffers), std::back_inserter(cbuffers));
+    std::move(std::begin(cs_cbuffers), std::end(cs_cbuffers), std::back_inserter(cbuffers));
     cbuffers.shrink_to_fit();
-    return cbuffers;
+    return std::move(cbuffers);
 }
 
 void Renderer::SetWinProc(const std::function<bool(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)>& windowProcedure) noexcept {
@@ -1596,7 +1577,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
 }
 
 )";
-    InputLayout* il = _rhi_device->CreateInputLayout();
+    auto il = _rhi_device->CreateInputLayout();
     auto pos_offset = offsetof(Vertex3D, position);
     auto color_offset = offsetof(Vertex3D, color);
     auto uv_offset = offsetof(Vertex3D, texcoords);
@@ -1619,7 +1600,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     desc.vs_bytecode = vs_bytecode;
     desc.ps = ps;
     desc.ps_bytecode = ps_bytecode;
-    desc.input_layout = il;
+    desc.input_layout = std::move(il);
     ShaderProgram* shader = new ShaderProgram(std::move(desc));
     return shader;
 }
@@ -1685,7 +1666,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
 
 )";
 
-    InputLayout* il = _rhi_device->CreateInputLayout();
+    auto il = _rhi_device->CreateInputLayout();
     auto pos_offset = offsetof(Vertex3D, position);
     auto color_offset = offsetof(Vertex3D, color);
     auto uv_offset = offsetof(Vertex3D, texcoords);
@@ -1706,7 +1687,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     desc.vs_bytecode = vs_bytecode;
     desc.ps = ps;
     desc.ps_bytecode = ps_bytecode;
-    desc.input_layout = il;
+    desc.input_layout = std::move(il);
     ShaderProgram* shader = new ShaderProgram(std::move(desc));
     return shader;
 
@@ -1815,7 +1796,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
 }
 
 )";
-    InputLayout* il = _rhi_device->CreateInputLayout();
+    auto il = _rhi_device->CreateInputLayout();
     auto pos_offset = offsetof(Vertex3D, position);
     auto color_offset = offsetof(Vertex3D, color);
     auto uv_offset = offsetof(Vertex3D, texcoords);
@@ -1838,7 +1819,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     desc.vs_bytecode = vs_bytecode;
     desc.ps = ps;
     desc.ps_bytecode = ps_bytecode;
-    desc.input_layout = il;
+    desc.input_layout = std::move(il);
     ShaderProgram* shader = new ShaderProgram(std::move(desc));
     return shader;
 }
@@ -1946,7 +1927,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
 }
 
 )";
-    InputLayout* il = _rhi_device->CreateInputLayout();
+    auto il = _rhi_device->CreateInputLayout();
     auto pos_offset = offsetof(Vertex3D, position);
     auto color_offset = offsetof(Vertex3D, color);
     auto uv_offset = offsetof(Vertex3D, texcoords);
@@ -1969,7 +1950,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     desc.vs_bytecode = vs_bytecode;
     desc.ps = ps;
     desc.ps_bytecode = ps_bytecode;
-    desc.input_layout = il;
+    desc.input_layout = std::move(il);
     ShaderProgram* shader = new ShaderProgram(std::move(desc));
     return shader;
 }
@@ -2048,7 +2029,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
 }
 
 )";
-    InputLayout* il = _rhi_device->CreateInputLayout();
+    auto il = _rhi_device->CreateInputLayout();
     auto pos_offset = offsetof(Vertex3D, position);
     auto color_offset = offsetof(Vertex3D, color);
     auto uv_offset = offsetof(Vertex3D, texcoords);
@@ -2069,7 +2050,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     desc.vs_bytecode = vs_bytecode;
     desc.ps = ps;
     desc.ps_bytecode = ps_bytecode;
-    desc.input_layout = il;
+    desc.input_layout = std::move(il);
     ShaderProgram* shader = new ShaderProgram(std::move(desc));
     return shader;
 }
@@ -3139,8 +3120,7 @@ void Renderer::RegisterShaderProgram(const std::string& name, ShaderProgram * sp
 
 void Renderer::UpdateVbo(const VertexBuffer::buffer_t& vbo) noexcept {
     if(_current_vbo_size < vbo.size()) {
-        delete _temp_vbo;
-        _temp_vbo = _rhi_device->CreateVertexBuffer(vbo, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer);
+        _temp_vbo = std::move(_rhi_device->CreateVertexBuffer(vbo, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer));
         _current_vbo_size = vbo.size();
     }
     _temp_vbo->Update(_rhi_context.get(), vbo);
@@ -3148,8 +3128,7 @@ void Renderer::UpdateVbo(const VertexBuffer::buffer_t& vbo) noexcept {
 
 void Renderer::UpdateIbo(const IndexBuffer::buffer_t& ibo) noexcept {
     if(_current_ibo_size < ibo.size()) {
-        delete _temp_ibo;
-        _temp_ibo = _rhi_device->CreateIndexBuffer(ibo, BufferUsage::Dynamic, BufferBindUsage::Index_Buffer);
+        _temp_ibo = std::move(_rhi_device->CreateIndexBuffer(ibo, BufferUsage::Dynamic, BufferBindUsage::Index_Buffer));
         _current_ibo_size = ibo.size();
     }
     _temp_ibo->Update(_rhi_context.get(), ibo);
@@ -3181,13 +3160,13 @@ ShaderProgram* Renderer::GetShaderProgram(const std::string& nameOrFile) noexcep
     return found_iter->second;
 }
 
-ShaderProgram* Renderer::CreateShaderProgramFromHlslFile(std::filesystem::path filepath, const std::string& entryPointList, const PipelineStage& target) const noexcept {
+std::unique_ptr<ShaderProgram> Renderer::CreateShaderProgramFromHlslFile(std::filesystem::path filepath, const std::string& entryPointList, const PipelineStage& target) const noexcept {
     bool requested_retry = false;
-    ShaderProgram* sp = nullptr;
+    std::unique_ptr<ShaderProgram> sp = nullptr;
     do {
         std::string contents{};
         if(FileUtils::ReadBufferFromFile(contents, filepath)) {
-                sp = _rhi_device->CreateShaderProgramFromHlslString(filepath.string(), contents, entryPointList, nullptr, target);
+            sp = std::move(_rhi_device->CreateShaderProgramFromHlslString(filepath.string(), contents, entryPointList, nullptr, target));
                 requested_retry = false;
 #ifdef RENDER_DEBUG
                 if(sp == nullptr) {
@@ -3201,7 +3180,7 @@ ShaderProgram* Renderer::CreateShaderProgramFromHlslFile(std::filesystem::path f
 #endif
         }
     } while(requested_retry);
-    return sp;
+    return std::move(sp);
 }
 
 void Renderer::CreateAndRegisterShaderProgramFromHlslFile(std::filesystem::path filepath, const std::string& entryPointList, const PipelineStage& target) noexcept {
@@ -3211,7 +3190,7 @@ void Renderer::CreateAndRegisterShaderProgramFromHlslFile(std::filesystem::path 
         oss << filepath << " failed to compile.\n";
         ERROR_AND_DIE(oss.str().c_str());
     }
-    RegisterShaderProgram(filepath.string(), sp);
+    RegisterShaderProgram(filepath.string(), sp.get());
 }
 
 void Renderer::RegisterShaderProgramsFromFolder(std::filesystem::path folderpath, const std::string& entrypoint, const PipelineStage& target, bool recursive /*= false*/) noexcept {
@@ -3322,19 +3301,19 @@ KerningFont* Renderer::GetFont(const std::string& nameOrFile) noexcept {
 void Renderer::SetModelMatrix(const Matrix4& mat /*= Matrix4::I*/) noexcept {
     _matrix_data.model = mat;
     _matrix_cb->Update(_rhi_context.get(), &_matrix_data);
-    SetConstantBuffer(MATRIX_BUFFER_INDEX, _matrix_cb);
+    SetConstantBuffer(MATRIX_BUFFER_INDEX, _matrix_cb.get());
 }
 
 void Renderer::SetViewMatrix(const Matrix4& mat /*= Matrix4::I*/) noexcept {
     _matrix_data.view = mat;
     _matrix_cb->Update(_rhi_context.get(), &_matrix_data);
-    SetConstantBuffer(MATRIX_BUFFER_INDEX, _matrix_cb);
+    SetConstantBuffer(MATRIX_BUFFER_INDEX, _matrix_cb.get());
 }
 
 void Renderer::SetProjectionMatrix(const Matrix4& mat /*= Matrix4::I*/) noexcept {
     _matrix_data.projection = mat;
     _matrix_cb->Update(_rhi_context.get(), &_matrix_data);
-    SetConstantBuffer(MATRIX_BUFFER_INDEX, _matrix_cb);
+    SetConstantBuffer(MATRIX_BUFFER_INDEX, _matrix_cb.get());
 }
 
 void Renderer::ResetModelViewProjection() noexcept {
@@ -3347,7 +3326,7 @@ void Renderer::ResetModelViewProjection() noexcept {
 void Renderer::AppendModelMatrix(const Matrix4& modelMatrix) noexcept {
     _matrix_data.model = _matrix_data.model * modelMatrix;
     _matrix_cb->Update(_rhi_context.get(), &_matrix_data);
-    SetConstantBuffer(MATRIX_BUFFER_INDEX, _matrix_cb);
+    SetConstantBuffer(MATRIX_BUFFER_INDEX, _matrix_cb.get());
 }
 
 void Renderer::SetOrthoProjection(const Vector2& leftBottom, const Vector2& rightTop, const Vector2& near_far) noexcept {

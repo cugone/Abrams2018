@@ -149,10 +149,10 @@ public:
     void SetBorderlessWindowedMode() noexcept;
     void SetWindowTitle(const std::string& newTitle) noexcept;
 
-    VertexBuffer* CreateVertexBuffer(const VertexBuffer::buffer_t& vbo) const noexcept;
-    IndexBuffer* CreateIndexBuffer(const IndexBuffer::buffer_t& ibo) const noexcept;
-    ConstantBuffer* CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) const noexcept;
-    StructuredBuffer* CreateStructuredBuffer(const StructuredBuffer::buffer_t& sbo, std::size_t element_size, std::size_t element_count) const noexcept;
+    std::unique_ptr<VertexBuffer> CreateVertexBuffer(const VertexBuffer::buffer_t& vbo) const noexcept;
+    std::unique_ptr<IndexBuffer> CreateIndexBuffer(const IndexBuffer::buffer_t& ibo) const noexcept;
+    std::unique_ptr<ConstantBuffer> CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) const noexcept;
+    std::unique_ptr<StructuredBuffer> CreateStructuredBuffer(const StructuredBuffer::buffer_t& sbo, std::size_t element_size, std::size_t element_count) const noexcept;
 
     Texture* CreateOrGetTexture(const std::filesystem::path& filepath, const IntVector3& dimensions) noexcept;
     void RegisterTexturesFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept;
@@ -250,7 +250,7 @@ public:
     RHIOutput* GetOutput() const noexcept;
 
     ShaderProgram* GetShaderProgram(const std::string& nameOrFile) noexcept;
-    ShaderProgram* CreateShaderProgramFromHlslFile(std::filesystem::path filepath, const std::string& entryPointList, const PipelineStage& target) const noexcept;
+    std::unique_ptr<ShaderProgram> CreateShaderProgramFromHlslFile(std::filesystem::path filepath, const std::string& entryPointList, const PipelineStage& target) const noexcept;
     void CreateAndRegisterShaderProgramFromHlslFile(std::filesystem::path filepath, const std::string& entryPointList, const PipelineStage& target) noexcept;
     void CreateAndRegisterRasterStateFromRasterDescription(const std::string& name, const RasterDesc& desc) noexcept;
     void SetRasterState(RasterState* raster) noexcept;
@@ -351,7 +351,7 @@ public:
     constexpr static unsigned int STRUCTURED_BUFFER_START_INDEX = 64;
     constexpr static unsigned int MAX_LIGHT_COUNT = max_light_count;
 
-    std::vector<ConstantBuffer*> CreateConstantBuffersFromShaderProgram(const ShaderProgram* _shader_program) const noexcept;
+    std::vector<std::unique_ptr<ConstantBuffer>>&& CreateConstantBuffersFromShaderProgram(const ShaderProgram* _shader_program) const noexcept;
 
     void SetWinProc(const std::function<bool(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) >& windowProcedure) noexcept;
 
@@ -478,11 +478,11 @@ private:
     Material* _current_material = nullptr;
     IntVector2 _window_dimensions = IntVector2::ZERO;
     RHIOutputMode _current_outputMode = RHIOutputMode::Windowed;
-    VertexBuffer* _temp_vbo = nullptr;
-    IndexBuffer* _temp_ibo = nullptr;
-    ConstantBuffer* _matrix_cb = nullptr;
-    ConstantBuffer* _time_cb = nullptr;
-    ConstantBuffer* _lighting_cb = nullptr;
+    std::unique_ptr<VertexBuffer> _temp_vbo{};
+    std::unique_ptr<IndexBuffer> _temp_ibo{};
+    std::unique_ptr<ConstantBuffer> _matrix_cb{};
+    std::unique_ptr<ConstantBuffer> _time_cb{};
+    std::unique_ptr<ConstantBuffer> _lighting_cb{};
     //TODO: Refactor to use std::unique_ptr
     std::map<std::string, Texture*> _textures{};
     std::map<std::string, ShaderProgram*> _shader_programs{};

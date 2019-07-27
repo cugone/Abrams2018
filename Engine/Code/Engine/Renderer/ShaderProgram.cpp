@@ -52,7 +52,7 @@ ID3DBlob* ShaderProgram::GetCSByteCode() const noexcept {
 }
 
 InputLayout* ShaderProgram::GetInputLayout() const noexcept {
-    return _desc.input_layout;
+    return _desc.input_layout.get();
 }
 
 ID3D11VertexShader* ShaderProgram::GetVS() const noexcept {
@@ -85,7 +85,7 @@ ShaderProgramDesc::ShaderProgramDesc(ShaderProgramDesc&& other) noexcept {
     device = other.device;
     other.device = nullptr;
 
-    input_layout = other.input_layout;
+    input_layout = std::move(other.input_layout);
     other.input_layout = nullptr;
 
     vs = other.vs;
@@ -126,7 +126,7 @@ ShaderProgramDesc& ShaderProgramDesc::operator=(ShaderProgramDesc&& other) noexc
     device = other.device;
     other.device = nullptr;
 
-    input_layout = other.input_layout;
+    input_layout = std::move(other.input_layout);
     other.input_layout = nullptr;
 
     vs = other.vs;
@@ -188,8 +188,7 @@ ShaderProgramDesc::~ShaderProgramDesc() noexcept {
         cs_bytecode = nullptr;
     }
 
-    delete input_layout;
-    input_layout = nullptr;
+    input_layout.reset();
 
     if(vs) {
         vs->Release();

@@ -353,7 +353,7 @@ void RHIDeviceContext::SetShader(Shader* shader) noexcept {
         const auto& cbs = shader->GetConstantBuffers();
         const auto s = cbs.size();
         for(auto i = 0u; i < s; ++i) {
-            SetConstantBuffer(i + Renderer::CONSTANT_BUFFER_START_INDEX, cbs[i]);
+            SetConstantBuffer(i + Renderer::CONSTANT_BUFFER_START_INDEX, &(cbs[i].get()));
         }
     }
 }

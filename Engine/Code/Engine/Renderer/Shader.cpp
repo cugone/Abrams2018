@@ -49,12 +49,6 @@ Shader::~Shader() noexcept {
     _renderer = nullptr;
     _sampler = nullptr;
     _raster_state = nullptr;
-    for(auto& cbuffer : _cbuffers) {
-        delete cbuffer;
-        cbuffer = nullptr;
-    }
-    _cbuffers.clear();
-    _cbuffers.shrink_to_fit();
 
     if(_blend_state) {
         delete _blend_state;
@@ -90,8 +84,14 @@ Sampler* Shader::GetSampler() const noexcept {
     return _sampler;
 }
 
-const std::vector<ConstantBuffer*>& Shader::GetConstantBuffers() const noexcept {
-    return _cbuffers;
+std::vector<std::reference_wrapper<ConstantBuffer>> Shader::GetConstantBuffers() const noexcept {
+    std::vector<std::reference_wrapper<ConstantBuffer>> cbufferRefs{};
+    cbufferRefs.reserve(_cbuffers.size());
+    for(auto& ptr : _cbuffers) {
+        cbufferRefs.push_back(std::ref(*ptr));
+    }
+    cbufferRefs.shrink_to_fit();
+    return cbufferRefs;
 }
 
 void Shader::SetName(const std::string& name) noexcept {
@@ -118,8 +118,8 @@ void Shader::SetSampler(Sampler* sampler) noexcept {
     _sampler = sampler;
 }
 
-void Shader::SetConstantBuffers(const std::vector<ConstantBuffer*>& cbuffers) noexcept {
-    _cbuffers = cbuffers;
+void Shader::SetConstantBuffers(std::vector<std::unique_ptr<ConstantBuffer>> cbuffers) noexcept {
+    std::move(std::begin(cbuffers), std::end(cbuffers), std::back_inserter(_cbuffers));
 }
 
 bool Shader::LoadFromXml(Renderer* renderer, const XMLElement& element) noexcept {
@@ -174,7 +174,7 @@ bool Shader::LoadFromXml(Renderer* renderer, const XMLElement& element) noexcept
             }
         }
     }
-    _cbuffers = _renderer->CreateConstantBuffersFromShaderProgram(_shader_program);
+    _cbuffers = std::move(_renderer->CreateConstantBuffersFromShaderProgram(_shader_program));
     _depth_stencil_state = new DepthStencilState(_renderer->GetDevice(), element);
     _blend_state = new BlendState(_renderer->GetDevice(), element);
 

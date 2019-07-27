@@ -26,7 +26,7 @@ public:
     DepthStencilState* GetDepthStencilState() const noexcept;
     BlendState* GetBlendState() const noexcept;
     Sampler* GetSampler() const noexcept;
-    const std::vector<ConstantBuffer*>& GetConstantBuffers() const noexcept;
+    std::vector<std::reference_wrapper<ConstantBuffer>> GetConstantBuffers() const noexcept;
 
     void SetName(const std::string& name) noexcept;
     void SetShaderProgram(ShaderProgram* sp) noexcept;
@@ -34,7 +34,7 @@ public:
     void SetDepthStencilState(DepthStencilState* ds) noexcept;
     void SetBlendState(BlendState* bs) noexcept;
     void SetSampler(Sampler* sampler) noexcept;
-    void SetConstantBuffers(const std::vector<ConstantBuffer*>& cbuffers) noexcept;
+    void SetConstantBuffers(std::vector<std::unique_ptr<ConstantBuffer>> cbuffers) noexcept;
 protected:
 private:
     bool LoadFromXml(Renderer* renderer, const XMLElement& element) noexcept;
@@ -52,9 +52,9 @@ private:
     ShaderProgram* _shader_program = nullptr;
     DepthStencilState* _depth_stencil_state = nullptr;
     RasterState* _raster_state = nullptr;
+    //TODO: Convert to unique_ptr
     BlendState* _blend_state = nullptr;
+    //TODO: Convert to unique_ptr
     Sampler* _sampler = nullptr;
-    std::vector<ConstantBuffer*> _cbuffers{};
-    bool _raster_from_db = false;
-    bool _sampler_from_db = false;
+    std::vector<std::unique_ptr<ConstantBuffer>> _cbuffers;
 };

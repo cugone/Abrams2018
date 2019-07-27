@@ -12,7 +12,7 @@ struct ShaderProgramDesc {
     ID3D11PixelShader* ps     = nullptr;
     ID3DBlob* vs_bytecode     = nullptr;
     ID3DBlob* ps_bytecode     = nullptr;
-    InputLayout* input_layout = nullptr;
+    std::unique_ptr<InputLayout> input_layout = nullptr;
     ID3D11HullShader* hs      = nullptr;
     ID3DBlob* hs_bytecode     = nullptr;
     ID3D11DomainShader* ds    = nullptr;

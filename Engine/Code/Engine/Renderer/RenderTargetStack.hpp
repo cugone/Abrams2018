@@ -2,6 +2,7 @@
 
 #include "Engine/Renderer/DirectX/DX11.hpp"
 
+#include <stack>
 #include <vector>
 
 class DepthStencilState;
@@ -20,11 +21,19 @@ public:
 	explicit RenderTargetStack(Renderer* renderer) noexcept;
     ~RenderTargetStack() = default;
 
-    void Push(const RenderTargetStack::Node& node = RenderTargetStack::Node{}) noexcept;
-    void Pop() noexcept;
-    const RenderTargetStack::Node& Top() const noexcept;
+    const RenderTargetStack::Node& top() const noexcept;
+    RenderTargetStack::Node& top() noexcept;
+    void push(const RenderTargetStack::Node& node) noexcept;
+    void push(RenderTargetStack::Node&& node) noexcept;
+    void pop() noexcept;
+    [[nodiscard]] bool empty() const;
+    std::size_t size() const;
+
 protected:
 private:
     Renderer* _renderer{};
-    std::vector<RenderTargetStack::Node> _stack{};
+    std::stack<RenderTargetStack::Node, std::vector<RenderTargetStack::Node>> _stack{};
 };
+
+bool operator==(const RenderTargetStack::Node& lhs, const RenderTargetStack::Node& rhs);
+bool operator!=(const RenderTargetStack::Node& lhs, const RenderTargetStack::Node& rhs);

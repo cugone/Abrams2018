@@ -774,11 +774,11 @@ const RenderTargetStack& Renderer::GetRenderTargetStack() const noexcept {
 }
 
 void Renderer::PushRenderTarget(const RenderTargetStack::Node& newRenderTarget /*= RenderTargetStack::Node{}*/) noexcept {
-    _target_stack->Push(newRenderTarget);
+    _target_stack->push(newRenderTarget);
 }
 
 void Renderer::PopRenderTarget() noexcept {
-    _target_stack->Pop();
+    _target_stack->pop();
 }
 
 std::shared_ptr<SpriteSheet> Renderer::CreateSpriteSheet(const XMLElement& elem) noexcept {

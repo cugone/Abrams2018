@@ -104,12 +104,7 @@ Renderer::~Renderer() noexcept {
     _lighting_cb.reset();
     _target_stack.reset();
 
-    for(auto& texture : _textures) {
-        delete texture.second;
-        texture.second = nullptr;
-    }
     _textures.clear();
-
     _shader_programs.clear();
 
     for(auto& material : _materials) {
@@ -218,10 +213,12 @@ void Renderer::LogAvailableDisplays() noexcept {
 }
 
 void Renderer::CreateAndRegisterDefaultDepthStencil() noexcept {
-    _default_depthstencil = CreateDepthStencil(_rhi_device.get(), _window_dimensions);
-    if(_default_depthstencil) {
-        _default_depthstencil->SetDebugName("__default_depthstencil");
-        RegisterTexture("__default_depthstencil", _default_depthstencil);
+    auto default_depthstencil = CreateDepthStencil(_rhi_device.get(), _window_dimensions);
+    if(default_depthstencil) {
+        default_depthstencil->SetDebugName("__default_depthstencil");
+        if(RegisterTexture("__default_depthstencil", std::move(default_depthstencil))) {
+            _default_depthstencil = GetTexture("__default_depthstencil");
+        }
     } else {
         ERROR_AND_DIE("Default depthstencil failed to create.");
     }
@@ -289,7 +286,7 @@ std::unique_ptr<StructuredBuffer> Renderer::CreateStructuredBuffer(const Structu
     return _rhi_device->CreateStructuredBuffer(sbo, element_size, element_count, BufferUsage::Static, BufferBindUsage::Shader_Resource);
 }
 
-bool Renderer::RegisterTexture(const std::string& name, Texture* texture) noexcept {
+bool Renderer::RegisterTexture(const std::string& name, std::unique_ptr<Texture> texture) noexcept {
     namespace FS = std::filesystem;
     FS::path p(name);
     if(!StringUtils::StartsWith(p.string(), "__")) {
@@ -303,7 +300,7 @@ bool Renderer::RegisterTexture(const std::string& name, Texture* texture) noexce
     p.make_preferred();
     auto found_texture = _textures.find(p.string());
     if(found_texture == _textures.end()) {
-        _textures.insert_or_assign(name, texture);
+        _textures.try_emplace(name, std::move(texture));
         return true;
     } else {
         return false;
@@ -321,7 +318,7 @@ Texture* Renderer::GetTexture(const std::string& nameOrFile) noexcept {
     if(found_iter == _textures.end()) {
         return nullptr;
     }
-    return (*found_iter).second;
+    return (*found_iter).second.get();
 }
 
 void Renderer::DrawPoint(const Vertex3D& point) noexcept {
@@ -2660,48 +2657,56 @@ void Renderer::RegisterFontsFromFolder(std::filesystem::path folderpath, bool re
 
 void Renderer::CreateAndRegisterDefaultTextures() noexcept {
     auto default_texture = CreateDefaultTexture();
-    default_texture->SetDebugName("__default_texture");
-    RegisterTexture("__default", default_texture);
+    auto name = "__default";
+    default_texture->SetDebugName(name);
+    RegisterTexture(name, std::move(default_texture));
 
     auto invalid_texture = CreateInvalidTexture();
-    invalid_texture->SetDebugName("__invalid");
-    RegisterTexture("__invalid", invalid_texture);
+    name = "__invalid";
+    invalid_texture->SetDebugName(name);
+    RegisterTexture(name, std::move(invalid_texture));
 
     auto diffuse_texture = CreateDefaultDiffuseTexture();
-    diffuse_texture->SetDebugName("__diffuse");
-    RegisterTexture("__diffuse", diffuse_texture);
+    name = "__diffuse";
+    diffuse_texture->SetDebugName(name);
+    RegisterTexture(name, std::move(diffuse_texture));
 
     auto normal_texture = CreateDefaultNormalTexture();
-    normal_texture->SetDebugName("__normal");
-    RegisterTexture("__normal", normal_texture);
+    name = "__normal";
+    normal_texture->SetDebugName(name);
+    RegisterTexture(name, std::move(normal_texture));
 
     auto displacement_texture = CreateDefaultDisplacementTexture();
-    displacement_texture->SetDebugName("__displacement");
-    RegisterTexture("__displacement", displacement_texture);
+    name = "__displacement";
+    displacement_texture->SetDebugName(name);
+    RegisterTexture(name, std::move(displacement_texture));
 
     auto specular_texture = CreateDefaultSpecularTexture();
-    specular_texture->SetDebugName("__specular");
-    RegisterTexture("__specular", specular_texture);
+    name = "__specular";
+    specular_texture->SetDebugName(name);
+    RegisterTexture(name, std::move(specular_texture));
 
     auto occlusion_texture = CreateDefaultOcclusionTexture();
-    occlusion_texture->SetDebugName("__occlusion");
-    RegisterTexture("__occlusion", occlusion_texture);
+    name = "__occlusion";
+    occlusion_texture->SetDebugName(name);
+    RegisterTexture(name, std::move(occlusion_texture));
 
     auto emissive_texture = CreateDefaultEmissiveTexture();
-    emissive_texture->SetDebugName("__emissive");
-    RegisterTexture("__emissive", emissive_texture);
+    name = "__emissive";
+    emissive_texture->SetDebugName(name);
+    RegisterTexture(name, std::move(emissive_texture));
 
     CreateDefaultColorTextures();
 }
 
-Texture* Renderer::CreateDefaultTexture() noexcept {
+std::unique_ptr<Texture> Renderer::CreateDefaultTexture() noexcept {
     static const std::vector<Rgba> data = {
         Rgba::White
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
-Texture* Renderer::CreateInvalidTexture() noexcept {
+std::unique_ptr<Texture> Renderer::CreateInvalidTexture() noexcept {
     static const std::vector<Rgba> data = {
         Rgba::Magenta, Rgba::Black,
         Rgba::Black,   Rgba::Magenta,
@@ -2709,42 +2714,42 @@ Texture* Renderer::CreateInvalidTexture() noexcept {
     return Create2DTextureFromMemory(data, 2, 2);
 }
 
-Texture* Renderer::CreateDefaultDiffuseTexture() noexcept {
+std::unique_ptr<Texture> Renderer::CreateDefaultDiffuseTexture() noexcept {
     static const std::vector<Rgba> data = {
         Rgba::White
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
-Texture* Renderer::CreateDefaultNormalTexture() noexcept {
+std::unique_ptr<Texture> Renderer::CreateDefaultNormalTexture() noexcept {
     static const std::vector<Rgba> data = {
         Rgba::NormalZ
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
-Texture* Renderer::CreateDefaultDisplacementTexture() noexcept {
+std::unique_ptr<Texture> Renderer::CreateDefaultDisplacementTexture() noexcept {
     static const std::vector<Rgba> data = {
         Rgba::Gray
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
-Texture* Renderer::CreateDefaultSpecularTexture() noexcept {
+std::unique_ptr<Texture> Renderer::CreateDefaultSpecularTexture() noexcept {
     static const std::vector<Rgba> data = {
         Rgba::Black
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
-Texture* Renderer::CreateDefaultOcclusionTexture() noexcept {
+std::unique_ptr<Texture> Renderer::CreateDefaultOcclusionTexture() noexcept {
     static const std::vector<Rgba> data = {
         Rgba::White
     };
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
-Texture* Renderer::CreateDefaultEmissiveTexture() noexcept {
+std::unique_ptr<Texture> Renderer::CreateDefaultEmissiveTexture() noexcept {
     static const std::vector<Rgba> data = {
         Rgba::Black
     };
@@ -2814,11 +2819,11 @@ void Renderer::CreateDefaultColorTextures() noexcept {
     for(std::size_t i = 0; i < n_s; ++i) {
         auto tex = CreateDefaultColorTexture(colors[i]);
         tex->SetDebugName(names[i]);
-        RegisterTexture(names[i], tex);
+        RegisterTexture(names[i], std::move(tex));
     }
 }
 
-Texture* Renderer::CreateDefaultColorTexture(const Rgba& color) noexcept {
+std::unique_ptr<Texture> Renderer::CreateDefaultColorTexture(const Rgba& color) noexcept {
     std::vector<Rgba> data = {
         color
     };
@@ -3255,7 +3260,7 @@ void Renderer::SetMaterial(Material* material) noexcept {
     _current_sampler = material->GetShader()->GetSampler();
 }
 
-const std::map<std::string, Texture*>& Renderer::GetLoadedTextures() const noexcept {
+const std::map<std::string, std::unique_ptr<Texture>>& Renderer::GetLoadedTextures() const noexcept {
     return _textures;
 }
 
@@ -3734,7 +3739,7 @@ void Renderer::SetTexture(Texture* texture, unsigned int registerIndex /*= 0*/) 
     _rhi_context->SetTexture(registerIndex, _current_target);
 }
 
-Texture* Renderer::CreateDepthStencil(const RHIDevice* owner, const IntVector2& dimensions) noexcept {
+std::unique_ptr<Texture> Renderer::CreateDepthStencil(const RHIDevice* owner, const IntVector2& dimensions) noexcept {
 
     ID3D11Texture2D* dx_resource = nullptr;
 
@@ -3752,12 +3757,12 @@ Texture* Renderer::CreateDepthStencil(const RHIDevice* owner, const IntVector2& 
     descDepth.MiscFlags = 0;
     auto hr_texture = owner->GetDxDevice()->CreateTexture2D(&descDepth, nullptr, &dx_resource);
     if(SUCCEEDED(hr_texture)) {
-        return new Texture2D(owner, dx_resource);
+        return std::make_unique<Texture2D>(owner, dx_resource);
     }
     return nullptr;
 }
 
-Texture* Renderer::CreateRenderableDepthStencil(const RHIDevice* owner, const IntVector2& dimensions) noexcept {
+std::unique_ptr<Texture> Renderer::CreateRenderableDepthStencil(const RHIDevice* owner, const IntVector2& dimensions) noexcept {
 
     ID3D11Texture2D* dx_resource = nullptr;
 
@@ -3776,7 +3781,7 @@ Texture* Renderer::CreateRenderableDepthStencil(const RHIDevice* owner, const In
     HRESULT texture_hr = owner->GetDxDevice()->CreateTexture2D(&descDepth, nullptr, &dx_resource);
     bool texture_creation_succeeded = SUCCEEDED(texture_hr);
     if(texture_creation_succeeded) {
-        return new Texture2D(owner, dx_resource);
+        return std::make_unique<Texture2D>(owner, dx_resource);
     }
     return nullptr;
 }
@@ -3853,13 +3858,12 @@ Texture* Renderer::Create1DTexture(std::filesystem::path filepath, const BufferU
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        auto* tex = new Texture1D(_rhi_device.get(), dx_tex);
+        auto tex = std::make_unique<Texture1D>(_rhi_device.get(), dx_tex);
         tex->SetDebugName(filepath.string().c_str());
         tex->IsLoaded(true);
-        if(RegisterTexture(filepath.string(), tex)) {
-            return tex;
+        if(RegisterTexture(filepath.string(), std::move(tex))) {
+            return GetTexture(filepath.string());
         } else {
-            delete tex;
             return nullptr;
         }
     } else {
@@ -3867,7 +3871,7 @@ Texture* Renderer::Create1DTexture(std::filesystem::path filepath, const BufferU
     }
 }
 
-Texture* Renderer::Create1DTextureFromMemory(const unsigned char* data, unsigned int width /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
+std::unique_ptr<Texture> Renderer::Create1DTextureFromMemory(const unsigned char* data, unsigned int width /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
     D3D11_TEXTURE1D_DESC tex_desc = {};
 
     tex_desc.Width = width;
@@ -3903,13 +3907,13 @@ Texture* Renderer::Create1DTextureFromMemory(const unsigned char* data, unsigned
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return new Texture1D(_rhi_device.get(), dx_tex);
+        return std::make_unique<Texture1D>(_rhi_device.get(), dx_tex);
     } else {
         return nullptr;
     }
 }
 
-Texture* Renderer::Create1DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
+std::unique_ptr<Texture> Renderer::Create1DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
     D3D11_TEXTURE1D_DESC tex_desc = {};
 
     tex_desc.Width = width;
@@ -3945,7 +3949,7 @@ Texture* Renderer::Create1DTextureFromMemory(const std::vector<Rgba>& data, unsi
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return new Texture1D(_rhi_device.get(), dx_tex);
+        return std::make_unique<Texture1D>(_rhi_device.get(), dx_tex);
     } else {
         return nullptr;
     }
@@ -4005,13 +4009,12 @@ Texture* Renderer::Create2DTexture(std::filesystem::path filepath, const BufferU
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        auto tex = new Texture2D(_rhi_device.get(), dx_tex);
+        auto tex = std::make_unique<Texture2D>(_rhi_device.get(), dx_tex);
         tex->SetDebugName(filepath.string().c_str());
         tex->IsLoaded(true);
-        if(RegisterTexture(filepath.string(), tex)) {
-            return tex;
+        if(RegisterTexture(filepath.string(), std::move(tex))) {
+            return GetTexture(filepath.string());
         } else {
-            delete tex;
             return nullptr;
         }
     } else {
@@ -4019,7 +4022,7 @@ Texture* Renderer::Create2DTexture(std::filesystem::path filepath, const BufferU
     }
 }
 
-Texture* Renderer::Create2DTextureFromMemory(const unsigned char* data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
+std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const unsigned char* data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
     D3D11_TEXTURE2D_DESC tex_desc = {};
 
     tex_desc.Width = width;
@@ -4058,13 +4061,13 @@ Texture* Renderer::Create2DTextureFromMemory(const unsigned char* data, unsigned
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return new Texture2D(_rhi_device.get(), dx_tex);
+        return std::make_unique<Texture2D>(_rhi_device.get(), dx_tex);
     } else {
         return nullptr;
     }
 }
 
-Texture* Renderer::Create2DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
+std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
     D3D11_TEXTURE2D_DESC tex_desc = {};
 
     tex_desc.Width = width;
@@ -4106,13 +4109,13 @@ Texture* Renderer::Create2DTextureFromMemory(const std::vector<Rgba>& data, unsi
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return new Texture2D(_rhi_device.get(), dx_tex);
+        return std::make_unique<Texture2D>(_rhi_device.get(), dx_tex);
     } else {
         return nullptr;
     }
 }
 
-Texture* Renderer::Create2DTextureArrayFromMemory(const unsigned char* data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, unsigned int depth /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
+std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromMemory(const unsigned char* data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, unsigned int depth /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
     D3D11_TEXTURE2D_DESC tex_desc = {};
 
     tex_desc.Width = width;
@@ -4153,13 +4156,13 @@ Texture* Renderer::Create2DTextureArrayFromMemory(const unsigned char* data, uns
     subresource_data = nullptr;
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return new TextureArray2D(_rhi_device.get(), dx_tex);
+        return std::make_unique<TextureArray2D>(_rhi_device.get(), dx_tex);
     } else {
         return nullptr;
     }
 }
 
-Texture* Renderer::Create2DTextureFromGifBuffer(const unsigned char* data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, unsigned int depth /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
+std::unique_ptr<Texture> Renderer::Create2DTextureFromGifBuffer(const unsigned char* data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, unsigned int depth /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
     D3D11_TEXTURE2D_DESC tex_desc = {};
 
     tex_desc.Width = width;
@@ -4200,13 +4203,13 @@ Texture* Renderer::Create2DTextureFromGifBuffer(const unsigned char* data, unsig
     subresource_data = nullptr;
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return new Texture2D(_rhi_device.get(), dx_tex);
+        return std::make_unique<Texture2D>(_rhi_device.get(), dx_tex);
     } else {
         return nullptr;
     }
 }
 
-Texture* Renderer::Create2DTextureArrayFromGifBuffer(const unsigned char* data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, unsigned int depth /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
+std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromGifBuffer(const unsigned char* data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, unsigned int depth /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
     D3D11_TEXTURE2D_DESC tex_desc = {};
 
     tex_desc.Width = width;
@@ -4247,7 +4250,7 @@ Texture* Renderer::Create2DTextureArrayFromGifBuffer(const unsigned char* data, 
     subresource_data = nullptr;
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return new TextureArray2D(_rhi_device.get(), dx_tex);
+        return std::make_unique<TextureArray2D>(_rhi_device.get(), dx_tex);
     } else {
         return nullptr;
     }
@@ -4306,13 +4309,12 @@ Texture* Renderer::Create3DTexture(std::filesystem::path filepath, const IntVect
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        auto* tex = new Texture3D(_rhi_device.get(), dx_tex);
+        auto tex = std::make_unique<Texture3D>(_rhi_device.get(), dx_tex);
         tex->SetDebugName(filepath.string().c_str());
         tex->IsLoaded(true);
-        if(RegisterTexture(filepath.string(), tex)) {
-            return tex;
+        if(RegisterTexture(filepath.string(), std::move(tex))) {
+            return GetTexture(filepath.string());
         } else {
-            delete tex;
             return nullptr;
         }
     } else {
@@ -4320,7 +4322,7 @@ Texture* Renderer::Create3DTexture(std::filesystem::path filepath, const IntVect
     }
 }
 
-Texture* Renderer::Create3DTextureFromMemory(const unsigned char* data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, unsigned int depth /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
+std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const unsigned char* data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, unsigned int depth /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
     D3D11_TEXTURE3D_DESC tex_desc = {};
 
     tex_desc.Width = width;
@@ -4357,13 +4359,13 @@ Texture* Renderer::Create3DTextureFromMemory(const unsigned char* data, unsigned
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return new Texture3D(_rhi_device.get(), dx_tex);
+        return std::make_unique<Texture3D>(_rhi_device.get(), dx_tex);
     } else {
         return nullptr;
     }
 }
 
-Texture* Renderer::Create3DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, unsigned int depth /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
+std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, unsigned int depth /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
     D3D11_TEXTURE3D_DESC tex_desc = {};
 
     tex_desc.Width = width;
@@ -4400,7 +4402,7 @@ Texture* Renderer::Create3DTextureFromMemory(const std::vector<Rgba>& data, unsi
     HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return new Texture3D(_rhi_device.get(), dx_tex);
+        return std::make_unique<Texture3D>(_rhi_device.get(), dx_tex);
     } else {
         return nullptr;
     }

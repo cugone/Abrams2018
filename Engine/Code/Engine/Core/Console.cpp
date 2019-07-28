@@ -801,15 +801,17 @@ void Console::RegisterDefaultFont() noexcept {
 
     KerningFont* font_system32 = new KerningFont(_renderer);
     if(font_system32->LoadFromBuffer(raw_system32_font)) {
-        Texture* tex{};
-        {
-            auto img = Image::CreateImageFromFileBuffer(raw_system32_image);
-            tex = _renderer->Create2DTextureFromMemory(img.GetData(), img.GetDimensions().x, img.GetDimensions().y);
-        }
         std::string tex_name = "__Font_";
-        tex_name += font_system32->GetName();
-        tex->SetDebugName(tex_name);
-        _renderer->RegisterTexture(tex_name, tex);
+        {
+            std::unique_ptr<Texture> tex;
+            {
+                auto img = Image::CreateImageFromFileBuffer(raw_system32_image);
+                tex = _renderer->Create2DTextureFromMemory(img.GetData(), img.GetDimensions().x, img.GetDimensions().y);
+            }
+            tex_name += font_system32->GetName();
+            tex->SetDebugName(tex_name);
+            _renderer->RegisterTexture(tex_name, std::move(tex));
+        }
         Material* mat = nullptr;
         std::string name = font_system32->GetName();
         std::string shader = "__2D";

@@ -157,13 +157,13 @@ public:
 
     Texture* CreateOrGetTexture(const std::filesystem::path& filepath, const IntVector3& dimensions) noexcept;
     void RegisterTexturesFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept;
-    bool RegisterTexture(const std::string& name, Texture* texture) noexcept;
+    bool RegisterTexture(const std::string& name, std::unique_ptr<Texture> texture) noexcept;
     void SetTexture(Texture* texture, unsigned int registerIndex = 0) noexcept;
 
     Texture* GetTexture(const std::string& nameOrFile) noexcept;
 
-    Texture* CreateDepthStencil(const RHIDevice* owner, const IntVector2& dimensions) noexcept;
-    Texture* CreateRenderableDepthStencil(const RHIDevice* owner, const IntVector2& dimensions) noexcept;
+    std::unique_ptr<Texture> CreateDepthStencil(const RHIDevice* owner, const IntVector2& dimensions) noexcept;
+    std::unique_ptr<Texture> CreateRenderableDepthStencil(const RHIDevice* owner, const IntVector2& dimensions) noexcept;
 
     Texture* GetDefaultDepthStencil() const noexcept;
     void SetDepthStencilState(DepthStencilState* depthstencil) noexcept;
@@ -173,17 +173,17 @@ public:
     void DisableDepth() noexcept;
 
     Texture* Create1DTexture(std::filesystem::path filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) noexcept;
-    Texture* Create1DTextureFromMemory(const unsigned char* data, unsigned int width = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
-    Texture* Create1DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
+    std::unique_ptr<Texture> Create1DTextureFromMemory(const unsigned char* data, unsigned int width = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
+    std::unique_ptr<Texture> Create1DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
     Texture* Create2DTexture(std::filesystem::path filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) noexcept;
-    Texture* Create2DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
-    Texture* Create2DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
-    Texture* Create2DTextureArrayFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
-    Texture* Create2DTextureFromGifBuffer(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
-    Texture* Create2DTextureArrayFromGifBuffer(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
+    std::unique_ptr<Texture> Create2DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
+    std::unique_ptr<Texture> Create2DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
+    std::unique_ptr<Texture> Create2DTextureArrayFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
+    std::unique_ptr<Texture> Create2DTextureFromGifBuffer(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
+    std::unique_ptr<Texture> Create2DTextureArrayFromGifBuffer(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
     Texture* Create3DTexture(std::filesystem::path filepath, const IntVector3& dimensions, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) noexcept;
-    Texture* Create3DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
-    Texture* Create3DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
+    std::unique_ptr<Texture> Create3DTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
+    std::unique_ptr<Texture> Create3DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept;
     Texture* CreateTexture(std::filesystem::path filepath
         , const IntVector3& dimensions
         , const BufferUsage& bufferUsage = BufferUsage::Static
@@ -272,7 +272,7 @@ public:
     std::size_t GetMaterialCount() noexcept;
     Material* GetMaterial(const std::string& nameOrFile) noexcept;
     void SetMaterial(Material* material) noexcept;
-    const std::map<std::string, Texture*>& GetLoadedTextures() const noexcept;
+    const std::map<std::string, std::unique_ptr<Texture>>& GetLoadedTextures() const noexcept;
 
     bool RegisterShader(std::filesystem::path filepath) noexcept;
     void RegisterShader(std::unique_ptr<Shader> shader) noexcept;
@@ -390,17 +390,17 @@ private:
     void SetSpotlight(unsigned int index, const light_t& light) noexcept;
     
     void CreateAndRegisterDefaultTextures() noexcept;
-    Texture* CreateDefaultTexture() noexcept;
-    Texture* CreateInvalidTexture() noexcept;
-    Texture* CreateDefaultDiffuseTexture() noexcept;
-    Texture* CreateDefaultNormalTexture() noexcept;
-    Texture* CreateDefaultDisplacementTexture() noexcept;
-    Texture* CreateDefaultSpecularTexture() noexcept;
-    Texture* CreateDefaultOcclusionTexture() noexcept;
-    Texture* CreateDefaultEmissiveTexture() noexcept;
+    std::unique_ptr<Texture> CreateDefaultTexture() noexcept;
+    std::unique_ptr<Texture> CreateInvalidTexture() noexcept;
+    std::unique_ptr<Texture> CreateDefaultDiffuseTexture() noexcept;
+    std::unique_ptr<Texture> CreateDefaultNormalTexture() noexcept;
+    std::unique_ptr<Texture> CreateDefaultDisplacementTexture() noexcept;
+    std::unique_ptr<Texture> CreateDefaultSpecularTexture() noexcept;
+    std::unique_ptr<Texture> CreateDefaultOcclusionTexture() noexcept;
+    std::unique_ptr<Texture> CreateDefaultEmissiveTexture() noexcept;
 
     void CreateDefaultColorTextures() noexcept;
-    Texture* CreateDefaultColorTexture(const Rgba& color) noexcept;
+    std::unique_ptr<Texture> CreateDefaultColorTexture(const Rgba& color) noexcept;
     
     void CreateAndRegisterDefaultDepthStencil() noexcept;
 
@@ -485,8 +485,7 @@ private:
     std::unique_ptr<ConstantBuffer> _matrix_cb = nullptr;
     std::unique_ptr<ConstantBuffer> _time_cb = nullptr;
     std::unique_ptr<ConstantBuffer> _lighting_cb = nullptr;
-    //TODO: Refactor to use std::unique_ptr
-    std::map<std::string, Texture*> _textures{};
+    std::map<std::string, std::unique_ptr<Texture>> _textures{};
     std::map<std::string, std::unique_ptr<ShaderProgram>> _shader_programs;
     std::map<std::string, std::unique_ptr<Shader>> _shaders;
     //TODO: Refactor to use std::unique_ptr

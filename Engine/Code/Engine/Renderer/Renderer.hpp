@@ -272,7 +272,9 @@ public:
     std::size_t GetMaterialCount() noexcept;
     Material* GetMaterial(const std::string& nameOrFile) noexcept;
     void SetMaterial(Material* material) noexcept;
-    const std::map<std::string, std::unique_ptr<Texture>>& GetLoadedTextures() const noexcept;
+
+    bool IsTextureLoaded(const std::string& nameOrFile) const noexcept;
+    bool IsTextureNotLoaded(const std::string& nameOrFile) const noexcept;
 
     bool RegisterShader(std::filesystem::path filepath) noexcept;
     void RegisterShader(std::unique_ptr<Shader> shader) noexcept;

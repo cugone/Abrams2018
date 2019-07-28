@@ -113,7 +113,6 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
     }
 
     if(auto xml_textures = element.FirstChildElement("textures")) {
-        const auto& loaded_textures = _renderer->GetLoadedTextures();
         auto invalid_tex = _renderer->GetTexture("__invalid");
 
         if(auto xml_diffuse = xml_textures->FirstChildElement("diffuse")) {
@@ -136,10 +135,10 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
                 p.make_preferred();
                 const auto& p_str = p.string();
                 bool empty_path = p.empty();
-                bool texture_not_loaded = loaded_textures.find(p_str) == loaded_textures.end();
+                bool texture_not_loaded = _renderer->IsTextureNotLoaded(p_str);
                 if(texture_not_loaded) {
                     _renderer->CreateTexture(p.string(), IntVector3::XY_AXIS);
-                    texture_not_loaded = loaded_textures.find(p_str) == loaded_textures.end();
+                    texture_not_loaded = _renderer->IsTextureNotLoaded(p_str);
                 }
                 bool texture_not_exist = !empty_path && texture_not_loaded;
                 bool invalid_src = empty_path || texture_not_exist;
@@ -168,7 +167,7 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
                 p.make_preferred();
                 const auto& p_str = p.string();
                 bool empty_path = p.empty();
-                bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
+                bool texture_not_exist = !empty_path && _renderer->IsTextureNotLoaded(p_str);
                 bool invalid_src = empty_path || texture_not_exist;
                 auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
                 _textures[1] = tex;
@@ -195,7 +194,7 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
                 p.make_preferred();
                 const auto& p_str = p.string();
                 bool empty_path = p.empty();
-                bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
+                bool texture_not_exist = !empty_path && _renderer->IsTextureNotLoaded(p_str);
                 bool invalid_src = empty_path || texture_not_exist;
                 auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
                 _textures[2] = tex;
@@ -222,7 +221,7 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
                 p.make_preferred();
                 const auto& p_str = p.string();
                 bool empty_path = p.empty();
-                bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
+                bool texture_not_exist = !empty_path && _renderer->IsTextureNotLoaded(p_str);
                 bool invalid_src = empty_path || texture_not_exist;
                 auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
                 _textures[3] = tex;
@@ -249,7 +248,7 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
                 p.make_preferred();
                 const auto& p_str = p.string();
                 bool empty_path = p.empty();
-                bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
+                bool texture_not_exist = !empty_path && _renderer->IsTextureNotLoaded(p_str);
                 bool invalid_src = empty_path || texture_not_exist;
                 auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
                 _textures[4] = tex;
@@ -276,7 +275,7 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
                 p.make_preferred();
                 const auto& p_str = p.string();
                 bool empty_path = p.empty();
-                bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
+                bool texture_not_exist = !empty_path && _renderer->IsTextureNotLoaded(p_str);
                 bool invalid_src = empty_path || texture_not_exist;
                 auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
                 _textures[5] = tex;
@@ -291,7 +290,7 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
         }
 
         DataUtils::ForEachChildElement(*xml_textures, "texture",
-        [this, &loaded_textures, &invalid_tex](const XMLElement& elem) {
+        [this, &invalid_tex](const XMLElement& elem) {
             DataUtils::ValidateXmlElement(elem, "texture", "", "index,src");
             std::size_t index = CustomTextureIndexSlotOffset + DataUtils::ParseXmlAttribute(elem, std::string("index"), 0u);
             if(index >= CustomTextureIndexSlotOffset + MaxCustomTextureSlotCount) {
@@ -316,7 +315,7 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
                 p.make_preferred();
                 const auto& p_str = p.string();
                 bool empty_path = p.empty();
-                bool texture_not_exist = !empty_path && loaded_textures.find(p_str) == loaded_textures.end();
+                bool texture_not_exist = !empty_path && _renderer->IsTextureNotLoaded(p_str);
                 bool invalid_src = empty_path || texture_not_exist;
                 auto tex = invalid_src ? invalid_tex : (_renderer->GetTexture(p_str));
                 _textures[index] = tex;

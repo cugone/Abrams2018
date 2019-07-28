@@ -3260,8 +3260,21 @@ void Renderer::SetMaterial(Material* material) noexcept {
     _current_sampler = material->GetShader()->GetSampler();
 }
 
-const std::map<std::string, std::unique_ptr<Texture>>& Renderer::GetLoadedTextures() const noexcept {
-    return _textures;
+bool Renderer::IsTextureLoaded(const std::string& nameOrFile) const noexcept {
+    namespace FS = std::filesystem;
+    FS::path p{nameOrFile};
+    if(!StringUtils::StartsWith(p.string(), "__")) {
+        std::error_code ec{};
+        p = FS::canonical(p, ec);
+        if(ec) {
+            return false;
+        }
+    }
+    return _textures.find(nameOrFile) != _textures.end();
+}
+
+bool Renderer::IsTextureNotLoaded(const std::string& nameOrFile) const noexcept {
+    return !IsTextureLoaded(nameOrFile);
 }
 
 Shader* Renderer::GetShader(const std::string& nameOrFile) noexcept {

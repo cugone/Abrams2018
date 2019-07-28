@@ -118,10 +118,6 @@ Renderer::~Renderer() noexcept {
     }
     _materials.clear();
 
-    for(auto& shader : _shaders) {
-        delete shader.second;
-        shader.second = nullptr;
-    }
     _shaders.clear();
 
     for(auto& sampler : _samplers) {
@@ -156,9 +152,9 @@ Renderer::~Renderer() noexcept {
     _current_sampler = nullptr;
     _current_material = nullptr;
 
+    _rhi_output.reset();
     _rhi_context.reset();
     _rhi_device.reset();
-    _rhi_output.reset();
     RHIInstance::DestroyInstance();
     _rhi_instance = nullptr;
 
@@ -2531,16 +2527,16 @@ void Renderer::RegisterSampler(const std::string& name, Sampler* sampler) noexce
     _samplers.insert_or_assign(name, sampler);
 }
 
-void Renderer::RegisterShader(const std::string& name, Shader* shader) noexcept {
-    if(shader == nullptr) {
+void Renderer::RegisterShader(const std::string& name, std::unique_ptr<Shader> shader) noexcept {
+    if(!shader) {
         return;
     }
-    auto found_iter = _materials.find(name);
-    if(found_iter != _materials.end()) {
-        delete found_iter->second;
-        found_iter->second = nullptr;
+    auto found_iter = _shaders.find(name);
+    if(found_iter != _shaders.end()) {
+        found_iter->second.reset();
+        _shaders.erase(found_iter);
     }
-    _shaders.insert_or_assign(name, shader);
+    _shaders.try_emplace(name, std::move(shader));
 }
 
 bool Renderer::RegisterShader(std::filesystem::path filepath) noexcept {
@@ -2568,16 +2564,14 @@ bool Renderer::RegisterShader(std::filesystem::path filepath) noexcept {
     }
     filepath.make_preferred();
     if(doc.LoadFile(filepath.string().c_str()) == tinyxml2::XML_SUCCESS) {
-        //TODO: Refactor to use unique_ptr
-        auto shader = new Shader(this, *doc.RootElement());
-        RegisterShader(filepath.string(), shader);
+        RegisterShader(filepath.string(), std::make_unique<Shader>(this, *doc.RootElement()));
         return true;
     }
     return false;
 }
 
-void Renderer::RegisterShader(Shader* shader) noexcept {
-    if(shader == nullptr) {
+void Renderer::RegisterShader(std::unique_ptr<Shader> shader) noexcept {
+    if(!shader) {
         return;
     }
     std::string name = shader->GetName();
@@ -2586,10 +2580,10 @@ void Renderer::RegisterShader(Shader* shader) noexcept {
         std::ostringstream ss;
         ss << __FUNCTION__ << ": Shader \"" << name << "\" already exists. Overwriting.\n";
         DebuggerPrintf(ss.str().c_str());
-        delete found_iter->second;
-        found_iter->second = nullptr;
+        found_iter->second.reset();
+        _shaders.erase(found_iter);
     }
-    _shaders.insert_or_assign(name, shader);
+    _shaders.try_emplace(name, std::move(shader));
 }
 
 void Renderer::RegisterFont(const std::string& name, KerningFont* font) noexcept {
@@ -2833,29 +2827,36 @@ Texture* Renderer::CreateDefaultColorTexture(const Rgba& color) noexcept {
 
 void Renderer::CreateAndRegisterDefaultShaders() noexcept {
     auto default_shader = CreateDefaultShader();
-    RegisterShader(default_shader->GetName(), default_shader);
+    auto name = default_shader->GetName();
+    RegisterShader(name, std::move(default_shader));
 
     auto default_unlit = CreateDefaultUnlitShader();
-    RegisterShader(default_unlit->GetName(), default_unlit);
+    name = default_unlit->GetName();
+    RegisterShader(name, std::move(default_unlit));
 
     auto default_2D = CreateDefault2DShader();
-    RegisterShader(default_2D->GetName(), default_2D);
+    name = default_2D->GetName();
+    RegisterShader(name, std::move(default_2D));
 
     auto default_normal = CreateDefaultNormalShader();
-    RegisterShader(default_normal->GetName(), default_normal);
+    name = default_normal->GetName();
+    RegisterShader(name, std::move(default_normal));
 
     auto default_normal_map = CreateDefaultNormalMapShader();
-    RegisterShader(default_normal_map->GetName(), default_normal_map);
+    name = default_normal_map->GetName();
+    RegisterShader(name, std::move(default_normal_map));
 
     auto default_font = CreateDefaultFontShader();
-    RegisterShader(default_font->GetName(), default_font);
+    name = default_font->GetName();
+    RegisterShader(name, std::move(default_font));
 
     auto default_invalid = CreateDefaultInvalidShader();
-    RegisterShader(default_invalid->GetName(), default_invalid);
+    name = default_invalid->GetName();
+    RegisterShader(name, std::move(default_invalid));
 
 }
 
-Shader* Renderer::CreateDefaultShader() noexcept {
+std::unique_ptr<Shader> Renderer::CreateDefaultShader() noexcept {
     std::string shader =
 R"(
 <shader name="__default">
@@ -2875,10 +2876,10 @@ R"(
         return nullptr;
     }
 
-    return new Shader(this, *doc.RootElement());
+    return std::make_unique<Shader>(this, *doc.RootElement());
 }
 
-Shader* Renderer::CreateDefaultUnlitShader() noexcept {
+std::unique_ptr<Shader> Renderer::CreateDefaultUnlitShader() noexcept {
     std::string shader =
         R"(
 <shader name="__unlit">
@@ -2898,10 +2899,10 @@ Shader* Renderer::CreateDefaultUnlitShader() noexcept {
         return nullptr;
     }
 
-    return new Shader(this, *doc.RootElement());
+    return std::make_unique<Shader>(this, *doc.RootElement());
 }
 
-Shader* Renderer::CreateDefault2DShader() noexcept {
+std::unique_ptr<Shader> Renderer::CreateDefault2DShader() noexcept {
 std::string shader =
 R"(
 <shader name = "__2D">
@@ -2926,10 +2927,10 @@ R"(
         return nullptr;
     }
 
-    return new Shader(this, *doc.RootElement());
+    return std::make_unique<Shader>(this, *doc.RootElement());
 }
 
-Shader* Renderer::CreateDefaultNormalShader() noexcept {
+std::unique_ptr<Shader> Renderer::CreateDefaultNormalShader() noexcept {
     std::string shader =
         R"(
 <shader name="__normal">
@@ -2949,10 +2950,10 @@ Shader* Renderer::CreateDefaultNormalShader() noexcept {
         return nullptr;
     }
 
-    return new Shader(this, *doc.RootElement());
+    return std::make_unique<Shader>(this, *doc.RootElement());
 }
 
-Shader* Renderer::CreateDefaultNormalMapShader() noexcept {
+std::unique_ptr<Shader> Renderer::CreateDefaultNormalMapShader() noexcept {
     std::string shader =
         R"(
 <shader name="__normalmap">
@@ -2971,10 +2972,10 @@ Shader* Renderer::CreateDefaultNormalMapShader() noexcept {
     if(parse_result != tinyxml2::XML_SUCCESS) {
         return nullptr;
     }
-    return new Shader(this, *doc.RootElement());
+    return std::make_unique<Shader>(this, *doc.RootElement());
 }
 
-Shader* Renderer::CreateDefaultInvalidShader() noexcept {
+std::unique_ptr<Shader> Renderer::CreateDefaultInvalidShader() noexcept {
     std::string shader =
         R"(
 <shader name="__invalid">
@@ -2994,10 +2995,10 @@ Shader* Renderer::CreateDefaultInvalidShader() noexcept {
         return nullptr;
     }
 
-    return new Shader(this, *doc.RootElement());
+    return std::make_unique<Shader>(this, *doc.RootElement());
 }
 
-Shader* Renderer::CreateDefaultFontShader() noexcept {
+std::unique_ptr<Shader> Renderer::CreateDefaultFontShader() noexcept {
     std::string shader =
         R"(
 <shader name="__font">
@@ -3022,10 +3023,10 @@ Shader* Renderer::CreateDefaultFontShader() noexcept {
         return nullptr;
     }
 
-    return new Shader(this, *doc.RootElement());
+    return std::make_unique<Shader>(this, *doc.RootElement());
 }
 
-Shader* Renderer::CreateShaderFromFile(std::filesystem::path filepath) noexcept {
+std::unique_ptr<Shader> Renderer::CreateShaderFromFile(std::filesystem::path filepath) noexcept {
     std::string buffer{};
     if(!FileUtils::ReadBufferFromFile(buffer, filepath)) {
         return nullptr;
@@ -3035,7 +3036,7 @@ Shader* Renderer::CreateShaderFromFile(std::filesystem::path filepath) noexcept 
     if(parse_result != tinyxml2::XML_SUCCESS) {
         return nullptr;
     }
-    return new Shader(this, *doc.RootElement());
+    return std::make_unique<Shader>(this, *doc.RootElement());
 }
 
 std::size_t Renderer::GetMaterialCount() noexcept {
@@ -3263,7 +3264,7 @@ Shader* Renderer::GetShader(const std::string& nameOrFile) noexcept {
     if(found_iter == _shaders.end()) {
         return nullptr;
     }
-    return found_iter->second;
+    return found_iter->second.get();
 }
 
 void Renderer::RegisterShadersFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) noexcept {

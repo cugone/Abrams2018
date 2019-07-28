@@ -275,7 +275,7 @@ public:
     const std::map<std::string, Texture*>& GetLoadedTextures() const noexcept;
 
     bool RegisterShader(std::filesystem::path filepath) noexcept;
-    void RegisterShader(Shader* shader) noexcept;
+    void RegisterShader(std::unique_ptr<Shader> shader) noexcept;
 
     std::size_t GetShaderCount() const noexcept;
     Shader* GetShader(const std::string& nameOrFile) noexcept;
@@ -364,7 +364,7 @@ private:
     bool RegisterTexture(const std::filesystem::path& filepath) noexcept;
     void RegisterShaderProgram(const std::string& name, std::unique_ptr<ShaderProgram> sp) noexcept;
     void RegisterShaderProgramsFromFolder(std::filesystem::path folderpath, const std::string& entrypoint, const PipelineStage& target, bool recursive = false) noexcept;
-    void RegisterShader(const std::string& name, Shader* shader) noexcept;
+    void RegisterShader(const std::string& name, std::unique_ptr<Shader> shader) noexcept;
     void RegisterShadersFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept;
     void RegisterMaterial(const std::string& name, Material* mat) noexcept;
     void RegisterRasterState(const std::string& name, RasterState* raster) noexcept;
@@ -412,14 +412,14 @@ private:
     std::unique_ptr<ShaderProgram> CreateDefaultFontShaderProgram() noexcept;
 
     void CreateAndRegisterDefaultShaders() noexcept;
-    Shader* CreateDefaultShader() noexcept;
-    Shader* CreateDefaultUnlitShader() noexcept;
-    Shader* CreateDefault2DShader() noexcept;
-    Shader* CreateDefaultNormalShader() noexcept;
-    Shader* CreateDefaultNormalMapShader() noexcept;
-    Shader* CreateDefaultInvalidShader() noexcept;
-    Shader* CreateDefaultFontShader() noexcept;
-    Shader* CreateShaderFromFile(std::filesystem::path filepath) noexcept;
+    std::unique_ptr<Shader> CreateDefaultShader() noexcept;
+    std::unique_ptr<Shader> CreateDefaultUnlitShader() noexcept;
+    std::unique_ptr<Shader> CreateDefault2DShader() noexcept;
+    std::unique_ptr<Shader> CreateDefaultNormalShader() noexcept;
+    std::unique_ptr<Shader> CreateDefaultNormalMapShader() noexcept;
+    std::unique_ptr<Shader> CreateDefaultInvalidShader() noexcept;
+    std::unique_ptr<Shader> CreateDefaultFontShader() noexcept;
+    std::unique_ptr<Shader> CreateShaderFromFile(std::filesystem::path filepath) noexcept;
 
     void CreateAndRegisterDefaultMaterials() noexcept;
     Material* CreateDefaultMaterial() noexcept;
@@ -467,10 +467,10 @@ private:
     std::size_t _current_vbo_size = 0;
     std::size_t _current_ibo_size = 0;
     std::unique_ptr<RenderTargetStack> _target_stack = nullptr;
-    std::unique_ptr<RHIDeviceContext> _rhi_context = nullptr;
-    std::unique_ptr<RHIDevice> _rhi_device = nullptr;
-    std::unique_ptr<RHIOutput> _rhi_output = nullptr;
     RHIInstance* _rhi_instance = nullptr;
+    std::unique_ptr<RHIDevice> _rhi_device = nullptr;
+    std::unique_ptr<RHIDeviceContext> _rhi_context = nullptr;
+    std::unique_ptr<RHIOutput> _rhi_output = nullptr;
     Texture* _current_target = nullptr;
     Texture* _current_depthstencil = nullptr;
     Texture* _default_depthstencil = nullptr;
@@ -488,8 +488,8 @@ private:
     //TODO: Refactor to use std::unique_ptr
     std::map<std::string, Texture*> _textures{};
     std::map<std::string, std::unique_ptr<ShaderProgram>> _shader_programs;
+    std::map<std::string, std::unique_ptr<Shader>> _shaders;
     //TODO: Refactor to use std::unique_ptr
-    std::map<std::string, Shader*> _shaders{};
     std::map<std::string, Material*> _materials{};
     std::map<std::string, Sampler*> _samplers{};
     std::map<std::string, RasterState*> _rasters{};

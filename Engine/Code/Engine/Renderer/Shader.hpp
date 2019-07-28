@@ -2,12 +2,15 @@
 
 #include "Engine/Core/DataUtils.hpp"
 
+#include "Engine/Renderer/BlendState.hpp"
+#include "Engine/Renderer/DepthStencilState.hpp"
+
+#include <memory>
 #include <string>
+#include <vector>
 
 class ShaderProgram;
 class RasterState;
-class DepthStencilState;
-class BlendState;
 class Renderer;
 class Sampler;
 class ConstantBuffer;
@@ -18,7 +21,7 @@ class Shader {
 public:
     Shader(Renderer* renderer, ShaderProgram* shaderProgram = nullptr, DepthStencilState* depthStencil = nullptr, RasterState* rasterState = nullptr, BlendState* blendState = nullptr, Sampler* sampler = nullptr) noexcept;
     Shader(Renderer* renderer, const XMLElement& element) noexcept;
-    ~Shader() noexcept;
+    ~Shader() = default;
 
     const std::string& GetName() const noexcept;
     ShaderProgram* GetShaderProgram() const noexcept;
@@ -28,13 +31,13 @@ public:
     Sampler* GetSampler() const noexcept;
     std::vector<std::reference_wrapper<ConstantBuffer>> GetConstantBuffers() const noexcept;
 
-    void SetName(const std::string& name) noexcept;
-    void SetShaderProgram(ShaderProgram* sp) noexcept;
-    void SetRasterState(RasterState* rs) noexcept;
-    void SetDepthStencilState(DepthStencilState* ds) noexcept;
-    void SetBlendState(BlendState* bs) noexcept;
-    void SetSampler(Sampler* sampler) noexcept;
-    void SetConstantBuffers(std::vector<std::unique_ptr<ConstantBuffer>> cbuffers) noexcept;
+    //void SetName(const std::string& name) noexcept;
+    //void SetShaderProgram(ShaderProgram* sp) noexcept;
+    //void SetRasterState(RasterState* rs) noexcept;
+    //void SetDepthStencilState(DepthStencilState* ds) noexcept;
+    //void SetBlendState(BlendState* bs) noexcept;
+    //void SetSampler(Sampler* sampler) noexcept;
+    //void SetConstantBuffers(std::vector<std::unique_ptr<ConstantBuffer>> cbuffers) noexcept;
 protected:
 private:
     bool LoadFromXml(Renderer* renderer, const XMLElement& element) noexcept;
@@ -50,11 +53,9 @@ private:
     std::string _name = "SHADER";
     Renderer* _renderer = nullptr;
     ShaderProgram* _shader_program = nullptr;
-    DepthStencilState* _depth_stencil_state = nullptr;
+    std::unique_ptr<DepthStencilState> _depth_stencil_state;
     RasterState* _raster_state = nullptr;
-    //TODO: Convert to unique_ptr
-    BlendState* _blend_state = nullptr;
-    //TODO: Convert to unique_ptr
+    std::unique_ptr<BlendState> _blend_state;
     Sampler* _sampler = nullptr;
     std::vector<std::unique_ptr<ConstantBuffer>> _cbuffers;
 };

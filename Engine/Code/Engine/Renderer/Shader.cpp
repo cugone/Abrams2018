@@ -3,9 +3,7 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
 
-#include "Engine/Renderer/BlendState.hpp"
 #include "Engine/Renderer/ConstantBuffer.hpp"
-#include "Engine/Renderer/DepthStencilState.hpp"
 #include "Engine/Renderer/RasterState.hpp"
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Sampler.hpp"
@@ -45,21 +43,6 @@ Shader::Shader(Renderer* renderer, const XMLElement& element) noexcept
 
 }
 
-Shader::~Shader() noexcept {
-    _renderer = nullptr;
-    _sampler = nullptr;
-    _raster_state = nullptr;
-
-    if(_blend_state) {
-        delete _blend_state;
-        _blend_state = nullptr;
-    }
-    if(_depth_stencil_state) {
-        delete _depth_stencil_state;
-        _depth_stencil_state = nullptr;
-    }
-}
-
 const std::string& Shader::GetName() const noexcept {
     return _name;
 }
@@ -73,11 +56,11 @@ RasterState* Shader::GetRasterState() const noexcept {
 }
 
 DepthStencilState* Shader::GetDepthStencilState() const noexcept {
-    return _depth_stencil_state;
+    return _depth_stencil_state.get();
 }
 
 BlendState* Shader::GetBlendState() const noexcept {
-    return _blend_state;
+    return _blend_state.get();
 }
 
 Sampler* Shader::GetSampler() const noexcept {
@@ -93,34 +76,34 @@ std::vector<std::reference_wrapper<ConstantBuffer>> Shader::GetConstantBuffers()
     cbufferRefs.shrink_to_fit();
     return cbufferRefs;
 }
-
-void Shader::SetName(const std::string& name) noexcept {
-    _name = name;
-}
-
-void Shader::SetShaderProgram(ShaderProgram* sp) noexcept {
-    _shader_program = sp;
-}
-
-void Shader::SetRasterState(RasterState* rs) noexcept {
-    _raster_state = rs;
-}
-
-void Shader::SetDepthStencilState(DepthStencilState* ds) noexcept {
-    _depth_stencil_state = ds;
-}
-
-void Shader::SetBlendState(BlendState* bs) noexcept {
-    _blend_state = bs;
-}
-
-void Shader::SetSampler(Sampler* sampler) noexcept {
-    _sampler = sampler;
-}
-
-void Shader::SetConstantBuffers(std::vector<std::unique_ptr<ConstantBuffer>> cbuffers) noexcept {
-    std::move(std::begin(cbuffers), std::end(cbuffers), std::back_inserter(_cbuffers));
-}
+//
+//void Shader::SetName(const std::string& name) noexcept {
+//    _name = name;
+//}
+//
+//void Shader::SetShaderProgram(ShaderProgram* sp) noexcept {
+//    _shader_program = sp;
+//}
+//
+//void Shader::SetRasterState(RasterState* rs) noexcept {
+//    _raster_state = rs;
+//}
+//
+//void Shader::SetDepthStencilState(DepthStencilState* ds) noexcept {
+//    _depth_stencil_state = ds;
+//}
+//
+//void Shader::SetBlendState(BlendState* bs) noexcept {
+//    _blend_state = bs;
+//}
+//
+//void Shader::SetSampler(Sampler* sampler) noexcept {
+//    _sampler = sampler;
+//}
+//
+//void Shader::SetConstantBuffers(std::vector<std::unique_ptr<ConstantBuffer>> cbuffers) noexcept {
+//    std::move(std::begin(cbuffers), std::end(cbuffers), std::back_inserter(_cbuffers));
+//}
 
 bool Shader::LoadFromXml(Renderer* renderer, const XMLElement& element) noexcept {
     namespace FS = std::filesystem;
@@ -175,8 +158,8 @@ bool Shader::LoadFromXml(Renderer* renderer, const XMLElement& element) noexcept
         }
     }
     _cbuffers = std::move(_renderer->CreateConstantBuffersFromShaderProgram(_shader_program));
-    _depth_stencil_state = new DepthStencilState(_renderer->GetDevice(), element);
-    _blend_state = new BlendState(_renderer->GetDevice(), element);
+    _depth_stencil_state = std::make_unique<DepthStencilState>(_renderer->GetDevice(), element);
+    _blend_state = std::make_unique<BlendState>(_renderer->GetDevice(), element);
 
     _raster_state = _renderer->GetRasterState("__default");
     if(auto xml_raster = element.FirstChildElement("raster")) {

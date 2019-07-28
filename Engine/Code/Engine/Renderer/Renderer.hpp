@@ -19,6 +19,7 @@
 
 #include <filesystem>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -248,6 +249,7 @@ public:
     RHIDeviceContext* GetDeviceContext() const noexcept;
     const RHIDevice* GetDevice() const noexcept;
     RHIOutput* GetOutput() const noexcept;
+    RHIInstance* GetInstance() const noexcept;
 
     ShaderProgram* GetShaderProgram(const std::string& nameOrFile) noexcept;
     std::unique_ptr<ShaderProgram> CreateShaderProgramFromHlslFile(std::filesystem::path filepath, const std::string& entryPointList, const PipelineStage& target) const noexcept;
@@ -360,7 +362,7 @@ protected:
 private:
     void UpdateSystemTime(TimeUtils::FPSeconds deltaSeconds) noexcept;
     bool RegisterTexture(const std::filesystem::path& filepath) noexcept;
-    void RegisterShaderProgram(const std::string& name, ShaderProgram * sp) noexcept;
+    void RegisterShaderProgram(const std::string& name, std::unique_ptr<ShaderProgram> sp) noexcept;
     void RegisterShaderProgramsFromFolder(std::filesystem::path folderpath, const std::string& entrypoint, const PipelineStage& target, bool recursive = false) noexcept;
     void RegisterShader(const std::string& name, Shader* shader) noexcept;
     void RegisterShadersFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept;
@@ -403,11 +405,11 @@ private:
     void CreateAndRegisterDefaultDepthStencil() noexcept;
 
     void CreateAndRegisterDefaultShaderPrograms() noexcept;
-    ShaderProgram* CreateDefaultShaderProgram() noexcept;
-    ShaderProgram* CreateDefaultUnlitShaderProgram() noexcept;
-    ShaderProgram* CreateDefaultNormalShaderProgram() noexcept;
-    ShaderProgram* CreateDefaultNormalMapShaderProgram() noexcept;
-    ShaderProgram* CreateDefaultFontShaderProgram() noexcept;
+    std::unique_ptr<ShaderProgram> CreateDefaultShaderProgram() noexcept;
+    std::unique_ptr<ShaderProgram> CreateDefaultUnlitShaderProgram() noexcept;
+    std::unique_ptr<ShaderProgram> CreateDefaultNormalShaderProgram() noexcept;
+    std::unique_ptr<ShaderProgram> CreateDefaultNormalMapShaderProgram() noexcept;
+    std::unique_ptr<ShaderProgram> CreateDefaultFontShaderProgram() noexcept;
 
     void CreateAndRegisterDefaultShaders() noexcept;
     Shader* CreateDefaultShader() noexcept;
@@ -464,7 +466,7 @@ private:
     lighting_buffer_t _lighting_data{};
     std::size_t _current_vbo_size = 0;
     std::size_t _current_ibo_size = 0;
-    RenderTargetStack* _target_stack = nullptr;
+    std::unique_ptr<RenderTargetStack> _target_stack = nullptr;
     std::unique_ptr<RHIDeviceContext> _rhi_context = nullptr;
     std::unique_ptr<RHIDevice> _rhi_device = nullptr;
     std::unique_ptr<RHIOutput> _rhi_output = nullptr;
@@ -478,16 +480,17 @@ private:
     Material* _current_material = nullptr;
     IntVector2 _window_dimensions = IntVector2::ZERO;
     RHIOutputMode _current_outputMode = RHIOutputMode::Windowed;
-    std::unique_ptr<VertexBuffer> _temp_vbo{};
-    std::unique_ptr<IndexBuffer> _temp_ibo{};
-    std::unique_ptr<ConstantBuffer> _matrix_cb{};
-    std::unique_ptr<ConstantBuffer> _time_cb{};
-    std::unique_ptr<ConstantBuffer> _lighting_cb{};
+    std::unique_ptr<VertexBuffer> _temp_vbo = nullptr;
+    std::unique_ptr<IndexBuffer> _temp_ibo = nullptr;
+    std::unique_ptr<ConstantBuffer> _matrix_cb = nullptr;
+    std::unique_ptr<ConstantBuffer> _time_cb = nullptr;
+    std::unique_ptr<ConstantBuffer> _lighting_cb = nullptr;
     //TODO: Refactor to use std::unique_ptr
     std::map<std::string, Texture*> _textures{};
-    std::map<std::string, ShaderProgram*> _shader_programs{};
-    std::map<std::string, Material*> _materials{};
+    std::map<std::string, std::unique_ptr<ShaderProgram>> _shader_programs;
+    //TODO: Refactor to use std::unique_ptr
     std::map<std::string, Shader*> _shaders{};
+    std::map<std::string, Material*> _materials{};
     std::map<std::string, Sampler*> _samplers{};
     std::map<std::string, RasterState*> _rasters{};
     std::map<std::string, DepthStencilState*> _depthstencils{};

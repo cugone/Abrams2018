@@ -47,13 +47,13 @@
 #include "Thirdparty/TinyXML2/tinyxml2.h"
 
 #include <algorithm>
-#include <numeric>
 #include <cstddef>
 #include <filesystem>
 #include <fstream>
-#include <sstream>
-#include <ostream>
 #include <iostream>
+#include <numeric>
+#include <ostream>
+#include <sstream>
 #include <tuple>
 
 ComputeJob::ComputeJob(Renderer* renderer,
@@ -97,8 +97,12 @@ Renderer::~Renderer() noexcept {
     UnbindAllShaderResources();
     UnbindComputeShaderResources();
 
-    delete _target_stack;
-    _target_stack = nullptr;
+    _temp_vbo.reset();
+    _temp_ibo.reset();
+    _matrix_cb.reset();
+    _time_cb.reset();
+    _lighting_cb.reset();
+    _target_stack.reset();
 
     for(auto& texture : _textures) {
         delete texture.second;
@@ -106,10 +110,6 @@ Renderer::~Renderer() noexcept {
     }
     _textures.clear();
 
-    for(auto& sp : _shader_programs) {
-        delete sp.second;
-        sp.second = nullptr;
-    }
     _shader_programs.clear();
 
     for(auto& material : _materials) {
@@ -186,7 +186,7 @@ void Renderer::Initialize(bool headless /*= false*/) {
     CreateAndRegisterDefaultDepthStencil();
     CreateAndRegisterDefaultFonts();
 
-    _target_stack = new RenderTargetStack(this);
+    _target_stack = std::make_unique<RenderTargetStack>(this);
 
     SetDepthStencilState(GetDepthStencilState("__default"));
     SetRasterState(GetRasterState("__solid"));
@@ -1387,24 +1387,29 @@ void Renderer::CreateAndRegisterDefaultFonts() noexcept {
 }
 
 void Renderer::CreateAndRegisterDefaultShaderPrograms() noexcept {
-    auto sp = CreateDefaultShaderProgram();
-    RegisterShaderProgram(sp->GetName(), sp);
+    auto default_sp = CreateDefaultShaderProgram();
+    auto name = default_sp->GetName();
+    RegisterShaderProgram(name, std::move(default_sp));
 
     auto unlit_sp = CreateDefaultUnlitShaderProgram();
-    RegisterShaderProgram(unlit_sp->GetName(), unlit_sp);
+    name = unlit_sp->GetName();
+    RegisterShaderProgram(name, std::move(unlit_sp));
 
     auto normal_sp = CreateDefaultNormalShaderProgram();
-    RegisterShaderProgram(normal_sp->GetName(), normal_sp);
+    name = normal_sp->GetName();
+    RegisterShaderProgram(name, std::move(normal_sp));
 
     auto normalmap_sp = CreateDefaultNormalMapShaderProgram();
-    RegisterShaderProgram(normalmap_sp->GetName(), normalmap_sp);
+    name = normalmap_sp->GetName();
+    RegisterShaderProgram(name, std::move(normalmap_sp));
 
     auto font_sp = CreateDefaultFontShaderProgram();
-    RegisterShaderProgram(font_sp->GetName(), font_sp);
+    name = font_sp->GetName();
+    RegisterShaderProgram(name, std::move(font_sp));
 
 }
 
-ShaderProgram* Renderer::CreateDefaultShaderProgram() noexcept {
+std::unique_ptr<ShaderProgram> Renderer::CreateDefaultShaderProgram() noexcept {
     std::string program =
 R"(
 
@@ -1601,11 +1606,10 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     desc.ps = ps;
     desc.ps_bytecode = ps_bytecode;
     desc.input_layout = std::move(il);
-    ShaderProgram* shader = new ShaderProgram(std::move(desc));
-    return shader;
+    return std::make_unique<ShaderProgram>(std::move(desc));
 }
 
-ShaderProgram* Renderer::CreateDefaultUnlitShaderProgram() noexcept {
+std::unique_ptr<ShaderProgram> Renderer::CreateDefaultUnlitShaderProgram() noexcept {
     std::string program =
         R"(
 
@@ -1688,12 +1692,11 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     desc.ps = ps;
     desc.ps_bytecode = ps_bytecode;
     desc.input_layout = std::move(il);
-    ShaderProgram* shader = new ShaderProgram(std::move(desc));
-    return shader;
+    return std::make_unique<ShaderProgram>(std::move(desc));
 
 }
 
-ShaderProgram* Renderer::CreateDefaultNormalShaderProgram() noexcept {
+std::unique_ptr<ShaderProgram> Renderer::CreateDefaultNormalShaderProgram() noexcept {
     std::string program =
         R"(
 
@@ -1820,11 +1823,10 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     desc.ps = ps;
     desc.ps_bytecode = ps_bytecode;
     desc.input_layout = std::move(il);
-    ShaderProgram* shader = new ShaderProgram(std::move(desc));
-    return shader;
+    return std::make_unique<ShaderProgram>(std::move(desc));
 }
 
-ShaderProgram* Renderer::CreateDefaultNormalMapShaderProgram() noexcept {
+std::unique_ptr<ShaderProgram> Renderer::CreateDefaultNormalMapShaderProgram() noexcept {
     std::string program =
         R"(
 
@@ -1951,12 +1953,11 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     desc.ps = ps;
     desc.ps_bytecode = ps_bytecode;
     desc.input_layout = std::move(il);
-    ShaderProgram* shader = new ShaderProgram(std::move(desc));
-    return shader;
+    return std::make_unique<ShaderProgram>(std::move(desc));
 }
 
 
-ShaderProgram* Renderer::CreateDefaultFontShaderProgram() noexcept {
+std::unique_ptr<ShaderProgram> Renderer::CreateDefaultFontShaderProgram() noexcept {
     std::string program =
         R"(
 
@@ -2051,8 +2052,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     desc.ps = ps;
     desc.ps_bytecode = ps_bytecode;
     desc.input_layout = std::move(il);
-    ShaderProgram* shader = new ShaderProgram(std::move(desc));
-    return shader;
+    return std::make_unique<ShaderProgram>(std::move(desc));
 }
 
 void Renderer::CreateAndRegisterDefaultMaterials() noexcept {
@@ -2568,7 +2568,8 @@ bool Renderer::RegisterShader(std::filesystem::path filepath) noexcept {
     }
     filepath.make_preferred();
     if(doc.LoadFile(filepath.string().c_str()) == tinyxml2::XML_SUCCESS) {
-        Shader* shader = new Shader(this, *doc.RootElement());
+        //TODO: Refactor to use unique_ptr
+        auto shader = new Shader(this, *doc.RootElement());
         RegisterShader(filepath.string(), shader);
         return true;
     }
@@ -3105,17 +3106,17 @@ void Renderer::RegisterMaterialsFromFolder(std::filesystem::path folderpath, boo
     FileUtils::ForEachFileInFolder(folderpath, ".material", cb, recursive);
 }
 
-void Renderer::RegisterShaderProgram(const std::string& name, ShaderProgram * sp) noexcept {
-    if(sp == nullptr) {
+void Renderer::RegisterShaderProgram(const std::string& name, std::unique_ptr<ShaderProgram> sp) noexcept {
+    if(!sp) {
         return;
     }
     auto found_iter = _shader_programs.find(name);
     if(found_iter != _shader_programs.end()) {
         sp->SetDescription(std::move(found_iter->second->GetDescription()));
-        delete found_iter->second;
-        found_iter->second = nullptr;
+        found_iter->second.reset(nullptr);
+        _shader_programs.erase(found_iter);
     }
-    _shader_programs.insert_or_assign(name, sp);
+    _shader_programs.try_emplace(name, std::move(sp));
 }
 
 void Renderer::UpdateVbo(const VertexBuffer::buffer_t& vbo) noexcept {
@@ -3146,6 +3147,10 @@ RHIOutput* Renderer::GetOutput() const noexcept {
     return _rhi_output.get();
 }
 
+RHIInstance* Renderer::GetInstance() const noexcept {
+    return _rhi_instance;
+}
+
 ShaderProgram* Renderer::GetShaderProgram(const std::string& nameOrFile) noexcept {
     namespace FS = std::filesystem;
     FS::path p{ nameOrFile };
@@ -3157,7 +3162,7 @@ ShaderProgram* Renderer::GetShaderProgram(const std::string& nameOrFile) noexcep
     if(found_iter == _shader_programs.end()) {
         return nullptr;
     }
-    return found_iter->second;
+    return found_iter->second.get();
 }
 
 std::unique_ptr<ShaderProgram> Renderer::CreateShaderProgramFromHlslFile(std::filesystem::path filepath, const std::string& entryPointList, const PipelineStage& target) const noexcept {
@@ -3190,7 +3195,7 @@ void Renderer::CreateAndRegisterShaderProgramFromHlslFile(std::filesystem::path 
         oss << filepath << " failed to compile.\n";
         ERROR_AND_DIE(oss.str().c_str());
     }
-    RegisterShaderProgram(filepath.string(), sp.get());
+    RegisterShaderProgram(filepath.string(), std::move(sp));
 }
 
 void Renderer::RegisterShaderProgramsFromFolder(std::filesystem::path folderpath, const std::string& entrypoint, const PipelineStage& target, bool recursive /*= false*/) noexcept {

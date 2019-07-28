@@ -39,7 +39,7 @@ public:
     std::unique_ptr<InputLayout> CreateInputLayout() const noexcept;
 
     std::unique_ptr<StructuredBuffer> CreateStructuredBuffer(const StructuredBuffer::buffer_t& buffer, std::size_t element_size, std::size_t element_count, const BufferUsage& usage, const BufferBindUsage& bindUsage) const noexcept;
-    std::unique_ptr<ConstantBuffer>&& CreateConstantBuffer(const ConstantBuffer::buffer_t& buffer, std::size_t buffer_size, const BufferUsage& usage, const BufferBindUsage& bindUsage) const noexcept;
+    std::unique_ptr<ConstantBuffer> CreateConstantBuffer(const ConstantBuffer::buffer_t& buffer, std::size_t buffer_size, const BufferUsage& usage, const BufferBindUsage& bindUsage) const noexcept;
 
 
     D3D_FEATURE_LEVEL GetFeatureLevel() const noexcept;

@@ -64,7 +64,7 @@ std::unique_ptr<StructuredBuffer> RHIDevice::CreateStructuredBuffer(const Struct
     return std::move(std::make_unique<StructuredBuffer>(this, buffer, element_size, element_count, usage, bindUsage));
 }
 
-std::unique_ptr<ConstantBuffer>&& RHIDevice::CreateConstantBuffer(const ConstantBuffer::buffer_t& buffer, std::size_t buffer_size, const BufferUsage& usage, const BufferBindUsage& bindUsage) const noexcept {
+std::unique_ptr<ConstantBuffer> RHIDevice::CreateConstantBuffer(const ConstantBuffer::buffer_t& buffer, std::size_t buffer_size, const BufferUsage& usage, const BufferBindUsage& bindUsage) const noexcept {
     return std::move(std::make_unique<ConstantBuffer>(this, buffer, buffer_size, usage, bindUsage));
 }
 

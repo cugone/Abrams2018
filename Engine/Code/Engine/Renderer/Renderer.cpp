@@ -1278,7 +1278,7 @@ void Renderer::AppendMultiLineTextBuffer(KerningFont* font, const std::string& t
     }
 }
 
-std::vector<std::unique_ptr<ConstantBuffer>>&& Renderer::CreateConstantBuffersFromShaderProgram(const ShaderProgram* _shader_program) const noexcept {
+std::vector<std::unique_ptr<ConstantBuffer>> Renderer::CreateConstantBuffersFromShaderProgram(const ShaderProgram* _shader_program) const noexcept {
     auto vs_cbuffers = std::move(_rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetVSByteCode()));
     auto hs_cbuffers = std::move(_rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetHSByteCode()));
     auto ds_cbuffers = std::move(_rhi_device->CreateConstantBuffersFromByteCode(_shader_program->GetDSByteCode()));

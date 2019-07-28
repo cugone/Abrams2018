@@ -351,7 +351,7 @@ public:
     constexpr static unsigned int STRUCTURED_BUFFER_START_INDEX = 64;
     constexpr static unsigned int MAX_LIGHT_COUNT = max_light_count;
 
-    std::vector<std::unique_ptr<ConstantBuffer>>&& CreateConstantBuffersFromShaderProgram(const ShaderProgram* _shader_program) const noexcept;
+    std::vector<std::unique_ptr<ConstantBuffer>> CreateConstantBuffersFromShaderProgram(const ShaderProgram* _shader_program) const noexcept;
 
     void SetWinProc(const std::function<bool(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) >& windowProcedure) noexcept;
 

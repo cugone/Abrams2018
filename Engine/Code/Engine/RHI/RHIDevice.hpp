@@ -50,7 +50,7 @@ public:
     std::unique_ptr<ShaderProgram> CreateShaderProgramFromHlslFile(std::filesystem::path filepath, const std::string& entryPoint, const PipelineStage& target) const noexcept;
 
     ID3DBlob* CompileShader(const std::string& name, const void*  sourceCode, std::size_t sourceCodeSize, const std::string& entryPoint, const PipelineStage& target) const noexcept;
-    std::vector<std::unique_ptr<ConstantBuffer>>&& CreateConstantBuffersFromByteCode(ID3DBlob* bytecode) const noexcept;
+    std::vector<std::unique_ptr<ConstantBuffer>> CreateConstantBuffersFromByteCode(ID3DBlob* bytecode) const noexcept;
 
     mutable std::set<DisplayDesc, DisplayDescGTComparator> displayModes{};
 
@@ -63,7 +63,7 @@ private:
 
     IDXGISwapChain4* CreateSwapChain(const Window& window, RHIFactory& factory) noexcept;
 
-    std::vector<std::unique_ptr<ConstantBuffer>>&& CreateConstantBuffersUsingReflection(ID3D11ShaderReflection& cbufferReflection) const noexcept;
+    std::vector<std::unique_ptr<ConstantBuffer>> CreateConstantBuffersUsingReflection(ID3D11ShaderReflection& cbufferReflection) const noexcept;
     std::unique_ptr<InputLayout> CreateInputLayoutFromByteCode(ID3DBlob* bytecode) const noexcept;
 
     std::vector<OutputInfo> GetOutputsFromAdapter(const AdapterInfo& a) const noexcept;

@@ -285,7 +285,7 @@ void RHIDevice::SetupDebuggingInfo() noexcept {
 #endif
 }
 
-std::vector<std::unique_ptr<ConstantBuffer>>&& RHIDevice::CreateConstantBuffersFromByteCode(ID3DBlob* bytecode) const noexcept {
+std::vector<std::unique_ptr<ConstantBuffer>> RHIDevice::CreateConstantBuffersFromByteCode(ID3DBlob* bytecode) const noexcept {
     if(!bytecode) {
         return {};
     }
@@ -299,7 +299,7 @@ std::vector<std::unique_ptr<ConstantBuffer>>&& RHIDevice::CreateConstantBuffersF
     return std::move(cbuffers);
 }
 
-std::vector<std::unique_ptr<ConstantBuffer>>&& RHIDevice::CreateConstantBuffersUsingReflection(ID3D11ShaderReflection& cbufferReflection) const noexcept {
+std::vector<std::unique_ptr<ConstantBuffer>> RHIDevice::CreateConstantBuffersUsingReflection(ID3D11ShaderReflection& cbufferReflection) const noexcept {
     D3D11_SHADER_DESC shader_desc{};
     if(FAILED(cbufferReflection.GetDesc(&shader_desc))) {
         return {};

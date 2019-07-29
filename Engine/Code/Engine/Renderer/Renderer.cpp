@@ -109,11 +109,6 @@ Renderer::~Renderer() noexcept {
     _materials.clear();
     _shaders.clear();
     _samplers.clear();
-
-    for(auto& raster : _rasters) {
-        delete raster.second;
-        raster.second = nullptr;
-    }
     _rasters.clear();
 
     for(auto& font : _fonts) {
@@ -2272,94 +2267,94 @@ std::unique_ptr<Sampler> Renderer::CreateInvalidSampler() noexcept {
 }
 
 void Renderer::CreateAndRegisterDefaultRasterStates() noexcept {
-    RasterState* default_raster = CreateDefaultRaster();
+    auto default_raster = CreateDefaultRaster();
+    auto name = "__default";
     default_raster->SetDebugName("__default_raster");
-    RegisterRasterState("__default", default_raster);
+    RegisterRasterState(name, std::move(default_raster));
 
-    RasterState* wireframe_raster = CreateWireframeRaster();
+    auto wireframe_raster = CreateWireframeRaster();
+    name = "__wireframe";
     wireframe_raster->SetDebugName("__wireframe");
-    RegisterRasterState("__wireframe", wireframe_raster);
+    RegisterRasterState(name, std::move(wireframe_raster));
 
-    RasterState* solid_raster = CreateSolidRaster();
+    auto solid_raster = CreateSolidRaster();
+    name = "__solid";
     solid_raster->SetDebugName("__solid");
-    RegisterRasterState("__solid", solid_raster);
+    RegisterRasterState(name, std::move(solid_raster));
 
-    RasterState* wireframenc_raster = CreateWireframeNoCullingRaster();
+    auto wireframenc_raster = CreateWireframeNoCullingRaster();
+    name = "__wireframenc";
     wireframenc_raster->SetDebugName("__wireframenc");
-    RegisterRasterState("__wireframenc", wireframenc_raster);
+    RegisterRasterState(name, std::move(wireframenc_raster));
 
-    RasterState* solidnc_raster = CreateSolidNoCullingRaster();
+    auto solidnc_raster = CreateSolidNoCullingRaster();
+    name = "__solidnc";
     solidnc_raster->SetDebugName("__solidnc");
-    RegisterRasterState("__solidnc", solidnc_raster);
+    RegisterRasterState(name, std::move(solidnc_raster));
 
-    RasterState* wireframefc_raster = CreateWireframeFrontCullingRaster();
+    auto wireframefc_raster = CreateWireframeFrontCullingRaster();
+    name = "__wireframefc";
     wireframefc_raster->SetDebugName("__wireframefc");
-    RegisterRasterState("__wireframefc", wireframefc_raster);
+    RegisterRasterState(name, std::move(wireframefc_raster));
 
-    RasterState* solidfc_raster = CreateSolidFrontCullingRaster();
+    auto solidfc_raster = CreateSolidFrontCullingRaster();
+    name = "__solidfc";
     solidfc_raster->SetDebugName("__solidfc");
-    RegisterRasterState("__solidfc", solidfc_raster);
+    RegisterRasterState(name, std::move(solidfc_raster));
 
 }
 
-RasterState* Renderer::CreateDefaultRaster() noexcept {
+std::unique_ptr<RasterState> Renderer::CreateDefaultRaster() noexcept {
     RasterDesc default_raster{};
-    RasterState* state = new RasterState(_rhi_device.get(), default_raster);
-    return state;
+    return std::make_unique<RasterState>(_rhi_device.get(), default_raster);
 }
 
-RasterState* Renderer::CreateWireframeRaster() noexcept {
+std::unique_ptr<RasterState> Renderer::CreateWireframeRaster() noexcept {
     RasterDesc wireframe{};
     wireframe.fillmode = FillMode::Wireframe;
     wireframe.cullmode = CullMode::Back;
     wireframe.antialiasedLineEnable = false;
-    RasterState* state = new RasterState(_rhi_device.get(), wireframe);
-    return state;
+    return std::make_unique<RasterState>(_rhi_device.get(), wireframe);
 }
 
-RasterState* Renderer::CreateSolidRaster() noexcept {
+std::unique_ptr<RasterState> Renderer::CreateSolidRaster() noexcept {
     RasterDesc solid{};
     solid.fillmode = FillMode::Solid;
     solid.cullmode = CullMode::Back;
     solid.antialiasedLineEnable = false;
-    RasterState* state = new RasterState(_rhi_device.get(), solid);
-    return state;
+    return std::make_unique<RasterState>(_rhi_device.get(), solid);
 }
 
-RasterState* Renderer::CreateWireframeNoCullingRaster() noexcept {
+std::unique_ptr<RasterState> Renderer::CreateWireframeNoCullingRaster() noexcept {
     RasterDesc wireframe{};
     wireframe.fillmode = FillMode::Wireframe;
     wireframe.cullmode = CullMode::None;
     wireframe.antialiasedLineEnable = false;
-    RasterState* state = new RasterState(_rhi_device.get(), wireframe);
-    return state;
+    return std::make_unique<RasterState>(_rhi_device.get(), wireframe);
 }
 
-RasterState* Renderer::CreateSolidNoCullingRaster() noexcept {
+std::unique_ptr<RasterState> Renderer::CreateSolidNoCullingRaster() noexcept {
     RasterDesc solid{};
     solid.fillmode = FillMode::Solid;
     solid.cullmode = CullMode::None;
     solid.antialiasedLineEnable = false;
-    RasterState* state = new RasterState(_rhi_device.get(), solid);
-    return state;
+    return std::make_unique<RasterState>(_rhi_device.get(), solid);
 }
 
-RasterState* Renderer::CreateWireframeFrontCullingRaster() noexcept {
+std::unique_ptr<RasterState> Renderer::CreateWireframeFrontCullingRaster() noexcept {
     RasterDesc wireframe{};
     wireframe.fillmode = FillMode::Wireframe;
     wireframe.cullmode = CullMode::Front;
     wireframe.antialiasedLineEnable = false;
-    RasterState* state = new RasterState(_rhi_device.get(), wireframe);
-    return state;
+    return std::make_unique<RasterState>(_rhi_device.get(), wireframe);
 }
 
-RasterState* Renderer::CreateSolidFrontCullingRaster() noexcept {
+std::unique_ptr<RasterState> Renderer::CreateSolidFrontCullingRaster() noexcept {
     RasterDesc solid{};
     solid.fillmode = FillMode::Solid;
     solid.cullmode = CullMode::Front;
     solid.antialiasedLineEnable = false;
-    RasterState* state = new RasterState(_rhi_device.get(), solid);
-    return state;
+    return std::make_unique<RasterState>(_rhi_device.get(), solid);
 }
 
 void Renderer::CreateAndRegisterDefaultDepthStencilStates() noexcept {
@@ -2475,7 +2470,7 @@ RasterState* Renderer::GetRasterState(const std::string& name) noexcept {
     if(found_iter == _rasters.end()) {
         return nullptr;
     }
-    return found_iter->second;
+    return found_iter->second.get();
 }
 
 void Renderer::CreateAndRegisterSamplerFromSamplerDescription(const std::string& name, const SamplerDesc& desc) noexcept {
@@ -2498,16 +2493,16 @@ void Renderer::SetSampler(Sampler* sampler) noexcept {
     _current_sampler = sampler;
 }
 
-void Renderer::RegisterRasterState(const std::string& name, RasterState* raster) noexcept {
+void Renderer::RegisterRasterState(const std::string& name, std::unique_ptr<RasterState> raster) noexcept {
     if(raster == nullptr) {
         return;
     }
     auto found_iter = _rasters.find(name);
     if(found_iter != _rasters.end()) {
-        delete found_iter->second;
-        found_iter->second = nullptr;
+        found_iter->second.reset();
+        _rasters.erase(found_iter);
     }
-    _rasters.insert_or_assign(name, raster);
+    _rasters.try_emplace(name, std::move(raster));
 }
 
 void Renderer::RegisterSampler(const std::string& name, std::unique_ptr<Sampler> sampler) noexcept {
@@ -3222,8 +3217,7 @@ void Renderer::RegisterShaderProgramsFromFolder(std::filesystem::path folderpath
 }
 
 void Renderer::CreateAndRegisterRasterStateFromRasterDescription(const std::string& name, const RasterDesc& desc) noexcept {
-    auto raster = new RasterState(_rhi_device.get(), desc);
-    RegisterRasterState(name, raster);
+    RegisterRasterState(name, std::make_unique<RasterState>(_rhi_device.get(), desc));
 }
 
 void Renderer::SetRasterState(RasterState* raster) noexcept {

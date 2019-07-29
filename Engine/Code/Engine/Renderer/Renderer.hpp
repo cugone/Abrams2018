@@ -369,7 +369,7 @@ private:
     void RegisterShader(const std::string& name, std::unique_ptr<Shader> shader) noexcept;
     void RegisterShadersFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept;
     void RegisterMaterial(const std::string& name, std::unique_ptr<Material> mat) noexcept;
-    void RegisterRasterState(const std::string& name, RasterState* raster) noexcept;
+    void RegisterRasterState(const std::string& name, std::unique_ptr<RasterState> raster) noexcept;
     void RegisterDepthStencilState(const std::string& name, DepthStencilState* depthstencil) noexcept;
     void RegisterSampler(const std::string& name, std::unique_ptr<Sampler> sampler) noexcept;
     void RegisterFont(const std::string& name, KerningFont* font) noexcept;
@@ -440,13 +440,13 @@ private:
     std::unique_ptr<Sampler> CreateInvalidSampler() noexcept;
 
     void CreateAndRegisterDefaultRasterStates() noexcept;
-    RasterState* CreateDefaultRaster() noexcept;
-    RasterState* CreateWireframeRaster() noexcept;
-    RasterState* CreateSolidRaster() noexcept;
-    RasterState* CreateWireframeNoCullingRaster() noexcept;
-    RasterState* CreateSolidNoCullingRaster() noexcept;
-    RasterState* CreateWireframeFrontCullingRaster() noexcept;
-    RasterState* CreateSolidFrontCullingRaster() noexcept;
+    std::unique_ptr<RasterState> CreateDefaultRaster() noexcept;
+    std::unique_ptr<RasterState> CreateWireframeRaster() noexcept;
+    std::unique_ptr<RasterState> CreateSolidRaster() noexcept;
+    std::unique_ptr<RasterState> CreateWireframeNoCullingRaster() noexcept;
+    std::unique_ptr<RasterState> CreateSolidNoCullingRaster() noexcept;
+    std::unique_ptr<RasterState> CreateWireframeFrontCullingRaster() noexcept;
+    std::unique_ptr<RasterState> CreateSolidFrontCullingRaster() noexcept;
 
     void CreateAndRegisterDefaultDepthStencilStates() noexcept;
     DepthStencilState* CreateDefaultDepthStencilState() noexcept;
@@ -491,9 +491,9 @@ private:
     std::map<std::string, std::unique_ptr<ShaderProgram>> _shader_programs;
     std::map<std::string, std::unique_ptr<Shader>> _shaders;
     std::map<std::string, std::unique_ptr<Material>> _materials;
-    //TODO: Refactor to use std::unique_ptr
     std::map<std::string, std::unique_ptr<Sampler>> _samplers;
-    std::map<std::string, RasterState*> _rasters{};
+    std::map<std::string, std::unique_ptr<RasterState>> _rasters;
+    //TODO: Refactor to use std::unique_ptr
     std::map<std::string, DepthStencilState*> _depthstencils{};
     std::map<std::string, KerningFont*> _fonts{};
     bool _vsync = false;

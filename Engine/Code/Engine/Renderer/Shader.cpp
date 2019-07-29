@@ -260,7 +260,8 @@ void Shader::CreateAndRegisterNewSamplerFromXml(const XMLElement& element) noexc
 }
 
 void Shader::CreateAndRegisterNewRasterFromXml(const XMLElement& element) noexcept {
-    _raster_state = new RasterState(_renderer->GetDevice(), element);
+    auto new_raster_state = std::make_unique<RasterState>(_renderer->GetDevice(), element);
     std::string nr = _name + "_raster";
-    _renderer->RegisterRasterState(nr, _raster_state);
+    _raster_state = new_raster_state.get();
+    _renderer->RegisterRasterState(nr, std::move(new_raster_state));
 }

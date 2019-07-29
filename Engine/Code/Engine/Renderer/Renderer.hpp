@@ -287,7 +287,7 @@ public:
     std::size_t GetFontCount() const noexcept;
     KerningFont* GetFont(const std::string& nameOrFile) noexcept;
 
-    void RegisterFont(KerningFont* font) noexcept;
+    void RegisterFont(std::unique_ptr<KerningFont> font) noexcept;
     bool RegisterFont(std::filesystem::path filepath) noexcept;
     void RegisterFontsFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept;
 
@@ -372,7 +372,7 @@ private:
     void RegisterRasterState(const std::string& name, std::unique_ptr<RasterState> raster) noexcept;
     void RegisterDepthStencilState(const std::string& name, std::unique_ptr<DepthStencilState> depthstencil) noexcept;
     void RegisterSampler(const std::string& name, std::unique_ptr<Sampler> sampler) noexcept;
-    void RegisterFont(const std::string& name, KerningFont* font) noexcept;
+    void RegisterFont(const std::string& name, std::unique_ptr<KerningFont> font) noexcept;
 
     void CreateDefaultConstantBuffers() noexcept;
     void CreateWorkingVboAndIbo() noexcept;
@@ -494,8 +494,7 @@ private:
     std::map<std::string, std::unique_ptr<Sampler>> _samplers;
     std::map<std::string, std::unique_ptr<RasterState>> _rasters;
     std::map<std::string, std::unique_ptr<DepthStencilState>> _depthstencils;
-    //TODO: Refactor to use std::unique_ptr
-    std::map<std::string, KerningFont*> _fonts{};
+    std::map<std::string, std::unique_ptr<KerningFont>> _fonts;
     bool _vsync = false;
     friend class Shader;
 };

@@ -110,11 +110,6 @@ Renderer::~Renderer() noexcept {
     _shaders.clear();
     _samplers.clear();
     _rasters.clear();
-
-    for(auto& font : _fonts) {
-        delete font.second;
-        font.second = nullptr;
-    }
     _fonts.clear();
     _depthstencils.clear();
 
@@ -2571,35 +2566,34 @@ void Renderer::RegisterShader(std::unique_ptr<Shader> shader) noexcept {
     _shaders.try_emplace(name, std::move(shader));
 }
 
-void Renderer::RegisterFont(const std::string& name, KerningFont* font) noexcept {
+void Renderer::RegisterFont(const std::string& name, std::unique_ptr<KerningFont> font) noexcept {
     if(font == nullptr) {
         return;
     }
     auto found_iter = _fonts.find(name);
     if(found_iter != _fonts.end()) {
-        delete found_iter->second;
-        found_iter->second = nullptr;
+        found_iter->second.reset();
+        _fonts.erase(found_iter);
     }
-    _fonts.insert_or_assign(name, font);
+    _fonts.try_emplace(name, std::move(font));
 }
 
-void Renderer::RegisterFont(KerningFont* font) noexcept {
+void Renderer::RegisterFont(std::unique_ptr<KerningFont> font) noexcept {
     if(font == nullptr) {
         return;
     }
     std::string name = font->GetName();
     auto found_iter = _fonts.find(name);
     if(found_iter != _fonts.end()) {
-        delete found_iter->second;
-        found_iter->second = nullptr;
+        found_iter->second.reset();
+        _fonts.erase(found_iter);
     }
-    _fonts.insert_or_assign(name, font);
+    _fonts.try_emplace(name, std::move(font));
 }
 
 bool Renderer::RegisterFont(std::filesystem::path filepath) noexcept {
     namespace FS = std::filesystem;
-    //TODO: Refactor to use unique_ptr
-    auto font = new KerningFont(this);
+    auto font = std::make_unique<KerningFont>(this);
     filepath = FS::canonical(filepath);
     filepath.make_preferred();
     if(font->LoadFromFile(filepath.string())) {
@@ -2614,16 +2608,16 @@ bool Renderer::RegisterFont(std::filesystem::path filepath) noexcept {
             texture_path.make_preferred();
             CreateTexture(texture_path.string(), IntVector3::XY_AXIS);
         }
-        auto mat = CreateMaterialFromFont(font);
+        auto mat = CreateMaterialFromFont(font.get());
         if(mat) {
             font->SetMaterial(mat.get());
-            RegisterMaterial(mat->GetName(), std::move(mat));
-            RegisterFont(font->GetName(), font);
+            auto mat_name = mat->GetName();
+            auto font_name = font->GetName();
+            RegisterMaterial(mat_name, std::move(mat));
+            RegisterFont(font_name, std::move(font));
             return true;
         }
     }
-    delete font;
-    font = nullptr;
     return false;
 }
 
@@ -3308,7 +3302,7 @@ KerningFont* Renderer::GetFont(const std::string& nameOrFile) noexcept {
     if(found_iter == _fonts.end()) {
         return nullptr;
     }
-    return found_iter->second;
+    return found_iter->second.get();
 }
 
 void Renderer::SetModelMatrix(const Matrix4& mat /*= Matrix4::I*/) noexcept {

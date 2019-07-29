@@ -371,7 +371,7 @@ private:
     void RegisterMaterial(const std::string& name, std::unique_ptr<Material> mat) noexcept;
     void RegisterRasterState(const std::string& name, RasterState* raster) noexcept;
     void RegisterDepthStencilState(const std::string& name, DepthStencilState* depthstencil) noexcept;
-    void RegisterSampler(const std::string& name, Sampler* sampler) noexcept;
+    void RegisterSampler(const std::string& name, std::unique_ptr<Sampler> sampler) noexcept;
     void RegisterFont(const std::string& name, KerningFont* font) noexcept;
 
     void CreateDefaultConstantBuffers() noexcept;
@@ -434,10 +434,10 @@ private:
     void CreateAndRegisterDefaultFonts() noexcept;
 
     void CreateAndRegisterDefaultSamplers() noexcept;
-    Sampler* CreateDefaultSampler() noexcept;
-    Sampler* CreateLinearSampler() noexcept;
-    Sampler* CreatePointSampler() noexcept;
-    Sampler* CreateInvalidSampler() noexcept;
+    std::unique_ptr<Sampler> CreateDefaultSampler() noexcept;
+    std::unique_ptr<Sampler> CreateLinearSampler() noexcept;
+    std::unique_ptr<Sampler> CreatePointSampler() noexcept;
+    std::unique_ptr<Sampler> CreateInvalidSampler() noexcept;
 
     void CreateAndRegisterDefaultRasterStates() noexcept;
     RasterState* CreateDefaultRaster() noexcept;
@@ -490,9 +490,9 @@ private:
     std::map<std::string, std::unique_ptr<Texture>> _textures{};
     std::map<std::string, std::unique_ptr<ShaderProgram>> _shader_programs;
     std::map<std::string, std::unique_ptr<Shader>> _shaders;
-    std::map<std::string, std::unique_ptr<Material>> _materials{};
+    std::map<std::string, std::unique_ptr<Material>> _materials;
     //TODO: Refactor to use std::unique_ptr
-    std::map<std::string, Sampler*> _samplers{};
+    std::map<std::string, std::unique_ptr<Sampler>> _samplers;
     std::map<std::string, RasterState*> _rasters{};
     std::map<std::string, DepthStencilState*> _depthstencils{};
     std::map<std::string, KerningFont*> _fonts{};

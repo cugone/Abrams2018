@@ -76,34 +76,6 @@ std::vector<std::reference_wrapper<ConstantBuffer>> Shader::GetConstantBuffers()
     cbufferRefs.shrink_to_fit();
     return cbufferRefs;
 }
-//
-//void Shader::SetName(const std::string& name) noexcept {
-//    _name = name;
-//}
-//
-//void Shader::SetShaderProgram(ShaderProgram* sp) noexcept {
-//    _shader_program = sp;
-//}
-//
-//void Shader::SetRasterState(RasterState* rs) noexcept {
-//    _raster_state = rs;
-//}
-//
-//void Shader::SetDepthStencilState(DepthStencilState* ds) noexcept {
-//    _depth_stencil_state = ds;
-//}
-//
-//void Shader::SetBlendState(BlendState* bs) noexcept {
-//    _blend_state = bs;
-//}
-//
-//void Shader::SetSampler(Sampler* sampler) noexcept {
-//    _sampler = sampler;
-//}
-//
-//void Shader::SetConstantBuffers(std::vector<std::unique_ptr<ConstantBuffer>> cbuffers) noexcept {
-//    std::move(std::begin(cbuffers), std::end(cbuffers), std::back_inserter(_cbuffers));
-//}
 
 bool Shader::LoadFromXml(Renderer* renderer, const XMLElement& element) noexcept {
     namespace FS = std::filesystem;
@@ -281,9 +253,10 @@ void Shader::ValidatePipelineStages(const PipelineStage& targets) noexcept {
 }
 
 void Shader::CreateAndRegisterNewSamplerFromXml(const XMLElement& element) noexcept {
-    _sampler = new Sampler(_renderer->GetDevice(), element);
+    auto new_sampler = std::make_unique<Sampler>(_renderer->GetDevice(), element);
     std::string ns = _name + "_sampler";
-    _renderer->RegisterSampler(ns, _sampler);
+    _sampler = new_sampler.get();
+    _renderer->RegisterSampler(ns, std::move(new_sampler));
 }
 
 void Shader::CreateAndRegisterNewRasterFromXml(const XMLElement& element) noexcept {

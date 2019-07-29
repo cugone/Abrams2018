@@ -31,13 +31,6 @@ public:
     Sampler* GetSampler() const noexcept;
     std::vector<std::reference_wrapper<ConstantBuffer>> GetConstantBuffers() const noexcept;
 
-    //void SetName(const std::string& name) noexcept;
-    //void SetShaderProgram(ShaderProgram* sp) noexcept;
-    //void SetRasterState(RasterState* rs) noexcept;
-    //void SetDepthStencilState(DepthStencilState* ds) noexcept;
-    //void SetBlendState(BlendState* bs) noexcept;
-    //void SetSampler(Sampler* sampler) noexcept;
-    //void SetConstantBuffers(std::vector<std::unique_ptr<ConstantBuffer>> cbuffers) noexcept;
 protected:
 private:
     bool LoadFromXml(Renderer* renderer, const XMLElement& element) noexcept;

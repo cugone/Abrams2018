@@ -108,11 +108,6 @@ Renderer::~Renderer() noexcept {
     _shader_programs.clear();
     _materials.clear();
     _shaders.clear();
-
-    for(auto& sampler : _samplers) {
-        delete sampler.second;
-        sampler.second = nullptr;
-    }
     _samplers.clear();
 
     for(auto& raster : _rasters) {
@@ -2224,44 +2219,48 @@ std::unique_ptr<Material> Renderer::CreateMaterialFromFont(KerningFont* font) no
 
 void Renderer::CreateAndRegisterDefaultSamplers() noexcept {
     auto default_sampler = CreateDefaultSampler();
+    auto name = "__default";
     default_sampler->SetDebugName("__default_sampler");
-    RegisterSampler("__default", default_sampler);
+    RegisterSampler(name, std::move(default_sampler));
 
     auto linear_sampler = CreateLinearSampler();
+    name = "__linear";
     linear_sampler->SetDebugName("__linear_sampler");
-    RegisterSampler("__linear", linear_sampler);
+    RegisterSampler(name, std::move(linear_sampler));
 
     auto point_sampler = CreatePointSampler();
+    name = "__point";
     point_sampler->SetDebugName("__point_sampler");
-    RegisterSampler("__point", point_sampler);
+    RegisterSampler(name, std::move(point_sampler));
 
     auto invalid_sampler = CreateInvalidSampler();
-    point_sampler->SetDebugName("__invalid_sampler");
-    RegisterSampler("__invalid", invalid_sampler);
+    name = "__invalid";
+    invalid_sampler->SetDebugName("__invalid_sampler");
+    RegisterSampler(name, std::move(invalid_sampler));
 
 }
 
-Sampler* Renderer::CreateDefaultSampler() noexcept {
-    return new Sampler(_rhi_device.get(), SamplerDesc{});
+std::unique_ptr<Sampler> Renderer::CreateDefaultSampler() noexcept {
+    return std::make_unique<Sampler>(_rhi_device.get(), SamplerDesc{});
 }
 
-Sampler* Renderer::CreateLinearSampler() noexcept {
+std::unique_ptr<Sampler> Renderer::CreateLinearSampler() noexcept {
     SamplerDesc desc{};
     desc.mag_filter = FilterMode::Linear;
     desc.min_filter = FilterMode::Linear;
     desc.mip_filter = FilterMode::Linear;
-    return new Sampler(_rhi_device.get(), desc);
+    return std::make_unique<Sampler>(_rhi_device.get(), desc);
 }
 
-Sampler* Renderer::CreatePointSampler() noexcept {
+std::unique_ptr<Sampler> Renderer::CreatePointSampler() noexcept {
     SamplerDesc desc{};
     desc.mag_filter = FilterMode::Point;
     desc.min_filter = FilterMode::Point;
     desc.mip_filter = FilterMode::Point;
-    return new Sampler(_rhi_device.get(), desc);
+    return std::make_unique<Sampler>(_rhi_device.get(), desc);
 }
 
-Sampler* Renderer::CreateInvalidSampler() noexcept {
+std::unique_ptr<Sampler> Renderer::CreateInvalidSampler() noexcept {
     SamplerDesc desc{};
     desc.mag_filter = FilterMode::Point;
     desc.min_filter = FilterMode::Point;
@@ -2269,7 +2268,7 @@ Sampler* Renderer::CreateInvalidSampler() noexcept {
     desc.UaddressMode = TextureAddressMode::Wrap;
     desc.VaddressMode = TextureAddressMode::Wrap;
     desc.WaddressMode = TextureAddressMode::Wrap;
-    return new Sampler(_rhi_device.get(), desc);
+    return std::make_unique<Sampler>(_rhi_device.get(), desc);
 }
 
 void Renderer::CreateAndRegisterDefaultRasterStates() noexcept {
@@ -2480,8 +2479,7 @@ RasterState* Renderer::GetRasterState(const std::string& name) noexcept {
 }
 
 void Renderer::CreateAndRegisterSamplerFromSamplerDescription(const std::string& name, const SamplerDesc& desc) noexcept {
-    Sampler* sampler = new Sampler(_rhi_device.get(), desc);
-    RegisterSampler(name, sampler);
+    RegisterSampler(name, std::make_unique<Sampler>(_rhi_device.get(), desc));
 }
 
 Sampler* Renderer::GetSampler(const std::string& name) noexcept {
@@ -2489,7 +2487,7 @@ Sampler* Renderer::GetSampler(const std::string& name) noexcept {
     if(found_iter == _samplers.end()) {
         return nullptr;
     }
-    return found_iter->second;
+    return found_iter->second.get();
 }
 
 void Renderer::SetSampler(Sampler* sampler) noexcept {
@@ -2512,16 +2510,16 @@ void Renderer::RegisterRasterState(const std::string& name, RasterState* raster)
     _rasters.insert_or_assign(name, raster);
 }
 
-void Renderer::RegisterSampler(const std::string& name, Sampler* sampler) noexcept {
+void Renderer::RegisterSampler(const std::string& name, std::unique_ptr<Sampler> sampler) noexcept {
     if(sampler == nullptr) {
         return;
     }
     auto found_iter = _samplers.find(name);
     if(found_iter != _samplers.end()) {
-        delete found_iter->second;
-        found_iter->second = nullptr;
+        found_iter->second.reset();
+        _samplers.erase(found_iter);
     }
-    _samplers.insert_or_assign(name, sampler);
+    _samplers.try_emplace(name, std::move(sampler));
 }
 
 void Renderer::RegisterShader(const std::string& name, std::unique_ptr<Shader> shader) noexcept {

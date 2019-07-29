@@ -106,13 +106,7 @@ Renderer::~Renderer() noexcept {
 
     _textures.clear();
     _shader_programs.clear();
-
-    for(auto& material : _materials) {
-        delete material.second;
-        material.second = nullptr;
-    }
     _materials.clear();
-
     _shaders.clear();
 
     for(auto& sampler : _samplers) {
@@ -821,9 +815,9 @@ std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSpriteFromGif(std::files
     std::ostringstream ss;
     ss << R"("<material name="__Gif_)" << filepath.stem().string() << R"("><shader src="__2D" /><textures><diffuse src=")" << filepath.string() << R"(" /></textures></material>)";
     doc.Parse(ss.str().c_str());
-    auto anim_mat = new Material(this, *doc.RootElement());
-    anim->SetMaterial(anim_mat);
-    RegisterMaterial(anim_mat);
+    auto anim_mat = std::make_unique<Material>(this, *doc.RootElement());
+    anim->SetMaterial(anim_mat.get());
+    RegisterMaterial(std::move(anim_mat));
     tex = nullptr;
     return std::move(anim);
 }
@@ -2050,26 +2044,32 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
 
 void Renderer::CreateAndRegisterDefaultMaterials() noexcept {
     auto default_mat = CreateDefaultMaterial();
-    RegisterMaterial(default_mat->GetName(), default_mat);
+    auto name = default_mat->GetName();
+    RegisterMaterial(name, std::move(default_mat));
 
     auto unlit_mat = CreateDefaultUnlitMaterial();
-    RegisterMaterial(unlit_mat->GetName(), unlit_mat);
+    name = unlit_mat->GetName();
+    RegisterMaterial(name, std::move(unlit_mat));
 
     auto mat_2d = CreateDefault2DMaterial();
-    RegisterMaterial(mat_2d->GetName(), mat_2d);
+    name = mat_2d->GetName();
+    RegisterMaterial(name, std::move(mat_2d));
 
     auto mat_norm = CreateDefaultNormalMaterial();
-    RegisterMaterial(mat_norm->GetName(), mat_norm);
+    name = mat_norm->GetName();
+    RegisterMaterial(name, std::move(mat_norm));
 
     auto mat_normmap = CreateDefaultNormalMapMaterial();
-    RegisterMaterial(mat_normmap->GetName(), mat_normmap);
+    name = mat_normmap->GetName();
+    RegisterMaterial(name, std::move(mat_normmap));
 
     auto mat_invalid = CreateDefaultInvalidMaterial();
-    RegisterMaterial(mat_invalid->GetName(), mat_invalid);
+    name = mat_invalid->GetName();
+    RegisterMaterial(name, std::move(mat_invalid));
 
 }
 
-Material* Renderer::CreateDefaultMaterial() noexcept {
+std::unique_ptr<Material> Renderer::CreateDefaultMaterial() noexcept {
     std::string material =
 R"(
 <material name="__default">
@@ -2082,11 +2082,11 @@ R"(
     if(parse_result != tinyxml2::XML_SUCCESS) {
         return nullptr;
     }
-    return new Material(this, *doc.RootElement());
+    return std::make_unique<Material>(this, *doc.RootElement());
 
 }
 
-Material* Renderer::CreateDefaultUnlitMaterial() noexcept {
+std::unique_ptr<Material> Renderer::CreateDefaultUnlitMaterial() noexcept {
     std::string material =
         R"(
 <material name="__unlit">
@@ -2099,11 +2099,11 @@ Material* Renderer::CreateDefaultUnlitMaterial() noexcept {
     if(parse_result != tinyxml2::XML_SUCCESS) {
         return nullptr;
     }
-    return new Material(this, *doc.RootElement());
+    return std::make_unique<Material>(this, *doc.RootElement());
 
 }
 
-Material* Renderer::CreateDefault2DMaterial() noexcept {
+std::unique_ptr<Material> Renderer::CreateDefault2DMaterial() noexcept {
     std::string material =
         R"(
 <material name="__2D">
@@ -2116,11 +2116,11 @@ Material* Renderer::CreateDefault2DMaterial() noexcept {
     if(parse_result != tinyxml2::XML_SUCCESS) {
         return nullptr;
     }
-    return new Material(this, *doc.RootElement());
+    return std::make_unique<Material>(this, *doc.RootElement());
 
 }
 
-Material* Renderer::CreateDefaultNormalMaterial() noexcept {
+std::unique_ptr<Material> Renderer::CreateDefaultNormalMaterial() noexcept {
     std::string material =
         R"(
 <material name="__normal">
@@ -2133,11 +2133,11 @@ Material* Renderer::CreateDefaultNormalMaterial() noexcept {
     if(parse_result != tinyxml2::XML_SUCCESS) {
         return nullptr;
     }
-    return new Material(this, *doc.RootElement());
+    return std::make_unique<Material>(this, *doc.RootElement());
 
 }
 
-Material* Renderer::CreateDefaultNormalMapMaterial() noexcept {
+std::unique_ptr<Material> Renderer::CreateDefaultNormalMapMaterial() noexcept {
     std::string material =
         R"(
 <material name="__normalmap">
@@ -2150,11 +2150,11 @@ Material* Renderer::CreateDefaultNormalMapMaterial() noexcept {
     if(parse_result != tinyxml2::XML_SUCCESS) {
         return nullptr;
     }
-    return new Material(this, *doc.RootElement());
+    return std::make_unique<Material>(this, *doc.RootElement());
 
 }
 
-Material* Renderer::CreateDefaultInvalidMaterial() noexcept {
+std::unique_ptr<Material> Renderer::CreateDefaultInvalidMaterial() noexcept {
     std::string material =
         R"(
 <material name="__invalid">
@@ -2170,10 +2170,10 @@ Material* Renderer::CreateDefaultInvalidMaterial() noexcept {
     if(parse_result != tinyxml2::XML_SUCCESS) {
         return nullptr;
     }
-    return new Material(this, *doc.RootElement());
+    return std::make_unique<Material>(this, *doc.RootElement());
 }
 
-Material* Renderer::CreateMaterialFromFont(KerningFont* font) noexcept {
+std::unique_ptr<Material> Renderer::CreateMaterialFromFont(KerningFont* font) noexcept {
     if(font == nullptr) {
         return nullptr;
     }
@@ -2219,7 +2219,7 @@ Material* Renderer::CreateMaterialFromFont(KerningFont* font) noexcept {
     if(result != tinyxml2::XML_SUCCESS) {
         return nullptr;
     }
-    return new Material(this, *doc.RootElement());
+    return std::make_unique<Material>(this, *doc.RootElement());
 }
 
 void Renderer::CreateAndRegisterDefaultSamplers() noexcept {
@@ -2610,6 +2610,7 @@ void Renderer::RegisterFont(KerningFont* font) noexcept {
 
 bool Renderer::RegisterFont(std::filesystem::path filepath) noexcept {
     namespace FS = std::filesystem;
+    //TODO: Refactor to use unique_ptr
     auto font = new KerningFont(this);
     filepath = FS::canonical(filepath);
     filepath.make_preferred();
@@ -2625,10 +2626,10 @@ bool Renderer::RegisterFont(std::filesystem::path filepath) noexcept {
             texture_path.make_preferred();
             CreateTexture(texture_path.string(), IntVector3::XY_AXIS);
         }
-        Material* mat = CreateMaterialFromFont(font);
+        auto mat = CreateMaterialFromFont(font);
         if(mat) {
-            font->SetMaterial(mat);
-            RegisterMaterial(mat->GetName(), mat);
+            font->SetMaterial(mat.get());
+            RegisterMaterial(mat->GetName(), std::move(mat));
             RegisterFont(font->GetName(), font);
             return true;
         }
@@ -3048,7 +3049,7 @@ std::size_t Renderer::GetMaterialCount() noexcept {
     return _materials.size();
 }
 
-void Renderer::RegisterMaterial(const std::string& name, Material* mat) noexcept {
+void Renderer::RegisterMaterial(const std::string& name, std::unique_ptr<Material> mat) noexcept {
     if(mat == nullptr) {
         return;
     }
@@ -3057,13 +3058,13 @@ void Renderer::RegisterMaterial(const std::string& name, Material* mat) noexcept
         std::ostringstream ss;
         ss << __FUNCTION__ << ": Material \"" << name << "\" already exists. Overwriting.\n";
         DebuggerPrintf(ss.str().c_str());
-        delete found_iter->second;
-        found_iter->second = nullptr;
+        found_iter->second.reset();
+        _materials.erase(found_iter);
     }
-    _materials.insert_or_assign(name, mat);
+    _materials.try_emplace(name, std::move(mat));
 }
 
-void Renderer::RegisterMaterial(Material* mat) noexcept {
+void Renderer::RegisterMaterial(std::unique_ptr<Material> mat) noexcept {
     if(mat == nullptr) {
         return;
     }
@@ -3073,10 +3074,10 @@ void Renderer::RegisterMaterial(Material* mat) noexcept {
         std::ostringstream ss;
         ss << __FUNCTION__ << ": Material \"" << name << "\" already exists. Overwriting.\n";
         DebuggerPrintf(ss.str().c_str());
-        delete found_iter->second;
-        found_iter->second = nullptr;
+        found_iter->second.reset();
+        _materials.erase(found_iter);
     }
-    _materials.insert_or_assign(name, mat);
+    _materials.try_emplace(name, std::move(mat));
 }
 
 bool Renderer::RegisterMaterial(std::filesystem::path filepath) noexcept {
@@ -3087,8 +3088,9 @@ bool Renderer::RegisterMaterial(std::filesystem::path filepath) noexcept {
         filepath.make_preferred();
         const auto p_str = filepath.string();
         if(doc.LoadFile(p_str.c_str()) == tinyxml2::XML_SUCCESS) {
-            Material* mat = new Material(this, *doc.RootElement());
-            RegisterMaterial(mat->GetName(), mat);
+            auto mat = std::make_unique<Material>(this, *doc.RootElement());
+            auto name = mat->GetName();
+            RegisterMaterial(name, std::move(mat));
             return true;
         }
     }
@@ -3243,7 +3245,7 @@ Material* Renderer::GetMaterial(const std::string& nameOrFile) noexcept {
     if(found_iter == _materials.end()) {
         return GetMaterial("__invalid");
     }
-    return found_iter->second;
+    return found_iter->second.get();
 }
 
 void Renderer::SetMaterial(Material* material) noexcept {

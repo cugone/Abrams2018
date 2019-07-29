@@ -812,7 +812,6 @@ void Console::RegisterDefaultFont() noexcept {
             tex->SetDebugName(tex_name);
             _renderer->RegisterTexture(tex_name, std::move(tex));
         }
-        Material* mat = nullptr;
         std::string name = font_system32->GetName();
         std::string shader = "__2D";
         std::ostringstream material_stream;
@@ -829,9 +828,9 @@ void Console::RegisterDefaultFont() noexcept {
             return;
         }
         auto xml_root = doc.RootElement();
-        mat = new Material(_renderer, *xml_root);
-        font_system32->SetMaterial(mat);
-        _renderer->RegisterMaterial(mat);
+        auto mat = std::make_unique<Material>(_renderer, *xml_root);
+        font_system32->SetMaterial(mat.get());
+        _renderer->RegisterMaterial(std::move(mat));
         _renderer->RegisterFont(font_system32);
     }
 }

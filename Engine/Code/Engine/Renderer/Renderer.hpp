@@ -264,9 +264,9 @@ public:
 
     void SetVSync(bool value) noexcept;
 
-    Material* CreateMaterialFromFont(KerningFont* font) noexcept;
+    std::unique_ptr<Material> CreateMaterialFromFont(KerningFont* font) noexcept;
     bool RegisterMaterial(std::filesystem::path filepath) noexcept;
-    void RegisterMaterial(Material* mat) noexcept;
+    void RegisterMaterial(std::unique_ptr<Material> mat) noexcept;
     void RegisterMaterialsFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept;
 
     std::size_t GetMaterialCount() noexcept;
@@ -368,7 +368,7 @@ private:
     void RegisterShaderProgramsFromFolder(std::filesystem::path folderpath, const std::string& entrypoint, const PipelineStage& target, bool recursive = false) noexcept;
     void RegisterShader(const std::string& name, std::unique_ptr<Shader> shader) noexcept;
     void RegisterShadersFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept;
-    void RegisterMaterial(const std::string& name, Material* mat) noexcept;
+    void RegisterMaterial(const std::string& name, std::unique_ptr<Material> mat) noexcept;
     void RegisterRasterState(const std::string& name, RasterState* raster) noexcept;
     void RegisterDepthStencilState(const std::string& name, DepthStencilState* depthstencil) noexcept;
     void RegisterSampler(const std::string& name, Sampler* sampler) noexcept;
@@ -424,12 +424,12 @@ private:
     std::unique_ptr<Shader> CreateShaderFromFile(std::filesystem::path filepath) noexcept;
 
     void CreateAndRegisterDefaultMaterials() noexcept;
-    Material* CreateDefaultMaterial() noexcept;
-    Material* CreateDefaultUnlitMaterial() noexcept;
-    Material* CreateDefault2DMaterial() noexcept;
-    Material* CreateDefaultNormalMaterial() noexcept;
-    Material* CreateDefaultNormalMapMaterial() noexcept;
-    Material* CreateDefaultInvalidMaterial() noexcept;
+    std::unique_ptr<Material> CreateDefaultMaterial() noexcept;
+    std::unique_ptr<Material> CreateDefaultUnlitMaterial() noexcept;
+    std::unique_ptr<Material> CreateDefault2DMaterial() noexcept;
+    std::unique_ptr<Material> CreateDefaultNormalMaterial() noexcept;
+    std::unique_ptr<Material> CreateDefaultNormalMapMaterial() noexcept;
+    std::unique_ptr<Material> CreateDefaultInvalidMaterial() noexcept;
 
     void CreateAndRegisterDefaultFonts() noexcept;
 
@@ -490,8 +490,8 @@ private:
     std::map<std::string, std::unique_ptr<Texture>> _textures{};
     std::map<std::string, std::unique_ptr<ShaderProgram>> _shader_programs;
     std::map<std::string, std::unique_ptr<Shader>> _shaders;
+    std::map<std::string, std::unique_ptr<Material>> _materials{};
     //TODO: Refactor to use std::unique_ptr
-    std::map<std::string, Material*> _materials{};
     std::map<std::string, Sampler*> _samplers{};
     std::map<std::string, RasterState*> _rasters{};
     std::map<std::string, DepthStencilState*> _depthstencils{};

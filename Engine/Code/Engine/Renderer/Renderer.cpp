@@ -116,11 +116,6 @@ Renderer::~Renderer() noexcept {
         font.second = nullptr;
     }
     _fonts.clear();
-
-    for(auto& ds : _depthstencils) {
-        delete ds.second;
-        ds.second = nullptr;
-    }
     _depthstencils.clear();
 
     _default_depthstencil = nullptr;
@@ -2358,66 +2353,66 @@ std::unique_ptr<RasterState> Renderer::CreateSolidFrontCullingRaster() noexcept 
 }
 
 void Renderer::CreateAndRegisterDefaultDepthStencilStates() noexcept {
-    DepthStencilState* default_state = CreateDefaultDepthStencilState();
+    auto default_state = CreateDefaultDepthStencilState();
+    auto name = "__default";
     default_state->SetDebugName("__default_depthstencilstate");
-    RegisterDepthStencilState("__default", default_state);
+    RegisterDepthStencilState(name, std::move(default_state));
 
-    DepthStencilState* depth_disabled = CreateDisabledDepth();
-    depth_disabled->SetDebugName("__depthdisabled");
-    RegisterDepthStencilState("__depthdisabled", depth_disabled);
+    auto depth_disabled = CreateDisabledDepth();
+    name = "__depthdisabled";
+    depth_disabled->SetDebugName(name);
+    RegisterDepthStencilState(name, std::move(depth_disabled));
 
-    DepthStencilState* depth_enabled = CreateEnabledDepth();
-    depth_enabled->SetDebugName("__depthenabled");
-    RegisterDepthStencilState("__depthenabled", depth_enabled);
+    auto depth_enabled = CreateEnabledDepth();
+    name = "__depthenabled";
+    depth_enabled->SetDebugName(name);
+    RegisterDepthStencilState(name, std::move(depth_enabled));
 
-    DepthStencilState* stencil_disabled = CreateDisabledStencil();
-    stencil_disabled->SetDebugName("__stencildisabled");
-    RegisterDepthStencilState("__stencildisabled", stencil_disabled);
+    auto stencil_disabled = CreateDisabledStencil();
+    name = "__stencildisabled";
+    stencil_disabled->SetDebugName(name);
+    RegisterDepthStencilState(name, std::move(stencil_disabled));
 
-    DepthStencilState* stencil_enabled = CreateEnabledStencil();
-    stencil_enabled->SetDebugName("__stencilenabled");
-    RegisterDepthStencilState("__stencilenabled", stencil_enabled);
+    auto stencil_enabled = CreateEnabledStencil();
+    name = "__stencilenabled";
+    stencil_enabled->SetDebugName(name);
+    RegisterDepthStencilState(name, std::move(stencil_enabled));
 
 }
 
-DepthStencilState* Renderer::CreateDefaultDepthStencilState() noexcept {
+std::unique_ptr<DepthStencilState> Renderer::CreateDefaultDepthStencilState() noexcept {
     DepthStencilDesc desc{};
-    DepthStencilState* state = new DepthStencilState(_rhi_device.get(), desc);
-    return state;
+    return std::make_unique<DepthStencilState>(_rhi_device.get(), desc);
 }
 
-DepthStencilState* Renderer::CreateDisabledDepth() noexcept {
+std::unique_ptr<DepthStencilState> Renderer::CreateDisabledDepth() noexcept {
     DepthStencilDesc desc{};
     desc.depth_enabled = false;
     desc.depth_comparison = ComparisonFunction::Always;
-    DepthStencilState* state = new DepthStencilState(_rhi_device.get(), desc);
-    return state;
+    return std::make_unique<DepthStencilState>(_rhi_device.get(), desc);
 }
 
-DepthStencilState* Renderer::CreateEnabledDepth() noexcept {
+std::unique_ptr<DepthStencilState> Renderer::CreateEnabledDepth() noexcept {
     DepthStencilDesc desc{};
     desc.depth_enabled = true;
     desc.depth_comparison = ComparisonFunction::Less;
-    DepthStencilState* state = new DepthStencilState(_rhi_device.get(), desc);
-    return state;
+    return std::make_unique<DepthStencilState>(_rhi_device.get(), desc);
 }
 
-DepthStencilState* Renderer::CreateDisabledStencil() noexcept {
+std::unique_ptr<DepthStencilState> Renderer::CreateDisabledStencil() noexcept {
     DepthStencilDesc desc{};
     desc.stencil_enabled = false;
     desc.stencil_read = false;
     desc.stencil_write = false;
-    DepthStencilState* state = new DepthStencilState(_rhi_device.get(), desc);
-    return state;
+    return std::make_unique<DepthStencilState>(_rhi_device.get(), desc);
 }
 
-DepthStencilState* Renderer::CreateEnabledStencil() noexcept {
+std::unique_ptr<DepthStencilState> Renderer::CreateEnabledStencil() noexcept {
     DepthStencilDesc desc{};
     desc.stencil_enabled = true;
     desc.stencil_read = true;
     desc.stencil_write = true;
-    DepthStencilState* state = new DepthStencilState(_rhi_device.get(), desc);
-    return state;
+    return std::make_unique<DepthStencilState>(_rhi_device.get(), desc);
 }
 
 void Renderer::UnbindAllShaderResources() noexcept {
@@ -2452,16 +2447,16 @@ void Renderer::SetWindowTitle(const std::string& newTitle) noexcept {
     }
 }
 
-void Renderer::RegisterDepthStencilState(const std::string& name, DepthStencilState* depthstencil) noexcept {
+void Renderer::RegisterDepthStencilState(const std::string& name, std::unique_ptr<DepthStencilState> depthstencil) noexcept {
     if(depthstencil == nullptr) {
         return;
     }
     auto found_iter = _depthstencils.find(name);
     if(found_iter != _depthstencils.end()) {
-        delete found_iter->second;
-        found_iter->second = nullptr;
+        found_iter->second.reset();
+        _depthstencils.erase(found_iter);
     }
-    _depthstencils.insert_or_assign(name, depthstencil);
+    _depthstencils.try_emplace(name, std::move(depthstencil));
 
 }
 
@@ -3806,12 +3801,11 @@ DepthStencilState* Renderer::GetDepthStencilState(const std::string& name) noexc
     if(found_iter == _depthstencils.end()) {
         return nullptr;
     }
-    return found_iter->second;
+    return found_iter->second.get();
 }
 
 void Renderer::CreateAndRegisterDepthStencilStateFromDepthStencilDescription(const std::string& name, const DepthStencilDesc& desc) noexcept {
-    auto ds = new DepthStencilState(_rhi_device.get(), desc);
-    RegisterDepthStencilState(name, ds);
+    RegisterDepthStencilState(name, std::make_unique<DepthStencilState>(_rhi_device.get(), desc));
 }
 
 void Renderer::EnableDepth() noexcept {

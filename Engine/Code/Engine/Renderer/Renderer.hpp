@@ -370,7 +370,7 @@ private:
     void RegisterShadersFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept;
     void RegisterMaterial(const std::string& name, std::unique_ptr<Material> mat) noexcept;
     void RegisterRasterState(const std::string& name, std::unique_ptr<RasterState> raster) noexcept;
-    void RegisterDepthStencilState(const std::string& name, DepthStencilState* depthstencil) noexcept;
+    void RegisterDepthStencilState(const std::string& name, std::unique_ptr<DepthStencilState> depthstencil) noexcept;
     void RegisterSampler(const std::string& name, std::unique_ptr<Sampler> sampler) noexcept;
     void RegisterFont(const std::string& name, KerningFont* font) noexcept;
 
@@ -449,11 +449,11 @@ private:
     std::unique_ptr<RasterState> CreateSolidFrontCullingRaster() noexcept;
 
     void CreateAndRegisterDefaultDepthStencilStates() noexcept;
-    DepthStencilState* CreateDefaultDepthStencilState() noexcept;
-    DepthStencilState* CreateDisabledDepth() noexcept;
-    DepthStencilState* CreateEnabledDepth() noexcept;
-    DepthStencilState* CreateDisabledStencil() noexcept;
-    DepthStencilState* CreateEnabledStencil() noexcept;
+    std::unique_ptr<DepthStencilState> CreateDefaultDepthStencilState() noexcept;
+    std::unique_ptr<DepthStencilState> CreateDisabledDepth() noexcept;
+    std::unique_ptr<DepthStencilState> CreateEnabledDepth() noexcept;
+    std::unique_ptr<DepthStencilState> CreateDisabledStencil() noexcept;
+    std::unique_ptr<DepthStencilState> CreateEnabledStencil() noexcept;
 
     void UnbindAllShaderResources() noexcept;
     void UnbindAllConstantBuffers() noexcept;
@@ -493,8 +493,8 @@ private:
     std::map<std::string, std::unique_ptr<Material>> _materials;
     std::map<std::string, std::unique_ptr<Sampler>> _samplers;
     std::map<std::string, std::unique_ptr<RasterState>> _rasters;
+    std::map<std::string, std::unique_ptr<DepthStencilState>> _depthstencils;
     //TODO: Refactor to use std::unique_ptr
-    std::map<std::string, DepthStencilState*> _depthstencils{};
     std::map<std::string, KerningFont*> _fonts{};
     bool _vsync = false;
     friend class Shader;

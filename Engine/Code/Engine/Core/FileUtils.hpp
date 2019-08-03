@@ -106,8 +106,8 @@ namespace detail {
             std::for_each(DirectoryIteratorType{ preferred_folderpath }, DirectoryIteratorType{},
                 [&callback](const std::filesystem::directory_entry& entry) {
                     const auto& cur_path = entry.path();
-                    bool is_directory = std::filesystem::is_directory(cur_path);
-                    if(!is_directory) {
+                    bool is_file = std::filesystem::is_regular_file(cur_path);
+                    if(is_file) {
                         callback(cur_path);
                     }
                 });
@@ -116,10 +116,10 @@ namespace detail {
         std::for_each(DirectoryIteratorType{ preferred_folderpath }, DirectoryIteratorType{},
             [&validExtensions, &callback](const std::filesystem::directory_entry& entry) {
                 const auto& cur_path = entry.path();
-                bool is_directory = std::filesystem::is_directory(cur_path);
+                bool is_file = std::filesystem::is_regular_file(cur_path);
                 std::string my_extension = StringUtils::ToLowerCase(cur_path.extension().string());
-                bool valid_file_by_extension = std::find(std::begin(validExtensions), std::end(validExtensions), my_extension) != std::end(validExtensions);
-                if(!is_directory) {
+                if(is_file) {
+                    bool valid_file_by_extension = std::find(std::begin(validExtensions), std::end(validExtensions), my_extension) != std::end(validExtensions);
                     if(valid_file_by_extension) {
                         callback(cur_path);
                     }

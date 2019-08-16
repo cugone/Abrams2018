@@ -285,10 +285,9 @@ void AnimatedSprite::LoadFromXml(Renderer& renderer, const XMLElement& elem) noe
     auto xml_animset = elem.FirstChildElement("animationset");
     DataUtils::ValidateXmlElement(*xml_animset, "animationset", "", "startindex,framelength,duration", "", "loop,reverse,pingpong");
 
-    int start_index = -1;
-    _start_index = DataUtils::ParseXmlAttribute(*xml_animset, "startindex", start_index);
+    _start_index = DataUtils::ParseXmlAttribute(*xml_animset, "startindex", -1);
     if(_start_index == -1) {
-        IntVector2 start_index_coords = DataUtils::ParseXmlAttribute(*xml_animset, "startindex", start_index_coords);
+        auto start_index_coords = DataUtils::ParseXmlAttribute(*xml_animset, "startindex", IntVector2::ZERO);
         _start_index = GetIndexFromCoords(start_index_coords);
     }
 
@@ -296,8 +295,7 @@ void AnimatedSprite::LoadFromXml(Renderer& renderer, const XMLElement& elem) noe
     _end_index = _start_index + frameLength;
 
     TimeUtils::FPSeconds min_duration = TimeUtils::FPFrames{1};
-    float duration_seconds = 0.0f;
-    _duration_seconds = TimeUtils::FPSeconds{DataUtils::ParseXmlAttribute(*xml_animset, "duration", duration_seconds)};
+    _duration_seconds = TimeUtils::FPSeconds{DataUtils::ParseXmlAttribute(*xml_animset, "duration", 0.0f)};
     if(_duration_seconds < min_duration) {
         _duration_seconds = min_duration;
     }

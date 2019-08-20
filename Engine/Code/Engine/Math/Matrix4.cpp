@@ -739,7 +739,7 @@ const float* Matrix4::GetAsFloatArray() const noexcept {
     return &m_indicies[0];
 }
 float* Matrix4::GetAsFloatArray() noexcept {
-    return const_cast<float*>(static_cast<const Matrix4&>(*this).GetAsFloatArray());
+    return &m_indicies[0];
 }
 Vector3 Matrix4::GetTranslation() const noexcept {
     return Vector3(GetTBasis());
@@ -977,7 +977,7 @@ const float * Matrix4::operator*() const noexcept {
     return &m_indicies[0];
 }
 float* Matrix4::operator*() noexcept {
-    return const_cast<float*>(static_cast<const Matrix4&>(*this).operator*());
+    return &m_indicies[0];
 }
 
 Matrix4 Matrix4::operator+(const Matrix4& rhs) const noexcept {
@@ -1063,7 +1063,7 @@ Matrix4 Matrix4::operator-() const noexcept {
 }
 
 float& Matrix4::operator[](std::size_t index) {
-    return const_cast<float&>(static_cast<const Matrix4&>(*this).operator[](index));
+    return m_indicies[index];
 }
 
 const float& Matrix4::operator[](std::size_t index) const {

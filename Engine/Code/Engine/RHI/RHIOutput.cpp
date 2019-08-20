@@ -45,16 +45,12 @@ const RHIDevice* RHIOutput::GetParentDevice() const noexcept {
     return _parent_device;
 }
 
-RHIDevice* RHIOutput::GetParentDevice() noexcept {
-    return const_cast<RHIDevice*>(static_cast<const RHIOutput&>(*this).GetParentDevice());
-}
-
 const Window* RHIOutput::GetWindow() const noexcept {
     return _window;
 }
 
 Window* RHIOutput::GetWindow() noexcept {
-    return const_cast<Window*>(static_cast<const RHIOutput&>(*this).GetWindow());
+    return _window;
 }
 
 Texture* RHIOutput::GetBackBuffer() noexcept {

@@ -1311,5 +1311,5 @@ const XboxController& InputSystem::GetXboxController(const std::size_t& controll
 }
 
 XboxController& InputSystem::GetXboxController(const std::size_t& controllerIndex) noexcept {
-    return const_cast<XboxController&>(static_cast<const InputSystem&>(*this).GetXboxController(controllerIndex));
+    return _xboxControllers[controllerIndex];
 }

@@ -75,7 +75,7 @@ const Texture* SpriteSheet::GetTexture() const noexcept {
 }
 
 Texture* SpriteSheet::GetTexture() noexcept {
-    return const_cast<Texture*>(static_cast<const SpriteSheet&>(*this).GetTexture());
+    return _spriteSheetTexture;
 }
 
 void SpriteSheet::LoadFromXml(Renderer& renderer, const XMLElement& elem) noexcept {

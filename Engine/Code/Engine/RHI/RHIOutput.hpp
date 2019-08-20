@@ -16,7 +16,6 @@ public:
     ~RHIOutput() noexcept;
 
     const RHIDevice* GetParentDevice() const noexcept;
-    RHIDevice* GetParentDevice() noexcept;
 
     const Window* GetWindow() const noexcept;
     Window* GetWindow() noexcept;

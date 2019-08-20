@@ -3856,8 +3856,9 @@ Texture* Renderer::Create1DTexture(std::filesystem::path filepath, const BufferU
         auto tex = std::make_unique<Texture1D>(_rhi_device.get(), dx_tex);
         tex->SetDebugName(filepath.string().c_str());
         tex->IsLoaded(true);
+        auto tex_ptr = tex.get();
         if(RegisterTexture(filepath.string(), std::move(tex))) {
-            return GetTexture(filepath.string());
+            return tex_ptr;
         } else {
             return nullptr;
         }
@@ -4007,8 +4008,9 @@ Texture* Renderer::Create2DTexture(std::filesystem::path filepath, const BufferU
         auto tex = std::make_unique<Texture2D>(_rhi_device.get(), dx_tex);
         tex->SetDebugName(filepath.string().c_str());
         tex->IsLoaded(true);
+        auto tex_ptr = tex.get();
         if(RegisterTexture(filepath.string(), std::move(tex))) {
-            return GetTexture(filepath.string());
+            return tex_ptr;
         } else {
             return nullptr;
         }
@@ -4307,8 +4309,9 @@ Texture* Renderer::Create3DTexture(std::filesystem::path filepath, const IntVect
         auto tex = std::make_unique<Texture3D>(_rhi_device.get(), dx_tex);
         tex->SetDebugName(filepath.string().c_str());
         tex->IsLoaded(true);
+        auto tex_ptr = tex.get();
         if(RegisterTexture(filepath.string(), std::move(tex))) {
-            return GetTexture(filepath.string());
+            return tex_ptr;
         } else {
             return nullptr;
         }

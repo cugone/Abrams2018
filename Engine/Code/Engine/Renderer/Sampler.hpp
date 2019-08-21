@@ -12,9 +12,9 @@ struct SamplerDesc {
     FilterMode mag_filter = FilterMode::Point;
     FilterMode mip_filter = FilterMode::Point;
     FilterComparisonMode compare_mode = FilterComparisonMode::None;
-    TextureAddressMode UaddressMode = TextureAddressMode::Clamp;
-    TextureAddressMode VaddressMode = TextureAddressMode::Clamp;
-    TextureAddressMode WaddressMode = TextureAddressMode::Clamp;
+    TextureAddressMode UaddressMode = TextureAddressMode::Wrap;
+    TextureAddressMode VaddressMode = TextureAddressMode::Wrap;
+    TextureAddressMode WaddressMode = TextureAddressMode::Wrap;
     Rgba borderColor = Rgba::White;
     ComparisonFunction compareFunc = ComparisonFunction::Never;
     unsigned int maxAnisotropicLevel = 1;

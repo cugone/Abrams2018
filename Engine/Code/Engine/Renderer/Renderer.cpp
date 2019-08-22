@@ -2679,6 +2679,11 @@ void Renderer::CreateAndRegisterDefaultTextures() noexcept {
     emissive_texture->SetDebugName(name);
     RegisterTexture(name, std::move(emissive_texture));
 
+    auto fullscreen_texture = CreateDefaultFullscreenTexture();
+    name = "__fullscreen";
+    fullscreen_texture->SetDebugName(name);
+    RegisterTexture(name, std::move(fullscreen_texture));
+
     CreateDefaultColorTextures();
 }
 
@@ -2739,6 +2744,11 @@ std::unique_ptr<Texture> Renderer::CreateDefaultEmissiveTexture() noexcept {
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
+std::unique_ptr<Texture> Renderer::CreateDefaultFullscreenTexture() noexcept {
+    auto dims = GetOutput()->GetDimensions();
+    auto data = std::vector<Rgba>(dims.x * dims.y, Rgba::Magenta);
+    return Create2DTextureFromMemory(data, dims.x, dims.y, BufferUsage::Gpu, BufferBindUsage::Render_Target | BufferBindUsage::Shader_Resource);
+}
 void Renderer::CreateDefaultColorTextures() noexcept {
     static const std::vector<Rgba> colors = {
         Rgba::White

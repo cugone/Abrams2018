@@ -400,6 +400,7 @@ private:
     std::unique_ptr<Texture> CreateDefaultSpecularTexture() noexcept;
     std::unique_ptr<Texture> CreateDefaultOcclusionTexture() noexcept;
     std::unique_ptr<Texture> CreateDefaultEmissiveTexture() noexcept;
+    std::unique_ptr<Texture> CreateDefaultFullscreenTexture() noexcept;
 
     void CreateDefaultColorTextures() noexcept;
     std::unique_ptr<Texture> CreateDefaultColorTexture(const Rgba& color) noexcept;

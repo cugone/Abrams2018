@@ -5,10 +5,14 @@
 #include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 
-#include "Engine/Profiling/StackTrace.hpp"
+//#include "Engine/Profiling/StackTrace.hpp"
 
+#include <array>
 #include <new>
 #include <sstream>
+#include <iostream>
+#include <ostream>
+#include <charconv>
 
 class Memory {
 public:
@@ -21,17 +25,35 @@ public:
         }
         operator std::string() const noexcept {
 #ifdef TRACK_MEMORY
-            std::ostringstream ss;
-            std::string s = ss.str();
-            ss << "Leaked objects: " << leaked_objs << " for " << leaked_bytes << " bytes.\n";
-            return s;
+            static std::array<char, 1024> s{"Leaked objects: %f for %f bytes.\n"};
+            if (auto[p, ec] = std::to_chars(s.data(), s.data() + s.size(), static_cast<float>(leaked_objs));
+                ec != std::errc()) {
+                DebuggerPrintf("Memory profiler could not convert leaked objects value for printing");
+                return {};
+            }
+            if (auto[p, ec] = std::to_chars(s.data(), s.data() + s.size(), static_cast<float>(leaked_bytes));
+                ec != std::errc()) {
+                DebuggerPrintf("Memory profiler could not convert leaked bytes value for printing");
+                return {};
+            }
+            return std::string(std::string_view(s.data(), s.size()));
 #else
             return {};
 #endif
         }
-        friend std::ostream& operator<<(std::ostream& os, [[maybe_unused]]const status_t s) noexcept {
+        friend std::ostream& operator<<(std::ostream& os, [[maybe_unused]]const status_t& s) noexcept {
 #ifdef TRACK_MEMORY
-            os << "Leaked objects: " << s.leaked_objs << " for " << s.leaked_bytes << " bytes.\n";
+            static std::array<char, 1024> str{ "Leaked objects: %f for %f bytes.\n" };
+            if (auto[p, ec] = std::to_chars(str.data(), str.data() + str.size(), static_cast<float>(s.leaked_objs));
+                ec != std::errc()) {
+                DebuggerPrintf("Memory profiler could not convert leaked objects value for printing");
+                return os;
+            }
+            if (auto[p, ec] = std::to_chars(str.data(), str.data() + str.size(), static_cast<float>(s.leaked_bytes));
+                ec != std::errc()) {
+                DebuggerPrintf("Memory profiler could not convert leaked bytes value for printing");
+                return os;
+            }
 #endif
             return os;
         }
@@ -52,6 +74,12 @@ public:
 #else
             return {};
 #endif
+        }
+        friend std::ostream& operator<<(std::ostream& os, [[maybe_unused]]const status_frame_t& s) noexcept {
+#ifdef TRACK_MEMORY
+            os << "Frame " << s.frame_id << ": Leaked objects: " << s.leaked_objs << " for " << s.leaked_bytes << " bytes.\n";
+#endif
+            return os;
         }
     };
 
@@ -104,8 +132,7 @@ public:
     static void tick() noexcept {
 #ifdef TRACK_MEMORY
         if(auto f = Memory::frame_status()) {
-            std::string status = f;
-            DebuggerPrintf(status.c_str(), "%s");
+            std::cout << f << '\n';
         }
         ++frameCounter;
         resetframecounters();

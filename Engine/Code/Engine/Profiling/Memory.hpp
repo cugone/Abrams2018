@@ -9,6 +9,8 @@
 
 #include <array>
 #include <new>
+#include <string_view>
+#include <string>
 #include <sstream>
 #include <iostream>
 #include <ostream>
@@ -23,37 +25,25 @@ public:
         operator bool() const noexcept {
             return leaked_objs || leaked_bytes;
         }
-        operator std::string() const noexcept {
-#ifdef TRACK_MEMORY
-            static std::array<char, 1024> s{"Leaked objects: %f for %f bytes.\n"};
-            if (auto[p, ec] = std::to_chars(s.data(), s.data() + s.size(), static_cast<float>(leaked_objs));
-                ec != std::errc()) {
-                DebuggerPrintf("Memory profiler could not convert leaked objects value for printing");
-                return {};
-            }
-            if (auto[p, ec] = std::to_chars(s.data(), s.data() + s.size(), static_cast<float>(leaked_bytes));
-                ec != std::errc()) {
-                DebuggerPrintf("Memory profiler could not convert leaked bytes value for printing");
-                return {};
-            }
-            return std::string(std::string_view(s.data(), s.size()));
-#else
-            return {};
-#endif
-        }
         friend std::ostream& operator<<(std::ostream& os, [[maybe_unused]]const status_t& s) noexcept {
 #ifdef TRACK_MEMORY
             static std::array<char, 1024> str{ "Leaked objects: %f for %f bytes.\n" };
-            if (auto[p, ec] = std::to_chars(str.data(), str.data() + str.size(), static_cast<float>(s.leaked_objs));
-                ec != std::errc()) {
-                DebuggerPrintf("Memory profiler could not convert leaked objects value for printing");
+            std::to_chars_result first_result;
+            if (first_result = std::to_chars(str.data() + 16, str.data() + 20, static_cast<float>(s.leaked_objs));
+                first_result.ec != std::errc()) {
+                DebuggerPrintf("Error code %d: Memory profiler could not convert leaked objects value for printing", first_result.ec);
                 return os;
             }
-            if (auto[p, ec] = std::to_chars(str.data(), str.data() + str.size(), static_cast<float>(s.leaked_bytes));
-                ec != std::errc()) {
-                DebuggerPrintf("Memory profiler could not convert leaked bytes value for printing");
+            //Put remainder of string back into buffer because to_chars overwrites.
+            std::memcpy(first_result.ptr, " for %f bytes.\n", 16);
+            std::to_chars_result second_result;
+            if (second_result = std::to_chars(first_result.ptr + 5, first_result.ptr + 11, static_cast<float>(s.leaked_bytes));
+                second_result.ec != std::errc()) {
+                DebuggerPrintf("Error code %d: Memory profiler could not convert leaked bytes value for printing", second_result.ec);
                 return os;
             }
+            std::memcpy(second_result.ptr, " bytes.\n", 9);
+            os << std::string_view(str.data(), std::strlen(str.data()));
 #endif
             return os;
         }
@@ -65,19 +55,32 @@ public:
         operator bool() const noexcept {
             return leaked_objs || leaked_bytes;
         }
-        operator std::string() const noexcept {
-#ifdef TRACK_MEMORY
-            std::ostringstream ss;
-            ss << "Frame " << frame_id << ": Leaked objects: " << leaked_objs << " for " << leaked_bytes << " bytes.\n";
-            std::string s = ss.str();
-            return s;
-#else
-            return {};
-#endif
-        }
         friend std::ostream& operator<<(std::ostream& os, [[maybe_unused]]const status_frame_t& s) noexcept {
 #ifdef TRACK_MEMORY
-            os << "Frame " << s.frame_id << ": Leaked objects: " << s.leaked_objs << " for " << s.leaked_bytes << " bytes.\n";
+            static std::array<char, 1024> str{ "Frame %f: Leaked objects: %f for %f bytes.\n" };
+            std::to_chars_result frame_result;
+            if (frame_result = std::to_chars(str.data() + 6, str.data() + 26, static_cast<float>(s.frame_id));
+                frame_result.ec != std::errc()) {
+                DebuggerPrintf("Error code %d: Memory profiler could not convert frame id value for printing", frame_result.ec);
+                return os;
+            }
+            //Put remainder of string back into buffer because to_chars overwrites.
+            std::memcpy(frame_result.ptr, ": Leaked objects: %f for %f bytes.\n", 36);
+            std::to_chars_result objects_result;
+            if (objects_result = std::to_chars(frame_result.ptr + 18, frame_result.ptr + 38, static_cast<float>(s.leaked_objs));
+                objects_result.ec != std::errc()) {
+                DebuggerPrintf("Error code %d: Memory profiler could not convert leaked objects value for printing", objects_result.ec);
+                return os;
+            }
+            std::memcpy(objects_result.ptr, " for %f bytes.\n", 16);
+            std::to_chars_result bytes_result;
+            if (bytes_result = std::to_chars(objects_result.ptr + 5, objects_result.ptr + 25, static_cast<float>(s.leaked_bytes));
+                bytes_result.ec != std::errc()) {
+                DebuggerPrintf("Error code %d: Memory profiler could not convert leaked bytes value for printing", bytes_result.ec);
+                return os;
+            }
+            std::memcpy(bytes_result.ptr, " bytes.\n", 9);
+            os << std::string_view(str.data(), std::strlen(str.data()));
 #endif
             return os;
         }

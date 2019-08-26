@@ -43,7 +43,8 @@ public:
                 return os;
             }
             std::memcpy(second_result.ptr, " bytes.\n", 9);
-            os << std::string_view(str.data(), std::strlen(str.data()));
+            auto length = std::strlen(str.data());
+            os << std::string_view(str.data(), length);
 #endif
             return os;
         }
@@ -80,7 +81,8 @@ public:
                 return os;
             }
             std::memcpy(bytes_result.ptr, " bytes.\n", 9);
-            os << std::string_view(str.data(), std::strlen(str.data()));
+            auto length = std::strlen(str.data());
+            os << std::string_view(str.data(), length);
 #endif
             return os;
         }

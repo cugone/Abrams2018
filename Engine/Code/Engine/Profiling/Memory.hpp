@@ -8,13 +8,14 @@
 //#include "Engine/Profiling/StackTrace.hpp"
 
 #include <array>
+#include <charconv>
+#include <cstring>
+#include <iostream>
 #include <new>
+#include <ostream>
 #include <string_view>
 #include <string>
 #include <sstream>
-#include <iostream>
-#include <ostream>
-#include <charconv>
 
 class Memory {
 public:
@@ -43,7 +44,11 @@ public:
                 return os;
             }
             std::memcpy(second_result.ptr, " bytes.\n", 9);
-            auto length = std::strlen(str.data());
+            std::size_t length = 0;
+            auto c = str.data();
+            while(*c++) {
+                length++;
+            }
             os << std::string_view(str.data(), length);
 #endif
             return os;
@@ -81,7 +86,11 @@ public:
                 return os;
             }
             std::memcpy(bytes_result.ptr, " bytes.\n", 9);
-            auto length = std::strlen(str.data());
+            std::size_t length = 0;
+            auto c = str.data();
+            while (*c++) {
+                ++length;
+            }
             os << std::string_view(str.data(), length);
 #endif
             return os;
@@ -174,7 +183,7 @@ public:
     inline static std::size_t framefreeSize = 0;
 protected:
 private:
-    inline static bool _active = false;
+    inline static bool _active = true;
     inline static bool _trace = false;
 };
 

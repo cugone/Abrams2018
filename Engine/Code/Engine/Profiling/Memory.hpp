@@ -160,6 +160,22 @@ public:
 #endif
     }
 
+    static void resetstatuscounters() noexcept {
+#ifdef TRACK_MEMORY
+        maxSize = 0;
+        maxCount = 0;
+        allocSize = 0;
+        allocCount = 0;
+        freeCount = 0;
+        freeSize = 0;
+#endif
+    }
+
+    static void resetallcounters() noexcept {
+        resetframecounters();
+        resetstatuscounters();
+    }
+
     static status_t status() noexcept {
         return { allocCount - freeCount, allocSize - freeSize };
     }

@@ -175,8 +175,10 @@ public:
     }
 
     static void resetallcounters() noexcept {
+#ifdef TRACK_MEMORY
         resetframecounters();
         resetstatuscounters();
+#endif
     }
 
     static status_t status() noexcept {

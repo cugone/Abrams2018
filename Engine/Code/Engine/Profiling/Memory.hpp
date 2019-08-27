@@ -124,6 +124,9 @@ public:
     static void enable([[maybe_unused]]bool e) noexcept {
 #ifdef TRACK_MEMORY
         _active = e;
+        if(_active) {
+            resetallcounters();
+        }
 #endif
     }
 

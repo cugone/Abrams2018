@@ -1123,13 +1123,12 @@ void Renderer::DrawPolygon2D(const Vector2& center, float radius, std::size_t nu
 }
 
 void Renderer::DrawTextLine(const KerningFont* font, const std::string& text, const Rgba& color /*= Rgba::WHITE*/) noexcept {
-    if(font == nullptr) {
+    if (font == nullptr) {
         return;
     }
-    if(text.empty()) {
+    if (text.empty()) {
         return;
     }
-    SetMaterial(font->GetMaterial());
     float cursor_x = 0.0f;
     float cursor_y = 0.0f;
     float line_top = cursor_y - font->GetCommonDef().base;
@@ -1141,7 +1140,7 @@ void Renderer::DrawTextLine(const KerningFont* font, const std::string& text, co
     std::vector<unsigned int> ibo;
     ibo.reserve(text_size * 6);
 
-    for(auto text_iter = text.begin(); text_iter != text.end(); /* DO NOTHING */) {
+    for (auto text_iter = text.begin(); text_iter != text.end(); /* DO NOTHING */) {
         KerningFont::CharDef current_def = font->GetCharDef(*text_iter);
         float char_uvl = current_def.position.x / texture_w;
         float char_uvt = current_def.position.y / texture_h;
@@ -1168,16 +1167,23 @@ void Renderer::DrawTextLine(const KerningFont* font, const std::string& text, co
 
         auto previous_char = text_iter;
         ++text_iter;
-        if(text_iter != text.end()) {
+        if (text_iter != text.end()) {
             int kern_value = font->GetKerningValue(*previous_char, *text_iter);
             cursor_x += (current_def.xadvance + kern_value);
         }
     }
+    const auto& cbs = font->GetMaterial()->GetShader()->GetConstantBuffers();
+    auto has_constant_buffers = !cbs.empty();
+    if(has_constant_buffers) {
+        auto& font_cb = cbs[0].get();
+        Vector4 channel{ 1.0f, 1.0f, 1.0f, 1.0f };
+        font_cb.Update(this->GetDeviceContext(), &channel);
+    }
+    SetMaterial(font->GetMaterial());
     DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
 }
 
 void Renderer::DrawMultilineText(KerningFont* font, const std::string& text, const Rgba& color /*= Rgba::WHITE*/) noexcept {
-    SetMaterial(font->GetMaterial());
     float y = font->GetLineHeight();
     float draw_loc_y = 0.0f;
     float draw_loc_x = 0.0f;
@@ -1190,6 +1196,14 @@ void Renderer::DrawMultilineText(KerningFont* font, const std::string& text, con
         draw_loc.y += y;
         AppendMultiLineTextBuffer(font, line, draw_loc, color, vbo, ibo);
     }
+    const auto& cbs = font->GetMaterial()->GetShader()->GetConstantBuffers();
+    auto has_constant_buffers = !cbs.empty();
+    if (has_constant_buffers) {
+        auto& font_cb = cbs[0].get();
+        Vector4 channel{ 1.0f, 1.0f, 1.0f, 1.0f };
+        font_cb.Update(this->GetDeviceContext(), &channel);
+    }
+    SetMaterial(font->GetMaterial());
     DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
 }
 
@@ -2163,12 +2177,12 @@ std::unique_ptr<Material> Renderer::CreateMaterialFromFont(KerningFont* font) no
     std::string name = font->GetName();
     std::string shader = "__font";
     std::ostringstream material_stream;
-    material_stream << "<material name=\"Font_" << name << "\">";
-    material_stream << "<shader src=\"" << shader << "\" />";
+    material_stream << "<material name=\"Font_" << name << "\">\n";
+    material_stream << "\t<shader src=\"" << shader << "\" />\n";
     std::size_t image_count = font->GetImagePaths().size();
     bool has_textures = image_count > 0;
     if(has_textures) {
-        material_stream << "<textures>";
+        material_stream << "\t<textures>\n";
     }
     bool has_lots_of_textures = has_textures && image_count > 6;
     for(std::size_t i = 0; i < image_count; ++i) {
@@ -2177,22 +2191,22 @@ std::unique_ptr<Material> Renderer::CreateMaterialFromFont(KerningFont* font) no
         fullpath = FS::canonical(fullpath);
         fullpath.make_preferred();
         switch(i) {
-            case 0: material_stream << "<diffuse src=\""   << fullpath << "\" />"; break;
-            case 1: material_stream << "<normal src=\""    << fullpath << "\" />"; break;
-            case 2: material_stream << "<lighting src=\""  << fullpath << "\" />"; break;
-            case 3: material_stream << "<specular src=\""  << fullpath << "\" />"; break;
-            case 4: material_stream << "<occlusion src=\"" << fullpath << "\" />"; break;
-            case 5: material_stream << "<emissive src=\""  << fullpath << "\" />"; break;
+        case 0: material_stream << "\t\t<diffuse src=" << fullpath << " />\n"; break;
+        case 1: material_stream << "\t\t<normal src=" << fullpath << " />\n"; break;
+        case 2: material_stream << "\t\t<lighting src=" << fullpath << " />\n"; break;
+        case 3: material_stream << "\t\t<specular src=" << fullpath << " />\n"; break;
+        case 4: material_stream << "\t\t<occlusion src=" << fullpath << " />\n"; break;
+        case 5: material_stream << "\t\t<emissive src=" << fullpath << " />\n"; break;
             default: /* DO NOTHING */;
         }
         if(i >= 6 && has_lots_of_textures) {
-            material_stream << "<texture index=\"" << (i-6) << "\" src=\"" << fullpath << "\" />";
+            material_stream << "\t\t<texture index=\"" << (i-6) << "\" src=" << fullpath << " />\n";
         }
     }
     if(has_textures) {
-        material_stream << "</textures>";
+        material_stream << "\t</textures>\n";
     }
-    material_stream << "</material>";
+    material_stream << "</material>\n";
     tinyxml2::XMLDocument doc;
     std::string material_string = material_stream.str();
     auto result = doc.Parse(material_string.c_str(), material_string.size());
@@ -2608,8 +2622,7 @@ bool Renderer::RegisterFont(std::filesystem::path filepath) noexcept {
             texture_path.make_preferred();
             CreateTexture(texture_path.string(), IntVector3::XY_AXIS);
         }
-        auto mat = CreateMaterialFromFont(font.get());
-        if(mat) {
+        if(auto mat = CreateMaterialFromFont(font.get())) {
             font->SetMaterial(mat.get());
             auto mat_name = mat->GetName();
             auto font_name = font->GetName();

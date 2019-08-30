@@ -26,7 +26,7 @@ public:
     };
     class CommandList {
     public:
-        CommandList(Console& console);
+        explicit CommandList(Console& console);
         CommandList(Console& console, const std::vector<Command>& commands);
         ~CommandList();
         void AddCommand(const Command& command);

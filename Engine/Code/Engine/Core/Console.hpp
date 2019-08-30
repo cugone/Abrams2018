@@ -24,6 +24,19 @@ public:
         std::string help_text_long{};
         std::function<void(const std::string& args)> command_function = [](const std::string& /*args*/) {};
     };
+    class CommandList {
+    public:
+        CommandList(Console& console);
+        CommandList(Console& console, const std::vector<Command>& commands);
+        ~CommandList();
+        void AddCommand(const Command& command);
+        void RemoveCommand(const std::string& name);
+        void RemoveAllCommands();
+        const std::vector<Command>& GetCommands() const noexcept;
+    private:
+        Console& _console;
+        std::vector<Command> _commands{};
+    };
     Console() = delete;
     explicit Console(Renderer* renderer) noexcept;
     Console(const Console& other) = delete;
@@ -42,6 +55,9 @@ public:
     void RunCommand(std::string name_and_args) noexcept;
     void RegisterCommand(const Console::Command& command) noexcept;
     void UnregisterCommand(const std::string& command_name) noexcept;
+
+    void PushCommandList(const Console::CommandList& list) noexcept;
+    void PopCommandList(const Console::CommandList& list) noexcept;
 
     void PrintMsg(const std::string& msg) noexcept;
     void WarnMsg(const std::string& msg) noexcept;

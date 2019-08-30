@@ -453,6 +453,20 @@ void Console::UnregisterCommand(const std::string& command_name) noexcept {
     }
 }
 
+
+void Console::PushCommandList(const CommandList& list) noexcept {
+    for(const auto& command : list.GetCommands()) {
+        RegisterCommand(command);
+    }
+}
+
+
+void Console::PopCommandList(const CommandList& list) noexcept {
+    for(const auto& command : list.GetCommands()) {
+        UnregisterCommand(command.command_name);
+    }
+}
+
 void Console::UnregisterAllCommands() noexcept {
     _commands.clear();
 }
@@ -963,4 +977,43 @@ Vector2 Console::SetupViewFromCamera() const noexcept {
 
 void Console::EndFrame() {
     /* DO NOTHING */
+}
+
+Console::CommandList::CommandList(Console& console)
+    : _console(console)
+{
+    /* DO NOTHING */
+}
+
+
+Console::CommandList::CommandList(Console& console, const std::vector<Command>& commands)
+    : _console(console)
+    , _commands(commands)
+{
+    for(const auto& command : _commands) {
+        _console.RegisterCommand(command);
+    }
+}
+
+Console::CommandList::~CommandList() {
+    for(const auto& command : _commands) {
+        _console.UnregisterCommand(command.command_name);
+    }
+}
+
+void Console::CommandList::AddCommand(const Command& command) {
+    _commands.emplace_back(command);
+}
+
+void Console::CommandList::RemoveCommand(const std::string& name) {
+    _commands.erase(std::remove_if(std::begin(_commands), std::end(_commands), [&name](const Console::Command& command) { return name == command.command_name; }), std::end(_commands));
+}
+
+void Console::CommandList::RemoveAllCommands() {
+    _commands.clear();
+    _commands.shrink_to_fit();
+}
+
+const std::vector<Console::Command>& Console::CommandList::GetCommands() const noexcept {
+    return _commands;
 }

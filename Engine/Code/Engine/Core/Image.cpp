@@ -231,12 +231,12 @@ Image Image::CreateImageFromFileBuffer(const std::vector<unsigned char>& data) n
         DebuggerPrintf(ss.str().c_str());
         return{};
     }
-    int comp = 0;
-    int req_comp = 4;
     int dim_x = 0;
     int dim_y = 0;
+    int comp = 0;
     std::vector<unsigned char> texel_bytes{};
     {
+        int req_comp = 4;
         auto* bytes = stbi_load_from_memory(data.data(), static_cast<int>(data.size()), &dim_x, &dim_y, &comp, req_comp);
         if(!bytes) {
             std::ostringstream ss;
@@ -258,8 +258,9 @@ Image Image::CreateImageFromFileBuffer(const std::vector<unsigned char>& data) n
     } else {
         int depth = 0;
         int* delays = nullptr;
+        int req_comp = 4;
         comp = 0;
-        auto* bytes = stbi_load_gif_from_memory(data.data(), static_cast<int>(data.size()), &delays, &dim_x, &dim_y, &depth, &comp, 4);
+        auto* bytes = stbi_load_gif_from_memory(data.data(), static_cast<int>(data.size()), &delays, &dim_x, &dim_y, &depth, &comp, req_comp);
         if(!bytes) {
             return{};
         }

@@ -979,25 +979,31 @@ void Console::EndFrame() {
     /* DO NOTHING */
 }
 
-Console::CommandList::CommandList(Console& console)
+Console::CommandList::CommandList(Console* console /*= nullptr*/) noexcept
     : _console(console)
 {
     /* DO NOTHING */
 }
 
 
-Console::CommandList::CommandList(Console& console, const std::vector<Command>& commands)
+Console::CommandList::CommandList(Console* console, const std::vector<Command>& commands) noexcept
     : _console(console)
     , _commands(commands)
 {
+    if(!_console) {
+        return;
+    }
     for(const auto& command : _commands) {
-        _console.RegisterCommand(command);
+        _console->RegisterCommand(command);
     }
 }
 
-Console::CommandList::~CommandList() {
+Console::CommandList::~CommandList() noexcept {
+    if(!_console) {
+        return;
+    }
     for(const auto& command : _commands) {
-        _console.UnregisterCommand(command.command_name);
+        _console->UnregisterCommand(command.command_name);
     }
 }
 
@@ -1009,9 +1015,8 @@ void Console::CommandList::RemoveCommand(const std::string& name) {
     _commands.erase(std::remove_if(std::begin(_commands), std::end(_commands), [&name](const Console::Command& command) { return name == command.command_name; }), std::end(_commands));
 }
 
-void Console::CommandList::RemoveAllCommands() {
+void Console::CommandList::RemoveAllCommands() noexcept {
     _commands.clear();
-    _commands.shrink_to_fit();
 }
 
 const std::vector<Console::Command>& Console::CommandList::GetCommands() const noexcept {

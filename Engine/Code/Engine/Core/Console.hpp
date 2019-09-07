@@ -26,15 +26,15 @@ public:
     };
     class CommandList {
     public:
-        explicit CommandList(Console& console);
-        CommandList(Console& console, const std::vector<Command>& commands);
-        ~CommandList();
+        explicit CommandList(Console* console = nullptr) noexcept;
+        CommandList(Console* console, const std::vector<Command>& commands) noexcept;
+        ~CommandList() noexcept;
         void AddCommand(const Command& command);
         void RemoveCommand(const std::string& name);
-        void RemoveAllCommands();
+        void RemoveAllCommands() noexcept;
         const std::vector<Command>& GetCommands() const noexcept;
     private:
-        Console& _console;
+        Console* _console = nullptr;
         std::vector<Command> _commands{};
     };
     Console() = delete;

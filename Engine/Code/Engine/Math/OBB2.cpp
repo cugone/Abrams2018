@@ -3,6 +3,11 @@
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Matrix4.hpp"
 
+#include "Engine/Math/AABB2.hpp"
+
+const OBB2 OBB2::ZERO_TO_ONE = OBB2(Vector2(0.5f, 0.5f), Vector2(0.5f, 0.5f), 0.0f);
+const OBB2 OBB2::NEG_ONE_TO_ONE = OBB2(Vector2::ZERO, Vector2::ONE, 0.0f);
+
 OBB2::OBB2(const Vector2& center, const Vector2& halfExtents, float orientationDegrees) noexcept
     : half_extents(halfExtents)
     , position(center)
@@ -29,6 +34,15 @@ OBB2::OBB2(const Vector2& initialPosition, float initialOrientationDegrees) noex
 OBB2::OBB2(float initialX, float initialY, float initialOrientationDegrees) noexcept
     : position(initialX, initialY)
     , orientationDegrees(initialOrientationDegrees)
+{
+    /* DO NOTHING */
+}
+
+
+OBB2::OBB2(const AABB2& aabb) noexcept
+    : half_extents(aabb.CalcDimensions() * 0.5f)
+    , position(aabb.CalcCenter())
+    , orientationDegrees(0.0f)
 {
     /* DO NOTHING */
 }

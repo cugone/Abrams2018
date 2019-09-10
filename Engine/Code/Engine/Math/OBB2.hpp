@@ -2,12 +2,17 @@
 
 #include "Engine/Math/Vector2.hpp"
 
+class AABB2;
+
 class OBB2 {
 public:
 
     Vector2 half_extents{};
     Vector2 position{};
     float orientationDegrees = 0.0f;
+
+    static const OBB2 ZERO_TO_ONE;
+    static const OBB2 NEG_ONE_TO_ONE;
 
     OBB2() = default;
     OBB2(const OBB2& other) = default;
@@ -18,6 +23,7 @@ public:
     OBB2(float initialX, float initialY, float initialOrientationDegrees) noexcept;
     OBB2(const Vector2& center, const Vector2& halfExtents, float orientationDegrees) noexcept;
     OBB2(const Vector2& center, float halfExtentX, float halfExtentY, float orientationDegrees) noexcept;
+    OBB2(const AABB2& aabb) noexcept;
     ~OBB2() = default;
 
     void SetOrientationDegrees(float newOrientationDegrees) noexcept;

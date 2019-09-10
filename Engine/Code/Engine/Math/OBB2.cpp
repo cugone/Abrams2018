@@ -108,7 +108,7 @@ Vector2 OBB2::GetRight() const noexcept {
 
 Vector2 OBB2::GetUp() const noexcept {
     auto up = GetRight();
-    up.Rotate90Degrees();
+    up.RotateNegative90Degrees();
     return up;
 }
 

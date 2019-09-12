@@ -732,66 +732,73 @@ bool DoAABBsOverlap(const AABB3& a, const AABB3& b) noexcept {
 }
 
 bool DoOBBsOverlap(const OBB2& a, const OBB2& b) noexcept {
-    std::vector<Vector2> a_normals{};
-    a_normals.reserve(4);
-    a_normals.push_back(a.GetLeft());
-    a_normals.push_back(a.GetUp());
-    a_normals.push_back(a.GetRight());
-    a_normals.push_back(a.GetDown());
+    //Separating Axis Theorem
+    const auto Ra = Matrix4::Create2DRotationDegreesMatrix(a.orientationDegrees);
+    const auto a_topright = Ra.TransformPosition(a.position + Vector2(+a.half_extents.x,-a.half_extents.y));
+    const auto a_bottomright = Ra.TransformPosition(a.position + Vector2(+a.half_extents.x,+a.half_extents.y));
+    const auto a_topleft = Ra.TransformPosition(a.position + Vector2(-a.half_extents.x,-a.half_extents.y));
+    const auto a_bottomleft = Ra.TransformPosition(a.position + Vector2(-a.half_extents.x,+a.half_extents.y));
+    const auto a_right_normal = Ra.TransformDirection(Vector2(a.half_extents.x, 0.0f).GetNormalize());
+    const auto a_down_normal = Ra.TransformDirection(Vector2(0.0f, a.half_extents.y).GetNormalize());
+    const auto a_left_normal = -a_right_normal;
+    const auto a_up_normal = -a_down_normal;
 
-	const auto a_mat_R = Matrix4::Create2DRotationDegreesMatrix(a.orientationDegrees);
-    const auto a_mat_T = Matrix4::CreateTranslationMatrix(a.position);
-    const auto a_model = a_mat_T * a_mat_R;
-    
-    std::vector<Vector2> a_verts{};
-    a_verts.reserve(4);
-    a_verts.push_back(a_model * a_model.TransformPosition(Vector2(-a.half_extents.x, +a.half_extents.y)));
-    a_verts.push_back(a_model * a_model.TransformPosition(Vector2(-a.half_extents.x, -a.half_extents.y)));
-    a_verts.push_back(a_model * a_model.TransformPosition(Vector2(+a.half_extents.x, -a.half_extents.y)));
-    a_verts.push_back(a_model * a_model.TransformPosition(Vector2(+a.half_extents.x, +a.half_extents.y)));
+    const auto Rb = Matrix4::Create2DRotationDegreesMatrix(b.orientationDegrees);
+    const auto b_topright = Rb.TransformPosition(b.position + Vector2(+b.half_extents.x, -b.half_extents.y));
+    const auto b_bottomright = Rb.TransformPosition(b.position + Vector2(+b.half_extents.x, +b.half_extents.y));
+    const auto b_topleft = Rb.TransformPosition(b.position + Vector2(-b.half_extents.x, -b.half_extents.y));
+    const auto b_bottomleft = Rb.TransformPosition(b.position + Vector2(-b.half_extents.x, +b.half_extents.y));
+    const auto b_right_normal = Rb.TransformDirection(Vector2(b.half_extents.x, 0.0f).GetNormalize());
+    const auto b_down_normal = Rb.TransformDirection(Vector2(0.0f, b.half_extents.y).GetNormalize());
+    const auto b_left_normal = -b_right_normal;
+    const auto b_up_normal = -b_down_normal;
 
-    std::vector<Vector2> b_normals{};
-    b_normals.reserve(4);
-    b_normals.push_back(b.GetLeft());
-    b_normals.push_back(b.GetUp());
-    b_normals.push_back(b.GetRight());
-    b_normals.push_back(b.GetDown());
+    const std::vector<Vector2> a_normals{ a_right_normal, a_down_normal };// , a_left_normal, a_down_normal};
+    const std::vector<Vector2> a_corners{ a_topright, a_topleft, a_bottomleft, a_bottomright};
+    const std::vector<Vector2> b_normals{ b_right_normal, b_down_normal };// , b_left_normal, b_down_normal};
+    const std::vector<Vector2> b_corners{ b_topright, b_topleft, b_bottomleft, b_bottomright};
 
-    const auto b_mat_R = Matrix4::Create2DRotationDegreesMatrix(b.orientationDegrees);
-    const auto b_mat_T = Matrix4::CreateTranslationMatrix(b.position);
-    const auto b_model   = b_mat_T * b_mat_R;
-
-    std::vector<Vector2> b_verts{};
-    b_verts.reserve(4);
-    b_verts.push_back(b_model * b_model.TransformPosition(Vector2(-b.half_extents.x, +b.half_extents.y)));
-    b_verts.push_back(b_model * b_model.TransformPosition(Vector2(-b.half_extents.x, -b.half_extents.y)));
-    b_verts.push_back(b_model * b_model.TransformPosition(Vector2(+b.half_extents.x, -b.half_extents.y)));
-    b_verts.push_back(b_model * b_model.TransformPosition(Vector2(+b.half_extents.x, +b.half_extents.y)));
-
-    for (const auto& an : a_normals) {
-        for (const auto& av : a_verts) {
-            float a_min = std::numeric_limits<float>::infinity();
-            float a_max = -std::numeric_limits<float>::infinity();
-            auto a_dp = MathUtils::DotProduct(av, an);
-            a_min = (std::min)(a_min, a_dp);
-            a_max = (std::max)(a_max, a_dp);
-
-            float b_min = std::numeric_limits<float>::infinity();
-            float b_max = -std::numeric_limits<float>::infinity();
-            for (const auto& bn : b_normals) {
-                for (const auto& bv : b_verts) {
-                    auto b_dp = MathUtils::DotProduct(bv, bn);
-                    b_min = (std::min)(b_min, b_dp);
-                    b_max = (std::max)(b_max, b_dp);
-                }
-            }
-
-            if (!(a_max < b_min && b_max < a_min)) {
-                return false;
-            }
+    for(const auto& an : a_normals) {
+        auto min_a = std::numeric_limits<float>::infinity();
+        auto max_a = std::numeric_limits<float>::lowest();
+        for(const auto& ae : a_corners) {
+            const auto proj_dp = DotProduct(ae, an);
+            min_a = (std::min)(min_a, proj_dp);
+            max_a = (std::max)(max_a, proj_dp);
         }
+
+        auto min_b = std::numeric_limits<float>::infinity();
+        auto max_b = std::numeric_limits<float>::lowest();
+        for(const auto& be : b_corners) {
+            const auto proj_dp = DotProduct(be, an);
+            min_b = (std::min)(min_b, proj_dp);
+            max_b = (std::max)(max_b, proj_dp);
+        }
+
+        if(max_a < min_b) return false;
+        if(max_b < min_a) return false;
     }
-	return true;
+    for(const auto& bn : b_normals) {
+        auto min_b = std::numeric_limits<float>::infinity();
+        auto max_b = std::numeric_limits<float>::lowest();
+        for(const auto& be : b_corners) {
+            const auto proj_dp = DotProduct(be, bn);
+            min_b = (std::min)(min_b, proj_dp);
+            max_b = (std::max)(max_b, proj_dp);
+        }
+
+        auto min_a = std::numeric_limits<float>::infinity();
+        auto max_a = std::numeric_limits<float>::lowest();
+        for(const auto& ae : a_corners) {
+            const auto proj_dp = DotProduct(ae, bn);
+            min_a = (std::min)(min_a, proj_dp);
+            max_a = (std::max)(max_a, proj_dp);
+        }
+
+        if(max_b < min_a) return false;
+        if(max_a < min_b) return false;
+    }
+    return true;
 }
 
 bool DoLineSegmentOverlap(const Disc2& a, const LineSegment2& b) noexcept {

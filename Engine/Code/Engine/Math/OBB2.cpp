@@ -5,9 +5,6 @@
 
 #include "Engine/Math/AABB2.hpp"
 
-const OBB2 OBB2::ZERO_TO_ONE = OBB2(Vector2(0.5f, 0.5f), Vector2(0.5f, 0.5f), 0.0f);
-const OBB2 OBB2::NEG_ONE_TO_ONE = OBB2(Vector2::ZERO, Vector2::ONE, 0.0f);
-
 OBB2::OBB2(const Vector2& center, const Vector2& halfExtents, float orientationDegrees) noexcept
     : half_extents(halfExtents)
     , position(center)
@@ -47,8 +44,10 @@ OBB2::OBB2(const AABB2& aabb) noexcept
     /* DO NOTHING */
 }
 
+
 void OBB2::SetOrientationDegrees(float newOrientationDegrees) noexcept {
     orientationDegrees = newOrientationDegrees;
+    orientationDegrees = MathUtils::Wrap(orientationDegrees, 0.0f, 360.0f);
 }
 
 void OBB2::SetOrientation(float newOrientationRadians) noexcept {
@@ -118,6 +117,46 @@ Vector2 OBB2::GetLeft() const noexcept {
 
 Vector2 OBB2::GetDown() const noexcept {
     return -GetUp();
+}
+
+
+Vector2 OBB2::GetRightEdge() const noexcept {
+    return GetTopRight() - GetBottomRight();
+}
+
+
+Vector2 OBB2::GetTopEdge() const noexcept {
+    return GetTopLeft() - GetTopRight();
+}
+
+
+Vector2 OBB2::GetLeftEdge() const noexcept {
+    return GetBottomLeft() - GetTopLeft();
+}
+
+
+Vector2 OBB2::GetBottomEdge() const noexcept {
+    return GetBottomRight() - GetBottomLeft();
+}
+
+
+Vector2 OBB2::GetBottomLeft() const noexcept {
+    return Vector2{-half_extents.x, +half_extents.y};
+}
+
+
+Vector2 OBB2::GetTopLeft() const noexcept {
+    return Vector2{ -half_extents.x, -half_extents.y };
+}
+
+
+Vector2 OBB2::GetTopRight() const noexcept {
+    return Vector2{ +half_extents.x, -half_extents.y };
+}
+
+
+Vector2 OBB2::GetBottomRight() const noexcept {
+    return Vector2{ +half_extents.x, +half_extents.y };
 }
 
 Vector2 OBB2::CalcDimensions() const noexcept {

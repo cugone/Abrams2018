@@ -11,9 +11,6 @@ public:
     Vector2 position{};
     float orientationDegrees = 0.0f;
 
-    static const OBB2 ZERO_TO_ONE;
-    static const OBB2 NEG_ONE_TO_ONE;
-
     OBB2() = default;
     OBB2(const OBB2& other) = default;
     OBB2(OBB2&& other) = default;
@@ -33,6 +30,7 @@ public:
     void StretchToIncludePoint(const Vector2& point) noexcept;
     void AddPaddingToSides(float paddingX, float paddingY) noexcept;
     void AddPaddingToSides(const Vector2& padding) noexcept;
+
     void AddPaddingToSidesClamped(float paddingX, float paddingY) noexcept;
     void AddPaddingToSidesClamped(const Vector2& padding) noexcept;
     void Translate(const Vector2& translation) noexcept;
@@ -41,6 +39,16 @@ public:
     Vector2 GetUp() const noexcept;
     Vector2 GetLeft() const noexcept;
     Vector2 GetDown() const noexcept;
+
+    Vector2 GetRightEdge() const noexcept;
+    Vector2 GetTopEdge() const noexcept;
+    Vector2 GetLeftEdge() const noexcept;
+    Vector2 GetBottomEdge() const noexcept;
+
+    Vector2 GetBottomLeft() const noexcept;
+    Vector2 GetTopLeft() const noexcept;
+    Vector2 GetTopRight() const noexcept;
+    Vector2 GetBottomRight() const noexcept;
 
     Vector2 CalcDimensions() const noexcept;
     Vector2 CalcCenter() const noexcept;

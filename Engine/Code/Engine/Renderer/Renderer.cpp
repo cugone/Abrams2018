@@ -1006,15 +1006,10 @@ void Renderer::DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor) noexcept 
 }
 
 void Renderer::DrawOBB2(const OBB2& obb, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents /*= Vector2::ZERO*/) noexcept {
-    const auto left = obb.position + obb.half_extents.x * obb.GetLeft();
-    const auto right = obb.position + obb.half_extents.x * obb.GetRight();
-    const auto up = obb.position + obb.half_extents.y * obb.GetUp();
-    const auto down = obb.position + obb.half_extents.y * obb.GetDown();
-
-    Vector2 lt(left + obb.half_extents.y * obb.GetUp());
-    Vector2 lb(left + obb.half_extents.y * obb.GetDown());
-    Vector2 rt(right + obb.half_extents.y * obb.GetUp());
-    Vector2 rb(right + obb.half_extents.y * obb.GetDown());
+    Vector2 lt = obb.GetTopLeft();
+    Vector2 lb = obb.GetBottomLeft();
+    Vector2 rt = obb.GetTopRight();
+    Vector2 rb = obb.GetBottomRight();
     Vector2 lt_inner(lt);
     Vector2 lb_inner(lb);
     Vector2 rt_inner(rt);
@@ -1060,7 +1055,7 @@ void Renderer::DrawOBB2(const OBB2& obb, const Rgba& edgeColor, const Rgba& fill
 void Renderer::DrawOBB2(float orientationDegrees, const Rgba& edgeColor, const Rgba& fillColor) noexcept {
     OBB2 obb;
     obb.half_extents = Vector2(0.5f, 0.5f);
-    obb.SetOrientationDegrees(orientationDegrees);
+    obb.orientationDegrees = orientationDegrees;
     auto edge_half_extents = Vector2::ZERO;
     DrawOBB2(obb, edgeColor, fillColor, edge_half_extents);
 }

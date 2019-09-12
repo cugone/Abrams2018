@@ -247,6 +247,20 @@ Vector2 Vector2::GetNormalize() const noexcept {
     return Vector2::ZERO;
 }
 
+
+Vector2 Vector2::GetLeftHandNormal() noexcept {
+    Vector2 result = *this;
+    result.RotateNegative90Degrees();
+    return result;
+}
+
+
+Vector2 Vector2::GetRightHandNormal() noexcept {
+    Vector2 result = *this;
+    result.Rotate90Degrees();
+    return result;
+}
+
 void Vector2::Rotate90Degrees() noexcept {
     SetXY(-y, x);
 }
